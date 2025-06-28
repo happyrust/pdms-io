@@ -8,6 +8,7 @@ edition = "2021"
 [features]
 default = [] #
 debug_parse = []
+debug_btree_search = []  # 启用B+树搜索调试输出
 
 [dependencies]
 anyhow = "1.0"

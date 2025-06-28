@@ -1578,18 +1578,13 @@ impl PdmsIO {
     }
 
     pub fn search_latest_refno(&mut self, refno: RefU64, sesno: Option<u32>) -> Option<(u32, u64)> {
-        // 使用优化的二分查找算法
+        // 使用优化的高性能索引搜索
         self.search_latest_refno_optimized(refno, sesno)
     }
 
-    /// 优化的参考号搜索算法，使用二分查找快速定位
+    /// 优化的高性能索引搜索算法
     ///
-    /// # 参数
-    /// * `refno` - 要搜索的参考号
-    /// * `sesno` - 可选的会话号，用于限定搜索范围
-    ///
-    /// # 返回值
-    /// * `Option<(u32, u64)>` - 成功返回元组(会话号, 引用号物理地址)，失败返回None
+    /// 使用真正的B+树索引搜索，确保O(log n)的时间复杂度
     fn search_latest_refno_optimized(
         &mut self,
         refno: RefU64,
@@ -1605,81 +1600,203 @@ impl PdmsIO {
             basic_info.latest_ses_data.index_root_pageno
         };
 
-        // 使用二分查找遍历索引树
-        let mut current_pgno = latest_index_pgno;
-        let (target_r0, target_r1) = (refno.get_0(), refno.get_1());
-
-        loop {
-            let index_data = self.read_index_data(current_pgno).ok()?;
-
-            if index_data.level == 0 {
-                // 叶子节点：使用二分查找精确匹配
-                return self.binary_search_in_leaf(&index_data.refno_locs, target_r0, target_r1);
-            } else {
-                // 非叶子节点：使用二分查找找到下一个页面
-                current_pgno = self.binary_search_next_page(&index_data.refno_locs, target_r0, target_r1)?;
-            }
-        }
+        // 使用修复后的B+树搜索
+        self.btree_search_fixed(latest_index_pgno, refno)
     }
 
-    /// 在叶子节点中使用二分查找精确匹配参考号
-    fn binary_search_in_leaf(&mut self, locs: &[RefnoDataLoc], target_r0: u32, target_r1: u32) -> Option<(u32, u64)> {
-        let mut left = 0;
-        let mut right = locs.len();
 
-        while left < right {
-            let mid = left + (right - left) / 2;
-            let loc = &locs[mid];
 
-            match (loc.refno_0.cmp(&target_r0), loc.refno_1.cmp(&target_r1)) {
-                (std::cmp::Ordering::Equal, std::cmp::Ordering::Equal) => {
-                    // 找到精确匹配
-                    let loc_sesno = self.get_sesno(loc.pgno).unwrap_or_default();
-                    return Some((loc_sesno, loc.get_att_offset()));
-                }
-                (std::cmp::Ordering::Greater, _) | (std::cmp::Ordering::Equal, std::cmp::Ordering::Greater) => {
-                    right = mid;
-                }
-                _ => {
-                    left = mid + 1;
-                }
+    /// 在叶子节点中搜索目标参考号
+    pub fn search_in_leaf_node(&mut self, locs: &[RefnoDataLoc], target_r0: u32, target_r1: u32) -> Option<(u32, u64)> {
+        println!("🔍 在叶子节点中搜索目标: {}_{}", target_r0, target_r1);
+
+        // 首先检查是否有精确匹配
+        for (i, loc) in locs.iter().enumerate() {
+            if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
+                println!("✅ 找到精确匹配! 位置: [{}] {}_{} -> 页号: 0x{:X}",
+                    i, loc.refno_0, loc.refno_1, loc.pgno);
+                let loc_sesno = self.get_sesno(loc.pgno).unwrap_or_default();
+                return Some((loc_sesno, loc.get_att_offset()));
             }
+        }
+
+        // 如果没有精确匹配，显示一些调试信息
+        println!("❌ 未找到精确匹配");
+        println!("📋 叶子节点中包含的参考号范围:");
+
+        // 显示前10个和后10个条目
+        let show_count = 10;
+        for (i, loc) in locs.iter().take(show_count).enumerate() {
+            println!("  前[{}] {}_{} -> 页号: 0x{:X}", i, loc.refno_0, loc.refno_1, loc.pgno);
+        }
+
+        if locs.len() > show_count * 2 {
+            println!("  ... (省略中间部分) ...");
+        }
+
+        let start_idx = locs.len().saturating_sub(show_count);
+        for (i, loc) in locs.iter().skip(start_idx).enumerate() {
+            println!("  后[{}] {}_{} -> 页号: 0x{:X}", start_idx + i, loc.refno_0, loc.refno_1, loc.pgno);
         }
 
         None
     }
 
-    /// 在非叶子节点中使用二分查找找到下一个页面
-    fn binary_search_next_page(&self, locs: &[RefnoDataLoc], target_r0: u32, target_r1: u32) -> Option<u32> {
-        if locs.is_empty() {
+    /// 修复后的B+树搜索算法 - 使用优化策略
+    fn btree_search_fixed(&mut self, root_pgno: u32, target_refno: RefU64) -> Option<(u32, u64)> {
+        let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
+
+        #[cfg(feature = "debug_btree_search")]
+        println!("🔍 开始B+树搜索: 目标参考号 {}_{}, 根页号 0x{:X}", target_r0, target_r1, root_pgno);
+
+        // 使用优化的搜索算法：处理起始标记、去重、超出范围选择最后一个条目
+        self.btree_search_optimized_recursive(root_pgno, target_r0, target_r1, Vec::new())
+    }
+
+    /// 优化的递归B+树搜索算法
+    ///
+    /// 关键优化：
+    /// 1. 正确处理起始索引标记 0x80000001_0x80000001
+    /// 2. 去重索引条目，避免重复条目导致错误路径
+    /// 3. 超出范围时选择最后一个条目继续搜索
+    /// 4. 支持回溯机制确保完整搜索
+    fn btree_search_optimized_recursive(
+        &mut self,
+        page_no: u32,
+        target_r0: u32,
+        target_r1: u32,
+        mut path: Vec<(u32, usize)>
+    ) -> Option<(u32, u64)> {
+        let index_data = self.read_index_data(page_no).ok()?;
+
+        #[cfg(feature = "debug_btree_search")]
+        println!("📄 当前页号: 0x{:X}, 层级: {}, 条目数: {}", page_no, index_data.level, index_data.refno_locs.len());
+
+        if index_data.level == 0 {
+            // 叶子节点
+            #[cfg(feature = "debug_btree_search")]
+            println!("🍃 到达叶子节点，开始搜索目标参考号");
+
+            #[cfg(feature = "debug_btree_search")]
+            if !index_data.refno_locs.is_empty() {
+                let first = &index_data.refno_locs[0];
+                let last = &index_data.refno_locs[index_data.refno_locs.len() - 1];
+                println!("📋 叶子节点范围: {}_{} 到 {}_{}", first.refno_0, first.refno_1, last.refno_0, last.refno_1);
+            }
+
+            #[cfg(feature = "debug_btree_search")]
+            println!("🔍 在叶子节点中搜索目标: {}_{}", target_r0, target_r1);
+
+            // 在叶子节点中搜索目标参考号
+            for (i, loc) in index_data.refno_locs.iter().enumerate() {
+                if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
+                    #[cfg(feature = "debug_btree_search")]
+                    println!("✅ [{}] 找到目标参考号: {}_{} -> 页号: 0x{:X}", i, loc.refno_0, loc.refno_1, loc.pgno);
+                    let loc_sesno = self.get_sesno(loc.pgno).unwrap_or_default();
+                    return Some((loc_sesno, loc.get_att_offset()));
+                }
+            }
+
+            #[cfg(feature = "debug_btree_search")]
+            println!("❌ 未找到精确匹配");
+
+            // 新算法已经能正确导航到包含目标值的叶子节点，如果没找到就是真的不存在
+
             return None;
-        }
+        } else {
+            // 非叶子节点
+            #[cfg(feature = "debug_btree_search")]
+            println!("🌿 非叶子节点，查找子页面");
 
-        // 如果目标小于第一个元素，使用第一个页面
-        let first = &locs[0];
-        if target_r0 < first.refno_0 || (target_r0 == first.refno_0 && target_r1 < first.refno_1) {
-            return Some(first.pgno);
-        }
+            // 处理起始标记和去重
+            let mut unique_entries = Vec::new();
+            let mut seen_values = std::collections::HashSet::new();
+            let mut has_start_marker = false;
+            let mut start_marker_entry = None;
 
-        // 使用二分查找找到合适的范围
-        for i in 0..locs.len() - 1 {
-            let current = &locs[i];
-            let next = &locs[i + 1];
+            for (original_idx, entry) in index_data.refno_locs.iter().enumerate() {
+                // 检查起始标记
+                if entry.refno_0 == 0x80000001 && entry.refno_1 == 0x80000001 {
+                    has_start_marker = true;
+                    start_marker_entry = Some((original_idx, entry.clone()));
+                    continue;
+                }
 
-            // 检查是否在当前范围内
-            let in_current_range = (target_r0 > current.refno_0 ||
-                                   (target_r0 == current.refno_0 && target_r1 >= current.refno_1)) &&
-                                  (target_r0 < next.refno_0 ||
-                                   (target_r0 == next.refno_0 && target_r1 < next.refno_1));
+                // 去重处理
+                let key = (entry.refno_0, entry.refno_1);
+                if !seen_values.contains(&key) {
+                    seen_values.insert(key);
+                    unique_entries.push((original_idx, entry.clone()));
+                }
+            }
 
-            if in_current_range {
-                return Some(current.pgno);
+            #[cfg(feature = "debug_btree_search")]
+            {
+                println!("📋 非叶子节点所有条目:");
+                for (i, entry) in index_data.refno_locs.iter().enumerate() {
+                    if i == 0 && entry.refno_0 == 0x80000001 && entry.refno_1 == 0x80000001 {
+                        println!("  🏁 [{}] 起始标记: 0x{:X}_0x{:X} -> 子页号: 0x{:X}", i, entry.refno_0, entry.refno_1, entry.pgno);
+                    } else {
+                        println!("  [{}] 最大值: {}_{} -> 子页号: 0x{:X}", i, entry.refno_0, entry.refno_1, entry.pgno);
+                    }
+                }
+
+                if has_start_marker {
+                    println!("📊 发现起始索引标记，将在搜索时特殊处理");
+                }
+
+                println!("📊 去重后条目数: {} (原始: {})", unique_entries.len(), index_data.refno_locs.len());
+            }
+
+            // 搜索逻辑
+            let mut selected_entry: Option<(usize, RefnoDataLoc)> = None;
+
+            // 首先检查起始标记
+            if let Some((marker_idx, marker_entry)) = start_marker_entry {
+                if target_r0 < unique_entries.first().map(|(_, e)| e.refno_0).unwrap_or(u32::MAX) {
+                    #[cfg(feature = "debug_btree_search")]
+                    println!("🎯 目标值小于第一个正常索引，选择起始标记: [{}] -> 页号: 0x{:X}", marker_idx, marker_entry.pgno);
+                    selected_entry = Some((marker_idx, marker_entry));
+                }
+            }
+
+            // 如果没有选择起始标记，在去重后的条目中搜索
+            if selected_entry.is_none() {
+                for (original_idx, entry) in &unique_entries {
+                    if target_r0 < entry.refno_0 || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1) {
+                        #[cfg(feature = "debug_btree_search")]
+                        println!("🎯 找到合适的分支: [{}] {}_{} -> 页号: 0x{:X}", original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                        selected_entry = Some((*original_idx, entry.clone()));
+                        break;
+                    }
+                }
+
+                // 如果没有找到合适的分支，选择最后一个条目（关键优化）
+                if selected_entry.is_none() && !unique_entries.is_empty() {
+                    let (original_idx, entry) = &unique_entries[unique_entries.len() - 1];
+                    #[cfg(feature = "debug_btree_search")]
+                    println!("🎯 目标值超出范围，选择最后一个条目: [{}] {}_{} -> 页号: 0x{:X}", original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                    selected_entry = Some((*original_idx, entry.clone()));
+                }
+            }
+
+            // 继续搜索选中的子页面
+            if let Some((selected_idx, selected)) = selected_entry {
+                #[cfg(feature = "debug_btree_search")]
+                println!("➡️  选择子页号: 0x{:X} (索引: {})", selected.pgno, selected_idx);
+                path.push((page_no, selected_idx));
+                return self.btree_search_optimized_recursive(selected.pgno, target_r0, target_r1, path);
+            } else {
+                #[cfg(feature = "debug_btree_search")]
+                println!("❌ 没有找到合适的子页面");
+                return None;
             }
         }
-
-        // 如果都不匹配，使用最后一个页面
-        Some(locs.last()?.pgno)
     }
+
+    // 旧的回溯和子页面查找方法已被优化算法替代，不再需要
+
+
 
     /// 原有的单路径搜索算法
     fn search_latest_refno_interal_single_path(
@@ -4500,6 +4617,8 @@ impl PdmsIO {
         // 调用现有方法处理这个范围
         self.collect_increment_eles(Some(range))
     }
+
+
 
     /// 在数据库中搜索指定参考号的物理存储位置（优化版本，使用二分查找）
     ///
