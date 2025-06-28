@@ -401,8 +401,8 @@ impl EleOperationData {
     }
 
     /// 检查是否为几何体变化
-    pub fn is_geometry_change(&self) -> bool {
-        self.detail.is_geometry_change()
+    pub fn is_geometry_update(&self) -> bool {
+        self.detail.is_geometry_update()
     }
 
     /// 检查是否为变换（位置旋转等）变化
@@ -520,7 +520,7 @@ impl EleOperationDetail {
     }
 
     //增加方法检查是否是几何体的变化
-    pub fn is_geometry_change(&self) -> bool {
+    pub fn is_geometry_update(&self) -> bool {
         //if is none return false
         let noun_type = self.get_noun_type();
         let noun_type_str = noun_type.as_str();
@@ -582,19 +582,19 @@ impl std::fmt::Debug for EleOperationDetail {
             writeln!(f, "  存在坐标变换修改")?;
         }
 
-        let is_geometry_change = self.is_geometry_change();
+        let is_geometry_update = self.is_geometry_update();
         match self {
             Self::Add(ele) => {
                 writeln!(f, "EleOperationDetail::Add({:?})", ele.refno)?;
                 writeln!(f, "  类型: {}", ele.att_map().get_type())?;
-                if is_geometry_change {
+                if is_geometry_update {
                     writeln!(f, "  新增几何体")?;
                 }
                 Ok(())
             }
             Self::Deleted => {
                 writeln!(f, "EleOperationDetail::Deleted")?;
-                if is_geometry_change {
+                if is_geometry_update {
                     writeln!(f, "  删除几何体")?;
                 }
                 Ok(())
@@ -605,7 +605,7 @@ impl std::fmt::Debug for EleOperationDetail {
                 let mut has_changes = false;
                 // 打印类型
                 writeln!(f, "  类型: {}", ele.noun)?;
-                if is_geometry_change {
+                if is_geometry_update {
                     writeln!(f, "  几何体变化")?;
                 }
 
@@ -996,6 +996,7 @@ impl PdmsIO {
                     total_surql += 1;
                     if surql_batch.len() >= 100 {
                         let batch_sql = surql_batch.join(";\n");
+                        // println!("批量执行 SurrealQL: {}", &batch_sql);
                         if let Err(e) = SUL_DB.query(&batch_sql).await {
                             println!("批量执行 SurrealQL 错误: {}", e);
                         }
@@ -1007,7 +1008,7 @@ impl PdmsIO {
         // 处理剩余未满100条的
         if !surql_batch.is_empty() {
             let batch_sql = surql_batch.join(";\n");
-            // println!("批量执行 SurrealQL: {}", batch_sql);
+            // println!("批量执行 SurrealQL: {}", &batch_sql);
             if let Err(e) = SUL_DB.query(&batch_sql).await {
                 println!("批量执行 SurrealQL 错误: {}", e);
             }
@@ -1533,25 +1534,73 @@ impl PdmsIO {
         refno: RefU64,
         sesno: Option<u32>,
     ) -> [Option<(u32, u64)>; 2] {
+        // 添加调试信息 - 检查是否是目标参考号
+        let is_target_debug = refno.get_0() == 24383 && refno.get_1() == 101192;
+        if is_target_debug {
+            println!("🔍 [DEBUG-MAIN] === 开始搜索最新和前一个版本 ===");
+            println!("🔍 [DEBUG-MAIN] 目标参考号: {}", refno);
+            println!("🔍 [DEBUG-MAIN] 指定会话号: {:?}", sesno);
+        }
+
         //dbg!(sesno);
         if let Some(current_data) = self.search_latest_refno(refno, sesno) {
+            if is_target_debug {
+                println!("🔍 [DEBUG-MAIN] ✓ 找到当前版本: 会话号={}, 偏移量={:#X}", current_data.0, current_data.1);
+            }
             // dbg!(current_data);
             if current_data.0 == 0 {
+                if is_target_debug {
+                    println!("🔍 [DEBUG-MAIN] ❌ 会话号为0，返回空结果");
+                }
                 return [None, None];
             }
 
             let prev_data = self
                 .get_nearest_less_sesno(current_data.0 as i32)
-                .and_then(|prev_sesno| self.search_latest_refno(refno, Some(prev_sesno as u32)));
+                .and_then(|prev_sesno| {
+                    if is_target_debug {
+                        println!("🔍 [DEBUG-MAIN] 搜索前一个会话号: {}", prev_sesno);
+                    }
+                    self.search_latest_refno(refno, Some(prev_sesno as u32))
+                });
+
+            if is_target_debug {
+                println!("🔍 [DEBUG-MAIN] 前一个版本搜索结果: {:?}", prev_data);
+                println!("🔍 [DEBUG-MAIN] 最终返回: [当前版本: {:?}, 前一个版本: {:?}]", Some(current_data), prev_data);
+            }
             return [Some(current_data), prev_data];
+        }
+
+        if is_target_debug {
+            println!("🔍 [DEBUG-MAIN] ❌ 未找到当前版本，返回 [None, None]");
         }
         [None, None]
     }
 
     pub fn search_latest_refno(&mut self, refno: RefU64, sesno: Option<u32>) -> Option<(u32, u64)> {
-        let res = self
-            .search_latest_refno_interal(refno, sesno, true)
-            .or(self.search_latest_refno_interal(refno, sesno, false));
+        // 添加调试信息 - 检查是否是目标参考号
+        let is_target_debug = refno.get_0() == 24383 && refno.get_1() == 101192;
+        if is_target_debug {
+            println!("🔍 [DEBUG] 开始搜索目标参考号: {}", refno);
+            println!("🔍 [DEBUG] 搜索参数 - sesno: {:?}", sesno);
+        }
+
+        let res1 = self.search_latest_refno_interal(refno, sesno, true);
+        if is_target_debug {
+            println!("🔍 [DEBUG] 第一次搜索结果 (scan_cache=true): {:?}", res1);
+        }
+
+        let res = res1.or_else(|| {
+            let res2 = self.search_latest_refno_interal(refno, sesno, false);
+            if is_target_debug {
+                println!("🔍 [DEBUG] 第二次搜索结果 (scan_cache=false): {:?}", res2);
+            }
+            res2
+        });
+
+        if is_target_debug {
+            println!("🔍 [DEBUG] 最终搜索结果: {:?}", res);
+        }
 
         res
     }
@@ -1573,6 +1622,33 @@ impl PdmsIO {
         sesno: Option<u32>,
         scan_cache: bool,
     ) -> Option<(u32, u64)> {
+        // 首先尝试原有的搜索算法
+        if let Some(result) = self.search_latest_refno_interal_single_path(refno, sesno, scan_cache) {
+            return Some(result);
+        }
+
+        // 如果原有算法失败，且不是扫描缓存模式，尝试扩展搜索
+        if !scan_cache {
+            return self.search_latest_refno_interal_extended(refno, sesno);
+        }
+
+        None
+    }
+
+    /// 原有的单路径搜索算法
+    fn search_latest_refno_interal_single_path(
+        &mut self,
+        refno: RefU64,
+        sesno: Option<u32>,
+        scan_cache: bool,
+    ) -> Option<(u32, u64)> {
+        // 添加调试信息 - 检查是否是目标参考号
+        let is_target_debug = refno.get_0() == 24383 && refno.get_1() == 101192;
+        if is_target_debug {
+            println!("🔍 [DEBUG-INTERNAL] 内部搜索开始");
+            println!("🔍 [DEBUG-INTERNAL] 参数 - refno: {}, sesno: {:?}, scan_cache: {}", refno, sesno, scan_cache);
+        }
+
         // dbg!(sesno);
         // 根据sesno参数决定使用哪个会话的数据
         let latest_index_pgno = if let Some(target_sesno) = sesno {
@@ -1580,15 +1656,26 @@ impl PdmsIO {
             // 找到指定会话号对应的页号
             let ses_pgno = match self.sesno_pgno_map.get(&(target_sesno as i32)) {
                 Some(&pgno) => pgno,
-                None => return None,
+                None => {
+                    if is_target_debug {
+                        println!("🔍 [DEBUG-INTERNAL] 找不到指定会话号 {} 对应的页号", target_sesno);
+                    }
+                    return None;
+                }
             };
             // 读取该会话的数据
             let ses_data = self.read_ses_data(ses_pgno).ok()?;
+            if is_target_debug {
+                println!("🔍 [DEBUG-INTERNAL] 使用指定会话的索引根页号: {:#X}", ses_data.index_root_pageno);
+            }
             ses_data.index_root_pageno
         } else {
             let basic_info = self.get_page_basic_info().ok()?;
             // dbg!(basic_info.latest_ses_data.sesno);
             // 使用最新的索引根页号
+            if is_target_debug {
+                println!("🔍 [DEBUG-INTERNAL] 使用最新会话的索引根页号: {:#X}", basic_info.latest_ses_data.index_root_pageno);
+            }
             basic_info.latest_ses_data.index_root_pageno
         };
 
@@ -1597,55 +1684,298 @@ impl PdmsIO {
         let mut index_data = self.read_index_data(latest_index_pgno).ok()?;
         let mut level = index_data.level as i32;
         let (r0, r1) = (refno.get_0(), refno.get_1());
+
+        if is_target_debug {
+            println!("🔍 [DEBUG-INTERNAL] 索引数据加载成功");
+            println!("🔍 [DEBUG-INTERNAL] 初始层级: {}", level);
+            println!("🔍 [DEBUG-INTERNAL] 目标参考号分解: r0={}, r1={}", r0, r1);
+            println!("🔍 [DEBUG-INTERNAL] 当前索引页参考号数量: {}", index_data.refno_locs.len());
+        }
         //refno_locs 必须是递增的，如果遇到小的值了，说明遇到删除的参考号了
         while level >= 0 {
+            if is_target_debug {
+                println!("🔍 [DEBUG-INTERNAL] === 搜索层级 {} ===", level);
+                println!("🔍 [DEBUG-INTERNAL] 当前层级参考号数量: {}", index_data.refno_locs.len());
+                if !index_data.refno_locs.is_empty() {
+                    let first = &index_data.refno_locs[0];
+                    let last = &index_data.refno_locs[index_data.refno_locs.len() - 1];
+                    println!("🔍 [DEBUG-INTERNAL] 参考号范围: {}_{} ~ {}_{}",
+                        first.refno_0, first.refno_1, last.refno_0, last.refno_1);
+                }
+            }
+
             let mut next_loc_index = if level == 0 {
-                index_data
+                // 叶子节点：直接查找精确匹配
+                let found_index = index_data
                     .refno_locs
                     .iter()
-                    .position(|x| x.refno_0 == r0 && x.refno_1 == r1)
+                    .position(|x| x.refno_0 == r0 && x.refno_1 == r1);
+
+                if is_target_debug {
+                    println!("🔍 [DEBUG-INTERNAL] 叶子节点精确搜索结果: {:?}", found_index);
+                    if found_index.is_none() {
+                        println!("🔍 [DEBUG-INTERNAL] 在叶子节点中未找到目标参考号");
+                        // 显示前几个和后几个参考号作为参考
+                        for (i, loc) in index_data.refno_locs.iter().take(5).enumerate() {
+                            println!("🔍 [DEBUG-INTERNAL] 叶子节点[{}]: {}_{}", i, loc.refno_0, loc.refno_1);
+                        }
+                        if index_data.refno_locs.len() > 10 {
+                            println!("🔍 [DEBUG-INTERNAL] ... (省略中间部分) ...");
+                            for (i, loc) in index_data.refno_locs.iter().rev().take(5).enumerate() {
+                                let real_index = index_data.refno_locs.len() - 1 - i;
+                                println!("🔍 [DEBUG-INTERNAL] 叶子节点[{}]: {}_{}", real_index, loc.refno_0, loc.refno_1);
+                            }
+                        }
+
+                        // 检查目标参考号是否大于当前范围的最大值
+                        if let Some(last_loc) = index_data.refno_locs.last() {
+                            let last_refno = RefU64::from_two_nums(last_loc.refno_0, last_loc.refno_1);
+                            if refno > last_refno {
+                                println!("🔍 [DEBUG-INTERNAL] 目标参考号 {} 大于当前叶子节点最大值 {}", refno, last_refno);
+                                println!("🔍 [DEBUG-INTERNAL] 需要搜索更大范围的节点");
+                            }
+                        }
+                    }
+                }
+                found_index
             } else {
-                index_data.refno_locs.windows(2).position(|x| {
+                // 非叶子节点：查找范围
+                let found_index = index_data.refno_locs.windows(2).position(|x| {
                     //如果是开头的起始页，需要单独处理
                     //应该是缓存页，优先去扫缓存的页面
                     if x[0].is_start_page() {
+                        if is_target_debug {
+                            println!("🔍 [DEBUG-INTERNAL] 遇到起始页，scan_cache={}", scan_cache);
+                        }
                         scan_cache
                     } else {
                         let x0 = RefU64::from_two_nums(x[0].refno_0, x[0].refno_1);
                         let x1 = RefU64::from_two_nums(x[1].refno_0, x[1].refno_1);
-                        // dbg!((x0, x1));
-                        (x1 > x0 && refno >= x0 && refno < x1) || (x1 < x0)
+                        let in_range = (x1 > x0 && refno >= x0 && refno < x1) || (x1 < x0);
+                        if is_target_debug {
+                            println!("🔍 [DEBUG-INTERNAL] 检查范围: {} <= {} < {} ? {}", x0, refno, x1, in_range);
+                        }
+                        in_range
                     }
-                })
+                });
+
+                if is_target_debug {
+                    println!("🔍 [DEBUG-INTERNAL] 非叶子节点范围搜索结果: {:?}", found_index);
+                }
+                found_index
             };
 
             if level == 0 && next_loc_index.is_some() {
                 let loc = &index_data.refno_locs[next_loc_index.unwrap()];
                 let loc_sesno = self.get_sesno(loc.pgno).unwrap_or_default();
-                // dbg!(loc.pgno);
+                if is_target_debug {
+                    println!("🔍 [DEBUG-INTERNAL] ✓ 在叶子节点找到目标参考号!");
+                    println!("🔍 [DEBUG-INTERNAL] 页号: {:#X}, 会话号: {}, 偏移量: {:#X}",
+                        loc.pgno, loc_sesno, loc.get_att_offset());
+                }
                 return Some((loc_sesno, loc.get_att_offset()));
             }
 
             if next_loc_index.is_none() && level > 0 && !index_data.refno_locs.is_empty() {
-                // 尝试找到第一个大于当前refno的位置
-                next_loc_index = Some(index_data.refno_locs.len() - 1);
+                // 检查目标参考号是否大于当前节点的最大范围
+                if let Some(last_loc) = index_data.refno_locs.last() {
+                    let last_refno = RefU64::from_two_nums(last_loc.refno_0, last_loc.refno_1);
+                    if refno > last_refno {
+                        if is_target_debug {
+                            println!("🔍 [DEBUG-INTERNAL] 目标参考号 {} 大于当前节点最大值 {}", refno, last_refno);
+                            println!("🔍 [DEBUG-INTERNAL] 在非叶子节点未找到精确范围，使用最后一个位置继续搜索");
+                        }
+                        next_loc_index = Some(index_data.refno_locs.len() - 1);
+                    } else {
+                        if is_target_debug {
+                            println!("🔍 [DEBUG-INTERNAL] 目标参考号 {} 在当前节点范围内但未找到匹配", refno);
+                        }
+                    }
+                } else {
+                    if is_target_debug {
+                        println!("🔍 [DEBUG-INTERNAL] 在非叶子节点未找到精确范围，使用最后一个位置");
+                    }
+                    next_loc_index = Some(index_data.refno_locs.len() - 1);
+                }
             }
 
             if next_loc_index.is_none() {
+                if is_target_debug {
+                    println!("🔍 [DEBUG-INTERNAL] ❌ 在当前节点无法找到下一个搜索位置");
+
+                    // 如果是叶子节点且目标参考号大于当前范围，尝试搜索下一个兄弟节点
+                    if level == 0 {
+                        if let Some(last_loc) = index_data.refno_locs.last() {
+                            let last_refno = RefU64::from_two_nums(last_loc.refno_0, last_loc.refno_1);
+                            if refno > last_refno {
+                                println!("🔍 [DEBUG-INTERNAL] 目标参考号大于叶子节点最大值，需要搜索下一个节点");
+                                println!("🔍 [DEBUG-INTERNAL] 但当前实现无法跨节点搜索，搜索结束");
+                            }
+                        }
+                    }
+                }
                 return None;
             }
 
             // 继续向下查找
             if level > 0 {
                 let next_pgno = index_data.refno_locs[next_loc_index.unwrap()].pgno;
+                if is_target_debug {
+                    println!("🔍 [DEBUG-INTERNAL] 继续向下搜索，下一页号: {:#X}", next_pgno);
+                }
                 index_data = self.read_index_data(next_pgno).ok()?;
                 level = index_data.level as i32;
+                if is_target_debug {
+                    println!("🔍 [DEBUG-INTERNAL] 加载下一层级数据，新层级: {}", level);
+                }
             } else {
                 break;
             }
         }
 
+        if is_target_debug {
+            println!("🔍 [DEBUG-INTERNAL] ❌ 搜索循环结束，未找到目标参考号");
+        }
         None
+    }
+
+    /// 扩展搜索算法 - 当单路径搜索失败时，尝试搜索相邻的节点
+    fn search_latest_refno_interal_extended(
+        &mut self,
+        refno: RefU64,
+        sesno: Option<u32>,
+    ) -> Option<(u32, u64)> {
+        let is_target_debug = refno.get_0() == 24383 && refno.get_1() == 101192;
+        if is_target_debug {
+            println!("🔍 [DEBUG-EXTENDED] === 开始扩展搜索 ===");
+            println!("🔍 [DEBUG-EXTENDED] 目标参考号: {}", refno);
+        }
+
+        // 获取索引根页号
+        let latest_index_pgno = if let Some(target_sesno) = sesno {
+            let ses_pgno = match self.sesno_pgno_map.get(&(target_sesno as i32)) {
+                Some(&pgno) => pgno,
+                None => return None,
+            };
+            let ses_data = self.read_ses_data(ses_pgno).ok()?;
+            ses_data.index_root_pageno
+        } else {
+            let basic_info = self.get_page_basic_info().ok()?;
+            basic_info.latest_ses_data.index_root_pageno
+        };
+
+        // 从根节点开始，收集所有叶子节点
+        let leaf_pages = self.collect_leaf_pages(latest_index_pgno, refno)?;
+
+        if is_target_debug {
+            println!("🔍 [DEBUG-EXTENDED] 收集到 {} 个可能的叶子页", leaf_pages.len());
+        }
+
+        // 在所有叶子页中搜索目标参考号
+        for (page_idx, leaf_pgno) in leaf_pages.iter().enumerate() {
+            if is_target_debug {
+                println!("🔍 [DEBUG-EXTENDED] 搜索叶子页 {}/{}: {:#X}", page_idx + 1, leaf_pages.len(), leaf_pgno);
+            }
+
+            if let Ok(index_data) = self.read_index_data(*leaf_pgno) {
+                if index_data.level == 0 {  // 确保是叶子节点
+                    let (r0, r1) = (refno.get_0(), refno.get_1());
+                    if let Some(found_index) = index_data.refno_locs.iter().position(|x| x.refno_0 == r0 && x.refno_1 == r1) {
+                        let loc = &index_data.refno_locs[found_index];
+                        let loc_sesno = self.get_sesno(loc.pgno).unwrap_or_default();
+
+                        if is_target_debug {
+                            println!("🔍 [DEBUG-EXTENDED] ✓ 在叶子页 {:#X} 找到目标参考号!", leaf_pgno);
+                            println!("🔍 [DEBUG-EXTENDED] 页号: {:#X}, 会话号: {}, 偏移量: {:#X}",
+                                loc.pgno, loc_sesno, loc.get_att_offset());
+                        }
+
+                        return Some((loc_sesno, loc.get_att_offset()));
+                    }
+                }
+            }
+        }
+
+        if is_target_debug {
+            println!("🔍 [DEBUG-EXTENDED] ❌ 扩展搜索完成，未找到目标参考号");
+        }
+        None
+    }
+
+    /// 收集所有可能包含目标参考号的叶子页
+    fn collect_leaf_pages(&mut self, root_pgno: u32, target_refno: RefU64) -> Option<Vec<u32>> {
+        let is_target_debug = target_refno.get_0() == 24383 && target_refno.get_1() == 101192;
+        let mut leaf_pages = std::collections::HashSet::new();
+
+        // 使用更智能的搜索策略，只收集真正相关的叶子页
+        self.collect_relevant_leaf_pages(root_pgno, target_refno, &mut leaf_pages, is_target_debug);
+
+        if is_target_debug {
+            println!("🔍 [DEBUG-EXTENDED] 收集叶子页完成，共 {} 个页面", leaf_pages.len());
+        }
+
+        if leaf_pages.is_empty() {
+            None
+        } else {
+            // 转换为Vec并按页号排序，确保搜索顺序
+            let mut leaf_pages_vec: Vec<u32> = leaf_pages.into_iter().collect();
+            leaf_pages_vec.sort();
+            Some(leaf_pages_vec)
+        }
+    }
+
+    /// 递归收集相关的叶子页面，使用更智能的过滤策略
+    fn collect_relevant_leaf_pages(&mut self, pgno: u32, target_refno: RefU64, leaf_pages: &mut std::collections::HashSet<u32>, is_debug: bool) {
+        if let Ok(index_data) = self.read_index_data(pgno) {
+            if index_data.level == 0 {
+                // 叶子节点 - 检查是否可能包含目标参考号
+                if !index_data.refno_locs.is_empty() {
+                    let first = &index_data.refno_locs[0];
+                    let last = &index_data.refno_locs[index_data.refno_locs.len() - 1];
+                    let first_refno = RefU64::from_two_nums(first.refno_0, first.refno_1);
+                    let last_refno = RefU64::from_two_nums(last.refno_0, last.refno_1);
+
+                    // 只收集真正相关的叶子页：
+                    // 1. 目标参考号在范围内
+                    // 2. 目标参考号的第一部分匹配且第二部分在合理范围内
+                    let target_0 = target_refno.get_0();
+                    let target_1 = target_refno.get_1();
+
+                    let should_include = if target_refno >= first_refno && target_refno <= last_refno {
+                        // 目标在范围内，肯定包含
+                        true
+                    } else if first.refno_0 == target_0 || last.refno_0 == target_0 {
+                        // 第一部分匹配，检查第二部分是否在合理范围内
+                        let min_1 = first.refno_1.min(last.refno_1);
+                        let max_1 = first.refno_1.max(last.refno_1);
+
+                        // 如果目标的第二部分在当前范围的合理扩展范围内（比如前后1000个数字）
+                        target_1 >= min_1.saturating_sub(1000) && target_1 <= max_1.saturating_add(1000)
+                    } else {
+                        false
+                    };
+
+                    if should_include {
+                        leaf_pages.insert(pgno);
+                        if is_debug {
+                            println!("🔍 [DEBUG-EXTENDED] 叶子页 {:#X} 相关: {} ~ {}, 目标: {}",
+                                pgno, first_refno, last_refno, target_refno);
+                        }
+                    }
+                }
+            } else {
+                // 非叶子节点 - 智能选择子节点
+                for loc in &index_data.refno_locs {
+                    let loc_refno = RefU64::from_two_nums(loc.refno_0, loc.refno_1);
+
+                    // 只访问可能包含目标参考号的子树
+                    // 如果这个位置的参考号小于等于目标，或者第一部分匹配，就访问这个子树
+                    if loc_refno <= target_refno || loc.refno_0 == target_refno.get_0() {
+                        self.collect_relevant_leaf_pages(loc.pgno, target_refno, leaf_pages, is_debug);
+                    }
+                }
+            }
+        }
     }
 
     /// 解析增量数据
