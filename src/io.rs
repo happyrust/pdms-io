@@ -998,8 +998,7 @@ impl PdmsIO {
                         let batch_sql = surql_batch.join(";\n");
                         // println!("批量执行 SurrealQL: {}", &batch_sql);
                         if let Err(e) = SUL_DB.query(&batch_sql).await {
-                            dbg!(&batch_sql);
-                            println!("批量执行 SurrealQL 错误: {}", e);
+                            println!("批量执行 SurrealQL 错误: {}\n, SQL: {}", e, batch_sql    );
                         }
                         surql_batch.clear();
                     }
