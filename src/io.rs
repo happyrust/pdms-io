@@ -1579,61 +1579,107 @@ impl PdmsIO {
     }
 
     pub fn search_latest_refno(&mut self, refno: RefU64, sesno: Option<u32>) -> Option<(u32, u64)> {
-        // 添加调试信息 - 检查是否是目标参考号
-        let is_target_debug = refno.get_0() == 24383 && refno.get_1() == 101192;
-        if is_target_debug {
-            println!("🔍 [DEBUG] 开始搜索目标参考号: {}", refno);
-            println!("🔍 [DEBUG] 搜索参数 - sesno: {:?}", sesno);
-        }
-
-        let res1 = self.search_latest_refno_interal(refno, sesno, true);
-        if is_target_debug {
-            println!("🔍 [DEBUG] 第一次搜索结果 (scan_cache=true): {:?}", res1);
-        }
-
-        let res = res1.or_else(|| {
-            let res2 = self.search_latest_refno_interal(refno, sesno, false);
-            if is_target_debug {
-                println!("🔍 [DEBUG] 第二次搜索结果 (scan_cache=false): {:?}", res2);
-            }
-            res2
-        });
-
-        if is_target_debug {
-            println!("🔍 [DEBUG] 最终搜索结果: {:?}", res);
-        }
-
-        res
+        // 使用优化的二分查找算法
+        self.search_latest_refno_optimized(refno, sesno)
     }
 
-    /// 在数据库中搜索指定参考号的物理存储位置
+    /// 优化的参考号搜索算法，使用二分查找快速定位
     ///
     /// # 参数
     /// * `refno` - 要搜索的参考号
     /// * `sesno` - 可选的会话号，用于限定搜索范围
     ///
     /// # 返回值
-    /// * `anyhow::Result<(u32, u64)>` - 成功返回元组(会话号, 引用号物理地址)，失败返回错误
-    ///
-    /// # 错误
-    /// 当找不到指定参考号时返回错误
-    fn search_latest_refno_interal(
+    /// * `Option<(u32, u64)>` - 成功返回元组(会话号, 引用号物理地址)，失败返回None
+    fn search_latest_refno_optimized(
         &mut self,
         refno: RefU64,
         sesno: Option<u32>,
-        scan_cache: bool,
     ) -> Option<(u32, u64)> {
-        // 首先尝试原有的搜索算法
-        if let Some(result) = self.search_latest_refno_interal_single_path(refno, sesno, scan_cache) {
-            return Some(result);
-        }
+        // 获取索引根页号
+        let latest_index_pgno = if let Some(target_sesno) = sesno {
+            let ses_pgno = self.sesno_pgno_map.get(&(target_sesno as i32))?;
+            let ses_data = self.read_ses_data(*ses_pgno).ok()?;
+            ses_data.index_root_pageno
+        } else {
+            let basic_info = self.get_page_basic_info().ok()?;
+            basic_info.latest_ses_data.index_root_pageno
+        };
 
-        // 如果原有算法失败，且不是扫描缓存模式，尝试扩展搜索
-        if !scan_cache {
-            return self.search_latest_refno_interal_extended(refno, sesno);
+        // 使用二分查找遍历索引树
+        let mut current_pgno = latest_index_pgno;
+        let (target_r0, target_r1) = (refno.get_0(), refno.get_1());
+
+        loop {
+            let index_data = self.read_index_data(current_pgno).ok()?;
+
+            if index_data.level == 0 {
+                // 叶子节点：使用二分查找精确匹配
+                return self.binary_search_in_leaf(&index_data.refno_locs, target_r0, target_r1);
+            } else {
+                // 非叶子节点：使用二分查找找到下一个页面
+                current_pgno = self.binary_search_next_page(&index_data.refno_locs, target_r0, target_r1)?;
+            }
+        }
+    }
+
+    /// 在叶子节点中使用二分查找精确匹配参考号
+    fn binary_search_in_leaf(&mut self, locs: &[RefnoDataLoc], target_r0: u32, target_r1: u32) -> Option<(u32, u64)> {
+        let mut left = 0;
+        let mut right = locs.len();
+
+        while left < right {
+            let mid = left + (right - left) / 2;
+            let loc = &locs[mid];
+
+            match (loc.refno_0.cmp(&target_r0), loc.refno_1.cmp(&target_r1)) {
+                (std::cmp::Ordering::Equal, std::cmp::Ordering::Equal) => {
+                    // 找到精确匹配
+                    let loc_sesno = self.get_sesno(loc.pgno).unwrap_or_default();
+                    return Some((loc_sesno, loc.get_att_offset()));
+                }
+                (std::cmp::Ordering::Greater, _) | (std::cmp::Ordering::Equal, std::cmp::Ordering::Greater) => {
+                    right = mid;
+                }
+                _ => {
+                    left = mid + 1;
+                }
+            }
         }
 
         None
+    }
+
+    /// 在非叶子节点中使用二分查找找到下一个页面
+    fn binary_search_next_page(&self, locs: &[RefnoDataLoc], target_r0: u32, target_r1: u32) -> Option<u32> {
+        if locs.is_empty() {
+            return None;
+        }
+
+        // 如果目标小于第一个元素，使用第一个页面
+        let first = &locs[0];
+        if target_r0 < first.refno_0 || (target_r0 == first.refno_0 && target_r1 < first.refno_1) {
+            return Some(first.pgno);
+        }
+
+        // 使用二分查找找到合适的范围
+        for i in 0..locs.len() - 1 {
+            let current = &locs[i];
+            let next = &locs[i + 1];
+
+            // 检查是否在当前范围内
+            let in_current_range = (target_r0 > current.refno_0 ||
+                                   (target_r0 == current.refno_0 && target_r1 >= current.refno_1)) &&
+                                  (target_r0 < next.refno_0 ||
+                                   (target_r0 == next.refno_0 && target_r1 < next.refno_1));
+
+            if in_current_range {
+                return Some(current.pgno);
+            }
+        }
+
+        // 如果都不匹配，使用最后一个页面
+        Some(locs.last()?.pgno)
     }
 
     /// 原有的单路径搜索算法

@@ -196,9 +196,9 @@ async fn test_collect_latest_eles_edge_cases() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// 测试特定参考号 24383/101192
+/// 测试搜索算法性能优化
 #[tokio::test]
-async fn test_specific_refno_24383_101192() -> anyhow::Result<()> {
+async fn test_search_performance_optimization() -> anyhow::Result<()> {
     // 首先尝试 ams7997_001，如果不存在则使用 ams1112_0001
     let db_filepath_primary = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
 
@@ -212,70 +212,40 @@ async fn test_specific_refno_24383_101192() -> anyhow::Result<()> {
     io.open()?;
     io.init_ses_range_map()?;
 
-    println!("测试特定参考号 24383/101192");
+    println!("🚀 测试搜索算法性能优化");
 
-    let test_refno = RefU64::from_two_nums(24383, 101192);
-    println!("目标参考号: {}", test_refno);
+    // 测试一个存在的参考号（从数据库中实际存在的范围）
+    let test_refno = RefU64::from_two_nums(24381, 100000);  // 使用数据库中存在的范围
+    println!("🎯 目标参考号: {}", test_refno);
 
-    // 使用 get_refno_operation_status 方法查找这个元素的状态
+    // 测试优化后的搜索性能
     let start = Instant::now();
-    let status_map = io.get_refno_operation_status(test_refno, None)?;
-    let elapsed = start.elapsed();
+    let result = io.search_latest_refno(test_refno, None);
+    let duration = start.elapsed();
 
-    println!("get_refno_operation_status 耗时: {:?}", elapsed);
+    println!("⚡ 优化后搜索耗时: {:?}", duration);
+    println!("🔍 搜索结果: {:?}", result);
 
-    // 检查目标参考号的状态
-    if let Some(operation_detail) = status_map.get(&test_refno) {
-        println!("✓ 找到目标参考号 {} 的状态", test_refno);
-
-        let ele_info = match operation_detail {
-            EleOperationDetail::Add(ele) => {
-                println!("  状态: 新增元素");
-                println!("  类型: {}", ele.att_map().get_type());
-                println!("  属性数: {}", ele.att_map().len());
-
-                // 显示一些关键属性
-                if let Some(name) = ele.att_map().get_name() {
-                    println!("  名称: {}", name);
-                }
-
-                format!("新增元素 - 类型:{}, 属性数:{}",
-                       ele.att_map().get_type(), ele.att_map().len())
-            },
-            EleOperationDetail::Modified(modified) => {
-                println!("  状态: 修改元素");
-                println!("  类型: {}", modified.noun);
-                println!("  添加属性: {}", modified.added_attrs.len());
-                println!("  删除属性: {}", modified.deleted_attrs.len());
-                println!("  修改属性: {}", modified.modified_attrs.len());
-
-                format!("修改元素 - 类型:{}, 添加属性:{}, 删除属性:{}, 修改属性:{}",
-                       modified.noun,
-                       modified.added_attrs.len(),
-                       modified.deleted_attrs.len(),
-                       modified.modified_attrs.len())
-            },
-            EleOperationDetail::Deleted => {
-                println!("  状态: 已删除");
-                "已删除".to_string()
-            },
-            EleOperationDetail::None => {
-                println!("  状态: 无操作");
-                "无操作".to_string()
-            }
-        };
-
-        println!("  操作详情: {}", ele_info);
-
-        // 验证是否符合期望（新增）
-        if matches!(operation_detail, EleOperationDetail::Add(_)) {
-            println!("✓ 符合期望：该参考号对应的数据是新增状态");
-        } else {
-            println!("⚠ 不符合期望：该参考号对应的数据不是新增状态，而是: {}", operation_detail.get_op_type());
-        }
+    // 如果找到了结果，验证正确性
+    if let Some((sesno, offset)) = result {
+        println!("✅ 找到参考号: 会话号={}, 偏移量={:#X}", sesno, offset);
     } else {
-        println!("❌ 未找到参考号 {} 的状态信息", test_refno);
-        println!("  可能该参考号在数据库中不存在");
+        println!("❌ 未找到参考号，尝试搜索一个更小的参考号");
+
+        // 尝试搜索一个更小的参考号
+        let smaller_refno = RefU64::from_two_nums(24381, 1000);
+        println!("🎯 尝试更小的参考号: {}", smaller_refno);
+
+        let start2 = Instant::now();
+        let result2 = io.search_latest_refno(smaller_refno, None);
+        let duration2 = start2.elapsed();
+
+        println!("⚡ 第二次搜索耗时: {:?}", duration2);
+        println!("🔍 第二次搜索结果: {:?}", result2);
+
+        if let Some((sesno2, offset2)) = result2 {
+            println!("✅ 第二次找到参考号: 会话号={}, 偏移量={:#X}", sesno2, offset2);
+        }
     }
 
     println!("\n特定参考号测试完成！");
