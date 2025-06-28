@@ -50,11 +50,11 @@ opt-level = 0
 [profile.release]
 opt-level = 3
 
-[patch."https://gitee.com/happydpc/rs-core.git"]
-aios_core = { path = "../new-crates/aios-core" }
+# [patch."https://gitee.com/happydpc/rs-core.git"]
+# aios_core = { path = "../new-crates/aios-core" }
 
-[patch."https://gitee.com/happydpc/aios-parse-pdms.git"]
-parse_pdms_db = { path = "../aios-parse-pdms" }
+# [patch."https://gitee.com/happydpc/aios-parse-pdms.git"]
+# parse_pdms_db = { path = "../aios-parse-pdms" }
 
-[patch."https://gitee.com/happydpc/surrealdb.git"]
-surrealdb = { path = "../surrealdb/crates/sdk" }
+# [patch."https://gitee.com/happydpc/surrealdb.git"]
+# surrealdb = { path = "../surrealdb/crates/sdk" }
