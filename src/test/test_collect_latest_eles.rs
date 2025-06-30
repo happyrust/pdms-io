@@ -21,29 +21,131 @@ use std::collections::HashSet;
 /// 3. 验证返回的元素都是最新的且未被删除
 /// 4. 验证性能和正确性
 #[tokio::test]
-async fn test_collect_latest_eles() -> anyhow::Result<()> {
+async fn test_collect_latest_session() -> anyhow::Result<()> {
     // 设置数据库文件路径
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7997_001"#;
+    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
     let mut io = PdmsIO::new("ams", db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
     println!("开始测试 collect_latest_eles 方法");
-    
-    // 测试用例1: 获取所有会话的最新元素（限制前10个会话以避免测试时间过长）
-    println!("\n测试1: 获取前10个会话的最新元素");
+
+    // 首先检查会话信息
+    println!("\n检查会话信息:");
+    let latest_sesno = io.get_latest_sesno()?;
+    println!("最新会话号: {}", latest_sesno);
+
+    // 获取会话85的参考号位置
+    let locs = io.collect_refno_locs(85);
+    println!("会话85中有 {} 个参考号位置", locs.len());
+
+    // 测试前几个参考号的操作状态
+    println!("\n测试前5个参考号的操作状态:");
+    for (i, loc) in locs.iter().take(5).enumerate() {
+        let refno = RefU64::from_two_nums(loc.refno_0, loc.refno_1);
+        println!("参考号 {}: {}", i+1, refno);
+
+        // 首先检查搜索结果
+        let [latest, previous] = io.search_latest_and_prev_refno(refno, Some(85));
+        println!("  搜索结果: 最新版本={:?}, 前一版本={:?}", latest, previous);
+
+        match io.get_refno_operation_status(refno, Some(85)) {
+            Ok(status_map) => {
+                if let Some(detail) = status_map.get(&refno) {
+                    match detail {
+                        EleOperationDetail::Add(_) => println!("  状态: 新增"),
+                        EleOperationDetail::Modified(_) => println!("  状态: 修改"),
+                        EleOperationDetail::Deleted => println!("  状态: 删除"),
+                        EleOperationDetail::None => {
+                            println!("  状态: 无操作");
+
+                            // 分析为什么是无操作
+                            if let Some((sesno, offset)) = latest {
+                                println!("    分析: 找到最新版本在会话{}偏移{:#X}", sesno, offset);
+                                match io.parse_raw_element(offset) {
+                                    Ok(ele) => {
+                                        println!("    元素解析成功: 类型={}, 所有者={}",
+                                                ele.att_map().get_type(), ele.owner);
+
+                                        // 检查所有者元素
+                                        println!("    尝试获取所有者元素: {}", ele.owner);
+
+                                        // 先检查所有者元素是否存在于索引中
+                                        let owner_search_result = io.search_latest_refno(ele.owner, None);
+                                        println!("    所有者元素搜索结果: {:?}", owner_search_result);
+
+                                        match io.auto_get_raw_element(ele.owner) {
+                                            Ok(owner_ele) => {
+                                                println!("    所有者元素获取成功: 类型={}",
+                                                        owner_ele.att_map().get_type());
+                                                if owner_ele.children.contains(&refno) {
+                                                    println!("    ✓ 参考号在所有者的子元素列表中");
+                                                } else {
+                                                    println!("    ❌ 参考号不在所有者的子元素列表中");
+                                                }
+                                            }
+                                            Err(e) => {
+                                                println!("    ❌ 获取所有者元素失败: {}", e);
+
+                                                // 进一步分析所有者元素为什么找不到
+                                                println!("    分析所有者元素缺失原因:");
+
+                                                // 检查所有者元素在所有会话中的历史
+                                                match io.search_history_refnos(ele.owner, None) {
+                                                    Ok(history) => {
+                                                        if history.is_empty() {
+                                                            println!("      所有者元素在任何会话中都不存在");
+                                                        } else {
+                                                            println!("      所有者元素历史记录: {} 个版本", history.len());
+                                                            for (sesno, offset) in history.iter().take(3) {
+                                                                println!("        会话{}: 偏移{:#X}", sesno, offset);
+                                                            }
+                                                        }
+                                                    }
+                                                    Err(e) => {
+                                                        println!("      搜索所有者元素历史失败: {}", e);
+                                                    }
+                                                }
+
+                                                // 检查所有者元素是否在当前会话范围内
+                                                let owner_latest = io.search_latest_refno(ele.owner, Some(85));
+                                                println!("      所有者在会话85中的搜索结果: {:?}", owner_latest);
+                                            }
+                                        }
+                                    }
+                                    Err(e) => {
+                                        println!("    ❌ 元素解析失败: {}", e);
+                                    }
+                                }
+                            } else {
+                                println!("    分析: 未找到最新版本");
+                            }
+                        }
+                    }
+                } else {
+                    println!("  状态: 未在状态映射中找到");
+                }
+            }
+            Err(e) => {
+                println!("  错误: {}", e);
+            }
+        }
+    }
+
+    // 测试用例1: 获取前几个会话的最新元素，看看是否有修改操作的元素
+    println!("\n测试1: 获取前3个会话的最新元素");
     let start = Instant::now();
-    let latest_eles = io.collect_latest_eles(Some(10))?;
+    let latest_eles = io.collect_latest_eles(Some(3))?;
     let elapsed = start.elapsed();
-    
-    println!("前10个会话中共找到 {} 个最新元素, 耗时: {:?}", latest_eles.len(), elapsed);
-    
+
+    println!("前3个会话中共找到 {} 个最新元素, 耗时: {:?}", latest_eles.len(), elapsed);
+
     // 验证返回的元素都不是删除状态
     let mut add_count = 0;
     let mut modified_count = 0;
     let mut deleted_count = 0;
     let mut none_count = 0;
-    
+
     for (refno, operation_data) in &latest_eles {
         match &operation_data.detail {
             EleOperationDetail::Add(_) => add_count += 1,
@@ -55,107 +157,396 @@ async fn test_collect_latest_eles() -> anyhow::Result<()> {
             EleOperationDetail::None => none_count += 1,
         }
     }
-    
+
     println!("操作类型统计: 新增={}, 修改={}, 删除={}, 无操作={}",
              add_count, modified_count, deleted_count, none_count);
-    
+
     // 断言：结果中不应该有删除的元素
     assert_eq!(deleted_count, 0, "结果中不应该包含已删除的元素");
-    
-    // 输出前10个元素的详细信息
-    println!("\n前10个最新元素的详细信息:");
-    for (i, (refno, operation_data)) in latest_eles.iter().take(10).enumerate() {
-        let ele_info = match &operation_data.detail {
-            EleOperationDetail::Add(ele) => {
-                format!("新增元素 - 类型:{}, 属性数:{}", 
-                       ele.att_map().get_type(), ele.att_map().len())
-            },
-            EleOperationDetail::Modified(modified) => {
-                format!("修改元素 - 类型:{}, 添加属性:{}, 删除属性:{}, 修改属性:{}", 
-                       modified.noun,
-                       modified.added_attrs.len(), 
-                       modified.deleted_attrs.len(), 
-                       modified.modified_attrs.len())
-            },
-            EleOperationDetail::Deleted => "已删除".to_string(),
-            EleOperationDetail::None => "无操作".to_string()
-        };
-        
-        println!("{}: 参考号={}, 会话号={}, {}", 
-                i+1, refno, operation_data.sesno, ele_info);
-    }
-    
-    // 测试用例2: 获取更少会话的最新元素，验证结果一致性
-    println!("\n测试2: 获取前5个会话的最新元素");
-    let start = Instant::now();
-    let latest_eles_5 = io.collect_latest_eles(Some(5))?;
-    let elapsed = start.elapsed();
-    
-    println!("前5个会话中共找到 {} 个最新元素, 耗时: {:?}", latest_eles_5.len(), elapsed);
-    
-    // 验证前5个会话的结果应该是前10个会话结果的子集
-    let mut subset_count = 0;
-    for (refno, _) in &latest_eles_5 {
-        if latest_eles.contains_key(refno) {
-            subset_count += 1;
+
+
+    Ok(())
+}
+
+/// 专门分析为什么参考号 24383_66457 找不到
+#[tokio::test]
+async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
+    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
+    let mut io = PdmsIO::new("ams", db_filepath, true);
+    io.open()?;
+    io.init_ses_range_map()?;
+
+    println!("=== 分析参考号 24383_66457 为什么找不到 ===");
+
+    let missing_refno = RefU64::from_two_nums(24383, 66457);
+    println!("目标参考号: {}", missing_refno);
+
+    // 1. 检查在最新会话中的搜索
+    println!("\n1. 在最新会话中搜索:");
+    let latest_result = io.search_latest_refno(missing_refno, None);
+    println!("  最新搜索结果: {:?}", latest_result);
+
+    // 2. 检查历史搜索
+    println!("\n2. 历史搜索:");
+    match io.search_history_refnos(missing_refno, None) {
+        Ok(history) => {
+            if history.is_empty() {
+                println!("  ❌ 在任何会话中都找不到该参考号");
+            } else {
+                println!("  ✓ 找到 {} 个历史版本:", history.len());
+                for (sesno, offset) in history.iter() {
+                    println!("    会话{}: 偏移{:#X}", sesno, offset);
+                }
+            }
+        }
+        Err(e) => {
+            println!("  ❌ 历史搜索失败: {}", e);
         }
     }
-    
-    println!("前5个会话的结果中有 {} 个元素也在前10个会话的结果中", subset_count);
-    
-    // 测试用例3: 验证特定元素的最新状态
-    if !latest_eles.is_empty() {
-        println!("\n测试3: 验证特定元素的最新状态");
-        let test_refno = latest_eles.keys().next().cloned().unwrap();
-        let operation_data = latest_eles.get(&test_refno).unwrap();
-        
-        println!("选择测试参考号: {}", test_refno);
-        println!("collect_latest_eles 返回的会话号: {}", operation_data.sesno);
-        
-        // 使用传统方法验证这确实是最新的状态
-        let status_map = io.get_refno_operation_status(test_refno, None)?;
-        
-        if let Some(traditional_detail) = status_map.get(&test_refno) {
-            println!("传统方法返回的状态类型: {}", traditional_detail.get_op_type());
-            println!("collect_latest_eles 返回的状态类型: {}", operation_data.detail.get_op_type());
-            
-            // 验证状态类型一致
-            assert_eq!(traditional_detail.get_op_type(), operation_data.detail.get_op_type(),
-                      "两种方法返回的状态类型应该一致");
+
+    // 3. 检查在所有会话中的搜索
+    println!("\n3. 逐个会话搜索:");
+    let all_sessions: Vec<i32> = io.ses_range_map.keys().cloned().collect();
+    println!("  数据库中共有 {} 个会话", all_sessions.len());
+
+    let mut found_sessions = Vec::new();
+    for &sesno in &all_sessions {
+        if let Some((found_sesno, offset)) = io.search_latest_refno(missing_refno, Some(sesno as u32)) {
+            found_sessions.push((found_sesno, offset));
+            println!("  ✓ 在会话{}中找到: 偏移{:#X}", found_sesno, offset);
         }
     }
-    
-    // 测试用例4: 性能对比测试
-    println!("\n测试4: 性能对比测试");
-    
-    // 使用 collect_latest_eles 方法
-    let start = Instant::now();
-    let latest_method_result = io.collect_latest_eles(Some(3))?;
-    let latest_method_time = start.elapsed();
-    
-    // 使用传统的 collect_increment_eles 方法获取最新3个会话
-    let latest_sesno = io.get_latest_sesno()? as i32;
-    let range_start = std::cmp::max(1, latest_sesno - 2);
-    let sesno_range = range_start..=latest_sesno;
-    
-    let start = Instant::now();
-    let traditional_result = io.collect_increment_eles(Some(sesno_range))?;
-    let traditional_time = start.elapsed();
-    
-    println!("collect_latest_eles (3个会话): {} 个元素, 耗时: {:?}", 
-             latest_method_result.len(), latest_method_time);
-    
-    let traditional_total: usize = traditional_result.values().map(|v| v.len()).sum();
-    println!("collect_increment_eles (3个会话): {} 个元素, 耗时: {:?}", 
-             traditional_total, traditional_time);
-    
-    // 验证 collect_latest_eles 的结果中没有重复的 refno
-    let refno_set: HashSet<_> = latest_method_result.keys().collect();
-    assert_eq!(refno_set.len(), latest_method_result.len(), 
-              "collect_latest_eles 结果中不应该有重复的 refno");
-    
-    println!("\n所有测试通过！collect_latest_eles 方法工作正常。");
-    
+
+    if found_sessions.is_empty() {
+        println!("  ❌ 在所有会话中都找不到该参考号");
+    } else {
+        println!("  ✓ 总共在 {} 个会话中找到该参考号", found_sessions.len());
+    }
+
+    // 4. 使用memchr在二进制数据中搜索
+    println!("\n4. 使用memchr在二进制数据中搜索:");
+    let target_r0 = missing_refno.get_0();
+    let target_r1 = missing_refno.get_1();
+
+    println!("  搜索字节模式: r0={} (0x{:08X}), r1={} (0x{:08X})",
+             target_r0, target_r0, target_r1, target_r1);
+
+    let target_r0_bytes = target_r0.to_le_bytes();
+    let target_r1_bytes = target_r1.to_le_bytes();
+
+    // 读取数据库文件进行二进制搜索
+    let db_path = std::path::Path::new(db_filepath);
+    if let Ok(file_data) = std::fs::read(db_path) {
+        println!("  数据库文件大小: {} bytes ({:.2} MB)",
+                 file_data.len(), file_data.len() as f64 / 1024.0 / 1024.0);
+
+        let mut found_positions = Vec::new();
+        let mut search_start = 0;
+
+        // 搜索r1的字节模式
+        while let Some(pos) = memchr::memmem::find(&file_data[search_start..], &target_r1_bytes) {
+            let absolute_pos = search_start + pos;
+
+            // 检查前面4个字节是否匹配r0
+            if absolute_pos >= 4 {
+                let r0_pos = absolute_pos - 4;
+                if &file_data[r0_pos..r0_pos + 4] == &target_r0_bytes {
+                    let page_no = r0_pos / 0x800;
+                    let page_offset = r0_pos % 0x800;
+                    found_positions.push((r0_pos, page_no, page_offset));
+
+                    println!("  🎯 找到匹配: 文件位置0x{:X}, 页号0x{:X}, 页内偏移0x{:X}",
+                             r0_pos, page_no, page_offset);
+                }
+            }
+
+            search_start = absolute_pos + 1;
+            if found_positions.len() >= 10 { // 限制搜索结果数量
+                break;
+            }
+        }
+
+        if found_positions.is_empty() {
+            println!("  ❌ 在二进制数据中未找到该参考号");
+        } else {
+            println!("  ✓ 在二进制数据中找到 {} 个匹配位置", found_positions.len());
+
+            // 分析找到的位置
+            for (i, (file_pos, page_no, page_offset)) in found_positions.iter().enumerate() {
+                println!("\n  位置 {}: 文件0x{:X}, 页号0x{:X}, 偏移0x{:X}",
+                         i+1, file_pos, page_no, page_offset);
+
+                // 检查这个页面是否在索引中
+                if let Ok(index_data) = io.read_index_data(*page_no as u32) {
+                    println!("    📋 这是索引页面 (层级: {})", index_data.level);
+
+                    // 在索引页面中查找
+                    for (idx, loc) in index_data.refno_locs.iter().enumerate() {
+                        if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
+                            println!("    🎯 在索引条目[{}]中找到: {}_{} -> 数据页号0x{:X}",
+                                     idx, loc.refno_0, loc.refno_1, loc.pgno);
+
+                            // 检查数据页面
+                            if let Ok(ele_data) = io.parse_raw_element(loc.get_att_offset()) {
+                                println!("    ✓ 成功解析元素: 类型={}, 所有者={}",
+                                         ele_data.att_map().get_type(), ele_data.owner);
+                            } else {
+                                println!("    ❌ 解析元素失败");
+                            }
+                        }
+                    }
+                } else {
+                    println!("    📄 这可能是数据页面，不是索引页面");
+                }
+            }
+        }
+    } else {
+        println!("  ❌ 无法读取数据库文件");
+    }
+
+    // 5. 检查索引完整性
+    println!("\n5. 检查索引完整性:");
+
+    // 构建完整的索引映射
+    match io.build_index_map_verbose(false) {
+        Ok(index_map) => {
+            println!("  ✓ 成功构建索引映射，总参考号数量: {}", index_map.len());
+
+            if index_map.contains_key(&missing_refno) {
+                println!("  ✓ 目标参考号在索引映射中存在！");
+                if let Some(offsets) = index_map.get(&missing_refno) {
+                    println!("    偏移量列表: {:?}", offsets);
+
+                    // 6. 分析找到的偏移量
+                    for &offset in offsets {
+                        println!("\n6. 分析偏移量 0x{:X}:", offset);
+
+                        // 尝试解析这个偏移量的元素
+                        match io.parse_raw_element(offset) {
+                            Ok(element) => {
+                                println!("  ✓ 成功解析元素:");
+                                println!("    类型: {}", element.att_map().get_type());
+                                println!("    所有者: {}", element.owner);
+                                println!("    子元素数量: {}", element.children.len());
+
+                                // 验证这确实是我们要找的参考号
+                                let parsed_refno = element.refno;
+                                println!("    解析出的参考号: {}", parsed_refno);
+
+                                if parsed_refno == missing_refno {
+                                    println!("    ✅ 确认这就是目标参考号！");
+                                } else {
+                                    println!("    ❌ 参考号不匹配！");
+                                }
+                            }
+                            Err(e) => {
+                                println!("  ❌ 解析元素失败: {}", e);
+                            }
+                        }
+
+                        // 检查这个偏移量对应的页面和位置
+                        let page_no = offset / 0x800;
+                        let page_offset = offset % 0x800;
+                        println!("  位置信息: 页号0x{:X}, 页内偏移0x{:X}", page_no, page_offset);
+
+                        // 尝试直接搜索这个参考号
+                        println!("  测试搜索算法:");
+                        let search_result = io.search_latest_refno(missing_refno, None);
+                        println!("    search_latest_refno结果: {:?}", search_result);
+
+                        // 测试在特定会话中搜索
+                        for sesno in [81, 82, 83, 84, 85] {
+                            let session_result = io.search_latest_refno(missing_refno, Some(sesno));
+                            if session_result.is_some() {
+                                println!("    在会话{}中找到: {:?}", sesno, session_result);
+                            }
+                        }
+                    }
+                }
+            } else {
+                println!("  ❌ 目标参考号不在索引映射中");
+
+                // 查找相近的参考号
+                let nearby_refnos: Vec<_> = index_map.keys()
+                    .filter(|&refno| refno.get_0() == target_r0)
+                    .take(10)
+                    .collect();
+
+                if !nearby_refnos.is_empty() {
+                    println!("    相同第一部分({})的参考号:", target_r0);
+                    for refno in nearby_refnos {
+                        println!("      {}", refno);
+                    }
+                }
+            }
+        }
+        Err(e) => {
+            println!("  ❌ 构建索引映射失败: {}", e);
+        }
+    }
+
+    println!("\n=== 分析完成 ===");
+
+    Ok(())
+}
+
+/// 测试B+树搜索算法的问题
+#[tokio::test]
+async fn test_btree_search_algorithm_issue() -> anyhow::Result<()> {
+    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
+    let mut io = PdmsIO::new("ams", db_filepath, true);
+    io.open()?;
+    io.init_ses_range_map()?;
+
+    println!("=== 测试B+树搜索算法问题 ===");
+
+    let missing_refno = RefU64::from_two_nums(24383, 66457);
+    println!("目标参考号: {}", missing_refno);
+
+    // 1. 获取索引映射中的偏移量
+    let index_map = io.build_index_map_verbose(false)?;
+    let expected_offset = if let Some(offsets) = index_map.get(&missing_refno) {
+        offsets.iter().next().copied().unwrap()
+    } else {
+        println!("❌ 参考号不在索引映射中");
+        return Ok(());
+    };
+
+    println!("索引映射中的偏移量: 0x{:X}", expected_offset);
+
+    // 2. 获取根页号
+    let basic_info = io.get_page_basic_info()?;
+    let root_pgno = basic_info.latest_ses_data.index_root_pageno;
+    println!("根页号: 0x{:X}", root_pgno);
+
+    // 3. 测试当前的B+树搜索算法
+    println!("\n3. 测试当前B+树搜索算法:");
+    let search_result = io.search_latest_refno(missing_refno, None);
+    println!("search_latest_refno结果: {:?}", search_result);
+
+    // 4. 手动遍历B+树路径，找出问题所在
+    println!("\n4. 手动遍历B+树路径:");
+    let (target_r0, target_r1) = (missing_refno.get_0(), missing_refno.get_1());
+
+    let mut current_pgno = root_pgno;
+    let mut level = 0;
+
+    loop {
+        match io.read_index_data(current_pgno) {
+            Ok(index_data) => {
+                println!("\n层级 {}: 页号 0x{:X}, 索引层级: {}, 条目数: {}",
+                         level, current_pgno, index_data.level, index_data.refno_locs.len());
+
+                // 显示前几个和后几个条目
+                let entries_to_show = 5;
+                println!("  前{}个条目:", entries_to_show);
+                for (i, loc) in index_data.refno_locs.iter().take(entries_to_show).enumerate() {
+                    println!("    [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
+                             i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset);
+                }
+
+                if index_data.refno_locs.len() > entries_to_show * 2 {
+                    println!("    ... ({} 个条目被省略)", index_data.refno_locs.len() - entries_to_show * 2);
+                }
+
+                if index_data.refno_locs.len() > entries_to_show {
+                    println!("  后{}个条目:", entries_to_show);
+                    let start_idx = index_data.refno_locs.len().saturating_sub(entries_to_show);
+                    for (i, loc) in index_data.refno_locs.iter().skip(start_idx).enumerate() {
+                        println!("    [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
+                                 start_idx + i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset);
+                    }
+                }
+
+                // 如果是叶子节点，直接搜索
+                if index_data.level == 0 {
+                    println!("\n  🍃 叶子节点搜索:");
+                    let mut found = false;
+                    for (i, loc) in index_data.refno_locs.iter().enumerate() {
+                        if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
+                            println!("    ✅ 找到目标: [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
+                                     i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset);
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if !found {
+                        println!("    ❌ 在叶子节点中未找到目标参考号");
+
+                        // 查找最接近的条目
+                        let mut closest_entries = Vec::new();
+                        for (i, loc) in index_data.refno_locs.iter().enumerate() {
+                            if loc.refno_0 == target_r0 {
+                                closest_entries.push((i, loc));
+                            }
+                        }
+
+                        if !closest_entries.is_empty() {
+                            println!("    相同第一部分的条目:");
+                            for (i, loc) in closest_entries {
+                                println!("      [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
+                                         i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset);
+                            }
+                        }
+                    }
+                    break;
+                } else {
+                    // 非叶子节点，找到下一个页面
+                    println!("\n  🌿 非叶子节点，寻找下一个页面:");
+
+                    let mut next_pgno = None;
+                    let mut selected_idx = None;
+
+                    // 应用当前算法的逻辑
+                    for (i, loc) in index_data.refno_locs.iter().enumerate() {
+                        // 跳过起始标记
+                        if loc.refno_0 == 0x80000001 && loc.refno_1 == 0x80000001 {
+                            println!("    [{}] 起始标记: 0x80000001_0x80000001 -> 页号: 0x{:X}", i, loc.pgno);
+                            continue;
+                        }
+
+                        println!("    [{}] 比较: {}_{} vs 目标 {}_{}",
+                                 i, loc.refno_0, loc.refno_1, target_r0, target_r1);
+
+                        if target_r0 < loc.refno_0 || (target_r0 == loc.refno_0 && target_r1 <= loc.refno_1) {
+                            println!("      ✅ 选择此条目 (目标 <= 当前)");
+                            next_pgno = Some(loc.pgno);
+                            selected_idx = Some(i);
+                            break;
+                        } else {
+                            println!("      ❌ 目标 > 当前，继续");
+                        }
+                    }
+
+                    // 如果没有找到合适的条目，选择最后一个
+                    if next_pgno.is_none() && !index_data.refno_locs.is_empty() {
+                        let last_entry = &index_data.refno_locs[index_data.refno_locs.len() - 1];
+                        println!("    🎯 目标超出范围，选择最后一个条目: {}_{} -> 页号: 0x{:X}",
+                                 last_entry.refno_0, last_entry.refno_1, last_entry.pgno);
+                        next_pgno = Some(last_entry.pgno);
+                        selected_idx = Some(index_data.refno_locs.len() - 1);
+                    }
+
+                    if let Some(pgno) = next_pgno {
+                        println!("    ➡️  继续搜索页号: 0x{:X} (索引: {:?})", pgno, selected_idx);
+                        current_pgno = pgno;
+                        level += 1;
+                    } else {
+                        println!("    ❌ 无法找到下一个页面");
+                        break;
+                    }
+                }
+            }
+            Err(e) => {
+                println!("❌ 读取页面 0x{:X} 失败: {}", current_pgno, e);
+                break;
+            }
+        }
+    }
+
+    println!("\n=== B+树搜索分析完成 ===");
+
     Ok(())
 }
 

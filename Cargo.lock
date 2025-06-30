@@ -73,6 +73,7 @@ dependencies = [
 [[package]]
 name = "aios_core"
 version = "0.2.0"
+source = "git+https://gitee.com/happydpc/rs-core#073897699a699223747b4d61ac144b71da531b0c"
 dependencies = [
  "anyhow",
  "approx 0.5.1",
@@ -4555,6 +4556,7 @@ dependencies = [
 [[package]]
 name = "parse_pdms_db"
 version = "3.0.0"
+source = "git+https://gitee.com/happydpc/aios-parse-pdms#4d2c5e28523e5e1ff11c730326d919c9f00d3381"
 dependencies = [
  "aios_core",
  "anyhow",
@@ -4589,7 +4591,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "smol_str 0.3.2",
- "thiserror 2.0.12",
+ "thiserror 1.0.69",
  "tokio",
 ]
 
@@ -6679,6 +6681,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "surrealdb"
 version = "2.1.4"
+source = "git+https://gitee.com/happydpc/surrealdb#45013fc9e74f6a112628e26fb5376f21cc1f9675"
 dependencies = [
  "arrayvec",
  "async-channel 2.3.1",
@@ -6716,6 +6719,7 @@ dependencies = [
 [[package]]
 name = "surrealdb-core"
 version = "2.1.4"
+source = "git+https://gitee.com/happydpc/surrealdb#45013fc9e74f6a112628e26fb5376f21cc1f9675"
 dependencies = [
  "addr",
  "ahash 0.8.12",

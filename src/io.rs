@@ -1751,31 +1751,61 @@ impl PdmsIO {
             // 搜索逻辑
             let mut selected_entry: Option<(usize, RefnoDataLoc)> = None;
 
-            // 首先检查起始标记
-            if let Some((marker_idx, marker_entry)) = start_marker_entry {
-                if target_r0 < unique_entries.first().map(|(_, e)| e.refno_0).unwrap_or(u32::MAX) {
-                    #[cfg(feature = "debug_btree_search")]
-                    println!("🎯 目标值小于第一个正常索引，选择起始标记: [{}] -> 页号: 0x{:X}", marker_idx, marker_entry.pgno);
-                    selected_entry = Some((marker_idx, marker_entry));
+            // 修复后的B+树搜索逻辑
+            // 在B+树中，每个非叶子节点的条目表示该子树的最大值
+            // 我们需要找到第一个大于目标值的条目，然后选择前一个分支
+
+            // 首先检查是否应该选择起始标记分支
+            if let Some((marker_idx, ref marker_entry)) = start_marker_entry {
+                // 如果目标值小于第一个正常条目，选择起始标记分支
+                if let Some((_, first_entry)) = unique_entries.first() {
+                    if target_r0 < first_entry.refno_0 ||
+                       (target_r0 == first_entry.refno_0 && target_r1 < first_entry.refno_1) {
+                        #[cfg(feature = "debug_btree_search")]
+                        println!("🎯 目标值小于第一个正常索引，选择起始标记: [{}] -> 页号: 0x{:X}", marker_idx, marker_entry.pgno);
+                        selected_entry = Some((marker_idx, marker_entry.clone()));
+                    }
                 }
             }
 
             // 如果没有选择起始标记，在去重后的条目中搜索
             if selected_entry.is_none() {
+                let mut prev_entry: Option<(usize, RefnoDataLoc)> = None;
+
                 for (original_idx, entry) in &unique_entries {
-                    if target_r0 < entry.refno_0 || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1) {
+                    // 如果目标值小于当前条目，选择前一个分支
+                    if target_r0 < entry.refno_0 || (target_r0 == entry.refno_0 && target_r1 < entry.refno_1) {
+                        if let Some((prev_idx, prev)) = prev_entry {
+                            #[cfg(feature = "debug_btree_search")]
+                            println!("🎯 目标值小于当前条目 {}_{}, 选择前一个分支: [{}] {}_{} -> 页号: 0x{:X}",
+                                     entry.refno_0, entry.refno_1, prev_idx, prev.refno_0, prev.refno_1, prev.pgno);
+                            selected_entry = Some((prev_idx, prev));
+                        } else if let Some((marker_idx, ref marker_entry)) = start_marker_entry {
+                            #[cfg(feature = "debug_btree_search")]
+                            println!("🎯 目标值小于第一个条目，选择起始标记: [{}] -> 页号: 0x{:X}", marker_idx, marker_entry.pgno);
+                            selected_entry = Some((marker_idx, marker_entry.clone()));
+                        }
+                        break;
+                    }
+
+                    // 如果目标值等于当前条目，选择当前分支
+                    if target_r0 == entry.refno_0 && target_r1 == entry.refno_1 {
                         #[cfg(feature = "debug_btree_search")]
-                        println!("🎯 找到合适的分支: [{}] {}_{} -> 页号: 0x{:X}", original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                        println!("🎯 目标值等于当前条目，选择当前分支: [{}] {}_{} -> 页号: 0x{:X}",
+                                 original_idx, entry.refno_0, entry.refno_1, entry.pgno);
                         selected_entry = Some((*original_idx, entry.clone()));
                         break;
                     }
+
+                    prev_entry = Some((*original_idx, entry.clone()));
                 }
 
-                // 如果没有找到合适的分支，选择最后一个条目（关键优化）
+                // 如果没有找到合适的分支，选择最后一个条目（目标值大于所有条目）
                 if selected_entry.is_none() && !unique_entries.is_empty() {
                     let (original_idx, entry) = &unique_entries[unique_entries.len() - 1];
                     #[cfg(feature = "debug_btree_search")]
-                    println!("🎯 目标值超出范围，选择最后一个条目: [{}] {}_{} -> 页号: 0x{:X}", original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!("🎯 目标值大于所有条目，选择最后一个条目: [{}] {}_{} -> 页号: 0x{:X}",
+                             original_idx, entry.refno_0, entry.refno_1, entry.pgno);
                     selected_entry = Some((*original_idx, entry.clone()));
                 }
             }
@@ -4787,8 +4817,12 @@ impl PdmsIO {
                                 EleOperationDetail::Add(_) => {
                                     current_session_operations.push((refno, detail, false));
                                 }
-                                // 跳过修改操作
-                                EleOperationDetail::Modified(_) | EleOperationDetail::None => {}
+                                EleOperationDetail::Modified(_) => {
+                                    // 包含修改操作的元素
+                                    current_session_operations.push((refno, detail, false));
+                                }
+                                // 跳过无操作状态的元素
+                                EleOperationDetail::None => {}
                             }
                         }
                     }
