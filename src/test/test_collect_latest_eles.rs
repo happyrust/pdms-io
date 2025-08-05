@@ -35,10 +35,6 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
     let latest_sesno = io.get_latest_sesno()?;
     println!("最新会话号: {}", latest_sesno);
 
-    // 获取会话85的参考号位置
-    let locs = io.collect_refno_locs(85);
-    println!("会话85中有 {} 个参考号位置", locs.len());
-
     // 测试前几个参考号的操作状态
     println!("\n测试前5个参考号的操作状态:");
     for (i, loc) in locs.iter().take(5).enumerate() {

@@ -66,7 +66,7 @@ async fn main() -> anyhow::Result<()> {
     // 收集最新的元素数据用于索引
     println!("\n=== 收集数据用于 Meilisearch 索引 ===");
     let start_time = Instant::now();
-    let latest_elements = io.collect_latest_eles(Some(10))?;
+    let latest_elements = io.collect_latest_eles(Some(10)).await?;
     let elapsed = start_time.elapsed();
     
     let total_elements = latest_elements.len();

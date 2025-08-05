@@ -28,6 +28,8 @@ use tokio::sync::RwLock;
 /// 已修改元素的详细信息
 #[derive(Clone)]
 pub struct ModifiedElement {
+    /// 修改后的完整元素数据
+    pub current_data: EleData,
     /// 新增的属性 {属性名 => 属性值}
     pub added_attrs: HashMap<String, NamedAttrValue>,
     /// 删除的属性 {属性名 => 旧属性值}
@@ -370,7 +372,7 @@ pub enum EleOperationDetail {
 }
 
 /// 元素操作数据，包含操作明细、参考号和会话号
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct EleOperationData {
     /// 参考号
     pub refno: RefU64,
@@ -791,36 +793,24 @@ impl PdmsIO {
     /// 将元素操作保存到SurrealDB数据库
     ///
     /// # 参数
-    /// * `io` - PDMS IO实例的引用
     /// * `range_eles` - 会话号到元素列表的映射
+    /// * `update_main_data` - 是否更新主数据（执行SurrealQL语句）（默认：true）
     ///
     /// # 返回值
     /// * `anyhow::Result<()>` - 成功返回Ok(())，失败返回错误
+    ///
+    /// # 说明
+    /// * 始终保存会话信息和统计数据
+    /// * 始终保存元素变更记录到 element_changes 表
+    /// * 当 `update_main_data` 为 false 时，跳过主数据更新（SurrealQL 语句执行）
+    /// * 只更新历史数据场景：update_main_data=false
     pub async fn update_elements_to_database(
         &mut self,
         range_eles: &BTreeMap<u32, Vec<EleOperationData>>,
+        update_main_data: bool,
     ) -> anyhow::Result<()> {
         println!("\n将元素操作保存到SurrealDB...");
         let start_time = Instant::now();
-
-        // 创建会话信息表（如果不存在）
-        // let create_session_table_sql = r#"
-        // DEFINE TABLE sessions SCHEMAFULL;
-        // DEFINE FIELD sesno ON sessions TYPE int;
-        // DEFINE FIELD timestamp ON sessions TYPE datetime;
-        // DEFINE FIELD dbnum ON sessions TYPE int;
-        // DEFINE FIELD add_count ON sessions TYPE int;
-        // DEFINE FIELD modify_count ON sessions TYPE int;
-        // DEFINE FIELD delete_count ON sessions TYPE int;
-        // DEFINE FIELD computer_name ON sessions TYPE string;
-        // DEFINE FIELD comments ON sessions TYPE string;
-        // DEFINE FIELD end_pgno ON sessions TYPE int;
-        // DEFINE FIELD index_root_pageno ON sessions TYPE int;
-        // DEFINE FIELD claim_pageno ON sessions TYPE int;
-        // "#;
-        //
-        // // 忽略错误，表可能已经存在
-        // let _ = SUL_DB.query(create_session_table_sql).await;
 
         // 从IO中读取所有会话数据并保存到数据库
         let pdms_header = self.read_pdms_header()?;
@@ -893,7 +883,7 @@ impl PdmsIO {
 
         // 统计每个会话的操作类型数量
         println!("\n2. 统计每个会话的增删改数量...");
-        let mut session_stats: HashMap<i32, (i32, i32, i32)> = HashMap::new();
+        let mut session_stats: BTreeMap<i32, (i32, i32, i32)> = BTreeMap::new();
 
         // 遍历所有会话和元素
         for (sesno, elements) in range_eles {
@@ -983,37 +973,6 @@ impl PdmsIO {
             }
         }
 
-        // 5. 批量执行 SurrealQL 元素 upsert/merge/insert 语句
-        println!("\n5. 批量执行元素 SurrealQL...");
-        let mut surql_batch = Vec::new();
-        let mut total_surql = 0;
-        for (&sesno, elements) in range_eles {
-            for element in elements {
-                let id = element.refno.to_string();
-                let surql = element.to_surql(&id, dbnum, sesno);
-                if !surql.is_empty() {
-                    surql_batch.push(surql);
-                    total_surql += 1;
-                    if surql_batch.len() >= 100 {
-                        let batch_sql = surql_batch.join(";\n");
-                        // println!("批量执行 SurrealQL: {}", &batch_sql);
-                        if let Err(e) = SUL_DB.query(&batch_sql).await {
-                            println!("批量执行 SurrealQL 错误: {}\n, SQL: {}", e, batch_sql    );
-                        }
-                        surql_batch.clear();
-                    }
-                }
-            }
-        }
-        // 处理剩余未满100条的
-        if !surql_batch.is_empty() {
-            let batch_sql = surql_batch.join(";\n");
-            // println!("批量执行 SurrealQL: {}", &batch_sql);
-            if let Err(e) = SUL_DB.query(&batch_sql).await {
-                println!("批量执行 SurrealQL 错误: {}", e);
-            }
-        }
-
         // 按每批100条记录执行批量插入
         for chunk in element_records.chunks(100) {
             if chunk.len() > 0 {
@@ -1032,7 +991,42 @@ impl PdmsIO {
             }
         }
 
-        println!("SurrealQL 执行完成，共 {} 条。", total_surql);
+        if update_main_data {
+            // 5. 批量执行 SurrealQL 元素 upsert/merge/insert 语句
+            println!("\n5. 批量执行元素 SurrealQL...");
+            let mut surql_batch = Vec::new();
+            let mut total_surql = 0;
+            for (&sesno, elements) in range_eles {
+                for element in elements {
+                    let id = element.refno.to_string();
+                    let surql = element.to_surql(&id, dbnum, sesno);
+                    if !surql.is_empty() {
+                        surql_batch.push(surql);
+                        total_surql += 1;
+                        if surql_batch.len() >= 100 {
+                            let batch_sql = surql_batch.join(";\n");
+                            // println!("批量执行 SurrealQL: {}", &batch_sql);
+                            if let Err(e) = SUL_DB.query(&batch_sql).await {
+                                println!("批量执行 SurrealQL 错误: {}\n, SQL: {}", e, batch_sql    );
+                            }
+                            surql_batch.clear();
+                        }
+                    }
+                }
+            }
+            // 处理剩余未满100条的
+            if !surql_batch.is_empty() {
+                let batch_sql = surql_batch.join(";\n");
+                // println!("批量执行 SurrealQL: {}", &batch_sql);
+                if let Err(e) = SUL_DB.query(&batch_sql).await {
+                    println!("批量执行 SurrealQL 错误: {}", e);
+                }
+            }
+
+            println!("SurrealQL 执行完成，共 {} 条。", total_surql);
+        } else {
+            println!("\n5. 跳过主数据更新（update_main_data=false）");
+        }
 
         let elapsed = start_time.elapsed();
         println!("保存到SurrealDB完成, 耗时: {:?}", elapsed);
@@ -1170,6 +1164,42 @@ impl PdmsIO {
         let header = self.read_pdms_header()?;
         let latest_ses_data = self.read_ses_data(header.latest_ses_pgno)?;
         Ok(latest_ses_data.get_utc_dt())
+    }
+
+    /// 获取指定会话号的保存时间
+    ///
+    /// 根据指定的会话号查找对应的会话数据,返回该会话的保存时间。
+    ///
+    /// # 参数
+    /// * `sesno` - 要查询的会话号
+    ///
+    /// # 返回值
+    /// * `anyhow::Result<DateTime<Utc>>` - 成功返回指定会话的保存时间,失败返回错误
+    ///
+    /// # 错误
+    /// * 当找不到指定会话号对应的页面时返回错误
+    /// * 读取会话页数据失败时返回错误
+    pub fn get_sesno_datetime(&mut self, sesno: u32) -> anyhow::Result<DateTime<Utc>> {
+        let ses_data = self.get_ses_data(sesno)?;
+        Ok(ses_data.get_utc_dt())
+    }
+
+    /// 获取指定会话号的保存时间戳
+    ///
+    /// 根据指定的会话号查找对应的会话数据,返回该会话的保存时间的Unix时间戳。
+    ///
+    /// # 参数
+    /// * `sesno` - 要查询的会话号
+    ///
+    /// # 返回值
+    /// * `anyhow::Result<i64>` - 成功返回指定会话的Unix时间戳(秒),失败返回错误
+    ///
+    /// # 错误
+    /// * 当找不到指定会话号对应的页面时返回错误
+    /// * 读取会话页数据失败时返回错误
+    pub fn get_sesno_timestamp(&mut self, sesno: u32) -> anyhow::Result<i64> {
+        let ses_data = self.get_ses_data(sesno)?;
+        Ok(ses_data.get_utc_dt().timestamp())
     }
 
     // 收集指定参考号的历史记录
@@ -1371,6 +1401,9 @@ impl PdmsIO {
             }
         };
 
+        // 在比较之前保存一份完整的最新数据副本
+        let latest_data_copy = latest_att.clone();
+        
         // 检查子元素是否有变化
         let latest_children = &latest_att.children;
         let prev_children = &prev_att.children;
@@ -1502,6 +1535,7 @@ impl PdmsIO {
             result.insert(
                 refno,
                 EleOperationDetail::Modified(ModifiedElement {
+                    current_data: latest_data_copy,
                     added_attrs,
                     deleted_attrs,
                     modified_attrs,
@@ -4769,23 +4803,54 @@ impl PdmsIO {
     ///
     /// # 错误
     /// * 当读取或解析元素数据失败时返回错误
-    pub fn collect_latest_eles(
+    pub async fn collect_latest_eles(
         &mut self,
         max_sessions: Option<u32>,
+    ) -> anyhow::Result<HashMap<RefU64, EleOperationData>> {
+        self.collect_latest_eles_with_options(max_sessions, None).await
+    }
+
+    /// 收集最新的元素数据，支持 Raphtory 存储选项
+    ///
+    /// 该方法是 collect_latest_eles 的扩展版本，支持将数据同时存储到 Raphtory 时间图数据库中。
+    ///
+    /// # 参数
+    /// * `max_sessions` - 可选的最大会话数量限制，如果为None则检索所有会话
+    /// * `raphtory_integration` - 可选的 Raphtory 集成实例，如果提供则同时存储到时间图数据库
+    ///
+    /// # 返回值
+    /// * `anyhow::Result<HashMap<RefU64, EleOperationData>>` - 返回新增的元素操作数据映射
+    ///
+    /// # 错误
+    /// * 当读取或解析元素数据失败时返回错误
+    pub async fn collect_latest_eles_with_options(
+        &mut self,
+        max_sessions: Option<u32>,
+        mut raphtory_integration: Option<&mut crate::raphtory_integration::RaphtoryIntegration>,
     ) -> anyhow::Result<HashMap<RefU64, EleOperationData>> {
         let mut latest_elements: HashMap<RefU64, EleOperationData> = HashMap::new();
         let mut deleted_refnos: HashSet<RefU64> = HashSet::new();
         let mut processed_refnos: HashSet<RefU64> = HashSet::new();
-        
+
         // 获取所有会话号，按降序排列（从最新到最旧）
         let mut session_numbers: Vec<i32> = self.ses_range_map.keys().rev().cloned().collect();
-        
+
         // 如果指定了最大会话数量，则限制处理的会话数
         if let Some(max) = max_sessions {
             session_numbers.truncate(max as usize);
         }
-        
-        println!("开始从后往前检索最新元素数据，共处理 {} 个会话", session_numbers.len());
+
+        let has_raphtory = raphtory_integration.is_some();
+        println!("开始从后往前检索最新元素数据，共处理 {} 个会话{}",
+                 session_numbers.len(),
+                 if has_raphtory { "（同时存储到 Raphtory）" } else { "" });
+
+        // 如果有 Raphtory 集成，初始化它
+        if let Some(ref mut integration) = raphtory_integration {
+            if let Err(e) = integration.initialize() {
+                eprintln!("初始化 Raphtory 集成失败: {}", e);
+            }
+        }
         
         // 从最新会话开始向前遍历
         for (index, &sesno) in session_numbers.iter().enumerate() {
@@ -4835,17 +4900,79 @@ impl PdmsIO {
             // 处理收集到的操作
             for (refno, detail, is_delete) in current_session_operations {
                 processed_refnos.insert(refno);
-                
+
                 if is_delete {
                     deleted_refnos.insert(refno);
                     latest_elements.remove(&refno);
                 } else if !deleted_refnos.contains(&refno) && !latest_elements.contains_key(&refno) {
-                    latest_elements.insert(refno, EleOperationData::new(refno, sesno as u32, detail));
+                    let element_data = EleOperationData::new(refno, sesno as u32, detail);
+
+                    // 如果有 Raphtory 集成，同时存储到时间图数据库
+                    if let Some(ref mut integration) = raphtory_integration {
+                        let mut single_element_map = HashMap::new();
+                        single_element_map.insert(refno, element_data.clone());
+                        if let Err(e) = integration.store_elements(&single_element_map) {
+                            eprintln!("存储元素 {} 到 Raphtory 失败: {}", refno, e);
+                        }
+                    }
+
+                    latest_elements.insert(refno, element_data);
                 }
             }
         }
 
+        // 如果使用了 Raphtory，显示统计信息并完成存储
+        if let Some(ref mut integration) = raphtory_integration {
+            let stats = integration.get_statistics();
+            println!("Raphtory 图统计信息: {:?}", stats);
+            if let Err(e) = integration.finalize_and_save().await {
+                eprintln!("完成 Raphtory 存储时出错: {}", e);
+            }
+        }
+
         Ok(latest_elements)
+    }
+
+    /// 收集最新元素数据并保存到 Raphtory 时间图数据库
+    ///
+    /// 这是一个便捷方法，用于收集最新的元素数据并直接存储到 Raphtory 时间图数据库中。
+    ///
+    /// # 参数
+    /// * `max_sessions` - 可选的最大会话数量限制，如果为None则处理所有会话
+    /// * `dbnum` - 数据库编号
+    ///
+    /// # 返回值
+    /// * `anyhow::Result<crate::raphtory_integration::RaphtoryIntegration>` - 返回构建好的 Raphtory 集成实例
+    ///
+    /// # 错误
+    /// * 当读取或解析元素数据失败时返回错误
+    pub async fn collect_and_save_to_raphtory(
+        &mut self,
+        max_sessions: Option<u32>,
+        dbnum: i32,
+    ) -> anyhow::Result<crate::raphtory_integration::RaphtoryIntegration> {
+        use crate::raphtory_integration::{RaphtoryIntegration, RaphtoryConfig};
+
+        println!("开始收集数据并保存到 Raphtory 时间图数据库...");
+        let start_time = std::time::Instant::now();
+
+        // 创建 Raphtory 配置
+        let mut config = RaphtoryConfig::default();
+        config.db_num = dbnum;
+        config.graph_name = format!("pdms_db_{}_graph", dbnum);
+        config.verbose_logging = true;
+
+        // 创建 Raphtory 集成实例
+        let mut integration = RaphtoryIntegration::new(config);
+
+        // 使用 collect_latest_eles_with_options 收集数据并存储到 Raphtory
+        let latest_elements = self.collect_latest_eles_with_options(max_sessions, Some(&mut integration)).await?;
+
+        let elapsed = start_time.elapsed();
+        println!("Raphtory 数据收集和存储完成，处理了 {} 个元素，耗时: {:?}", 
+                latest_elements.len(), elapsed);
+
+        Ok(integration)
     }
 
     /// 收集并保存最新元素数据和会话数据到数据库
@@ -4879,7 +5006,7 @@ impl PdmsIO {
         let latest_elements = if let Some(eles_map) = eles_map {
             eles_map
         } else {
-            self.collect_latest_eles(max_sessions)?
+            self.collect_latest_eles(max_sessions).await?
         };
         let collect_elapsed = collect_start_time.elapsed();
         
@@ -4997,8 +5124,8 @@ impl PdmsIO {
         // 第二步：统计并更新会话的增删改数量
         println!("  3.2 统计会话操作数量...");
         let stats_start_time = Instant::now();
-        
-        let mut session_stats: HashMap<i32, (i32, i32, i32)> = HashMap::new();
+
+        let mut session_stats: BTreeMap<i32, (i32, i32, i32)> = BTreeMap::new();
 
         for (sesno, elements) in range_eles {
             for element in elements {

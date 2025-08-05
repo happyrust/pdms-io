@@ -74,7 +74,7 @@ async fn main() -> anyhow::Result<()> {
     let elapsed = start_time.elapsed();
 
     // 将元素操作保存到SurrealDB
-    io.update_elements_to_database(&range_eles).await?;
+    io.update_elements_to_database(&range_eles, true).await?;
     Ok(())
 }
 

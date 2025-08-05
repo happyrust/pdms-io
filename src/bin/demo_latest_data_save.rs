@@ -95,7 +95,7 @@ async fn main() -> anyhow::Result<()> {
     
     // 尝试再次收集数据以显示统计
     let stats_start = Instant::now();
-    let latest_elements = io.collect_latest_eles(Some(max_sessions))?;
+    let latest_elements = io.collect_latest_eles(Some(max_sessions)).await?;
     let stats_elapsed = stats_start.elapsed();
     
     println!("当前最新元素数量: {}", latest_elements.len());

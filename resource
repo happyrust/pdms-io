@@ -1,0 +1,1 @@
+/Volumes/DPC/work/new-crates/aios-core/resource

@@ -15,3 +15,5 @@ pub mod test_history_data;
 pub mod test_refno_status;
 
 pub mod test_collect_latest_eles;
+
+pub mod test_raphtory_integration;
