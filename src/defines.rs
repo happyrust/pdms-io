@@ -1,3 +1,4 @@
+use aios_core::pdms_types::EleOperation;
 use aios_core::tool::db_tool::decode_chars_data;
 use aios_core::RefU64;
 use chrono::{DateTime, Local, MappedLocalTime, TimeZone, Utc};
@@ -7,8 +8,6 @@ use deku::prelude::*;
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 use std::convert::{TryFrom, TryInto};
-use surrealdb::sql::Thing;
-use aios_core::pdms_types::EleOperation;
 use std::str::FromStr;
 
 pub const PAGE_SIZE: usize = 0x800;
@@ -22,7 +21,7 @@ pub struct PdmsHeader {
     pub db_num: i32,
     // 然后是 00 00 00 01 (0x0C - 0x1F)
     pub unknown_1: [i32; 5],
-    // 名词 (0x20 - 0x23) 
+    // 名词 (0x20 - 0x23)
     pub noun: i32,
     // 0xFF FF FF FF (0x24 - 0x27)
     pub unknown_2: i32,
@@ -31,7 +30,6 @@ pub struct PdmsHeader {
     // 扩展号 (0x2C - 0x2F)
     pub ext_no: u32,
 }
-
 
 /// 数据库页面基本信息
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -115,20 +113,19 @@ pub struct SessionPageData {
 }
 
 impl SessionPageData {
-
     #[inline]
     pub fn get_id(&self, dbnum: i32) -> [i32; 2] {
         [dbnum, self.sesno]
     }
 
     /// 获取指定参考号在当前会话中的操作状态
-    /// 
+    ///
     /// 判断参考号在当前会话中的状态是增加、删除还是修改
     pub fn get_refno_status(&self, _refno: RefU64) -> EleOperation {
         // 默认情况下，如果参考号存在于当前会话，我们认为它是被添加的
         // 具体的状态判断需要比较前后会话的数据变化
         // 在实际情况中，我们需要查看这个会话的所有操作来确定
-        
+
         // 这个方法保留在SessionPageData中，但实际上不会被调用
         // 实际的状态判断逻辑已经转移到了PdmsIO::get_refno_status方法中
         EleOperation::Add
@@ -160,19 +157,20 @@ impl SessionPageData {
         let hours = self.hours % 24;
         let minutes = self.seconds / 60;
         let seconds = self.seconds % 60;
-        Local.with_ymd_and_hms(
-            year as i32,
-            month as u32,
-            days,
-            hours as u32,
-            minutes,
-            seconds,
-        )
-        .unwrap()
-        .into()
+        Local
+            .with_ymd_and_hms(
+                year as i32,
+                month as u32,
+                days,
+                hours as u32,
+                minutes,
+                seconds,
+            )
+            .unwrap()
+            .into()
     }
 
-    #[inline] 
+    #[inline]
     pub fn get_utc_dt(&self) -> DateTime<Utc> {
         self.get_dt()
     }
@@ -271,14 +269,14 @@ pub struct RootIndexPage {
 
 ///Index 里的数据条目
 /// 参考号数据位置结构体
-/// 
+///
 /// 用于存储PDMS数据库中元素的参考号和其对应的物理存储位置信息
 #[derive(Debug, PartialEq, DekuRead, DekuWrite, Clone)]
 #[deku(endian = "big")]
 pub struct RefnoDataLoc {
     /// 参考号的高32位
     pub refno_0: u32,
-    /// 参考号的低32位 
+    /// 参考号的低32位
     pub refno_1: u32,
     /// 页号
     pub pgno: u32,
@@ -291,7 +289,6 @@ pub struct RefnoDataLoc {
 }
 
 impl RefnoDataLoc {
-
     /// 是否是起始页
     #[inline]
     pub fn is_start_page(&self) -> bool {
@@ -299,7 +296,7 @@ impl RefnoDataLoc {
     }
 
     /// 获取完整的参考号
-    /// 
+    ///
     /// 将高32位和低32位组合成完整的参考号
     #[inline]
     pub fn get_refno(&self) -> RefU64 {
@@ -307,7 +304,7 @@ impl RefnoDataLoc {
     }
 
     /// 获取属性数据的实际偏移量
-    /// 
+    ///
     /// 根据页号和页内偏移量计算出实际的字节偏移量
     #[inline]
     pub fn get_att_offset(&self) -> u64 {
@@ -316,7 +313,7 @@ impl RefnoDataLoc {
 }
 
 /// PDMS数据库中的参考号索引页结构
-/// 
+///
 /// 用于存储参考号索引的页面数据结构
 #[derive(Debug, PartialEq, DekuRead, DekuWrite)]
 pub struct RefnoIndexPage {
@@ -346,7 +343,7 @@ pub struct RefnoIndexPage {
 
 //DekuWrite
 /// PDMS数据库中的索引页数据结构
-/// 
+///
 /// 用于存储参考号和其位置信息的索引页数据
 #[derive(Derivative, PartialEq, DekuRead)]
 #[derivative(Debug)]
@@ -382,22 +379,23 @@ pub struct IndexPageData {
 }
 
 impl IndexPageData {
-
     /// 获取起始页
-    /// 
+    ///
     /// 返回索引页中的起始页位置信息（如果存在）
-    /// 
+    ///
     /// # 返回值
     /// * `Option<&RefnoDataLoc>` - 如果找到起始页则返回Some,否则返回None
-    #[inline] 
+    #[inline]
     pub fn get_start_page(&self) -> Option<&RefnoDataLoc> {
-        self.refno_locs.first().filter(|first| first.is_start_page())
+        self.refno_locs
+            .first()
+            .filter(|first| first.is_start_page())
     }
 
     /// 获取最大页号
-    /// 
+    ///
     /// 遍历所有参考号位置信息,返回最大的页号值
-    /// 
+    ///
     /// # 返回值
     /// * `u32` - 最大页号,如果列表为空则返回0
     #[inline]

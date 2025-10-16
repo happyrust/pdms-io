@@ -26,8 +26,9 @@ tokio = { version = "1.32.0", features = ["full"] }
 dashmap = "6.1.0"
 serde_json = "1.0.105"
 chrono = "0.4.31"
-surrealdb = { git = "https://gitee.com/happydpc/surrealdb", default-features = false, features = [
+surrealdb = { git = "https://gitee.com/happydpc/surrealdb", branch = "3.0", default-features = false, features = [
     "protocol-ws",
+    "kv-mem"
 ] }
 reqwest = { version = "0.11.22", default-features = false, features = [
     "json",
@@ -48,21 +49,6 @@ flume = "0.11.0"
 rand = "0.9.1"
 iter_tools = "0.29.0"
 meilisearch-sdk = "0.28.0"
-raphtory = { path = "/Volumes/DPC/work/database/Raphtory/raphtory", features = [
-    "proto",
-] }
-
-[[bin]]
-name = "create_complete_raphtory_graph"
-path = "src/bin/create_complete_raphtory_graph.rs"
-
-[[bin]]
-name = "debug_raphtory_time"
-path = "src/bin/debug_raphtory_time.rs"
-
-[[bin]]
-name = "demo_raphtory_deletion"
-path = "src/bin/demo_raphtory_deletion.rs"
 
 [[bin]]
 name = "demo_deletion_with_edges"
@@ -75,10 +61,13 @@ opt-level = 0
 opt-level = 3
 
 [patch."https://gitee.com/happydpc/rs-core.git"]
-aios_core = { path = "../aios-core" }
+aios_core = { path = "../rs-core" }
 
 # [patch."https://gitee.com/happydpc/aios-parse-pdms.git"]
 # parse_pdms_db = { path = "../aios-parse-pdms" }
 
-# [patch."https://gitee.com/happydpc/surrealdb.git"]
-# surrealdb = { path = "../surrealdb/crates/sdk" }
+[patch."https://gitee.com/happydpc/surrealdb"]
+surrealdb = { path = "/Volumes/DPC/work/database/surrealdb/crates/sdk", default-features = false, features = [
+    "protocol-ws",
+    "kv-mem"
+] }
