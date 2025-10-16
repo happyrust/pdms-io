@@ -26,7 +26,7 @@ tokio = { version = "1.32.0", features = ["full"] }
 dashmap = "6.1.0"
 serde_json = "1.0.105"
 chrono = "0.4.31"
-surrealdb = { git = "https://gitee.com/happydpc/surrealdb", branch = "3.0", default-features = false, features = [
+surrealdb = { git = "https://gitee.com/happydpc/surrealdb", branch = "feature/recursion-prune", default-features = false, features = [
     "protocol-ws",
     "kv-mem"
 ] }
@@ -66,8 +66,8 @@ aios_core = { path = "../rs-core" }
 # [patch."https://gitee.com/happydpc/aios-parse-pdms.git"]
 # parse_pdms_db = { path = "../aios-parse-pdms" }
 
-[patch."https://gitee.com/happydpc/surrealdb"]
-surrealdb = { path = "/Volumes/DPC/work/database/surrealdb/crates/sdk", default-features = false, features = [
-    "protocol-ws",
-    "kv-mem"
-] }
+# [patch."https://gitee.com/happydpc/surrealdb"]
+# surrealdb = { path = "/Volumes/DPC/work/database/surrealdb/crates/sdk", default-features = false, features = [
+#     "protocol-ws",
+#     "kv-mem"
+# ] }
