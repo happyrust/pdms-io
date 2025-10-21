@@ -27,8 +27,6 @@ pub mod tests;
 
 pub mod surql;
 
-pub mod raphtory_integration;
-
 
 
 

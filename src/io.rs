@@ -4807,27 +4807,6 @@ impl PdmsIO {
         &mut self,
         max_sessions: Option<u32>,
     ) -> anyhow::Result<HashMap<RefU64, EleOperationData>> {
-        self.collect_latest_eles_with_options(max_sessions, None).await
-    }
-
-    /// 收集最新的元素数据，支持 Raphtory 存储选项
-    ///
-    /// 该方法是 collect_latest_eles 的扩展版本，支持将数据同时存储到 Raphtory 时间图数据库中。
-    ///
-    /// # 参数
-    /// * `max_sessions` - 可选的最大会话数量限制，如果为None则检索所有会话
-    /// * `raphtory_integration` - 可选的 Raphtory 集成实例，如果提供则同时存储到时间图数据库
-    ///
-    /// # 返回值
-    /// * `anyhow::Result<HashMap<RefU64, EleOperationData>>` - 返回新增的元素操作数据映射
-    ///
-    /// # 错误
-    /// * 当读取或解析元素数据失败时返回错误
-    pub async fn collect_latest_eles_with_options(
-        &mut self,
-        max_sessions: Option<u32>,
-        mut raphtory_integration: Option<&mut crate::raphtory_integration::RaphtoryIntegration>,
-    ) -> anyhow::Result<HashMap<RefU64, EleOperationData>> {
         let mut latest_elements: HashMap<RefU64, EleOperationData> = HashMap::new();
         let mut deleted_refnos: HashSet<RefU64> = HashSet::new();
         let mut processed_refnos: HashSet<RefU64> = HashSet::new();
@@ -4839,18 +4818,7 @@ impl PdmsIO {
         if let Some(max) = max_sessions {
             session_numbers.truncate(max as usize);
         }
-
-        let has_raphtory = raphtory_integration.is_some();
-        println!("开始从后往前检索最新元素数据，共处理 {} 个会话{}",
-                 session_numbers.len(),
-                 if has_raphtory { "（同时存储到 Raphtory）" } else { "" });
-
-        // 如果有 Raphtory 集成，初始化它
-        if let Some(ref mut integration) = raphtory_integration {
-            if let Err(e) = integration.initialize() {
-                eprintln!("初始化 Raphtory 集成失败: {}", e);
-            }
-        }
+        println!("开始从后往前检索最新元素数据，共处理 {} 个会话", session_numbers.len());
         
         // 从最新会话开始向前遍历
         for (index, &sesno) in session_numbers.iter().enumerate() {
@@ -4906,73 +4874,12 @@ impl PdmsIO {
                     latest_elements.remove(&refno);
                 } else if !deleted_refnos.contains(&refno) && !latest_elements.contains_key(&refno) {
                     let element_data = EleOperationData::new(refno, sesno as u32, detail);
-
-                    // 如果有 Raphtory 集成，同时存储到时间图数据库
-                    if let Some(ref mut integration) = raphtory_integration {
-                        let mut single_element_map = HashMap::new();
-                        single_element_map.insert(refno, element_data.clone());
-                        if let Err(e) = integration.store_elements(&single_element_map) {
-                            eprintln!("存储元素 {} 到 Raphtory 失败: {}", refno, e);
-                        }
-                    }
-
                     latest_elements.insert(refno, element_data);
                 }
             }
         }
 
-        // 如果使用了 Raphtory，显示统计信息并完成存储
-        if let Some(ref mut integration) = raphtory_integration {
-            let stats = integration.get_statistics();
-            println!("Raphtory 图统计信息: {:?}", stats);
-            if let Err(e) = integration.finalize_and_save().await {
-                eprintln!("完成 Raphtory 存储时出错: {}", e);
-            }
-        }
-
         Ok(latest_elements)
-    }
-
-    /// 收集最新元素数据并保存到 Raphtory 时间图数据库
-    ///
-    /// 这是一个便捷方法，用于收集最新的元素数据并直接存储到 Raphtory 时间图数据库中。
-    ///
-    /// # 参数
-    /// * `max_sessions` - 可选的最大会话数量限制，如果为None则处理所有会话
-    /// * `dbnum` - 数据库编号
-    ///
-    /// # 返回值
-    /// * `anyhow::Result<crate::raphtory_integration::RaphtoryIntegration>` - 返回构建好的 Raphtory 集成实例
-    ///
-    /// # 错误
-    /// * 当读取或解析元素数据失败时返回错误
-    pub async fn collect_and_save_to_raphtory(
-        &mut self,
-        max_sessions: Option<u32>,
-        dbnum: i32,
-    ) -> anyhow::Result<crate::raphtory_integration::RaphtoryIntegration> {
-        use crate::raphtory_integration::{RaphtoryIntegration, RaphtoryConfig};
-
-        println!("开始收集数据并保存到 Raphtory 时间图数据库...");
-        let start_time = std::time::Instant::now();
-
-        // 创建 Raphtory 配置
-        let mut config = RaphtoryConfig::default();
-        config.db_num = dbnum;
-        config.graph_name = format!("pdms_db_{}_graph", dbnum);
-        config.verbose_logging = true;
-
-        // 创建 Raphtory 集成实例
-        let mut integration = RaphtoryIntegration::new(config);
-
-        // 使用 collect_latest_eles_with_options 收集数据并存储到 Raphtory
-        let latest_elements = self.collect_latest_eles_with_options(max_sessions, Some(&mut integration)).await?;
-
-        let elapsed = start_time.elapsed();
-        println!("Raphtory 数据收集和存储完成，处理了 {} 个元素，耗时: {:?}", 
-                latest_elements.len(), elapsed);
-
-        Ok(integration)
     }
 
     /// 收集并保存最新元素数据和会话数据到数据库

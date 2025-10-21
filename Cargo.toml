@@ -1,7 +1,7 @@
 [package]
 name = "pdms_io"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -14,7 +14,7 @@ debug_btree_search = [] # 启用B+树搜索调试输出
 anyhow = "1.0"
 deku = "0.16.0"
 memchr = "2.7.2"
-aios_core = { git = "https://gitee.com/happydpc/rs-core" }
+aios_core = { git = "https://gitee.com/happydpc/rs-core", default-features = false }
 parse_pdms_db = { git = "https://gitee.com/happydpc/aios-parse-pdms" }
 nom = "7.1.3"
 notify = "8.0.0"
@@ -48,25 +48,6 @@ flume = "0.11.0"
 rand = "0.9.1"
 iter_tools = "0.29.0"
 meilisearch-sdk = "0.28.0"
-raphtory = { path = "/Volumes/DPC/work/database/Raphtory/raphtory", features = [
-    "proto",
-] }
-
-[[bin]]
-name = "create_complete_raphtory_graph"
-path = "src/bin/create_complete_raphtory_graph.rs"
-
-[[bin]]
-name = "debug_raphtory_time"
-path = "src/bin/debug_raphtory_time.rs"
-
-[[bin]]
-name = "demo_raphtory_deletion"
-path = "src/bin/demo_raphtory_deletion.rs"
-
-[[bin]]
-name = "demo_deletion_with_edges"
-path = "src/bin/demo_deletion_with_edges.rs"
 
 [profile.dev]
 opt-level = 0
@@ -74,8 +55,8 @@ opt-level = 0
 [profile.release]
 opt-level = 3
 
-[patch."https://gitee.com/happydpc/rs-core.git"]
-aios_core = { path = "../aios-core" }
+# [patch."https://gitee.com/happydpc/rs-core.git"]
+# aios_core = { path = "../aios-core" }
 
 # [patch."https://gitee.com/happydpc/aios-parse-pdms.git"]
 # parse_pdms_db = { path = "../aios-parse-pdms" }
