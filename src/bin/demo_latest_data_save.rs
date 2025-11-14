@@ -20,11 +20,11 @@ use std::time::Instant;
 async fn main() -> anyhow::Result<()> {
     // 初始化日志
     init_log(log::LevelFilter::Info).unwrap();
-    
+
     // 获取数据库配置
     let db_option = get_db_option();
     println!("数据库连接字符串: {}", db_option.get_version_db_conn_str());
-    
+
     // 初始化SurrealDB连接
     println!("初始化 SurrealDB 连接...");
     init_test_surreal().await.unwrap();
@@ -34,7 +34,7 @@ async fn main() -> anyhow::Result<()> {
     let db_path = std::env::args().nth(1).unwrap_or_else(|| {
         r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams8000_0001"#.to_string()
     });
-    
+
     let max_sessions = std::env::args()
         .nth(2)
         .and_then(|s| s.parse::<u32>().ok())
@@ -62,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
     // 初始化PDMS IO
     println!("\n=== 初始化 PDMS IO ===");
     let mut io = PdmsIO::new(project_name.clone(), &db_path, true);
-    
+
     let init_start = Instant::now();
     io.open()?;
     let init_elapsed = init_start.elapsed();
@@ -77,8 +77,11 @@ async fn main() -> anyhow::Result<()> {
     // 执行主要功能：收集并保存最新数据
     println!("\n=== 开始收集并保存最新数据 ===");
     let main_start = Instant::now();
-    
-    match io.collect_and_save_latest_data(Some(max_sessions), None).await {
+
+    match io
+        .collect_and_save_latest_data(Some(max_sessions), None)
+        .await
+    {
         Ok(()) => {
             let main_elapsed = main_start.elapsed();
             println!("\n🎉 任务完成!");
@@ -92,21 +95,21 @@ async fn main() -> anyhow::Result<()> {
 
     // 显示一些统计信息
     println!("\n=== 统计信息 ===");
-    
+
     // 尝试再次收集数据以显示统计
     let stats_start = Instant::now();
     let latest_elements = io.collect_latest_eles(Some(max_sessions)).await?;
     let stats_elapsed = stats_start.elapsed();
-    
+
     println!("当前最新元素数量: {}", latest_elements.len());
     println!("统计耗时: {:?}", stats_elapsed);
-    
+
     // 按会话分组显示
     let mut session_counts = std::collections::HashMap::new();
     for element in latest_elements.values() {
         *session_counts.entry(element.sesno).or_insert(0) += 1;
     }
-    
+
     if !session_counts.is_empty() {
         println!("\n按会话分布:");
         let mut sessions: Vec<_> = session_counts.iter().collect();
@@ -118,4 +121,4 @@ async fn main() -> anyhow::Result<()> {
 
     println!("\n=== 程序执行完成 ===");
     Ok(())
-} 
+}

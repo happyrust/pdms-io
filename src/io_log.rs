@@ -27,62 +27,57 @@ pub fn init_log(level: log::LevelFilter) -> Result<()> {
 }
 
 /// 初始化日志，同时输出到控制台和文件
-/// 
+///
 /// # 参数
-/// 
+///
 /// * `level` - 日志级别过滤器
 /// * `log_file_path` - 日志文件路径
 /// * `rotate_size` - 单个日志文件大小限制（字节），达到后会创建新文件
 /// * `max_files` - 最大保留的日志文件数量
-/// 
+///
 /// # 返回
-/// 
+///
 /// * `Result<()>` - 成功或错误
 pub fn init_log_with_file(
-    level: log::LevelFilter, 
+    level: log::LevelFilter,
     log_file_path: &str,
-    rotate_size: u64,
-    max_files: usize
+    _rotate_size: u64,
+    _max_files: usize,
 ) -> Result<()> {
     let local_level = level;
-    
+
     // 创建日志格式
-    let format = move |out: fern::FormatCallback, message: &fmt::Arguments, record: &log::Record| {
-        if local_level > log::LevelFilter::Info {
-            // 调试模式下，添加更多信息
-            out.finish(format_args!(
-                "[{}][{}][{}] {}",
-                chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f"),
-                record.target(),
-                record.level(),
-                message
-            ))
-        } else {
-            // 普通模式下，简化输出
-            out.finish(format_args!(
-                "[{}][{}] {}",
-                chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
-                record.level(),
-                message
-            ))
-        }
-    };
+    let format =
+        move |out: fern::FormatCallback, message: &fmt::Arguments, record: &log::Record| {
+            if local_level > log::LevelFilter::Info {
+                // 调试模式下，添加更多信息
+                out.finish(format_args!(
+                    "[{}][{}][{}] {}",
+                    chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f"),
+                    record.target(),
+                    record.level(),
+                    message
+                ))
+            } else {
+                // 普通模式下，简化输出
+                out.finish(format_args!(
+                    "[{}][{}] {}",
+                    chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
+                    record.level(),
+                    message
+                ))
+            }
+        };
 
     // 创建日志分发器
-    let base_config = fern::Dispatch::new()
-        .format(format)
-        .level(level);
+    let base_config = fern::Dispatch::new().format(format).level(level);
 
     // 控制台输出
-    let stdout_config = fern::Dispatch::new()
-        .chain(std::io::stdout());
+    let stdout_config = fern::Dispatch::new().chain(std::io::stdout());
 
     // 文件输出（带轮转）
-    let file_config = fern::Dispatch::new()
-        .chain(
-            fern::log_file(log_file_path)
-                .context("无法创建日志文件")?
-        );
+    let file_config =
+        fern::Dispatch::new().chain(fern::log_file(log_file_path).context("无法创建日志文件")?);
 
     // 组合并应用配置
     base_config
@@ -95,18 +90,18 @@ pub fn init_log_with_file(
 }
 
 /// 高级日志配置，支持日志轮转功能
-/// 
+///
 /// # 参数
-/// 
+///
 /// * `config` - 日志配置
-/// 
+///
 /// # 返回
-/// 
+///
 /// * `Result<()>` - 成功或错误
 pub fn init_log_advanced(config: LogConfig) -> Result<()> {
-    use std::fs;
     use std::fmt;
-    
+    use std::fs;
+
     // 创建日志目录（如果不存在）
     if let Some(path) = config.log_file_path.as_ref() {
         if let Some(dir) = std::path::Path::new(path).parent() {
@@ -115,55 +110,47 @@ pub fn init_log_advanced(config: LogConfig) -> Result<()> {
     }
 
     // 创建日志格式
-    let format = move |out: fern::FormatCallback, message: &fmt::Arguments, record: &log::Record| {
-        let now = chrono::Local::now();
-        
-        if config.detailed_output {
-            // 详细输出模式
-            out.finish(format_args!(
-                "[{}][{}][{}] {}",
-                now.format("%Y-%m-%d %H:%M:%S%.3f"),
-                record.target(),
-                record.level(),
-                message
-            ))
-        } else {
-            // 简洁输出模式
-            out.finish(format_args!(
-                "[{}][{}] {}",
-                now.format("%Y-%m-%d %H:%M:%S"),
-                record.level(),
-                message
-            ))
-        }
-    };
+    let format =
+        move |out: fern::FormatCallback, message: &fmt::Arguments, record: &log::Record| {
+            let now = chrono::Local::now();
+
+            if config.detailed_output {
+                // 详细输出模式
+                out.finish(format_args!(
+                    "[{}][{}][{}] {}",
+                    now.format("%Y-%m-%d %H:%M:%S%.3f"),
+                    record.target(),
+                    record.level(),
+                    message
+                ))
+            } else {
+                // 简洁输出模式
+                out.finish(format_args!(
+                    "[{}][{}] {}",
+                    now.format("%Y-%m-%d %H:%M:%S"),
+                    record.level(),
+                    message
+                ))
+            }
+        };
 
     // 创建基础配置
-    let mut dispatch = fern::Dispatch::new()
-        .format(format)
-        .level(config.level);
+    let mut dispatch = fern::Dispatch::new().format(format).level(config.level);
 
     // 如果启用了控制台输出
     if config.console_output {
         // 根据是否为TTY终端决定是否添加颜色
         if atty::is(atty::Stream::Stdout) && config.colored_output {
-            dispatch = dispatch.chain(
-                fern::Dispatch::new()
-                    .chain(std::io::stdout())
-            );
+            dispatch = dispatch.chain(fern::Dispatch::new().chain(std::io::stdout()));
         } else {
-            dispatch = dispatch.chain(
-                fern::Dispatch::new()
-                    .chain(std::io::stdout())
-            );
+            dispatch = dispatch.chain(fern::Dispatch::new().chain(std::io::stdout()));
         }
     }
 
     // 如果启用了文件输出
     if let Some(log_path) = config.log_file_path {
         dispatch = dispatch.chain(
-            fern::Dispatch::new()
-                .chain(fern::log_file(log_path).context("无法创建日志文件")?)
+            fern::Dispatch::new().chain(fern::log_file(log_path).context("无法创建日志文件")?),
         );
     }
 

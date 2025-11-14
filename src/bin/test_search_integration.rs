@@ -16,7 +16,7 @@ use std::time::Instant;
 async fn main() -> anyhow::Result<()> {
     init_log(log::LevelFilter::Info).unwrap();
     let db_option = get_db_option();
-    
+
     // 初始化SurrealDB连接
     init_test_surreal().await.unwrap();
 
@@ -78,7 +78,7 @@ async fn main() -> anyhow::Result<()> {
     let start_time = Instant::now();
     let range_eles = io.collect_increment_eles(Some(sesno_range))?;
     let elapsed = start_time.elapsed();
-    
+
     let total_elements: usize = range_eles.values().map(|v| v.len()).sum();
     println!("收集到 {} 个元素，耗时: {:?}", total_elements, elapsed);
 
@@ -125,8 +125,13 @@ async fn main() -> anyhow::Result<()> {
         println!("  未找到包含 'ELBOW' 的元素");
     } else {
         for (i, result) in elbow_results.iter().enumerate() {
-            println!("  {}. {} (类型: {}, 参考号: {})", 
-                     i + 1, result.name, result.element_type, result.refno);
+            println!(
+                "  {}. {} (类型: {}, 参考号: {})",
+                i + 1,
+                result.name,
+                result.element_type,
+                result.refno
+            );
         }
     }
 
@@ -155,8 +160,13 @@ async fn main() -> anyhow::Result<()> {
         println!("  未找到新增的元素");
     } else {
         for (i, result) in new_elements.iter().enumerate() {
-            println!("  {}. {} (类型: {}, 会话: {})", 
-                     i + 1, result.name, result.element_type, result.sesno);
+            println!(
+                "  {}. {} (类型: {}, 会话: {})",
+                i + 1,
+                result.name,
+                result.element_type,
+                result.sesno
+            );
         }
     }
 
@@ -168,4 +178,4 @@ async fn main() -> anyhow::Result<()> {
     println!("  - advanced_search(): 高级搜索（支持过滤和排序）");
 
     Ok(())
-} 
+}

@@ -1,14 +1,13 @@
 use aios_core::pdms_types::EleOperation;
 use aios_core::tool::db_tool::decode_chars_data;
 use aios_core::RefU64;
-use chrono::{DateTime, Local, MappedLocalTime, TimeZone, Utc};
+use chrono::{DateTime, Local, TimeZone, Utc};
 use deku::bitvec::*;
 use deku::ctx::Endian;
 use deku::prelude::*;
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
-use std::convert::{TryFrom, TryInto};
-use std::str::FromStr;
+use std::convert::TryFrom;
 
 pub const PAGE_SIZE: usize = 0x800;
 
@@ -418,7 +417,7 @@ fn read_refno_data_loc(
             rest = next_rest;
             break;
         }
-        let (next_rest, mut d) = RefnoDataLoc::read(rest, ())?;
+        let (next_rest, d) = RefnoDataLoc::read(rest, ())?;
 
         vec.push(d);
         rest = next_rest;

@@ -32,7 +32,6 @@ async fn main() -> anyhow::Result<()> {
         .nth(2)
         .unwrap_or_else(|| "17496_497143".to_string());
 
-
     let project_name = Path::new(&db_path)
         .file_name()
         .and_then(|n| n.to_str())
@@ -77,4 +76,3 @@ async fn main() -> anyhow::Result<()> {
     io.update_elements_to_database(&range_eles, true).await?;
     Ok(())
 }
-

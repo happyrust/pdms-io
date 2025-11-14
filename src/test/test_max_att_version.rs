@@ -1,7 +1,3 @@
-use crate::io::PdmsIO;
-use aios_core::get_db_option;
-use std::path::PathBuf;
-
 //讲session 数据保存到数据库中，后面版本更新比较的就是会话层的数据
 #[tokio::test]
 pub async fn test_get_max_att_pgno() {
@@ -14,6 +10,6 @@ pub async fn test_get_max_att_pgno() {
     let max_att_version = io.get_latest_sesno().unwrap();
     dbg!(max_att_version);
 
-    let incr_eles = io.collect_increment_eles(Some( 1109..=1111)).unwrap();
+    let incr_eles = io.collect_increment_eles(Some(1109..=1111)).unwrap();
     dbg!(&incr_eles.len());
 }

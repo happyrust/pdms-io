@@ -1,11 +1,3 @@
-use std::fs::File;
-use std::mem::size_of;
-use deku::prelude::*;
-use std::convert::{TryFrom, TryInto};
-use std::fmt::Debug;
-use std::io::{Read, Seek, SeekFrom};
-use anyhow::anyhow;
-
 // pub fn get_parsed_data<'a, T: Clone + Debug + DekuRead<'a> + DekuWrite + TryFrom<&'a [u8]>>(file: &mut File, start: u64) -> anyhow::Result<T>{
 //
 //     let mut data = vec![];

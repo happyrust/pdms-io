@@ -1,6 +1,3 @@
-use parse_pdms_db::test_cases::convert_str_to_bytes;
-use crate::defines::SessionPageData;
-
 pub const TEST_SES_DATA_1: &'static str = "
 00 00 00 03 00 00 00 0A 00 00 00 01 00 00 01 B0
 FF FF FF FF 00 00 00 62 00 00 00 01 00 00 00 60

@@ -1,13 +1,8 @@
-use aios_core::{init_test_surreal, RefU64};
 use std::env;
 use std::path::PathBuf;
 
-use crate::io::PdmsIO;
-
-
-
 #[tokio::test]
-async fn test_query_refno_sesno() -> anyhow::Result<()>{
+async fn test_query_refno_sesno() -> anyhow::Result<()> {
     init_test_surreal().await;
     let refno = "17496_171715".into();
     let sesno = aios_core::query_refno_sesno(refno, 1, 1112).await?;
@@ -78,8 +73,8 @@ async fn test_get_sesno_timestamp() -> anyhow::Result<()> {
 /// # 返回值
 /// * `String` - 完整的数据库路径
 fn get_test_database_path(relative_path: &str) -> String {
-    let base_path = env::var("PDMS_TEST_PATH")
-        .unwrap_or_else(|_| "/Volumes/DPC/work/e3d_models".to_string());
+    let base_path =
+        env::var("PDMS_TEST_PATH").unwrap_or_else(|_| "/Volumes/DPC/work/e3d_models".to_string());
 
     let full_path = PathBuf::from(base_path).join(relative_path);
     full_path.to_string_lossy().to_string()

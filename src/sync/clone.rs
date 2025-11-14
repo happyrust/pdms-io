@@ -13,7 +13,7 @@ use tokio::{
 };
 use url::Url;
 
-use crate::{human_size};
+use crate::human_size;
 use dpcsync::{
     archive_reader::{ArchiveReader, HttpReader, IoReader},
     chunker, Archive, ChunkIndex, CloneOutput, HashSum, VerifiedChunk,
@@ -186,7 +186,7 @@ where
     // dbg!(output_file.metadata().await?.len());
     //如果文件大小比remote的大，就不用下载了
     if opts.check_size {
-        if archive.total_source_size()  <= output_file.metadata().await?.len() {
+        if archive.total_source_size() <= output_file.metadata().await?.len() {
             return Ok(false);
         }
     }
@@ -387,16 +387,14 @@ pub struct CloneOptions {
     pub check_size: bool,
 }
 
-impl CloneOptions{
-
+impl CloneOptions {
     pub fn new_local<T: AsRef<Path>, U: AsRef<Path>>(input: T, output: U) -> Self {
-        let num_chunk_buffers: usize =
-            match num_cpus::get() {
-                // Single buffer if we have a single core, otherwise number of cores x 2
-                0 | 1 => 1,
-                n => n * 2,
-            };
-        Self{
+        let num_chunk_buffers: usize = match num_cpus::get() {
+            // Single buffer if we have a single core, otherwise number of cores x 2
+            0 | 1 => 1,
+            n => n * 2,
+        };
+        Self {
             force_create: true,
             input_archive: InputArchive::Local(input.as_ref().to_path_buf()),
             header_checksum: None,
@@ -412,15 +410,14 @@ impl CloneOptions{
 
     pub fn new_remote<U: AsRef<Path>>(url: &str, output: U) -> Self {
         let url = url.parse::<Url>().unwrap();
-        let num_chunk_buffers: usize =
-            match num_cpus::get() {
-                // Single buffer if we have a single core, otherwise number of cores x 2
-                0 | 1 => 1,
-                n => n * 2,
-            };
-        Self{
+        let num_chunk_buffers: usize = match num_cpus::get() {
+            // Single buffer if we have a single core, otherwise number of cores x 2
+            0 | 1 => 1,
+            n => n * 2,
+        };
+        Self {
             force_create: true,
-            input_archive: InputArchive::Remote(Box::new(RemoteInput{
+            input_archive: InputArchive::Remote(Box::new(RemoteInput {
                 url,
                 retries: 3,
                 retry_delay: Duration::from_secs(10),
@@ -437,7 +434,6 @@ impl CloneOptions{
             check_size: false,
         }
     }
-
 }
 
 pub async fn execute_clone(opts: CloneOptions) -> Result<bool> {
