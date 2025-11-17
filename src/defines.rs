@@ -7,7 +7,6 @@ use deku::prelude::*;
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 use std::convert::{TryFrom, TryInto};
-use surrealdb::sql::Thing;
 use aios_core::pdms_types::EleOperation;
 use std::str::FromStr;
 
