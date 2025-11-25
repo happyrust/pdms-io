@@ -98,18 +98,18 @@ async fn chunk_input<T>(
             let (index, offset, verified, compressed) = result.context("Error compressing")?;
             let chunk_len = verified.len();
             let use_uncompressed = compressed.len() >= chunk_len;
-            debug!(
-                "Chunk {}, '{}', offset: {}, size: {}, {}",
-                index,
-                verified.hash(),
-                offset,
-                human_size!(chunk_len),
-                if use_uncompressed {
-                    "left uncompressed".to_owned()
-                } else {
-                    format!("compressed to: {}", human_size!(compressed.len()))
-                },
-            );
+            // debug!(
+            //     "Chunk {}, '{}', offset: {}, size: {}, {}",
+            //     index,
+            //     verified.hash(),
+            //     offset,
+            //     human_size!(chunk_len),
+            //     if use_uncompressed {
+            //         "left uncompressed".to_owned()
+            //     } else {
+            //         format!("compressed to: {}", human_size!(compressed.len()))
+            //     },
+            // );
             let (mut hash, chunk) = verified.into_parts();
             let use_data = if use_uncompressed {
                 chunk.data()
