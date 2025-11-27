@@ -4026,7 +4026,6 @@ dependencies = [
 [[package]]
 name = "parse_pdms_db"
 version = "3.0.0"
-source = "git+https://github.com/happyrust/aios-parse-pdms#4b8e8081cbd2bd229d50940dded07f497162553f"
 dependencies = [
  "aios_core",
  "anyhow",
@@ -4061,7 +4060,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "smol_str 0.3.4",
- "thiserror 2.0.17",
+ "thiserror 1.0.69",
  "tokio",
 ]
 
