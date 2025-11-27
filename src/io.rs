@@ -2,7 +2,7 @@ use crate::defines::*;
 use aios_core::pdms_data::DataOperation;
 use aios_core::pdms_types::*;
 use aios_core::{
-    get_default_pdms_db_info, query_refno_sesno, NamedAttrMap, NamedAttrValue, RefU64Vec,
+    get_default_pdms_db_info, helper::parse_to_i32, query_refno_sesno, NamedAttrMap, NamedAttrValue, RefU64Vec,
     RefnoEnum, RefnoSesno, SUL_DB,
 };
 use anyhow::{anyhow, Result};
@@ -2248,16 +2248,85 @@ impl PdmsIO {
     ///
     pub fn parse_raw_element(&mut self, refno_offset: u64) -> anyhow::Result<EleData> {
         let mut file = self.get_file()?;
-        let mut data = vec![0u8; 0x800];
+        
+        // 首先读取头部信息（至少需要 24 字节：impl_len + refno + type_hash + owner）
+        let mut header = vec![0u8; 24];
         file.seek(SeekFrom::Start(refno_offset))?;
-        file.read_exact(&mut data)?;
-
+        file.read_exact(&mut header)?;
+        
+        // 检查是否有 0x7 前缀（某些情况下元素数据前会有这个标记）
+        let header_start = if header[..4] == [0, 0, 0, 0x7] {
+            &header[4..]
+        } else {
+            &header[..]
+        };
+        
+        // 解析 impl_len（隐含数据长度，以 4 字节为单位）
+        let impl_len = if header_start.len() >= 4 {
+            parse_to_i32(&header_start[0..4])
+        } else {
+            return Err(anyhow!(
+                "无法读取 impl_len: 数据不足，位置 {:#X}",
+                refno_offset
+            ));
+        };
+        
+        // 验证 impl_len 的合理性
+        if impl_len < 0 {
+            return Err(anyhow!(
+                "无效的 impl_len: {} (负数), 位置 {:#X}, 前4字节: {:02X?}",
+                impl_len, refno_offset, &header_start[0..4.min(header_start.len())]
+            ));
+        }
+        
+        // 计算所需的数据大小
+        // impl_len * 4 (隐含数据) + 至少 100 字节的额外空间（用于 members 和 explicit 数据）
+        let impl_len_bytes = impl_len as usize * 4;
+        let min_required_size = impl_len_bytes + 100;
+        // 但至少读取一个页面（0x800 = 2048 字节），最多读取 4 个页面（0x2000 = 8192 字节）
+        let read_size = std::cmp::max(0x800, std::cmp::min(min_required_size, 0x2000));
+        
+        // 重新定位并读取完整数据
+        file.seek(SeekFrom::Start(refno_offset))?;
+        let mut data = vec![0u8; read_size];
+        let bytes_read = file.read(&mut data)?;
+        
+        if bytes_read < 24 {
+            return Err(anyhow!(
+                "无法读取足够的头部数据: 需要至少 24 字节，但只读取了 {} 字节，位置 {:#X}",
+                bytes_read, refno_offset
+            ));
+        }
+        
+        // 如果 impl_len 要求的字节数超过了实际读取的字节数，尝试读取更多
+        if impl_len_bytes > bytes_read {
+            // 尝试读取更多数据（最多再读 3 个页面）
+            let additional_size = std::cmp::min(impl_len_bytes - bytes_read + 0x800, 0x6000);
+            let mut additional_data = vec![0u8; additional_size];
+            let additional_read = file.read(&mut additional_data)?;
+            
+            if impl_len_bytes > bytes_read + additional_read {
+                // 即使读取了更多数据，仍然不够
+                return Err(anyhow!(
+                    "元素数据跨越页面边界: impl_len={} ({} 字节), 已读取 {} 字节, 位置 {:#X}, 需要额外 {} 字节",
+                    impl_len, impl_len_bytes, bytes_read + additional_read, refno_offset,
+                    impl_len_bytes - bytes_read - additional_read
+                ));
+            }
+            
+            // 合并数据
+            data.extend_from_slice(&additional_data[..additional_read]);
+        }
+        
         let input = if data[..4] == [0, 0, 0, 0x7] {
             &data[4..]
         } else {
             &data[..]
         };
-        let ele_data = parse_raw_ele_data(input)?;
+        
+        // 截取实际需要的数据（避免传递过多数据）
+        let input_len = std::cmp::min(input.len(), impl_len_bytes + 0x400); // impl_len + 额外 1KB
+        let ele_data = parse_raw_ele_data(&input[..input_len])?;
         // let pgno = (refno_offset / 0x800) as u32;
         // let sesno = self.get_sesno(pgno).unwrap_or_default() as i32;
         // ele_data.att_map_mut().set_sesno(sesno);
@@ -2386,13 +2455,28 @@ impl PdmsIO {
             ses_data.resize(PAGE_SIZE, 0u8);
             let offset = ses_pgno as u64 * PAGE_SIZE as u64;
             file.seek(SeekFrom::Start(offset))?;
-            file.read_exact(&mut ses_data)?;
+            
+            // 使用 read 而不是 read_exact，以便优雅处理文件不完整的情况
+            let bytes_read = file.read(&mut ses_data)?;
+            if bytes_read < PAGE_SIZE {
+                return Err(anyhow::anyhow!(
+                    "Failed to read complete session page data: expected {} bytes, got {} bytes at offset {} (page {})",
+                    PAGE_SIZE, bytes_read, offset, ses_pgno
+                ));
+            }
+            
             // dbg!(ses_pgno);
-            SessionPageData::try_from(ses_data.as_ref()).unwrap();
+            // 移除这行无用的 unwrap，它会导致 panic
+            // SessionPageData::try_from(ses_data.as_ref()).unwrap();
             if let Ok(mut s) = SessionPageData::try_from(ses_data.as_ref()) {
                 s.pgno = ses_pgno as _;
                 // dbg!(ses_pgno);
                 self.ses_data_map.insert(ses_pgno, s);
+            } else {
+                return Err(anyhow::anyhow!(
+                    "Failed to parse SessionPageData from page {} at offset {}",
+                    ses_pgno, offset
+                ));
             }
         }
         return self
