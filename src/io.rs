@@ -5,7 +5,7 @@ use aios_core::{
     get_default_pdms_db_info, helper::parse_to_i32, query_refno_sesno, NamedAttrMap, NamedAttrValue, RefU64Vec,
     RefnoEnum, RefnoSesno, SUL_DB,
 };
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use atty::is;
 use chrono::{DateTime, Local, Utc};
 use dashmap::{DashMap, DashSet};
@@ -1070,7 +1070,10 @@ impl PdmsIO {
     }
 
     pub fn open(&mut self) -> anyhow::Result<()> {
-        let file = File::options().read(self.readonly).open(&self.path)?;
+        let file = File::options()
+            .read(true)
+            .write(!self.readonly)
+            .open(&self.path)?;
         self.file = Some(file);
         self.init_ses_range_map()?;
         Ok(())
@@ -1375,11 +1378,23 @@ impl PdmsIO {
         let owner_ele = match self.auto_get_raw_element(owner) {
             Ok(ele) => ele,
             Err(e) => {
-                log::warn!("获取所有者元素失败: {}", e);
+                log::warn!(
+                    "获取所有者元素失败: refno={} owner={} latest_sesno={} offset=0x{:X}: {}",
+                    refno,
+                    owner,
+                    latest_sesno,
+                    latest_offset,
+                    e
+                );
                 if type_name == "SITE" {
                     skipped = true;
                     EleData::default()
+                } else if self.search_latest_refno(owner, None).is_none() {
+                    // 父元素确实不存在，标记当前元素为已删除
+                    result.insert(refno, EleOperationDetail::Deleted);
+                    return Ok(result);
                 } else {
+                    // 父元素存在但解析失败，返回未知状态以便上层决定
                     result.insert(refno, EleOperationDetail::None);
                     return Ok(result);
                 }
@@ -1395,7 +1410,12 @@ impl PdmsIO {
         let mut prev_att = match self.parse_raw_element(prev_offset) {
             Ok(att) => att,
             Err(e) => {
-                log::warn!("解析前一版本元素数据失败: {}", e);
+                log::warn!(
+                    "解析前一版本元素数据失败: refno={} prev_offset=0x{:X}: {}",
+                    refno,
+                    prev_offset,
+                    e
+                );
                 result.insert(refno, EleOperationDetail::None);
                 return Ok(result);
             }
@@ -2405,7 +2425,10 @@ impl PdmsIO {
             pdms_header,
             latest_ses_pageno,
             latest_ses_data,
-            file_size: file.metadata().unwrap().len(),
+            file_size: file
+                .metadata()
+                .context("failed to read file metadata")?
+                .len(),
         })
     }
 
@@ -2594,7 +2617,8 @@ impl PdmsIO {
         let mut handles = Vec::new();
         //开启一个保存 pe_ses_h 的线程
         let handle = tokio::spawn(async move {
-            while let Ok(values) = rx.try_recv() {
+            // recv_async 会阻塞直到发送端关闭，避免 try_recv 立即返回导致漏数
+            while let Ok(values) = rx.recv_async().await {
                 match values {
                     //保存 session 数据
                     SesSqlType::SesJson(values) => {
@@ -4616,29 +4640,28 @@ impl PdmsIO {
                 return Err(anyhow!("参考号 {} 没有历史数据", refno));
             }
 
-            // 最新版本（第一个元素）
-            let latest_element = history_elements[0].clone();
+            // 最新版本取最后一个（BTreeSet 默认升序）
+            let latest_element = history_elements
+                .last()
+                .cloned()
+                .ok_or_else(|| anyhow!("参考号 {} 没有历史数据", refno))?;
 
-            // 历史版本及其操作类型
+            // 历史版本及其操作类型（不包含最新版本）
             let mut history_with_ops = Vec::with_capacity(history_elements.len() - 1);
 
-            // 处理历史记录（从最老到最新，不包括最新版本）
-            for i in (1..history_elements.len()).rev() {
+            // 按时间顺序（旧 -> 新但不含最新）标记操作
+            for i in 0..history_elements.len().saturating_sub(1) {
                 let current = &history_elements[i];
-                let operation = if i == history_elements.len() - 1 {
-                    // 最老的版本，标记为新增
+
+                // 先简单标记：最早一条为新增，其余视为修改（后续可补充精细 diff）
+                let operation = if i == 0 {
                     EleOperation::Add
                 } else {
-                    // 比较与上一个版本（在历史中的下一个更老的版本）的差异
-                    let previous = &history_elements[i + 1];
-                    EleOperation::Add
+                    EleOperation::Modified
                 };
 
                 history_with_ops.push((current.clone(), operation));
             }
-
-            // 反转历史记录，使其按时间先后顺序排列（从旧到新）
-            history_with_ops.reverse();
 
             Ok((latest_element, history_with_ops))
         } else {
