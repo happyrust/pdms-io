@@ -7,6 +7,7 @@ use futures::{
     SinkExt, StreamExt,
 };
 use indexmap::IndexMap;
+use log::warn;
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::fs::File;
 use std::io::{Read, Write};
@@ -86,32 +87,49 @@ impl PdmsWatcher {
                 std::fs::create_dir_all(cbas_dir)?;
             }
             for entry in WalkDir::new(watch_dir).sort_by(|a, b| {
-                a.path()
-                    .metadata()
-                    .unwrap()
-                    .len()
-                    .cmp(&b.path().metadata().unwrap().len())
+                let a_len = a.path().metadata().map(|m| m.len()).unwrap_or(0);
+                let b_len = b.path().metadata().map(|m| m.len()).unwrap_or(0);
+                a_len.cmp(&b_len)
             }) {
-                let dir_entry = entry.unwrap();
+                let dir_entry = match entry {
+                    Ok(entry) => entry,
+                    Err(err) => {
+                        warn!("skip entry under {}: {}", watch_dir.display(), err);
+                        continue;
+                    }
+                };
                 let path = dir_entry.path();
-                let file_name = path.file_stem().unwrap().to_str().unwrap();
                 if path.is_dir() {
                     continue;
                 }
+                let Some(file_name) = path.file_stem().and_then(|s| s.to_str()) else {
+                    warn!("skip path without valid file name: {}", path.display());
+                    continue;
+                };
                 self.file_name_full_path_map
                     .insert(file_name.to_owned(), path.to_path_buf());
                 let mut io = PdmsIO::new("ams", path, true);
-                io.open().unwrap();
-                if let Ok(basic_info) = io.get_page_basic_info() {
-                    if let Some(old) = self.headers.get_mut(&path.to_path_buf()) {
-                        //未发生修改，直接跳过
-                        if old.pdms_header.latest_ses_pgno == basic_info.pdms_header.latest_ses_pgno
-                        {
-                            continue;
+                if let Err(err) = io.open() {
+                    warn!("skip {}: open failed: {}", path.display(), err);
+                    continue;
+                };
+                match io.get_page_basic_info() {
+                    Ok(basic_info) => {
+                        if let Some(old) = self.headers.get_mut(&path.to_path_buf()) {
+                            //未发生修改，直接跳过
+                            if old.pdms_header.latest_ses_pgno
+                                == basic_info.pdms_header.latest_ses_pgno
+                            {
+                                continue;
+                            }
                         }
+                        self.headers.insert(path.to_path_buf(), basic_info);
                     }
-                    self.headers.insert(path.to_path_buf(), basic_info);
-                }
+                    Err(err) => {
+                        warn!("skip {}: read page basic info failed: {}", path.display(), err);
+                        continue;
+                    }
+                };
 
                 //初始化CBA的Archive文件，来保证后续增量下载
                 let input = path.to_path_buf();
