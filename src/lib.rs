@@ -6,8 +6,9 @@ pub mod common;
 pub mod config;
 pub mod test;
 pub mod search;
+pub mod page_manager;
 
-pub mod sync;
+// pub mod sync;
 
 pub mod watch;
 

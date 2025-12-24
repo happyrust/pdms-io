@@ -3,7 +3,7 @@
 use aios_core::file_helper::collect_db_dirs;
 use aios_core::get_db_option;
 use aios_core::pdms_types::RefU64;
-use parse_pdms_db::test_cases::convert_str_to_bytes;
+// use parse_pdms_db::test_cases::convert_str_to_bytes; // 此模块已移除
 use pdms_io::defines::{ElePageData, EleRawData, PAGE_SIZE};
 use pdms_io::io::PdmsIO;
 use pdms_io::test::test_data::TEST_DATA;

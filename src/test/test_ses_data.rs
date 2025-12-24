@@ -1,5 +1,12 @@
-use parse_pdms_db::test_cases::convert_str_to_bytes;
+// use parse_pdms_db::test_cases::convert_str_to_bytes; // 此模块已移除
 use crate::defines::SessionPageData;
+
+/// 从十六进制字符串转换为字节数组
+fn convert_str_to_bytes(s: &str) -> Vec<u8> {
+    s.split_whitespace()
+        .filter_map(|hex| u8::from_str_radix(hex, 16).ok())
+        .collect()
+}
 
 pub const TEST_SES_DATA_1: &'static str = "
 00 00 00 03 00 00 00 0A 00 00 00 01 00 00 01 B0

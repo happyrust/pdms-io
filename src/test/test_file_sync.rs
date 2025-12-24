@@ -5,7 +5,7 @@
 use crate::sync::files::sync_e3d_files;
 use crate::sync::sync::compress_archive;
 use aios_core::get_db_option;
-use dpcsync::chunker;
+// use dpcsync::chunker;
 use std::path::PathBuf;
 use std::time::Instant;
 use log::LevelFilter;

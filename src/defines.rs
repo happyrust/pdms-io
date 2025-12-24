@@ -10,25 +10,68 @@ use std::convert::{TryFrom, TryInto};
 use aios_core::pdms_types::EleOperation;
 use std::str::FromStr;
 
-pub const PAGE_SIZE: usize = 0x800;
+// 页面大小定义
+// 注意: PDMS 支持多种页面大小，需要根据文件头部动态检测
+pub const PAGE_SIZE: usize = 0x200;       // 512 字节 (兼容旧版)
+pub const PAGE_SIZE_512: usize = 0x200;   // 512 字节 (旧版 PDMS)
+pub const PAGE_SIZE_2K: usize = 0x800;    // 2048 字节 (E3D/新版)
+
+/// 根据文件头部信息检测页面大小
+/// 
+/// # 参数
+/// * `header` - PDMS 文件头部数据
+/// 
+/// # 返回值
+/// * `usize` - 检测到的页面大小 (512 或 2048)
+#[inline]
+pub fn detect_page_size(header: &PdmsHeader) -> usize {
+    // 如果头部记录的页面大小为 0 或 512，使用 512 字节
+    // 否则使用头部记录的值 (通常为 2048)
+    match header.page_size {
+        0 | 512 => PAGE_SIZE_512,
+        2048 => PAGE_SIZE_2K,
+        other if other > 0 && other <= 4096 => other as usize,
+        _ => PAGE_SIZE_512, // 默认回退到 512
+    }
+}
 
 #[derive(Default, Clone, Debug, PartialEq, DekuRead, DekuWrite, Serialize, Deserialize)]
 #[deku(endian = "big")]
 pub struct PdmsHeader {
-    // 开头两个未知 (0x00 - 0x07)
-    pub unknown_0: [i32; 2],
-    // 数据库编号 (0x08 - 0x0B)
+    // 偏移 0x00 - 0x03: 未知值
+    pub unknown_0_0: i32,
+    // 偏移 0x04 - 0x07: 版本号（值 = 2）
+    pub version: i32,
+    // 偏移 0x08 - 0x0B: 数据库编号
     pub db_num: i32,
-    // 然后是 00 00 00 01 (0x0C - 0x1F)
-    pub unknown_1: [i32; 5],
-    // 名词 (0x20 - 0x23) 
-    pub noun: i32,
-    // 0xFF FF FF FF (0x24 - 0x27)
+    // 偏移 0x0C - 0x0F: 未知值（值 = 1）
+    pub unknown_1_0: i32,
+    // 偏移 0x10 - 0x13: 未知值（值 = 1）
+    pub unknown_1_1: i32,
+    // 偏移 0x14 - 0x17: 未知值（值 = 0）
+    pub unknown_1_2: i32,
+    // 偏移 0x18 - 0x1B: 标志位（值 = 0xFFFFFFFF）
+    pub flags: i32,
+    // 偏移 0x1C - 0x1F: 未知值（值 = 0）
+    pub unknown_1_4: i32,
+    // 偏移 0x20 - 0x23: 创建时间（值 = 722578）
+    pub creation_time: u32,
+    // 偏移 0x24 - 0x27: 标志位（值 = 0xFFFFFFFF）
     pub unknown_2: i32,
-    // 最新会话页号 (0x28 - 0x2B)
+    // 偏移 0x28 - 0x2B: 最新会话页号（值 = 643）
     pub latest_ses_pgno: u32,
-    // 扩展号 (0x2C - 0x2F)
+    // 偏移 0x2C - 0x2F: 未知值（值 = 1）
     pub ext_no: u32,
+    
+    // 新增字段 ✅
+    // 偏移 0x30 - 0x33: 会话页面号（值 = 3）
+    pub session_page_no: u32,
+    // 偏移 0x34 - 0x37: 页面大小（值 = 512）
+    pub page_size: u32,
+    // 偏移 0x38 - 0x3B: 存储页数（值 = 15522）
+    pub stored_page_count: u32,
+    // 偏移 0x3C - 0x3F: 未知值（值 = 2）
+    pub unknown_3: u32,
 }
 
 
@@ -235,7 +278,6 @@ pub struct SesIndexesData {
 }
 
 #[derive(Debug, PartialEq, DekuRead, DekuWrite)]
-#[deku(endian = "big")]
 pub struct RefnoIndexPgId {
     pub refno_0: u32,
     pub refno_1: u32,
@@ -308,9 +350,22 @@ impl RefnoDataLoc {
     /// 获取属性数据的实际偏移量
     /// 
     /// 根据页号和页内偏移量计算出实际的字节偏移量
+    /// 注意: 此方法使用默认的 PAGE_SIZE (512字节)，对于 E3D 文件请使用 get_att_offset_with_page_size
     #[inline]
     pub fn get_att_offset(&self) -> u64 {
-        self.pgno as u64 * 0x800 + self.offset as u64 * 2
+        self.pgno as u64 * PAGE_SIZE as u64 + self.offset as u64 * 2
+    }
+
+    /// 获取属性数据的实际偏移量 (支持动态页面大小)
+    /// 
+    /// # 参数
+    /// * `page_size` - 页面大小 (512 或 2048)
+    /// 
+    /// # 返回值
+    /// * `u64` - 实际的字节偏移量
+    #[inline]
+    pub fn get_att_offset_with_page_size(&self, page_size: usize) -> u64 {
+        self.pgno as u64 * page_size as u64 + self.offset as u64 * 2
     }
 }
 
@@ -533,4 +588,223 @@ fn read_eles(
         rest = next_rest;
     }
     Ok((rest, vec))
+}
+
+
+// ==================================================================================
+// 页面类型枚举和相关功能
+// ==================================================================================
+
+/// E3D 数据库页面类型
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PageType {
+    /// 引用数组页面 (类型 1)
+    RefArray = 1,
+    /// 会话页面 (类型 3)
+    Session = 3,
+    /// 数据页面 (类型 5)
+    Data = 5,
+    /// 特殊页面 (类型 7)
+    Special = 7,
+    /// 索引页面 (类型 8)
+    Index = 8,
+}
+
+impl PageType {
+    /// 从 u32 值解析页面类型
+    pub fn from_u32(value: u32) -> Option<Self> {
+        match value {
+            1 => Some(PageType::RefArray),
+            3 => Some(PageType::Session),
+            5 => Some(PageType::Data),
+            7 => Some(PageType::Special),
+            8 => Some(PageType::Index),
+            _ => None,
+        }
+    }
+    
+    /// 获取页面类型名称
+    pub fn name(&self) -> &'static str {
+        match self {
+            PageType::RefArray => "引用数组页面",
+            PageType::Session => "会话页面",
+            PageType::Data => "数据页面",
+            PageType::Special => "特殊页面",
+            PageType::Index => "索引页面",
+        }
+    }
+    
+    /// 获取页面类型的值
+    pub fn value(&self) -> u32 {
+        *self as u32
+    }
+}
+
+impl std::fmt::Display for PageType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} (类型 {})", self.name(), self.value())
+    }
+}
+
+// ==================================================================================
+
+/// E3D 数据库数据页面子类型
+/// 
+/// 基于 IDA Pro 逆向分析 db1-db5 模块识别的页面子类型
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DataPageSubtype {
+    /// 主要数据页面 (0x00743F11)
+    Main = 0x743F11,
+    /// 主要数据页面变体 (0x00743F49) - 常见于 E3D 文件
+    MainVariant = 0x743F49,
+    /// 辅助数据页面 (0x00CC5D1F)
+    Aux = 0xCC5D1F,
+    /// 辅助/B+树索引页面 (0x00CC47DF) - 常见于索引结构, db3 模块使用
+    AuxIndex = 0xCC47DF,
+    /// 索引数据页面 (0x05256C75)
+    Index = 0x5256C75,
+    /// 属性数据页面 (0x03C0A13F)
+    Attr = 0x3C0A13F,
+    /// 扩展数据页面 (0x03F22C60)
+    Ext = 0x3F22C60,
+    /// 元素数据页面 (0x0009C18E) - db4 模块使用
+    Element = 0x9C18E,
+}
+
+impl DataPageSubtype {
+    /// 从 u32 值解析数据页面子类型
+    pub fn from_u32(value: u32) -> Option<Self> {
+        match value {
+            // 主要数据页面及其变体
+            0x743F11 => Some(DataPageSubtype::Main),
+            0x743F49 => Some(DataPageSubtype::MainVariant),
+            // 辅助数据页面及其变体
+            0xCC5D1F => Some(DataPageSubtype::Aux),
+            0xCC47DF => Some(DataPageSubtype::AuxIndex),
+            // 索引和属性页面
+            0x5256C75 => Some(DataPageSubtype::Index),
+            0x3C0A13F => Some(DataPageSubtype::Attr),
+            0x3F22C60 => Some(DataPageSubtype::Ext),
+            // 元素数据页面
+            0x9C18E => Some(DataPageSubtype::Element),
+            _ => None,
+        }
+    }
+    
+    /// 获取数据页面子类型名称
+    pub fn name(&self) -> &'static str {
+        match self {
+            DataPageSubtype::Main => "主要数据页面",
+            DataPageSubtype::MainVariant => "主要数据页面(变体)",
+            DataPageSubtype::Aux => "辅助数据页面",
+            DataPageSubtype::AuxIndex => "辅助/B+树索引页面",
+            DataPageSubtype::Index => "索引数据页面",
+            DataPageSubtype::Attr => "属性数据页面",
+            DataPageSubtype::Ext => "扩展数据页面",
+            DataPageSubtype::Element => "元素数据页面",
+        }
+    }
+    
+    /// 获取桶ID
+    /// 
+    /// 桶ID编码在类型标识的第13-25位
+    pub fn get_bucket_id(&self) -> u32 {
+        (*self as u32 >> 13) & 0x1FFF
+    }
+    
+    /// 获取数据页面子类型的值
+    pub fn value(&self) -> u32 {
+        *self as u32
+    }
+    
+    /// 判断是否为主要数据类型
+    pub fn is_main_data(&self) -> bool {
+        matches!(self, DataPageSubtype::Main | DataPageSubtype::MainVariant)
+    }
+    
+    /// 判断是否为辅助数据类型
+    pub fn is_aux_data(&self) -> bool {
+        matches!(self, DataPageSubtype::Aux | DataPageSubtype::AuxIndex)
+    }
+    
+    /// 判断是否为索引类型
+    pub fn is_index(&self) -> bool {
+        matches!(self, DataPageSubtype::Index | DataPageSubtype::AuxIndex)
+    }
+}
+
+impl std::fmt::Display for DataPageSubtype {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} (桶ID: {})", self.name(), self.get_bucket_id())
+    }
+}
+
+// ==================================================================================
+
+/// 页面类型验证错误
+#[derive(Debug, Clone)]
+pub enum PageTypeError {
+    /// 未知页面类型
+    UnknownType(u32),
+    /// 无效页面类型
+    InvalidType(u32),
+    /// 页面数据不完整
+    IncompleteData,
+}
+
+impl std::fmt::Display for PageTypeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PageTypeError::UnknownType(value) => write!(f, "未知页面类型: {}", value),
+            PageTypeError::InvalidType(value) => write!(f, "无效页面类型: {}", value),
+            PageTypeError::IncompleteData => write!(f, "页面数据不完整"),
+        }
+    }
+}
+
+impl std::error::Error for PageTypeError {}
+
+// ==================================================================================
+
+/// 验证页面类型
+/// 
+/// # 参数
+/// * `data` - 页面数据的前 4 字节
+/// 
+/// # 返回值
+/// * `Ok(PageType)` - 页面类型
+/// * `Err(PageTypeError)` - 页面类型错误
+pub fn verify_page_type(data: &[u8]) -> Result<PageType, PageTypeError> {
+    if data.len() < 4 {
+        return Err(PageTypeError::IncompleteData);
+    }
+    
+    let page_type_value = u32::from_be_bytes([data[0], data[1], data[2], data[3]]);
+    
+    match PageType::from_u32(page_type_value) {
+        Some(page_type) => Ok(page_type),
+        None => Err(PageTypeError::UnknownType(page_type_value)),
+    }
+}
+
+/// 验证数据页面子类型
+/// 
+/// # 参数
+/// * `data` - 页面数据（包含类型标识符）
+/// 
+/// # 返回值
+/// * `Ok(DataPageSubtype)` - 数据页面子类型
+/// * `Err(PageTypeError)` - 数据页面子类型错误
+pub fn verify_data_page_subtype(data: &[u8]) -> Result<DataPageSubtype, PageTypeError> {
+    // 数据页面的子类型存储在页面的前 4 字节中
+    if data.len() < 4 {
+        return Err(PageTypeError::IncompleteData);
+    }
+    
+    let subtype_value = u32::from_be_bytes([data[0], data[1], data[2], data[3]]);
+    
+    match DataPageSubtype::from_u32(subtype_value) {
+        Some(subtype) => Ok(subtype),
+        None => Err(PageTypeError::UnknownType(subtype_value)),
+    }
 }

@@ -1,4 +1,5 @@
 use crate::defines::*;
+use crate::page_manager::PageManager;
 use aios_core::pdms_data::DataOperation;
 use aios_core::pdms_types::*;
 use aios_core::{
@@ -774,6 +775,10 @@ pub struct PdmsIO {
     pub sesno_pgno_map: BTreeMap<i32, u32>,
     /// 会话页面范围映射表,记录每个会话的起始页号和结束页号
     pub ses_range_map: BTreeMap<i32, Range<u32>>,
+    /// 动态页面大小 (从文件头读取，默认 512 字节)
+    pub page_size: usize,
+    /// 页面缓存管理器 (基于 IDA db1 分析实现)
+    pub page_cache: PageManager,
 }
 
 impl PdmsIO {
@@ -1066,6 +1071,8 @@ impl PdmsIO {
             ses_data_map: Default::default(),
             sesno_pgno_map: Default::default(),
             ses_range_map: Default::default(),
+            page_size: PAGE_SIZE, // 默认使用 512 字节，open() 时会从文件头读取
+            page_cache: PageManager::default_512(), // 使用默认 512 字节页面缓存
         }
     }
 
@@ -1089,6 +1096,15 @@ impl PdmsIO {
     ///收集文件中的所有 ses 范围
     pub fn init_ses_range_map(&mut self) -> anyhow::Result<()> {
         let pdms_header = self.read_pdms_header()?;
+        
+        // 从文件头检测并设置动态页面大小
+        self.page_size = detect_page_size(&pdms_header);
+        
+        // 根据检测到的页面大小更新缓存配置
+        if self.page_size == PAGE_SIZE_2K {
+            self.page_cache = PageManager::default_2k();
+        }
+        
         let mut cur_ses_pgno = pdms_header.latest_ses_pgno;
         let mut map = BTreeMap::new();
         let mut sesno_pgno_map = BTreeMap::new();
@@ -1109,6 +1125,71 @@ impl PdmsIO {
         self.sesno_pgno_map = sesno_pgno_map;
 
         Ok(())
+    }
+    /// 通过缓存读取页面数据
+    /// 
+    /// 优先从缓存读取，缓存未命中时从磁盘读取并加入缓存
+    /// 
+    /// # 参数
+    /// * `page_no` - 页面号
+    /// 
+    /// # 返回值
+    /// * `anyhow::Result<Vec<u8>>` - 页面数据的拷贝
+    pub fn get_page_cached(&mut self, page_no: u32) -> anyhow::Result<Vec<u8>> {
+        // 先确保文件已打开
+        if self.file.is_none() {
+            self.open()?;
+        }
+        
+        let ext_no = self.dbnum as u32;
+        
+        // 使用 file.as_mut() 避免借用冲突
+        let file = self.file.as_mut()
+            .ok_or_else(|| anyhow!("数据库文件未打开"))?;
+        
+        let data = self.page_cache.get_page(file, ext_no, page_no)?;
+        Ok(data.to_vec())
+    }
+
+    /// 从缓存读取跨页的数据 (对齐 db4 logic)
+    /// 
+    /// # 参数
+    /// * `start_offset` - 物理文件偏移量
+    /// * `length` - 需要读取的字节数
+    pub fn read_data_cached(&mut self, start_offset: u64, length: usize) -> anyhow::Result<Vec<u8>> {
+        if self.file.is_none() {
+            self.open()?;
+        }
+
+        let mut result = Vec::with_capacity(length);
+        let mut remaining = length;
+        let mut current_offset = start_offset;
+        let ext_no = self.dbnum as u32;
+
+        while remaining > 0 {
+            let pgno = (current_offset / self.page_size as u64) as u32;
+            let offset_in_page = (current_offset % self.page_size as u64) as usize;
+            let available_in_page = self.page_size - offset_in_page;
+            let to_read = std::cmp::min(available_in_page, remaining);
+
+            // 直接访问 page_cache 避免 get_page_cached 的额外 clone
+            let data = {
+                let file = self.file.as_mut().unwrap();
+                self.page_cache.get_page(file, ext_no, pgno)?
+            };
+            
+            result.extend_from_slice(&data[offset_in_page..offset_in_page + to_read]);
+            
+            current_offset += to_read as u64;
+            remaining -= to_read;
+        }
+        
+        Ok(result)
+    }
+    
+    /// 获取缓存命中率
+    pub fn cache_hit_rate(&self) -> f64 {
+        self.page_cache.stats().hit_rate()
     }
 
     /// 根据页号获取会话号
@@ -1244,11 +1325,11 @@ impl PdmsIO {
         let mut file = self.get_file()?;
         let mut input = vec![];
         file.read_to_end(&mut input)?;
-        let file_max_pgno = input.len() as u32 / 0x800;
+        let file_max_pgno = input.len() as u32 / self.page_size as u32;
         let mut pos_iter = rfind_iter(&input, &REFNO_LEAF_INDEX_PAGE[..]);
         let mut max_pgno = 0;
         while let Some(pos) = pos_iter.next() {
-            let pgno = (pos / 0x800) as _;
+            let pgno = (pos / self.page_size as usize) as _;
             println!("Found leaf index page at: {:#04X?}", pgno);
             let index_data = self.read_index_data(pgno)?;
             dbg!(&index_data);
@@ -2244,18 +2325,23 @@ impl PdmsIO {
     /// # 错误
     /// * 如果文件读取或解析失败,将返回错误
     pub async fn parse_element(&mut self, refno_offset: u64) -> anyhow::Result<EleData> {
-        let mut file = self.get_file()?;
-        let mut data = vec![0u8; 0x800];
-        file.seek(SeekFrom::Start(refno_offset))?;
-        file.read_exact(&mut data)?;
+        // 先读取头部以获取 impl_len
+        let head = self.read_data_cached(refno_offset, 24)?;
+        let header_start = if head[..4] == [0, 0, 0, 0x7] { &head[4..] } else { &head[..] };
+        
+        let impl_len = parse_to_i32(&header_start[0..4]);
+        if impl_len < 0 {
+            return Err(anyhow!("Invalid impl_len in parse_element: {} at offset {:#X}", impl_len, refno_offset));
+        }
 
-        let input = if data[..4] == [0, 0, 0, 0x7] {
-            &data[4..]
-        } else {
-            &data[..]
-        };
+        // 读取足够长的数据以包含整个元素 (impl_len_bytes + 1KB 缓冲)
+        let impl_len_bytes = impl_len as usize * 4;
+        let data = self.read_data_cached(refno_offset, impl_len_bytes + 1024)?;
+
+        let input = if data[..4] == [0, 0, 0, 0x7] { &data[4..] } else { &data[..] };
+        
         let mut ele_data = parse_ele_data(input).await?;
-        let pgno = (refno_offset / 0x800) as u32;
+        let pgno = (refno_offset as usize / self.page_size) as u32;
         let sesno = self.get_sesno(pgno).unwrap_or_default() as i32;
         ele_data.att_map_mut().set_sesno(sesno);
         Ok(ele_data)
@@ -2267,89 +2353,22 @@ impl PdmsIO {
     /// * `refno_offset` - 元素在文件中的偏移量
     ///
     pub fn parse_raw_element(&mut self, refno_offset: u64) -> anyhow::Result<EleData> {
-        let mut file = self.get_file()?;
+        // 先读取头部以获取 impl_len
+        let head = self.read_data_cached(refno_offset, 24)?;
+        let header_start = if head[..4] == [0, 0, 0, 0x7] { &head[4..] } else { &head[..] };
         
-        // 首先读取头部信息（至少需要 24 字节：impl_len + refno + type_hash + owner）
-        let mut header = vec![0u8; 24];
-        file.seek(SeekFrom::Start(refno_offset))?;
-        file.read_exact(&mut header)?;
-        
-        // 检查是否有 0x7 前缀（某些情况下元素数据前会有这个标记）
-        let header_start = if header[..4] == [0, 0, 0, 0x7] {
-            &header[4..]
-        } else {
-            &header[..]
-        };
-        
-        // 解析 impl_len（隐含数据长度，以 4 字节为单位）
-        let impl_len = if header_start.len() >= 4 {
-            parse_to_i32(&header_start[0..4])
-        } else {
-            return Err(anyhow!(
-                "无法读取 impl_len: 数据不足，位置 {:#X}",
-                refno_offset
-            ));
-        };
-        
-        // 验证 impl_len 的合理性
+        let impl_len = parse_to_i32(&header_start[0..4]);
         if impl_len < 0 {
-            return Err(anyhow!(
-                "无效的 impl_len: {} (负数), 位置 {:#X}, 前4字节: {:02X?}",
-                impl_len, refno_offset, &header_start[0..4.min(header_start.len())]
-            ));
+            return Err(anyhow!("Invalid impl_len in parse_raw_element: {} at offset {:#X}", impl_len, refno_offset));
         }
-        
-        // 计算所需的数据大小
-        // impl_len * 4 (隐含数据) + 至少 100 字节的额外空间（用于 members 和 explicit 数据）
+
+        // 读取足够长的数据以包含整个元素 (impl_len_bytes + 1KB 缓冲以便读取到 members 和 explicit 数据)
         let impl_len_bytes = impl_len as usize * 4;
-        let min_required_size = impl_len_bytes + 100;
-        // 但至少读取一个页面（0x800 = 2048 字节），最多读取 4 个页面（0x2000 = 8192 字节）
-        let read_size = std::cmp::max(0x800, std::cmp::min(min_required_size, 0x2000));
+        let data = self.read_data_cached(refno_offset, impl_len_bytes + 1024)?;
+
+        let input = if data[..4] == [0, 0, 0, 0x7] { &data[4..] } else { &data[..] };
         
-        // 重新定位并读取完整数据
-        file.seek(SeekFrom::Start(refno_offset))?;
-        let mut data = vec![0u8; read_size];
-        let bytes_read = file.read(&mut data)?;
-        
-        if bytes_read < 24 {
-            return Err(anyhow!(
-                "无法读取足够的头部数据: 需要至少 24 字节，但只读取了 {} 字节，位置 {:#X}",
-                bytes_read, refno_offset
-            ));
-        }
-        
-        // 如果 impl_len 要求的字节数超过了实际读取的字节数，尝试读取更多
-        if impl_len_bytes > bytes_read {
-            // 尝试读取更多数据（最多再读 3 个页面）
-            let additional_size = std::cmp::min(impl_len_bytes - bytes_read + 0x800, 0x6000);
-            let mut additional_data = vec![0u8; additional_size];
-            let additional_read = file.read(&mut additional_data)?;
-            
-            if impl_len_bytes > bytes_read + additional_read {
-                // 即使读取了更多数据，仍然不够
-                return Err(anyhow!(
-                    "元素数据跨越页面边界: impl_len={} ({} 字节), 已读取 {} 字节, 位置 {:#X}, 需要额外 {} 字节",
-                    impl_len, impl_len_bytes, bytes_read + additional_read, refno_offset,
-                    impl_len_bytes - bytes_read - additional_read
-                ));
-            }
-            
-            // 合并数据
-            data.extend_from_slice(&additional_data[..additional_read]);
-        }
-        
-        let input = if data[..4] == [0, 0, 0, 0x7] {
-            &data[4..]
-        } else {
-            &data[..]
-        };
-        
-        // 截取实际需要的数据（避免传递过多数据）
-        let input_len = std::cmp::min(input.len(), impl_len_bytes + 0x400); // impl_len + 额外 1KB
-        let ele_data = parse_raw_ele_data(&input[..input_len])?;
-        // let pgno = (refno_offset / 0x800) as u32;
-        // let sesno = self.get_sesno(pgno).unwrap_or_default() as i32;
-        // ele_data.att_map_mut().set_sesno(sesno);
+        let ele_data = parse_raw_ele_data(input)?;
         Ok(ele_data)
     }
 
@@ -2470,45 +2489,33 @@ impl PdmsIO {
     ///    - 设置页号并存入缓存
     /// 3. 从缓存中返回数据
     #[inline]
-    pub fn read_ses_data(&mut self, ses_pgno: u32) -> anyhow::Result<&SessionPageData> {
+        pub fn read_ses_data(&mut self, ses_pgno: u32) -> anyhow::Result<&SessionPageData> {
         if !self.ses_data_map.contains_key(&ses_pgno) {
-            let file = self.get_file()?;
-            let mut ses_data = vec![];
-            // ses_data.resize(size_of::<SessionPageData>(), 0u8);
-            ses_data.resize(PAGE_SIZE, 0u8);
-            let offset = ses_pgno as u64 * PAGE_SIZE as u64;
-            file.seek(SeekFrom::Start(offset))?;
+            // 使用缓存获取页面数据
+            let ses_data = self.get_page_cached(ses_pgno)?;
             
-            // 使用 read 而不是 read_exact，以便优雅处理文件不完整的情况
-            let bytes_read = file.read(&mut ses_data)?;
-            if bytes_read < PAGE_SIZE {
-                return Err(anyhow::anyhow!(
-                    "Failed to read complete session page data: expected {} bytes, got {} bytes at offset {} (page {})",
-                    PAGE_SIZE, bytes_read, offset, ses_pgno
-                ));
+            // ✅ 先检查页面类型
+            let page_type = verify_page_type(&ses_data)
+                .map_err(|e| anyhow!("Failed to verify page type for session page {}: {}", ses_pgno, e))?;
+                
+            // 验证页面类型是否为会话页面
+            if page_type != PageType::Session {
+                return Err(anyhow!("Invalid page type for session page {}: expected Session (type 3), got {}", ses_pgno, page_type));
             }
             
-            // dbg!(ses_pgno);
-            // 移除这行无用的 unwrap，它会导致 panic
-            // SessionPageData::try_from(ses_data.as_ref()).unwrap();
+            // 解析会话数据
             if let Ok(mut s) = SessionPageData::try_from(ses_data.as_ref()) {
                 s.pgno = ses_pgno as _;
-                // dbg!(ses_pgno);
                 self.ses_data_map.insert(ses_pgno, s);
             } else {
-                return Err(anyhow::anyhow!(
-                    "Failed to parse SessionPageData from page {} at offset {}",
-                    ses_pgno, offset
-                ));
+                let offset = ses_pgno as u64 * self.page_size as u64;
+                return Err(anyhow!("Failed to parse SessionPageData from page {} at offset {}", ses_pgno, offset));
             }
         }
-        return self
-            .ses_data_map
-            .get(&ses_pgno)
-            .ok_or(anyhow!("Can't read ses page with {ses_pgno}."));
-    }
-
-    /// 获取指定会话号的会话数据
+        
+        self.ses_data_map.get(&ses_pgno)
+            .ok_or_else(|| anyhow!("Session data still missing from map after read (page {})", ses_pgno))
+    }    /// 获取指定会话号的会话数据
     ///
     /// # 参数
     /// * `sesno` - 要获取数据的会话号
@@ -2581,10 +2588,11 @@ impl PdmsIO {
     /// 5. 将数据解析为索引页结构
     #[inline]
     pub fn read_index_data(&mut self, index_pgno: u32) -> anyhow::Result<IndexPageData> {
-        let file = self.get_file()?;
         let mut index_data = vec![];
-        index_data.resize(PAGE_SIZE, 0u8);
-        file.seek(SeekFrom::Start(index_pgno as u64 * PAGE_SIZE as u64))?;
+        index_data.resize(self.page_size, 0u8);
+        let offset = index_pgno as u64 * self.page_size as u64;
+        let file = self.get_file()?;
+        file.seek(SeekFrom::Start(offset))?;
         file.read_exact(&mut index_data)?;
         let index_page_data = IndexPageData::try_from(index_data.as_ref())?;
         Ok(index_page_data)
@@ -2663,7 +2671,7 @@ impl PdmsIO {
             for loc in all_locs {
                 let refno = loc.get_refno();
                 let offset = loc.get_att_offset();
-                let Some(sesno) = self.get_sesno((offset / 0x800) as _) else {
+                let Some(sesno) = self.get_sesno((offset as usize / self.page_size) as _) else {
                     continue;
                 };
 
@@ -2941,7 +2949,7 @@ impl PdmsIO {
         //                 // SUL_DB.query(sql).await.unwrap();
         //                 // let sql = format!("UPSERT pe:['{}', {}]", refno.to_pe_key(), sesno);
         //                 // SUL_DB.query(sql).await.unwrap();
-        //                 let Some(add_sesno) = self.get_sesno((offset / 0x800) as _) else {
+        //                 let Some(add_sesno) = self.get_sesno((offset / PAGE_SIZE as usize) as _) else {
         //                     continue;
         //                 };
         //                 // ses_op_map.entry(add_sesno).or_default().pop();
@@ -3233,7 +3241,7 @@ impl PdmsIO {
         //     //     //直接通过数据库查是否最新？还是通过文件查找？
         //     //     //每个参考号都去拉取一遍，然后看看是不是最新的？
 
-        //     //     // let offset = cur_ses_page.end_pgno * 0x800 + 0x4;
+        //     //     // let offset = cur_ses_page.end_pgno * PAGE_SIZE as u32 + 0x4;
         //     //     // let bytes = io.read_bytes(offset, 4).unwrap();
         //     //     // let type_name = db1_dehash(u32::from_be_bytes(bytes.try_into().unwrap()));
         //     //     // dbg!(type_name);
@@ -3529,7 +3537,7 @@ impl PdmsIO {
         let mut index_data = self.read_index_data(index_root_pageno).unwrap();
         // dbg!(index_data.level);
         let mut final_locs = vec![];
-        // println!("index root pgno: {:#04X}", index_root_pageno * 0x800);
+        // println!("index root pgno: {:#04X}", index_root_pageno * PAGE_SIZE as u32);
         self.filter_index_data(&index_data, &mut final_locs, last_end_pgno, cur_end_pgno);
 
         final_locs
@@ -3594,7 +3602,7 @@ impl PdmsIO {
         } else {
             for l in cur_locs {
                 // dbg!(l.pgno);
-                // println!("hex offset: {:#04X}", l.pgno * 0x800);
+                // println!("hex offset: {:#04X}", l.pgno * PAGE_SIZE as u32);
                 if let Ok(next_index_data) = self.read_index_data(l.pgno) {
                     let mut next_level = next_index_data.level as i32;
                     if next_level >= level {
@@ -3682,125 +3690,93 @@ impl PdmsIO {
         Ok(grouped_results)
     }
 
-    /// 搜索参考号是否存在
-    ///
+    /// 在指定的会话中查找参考号的物理位置 (对齐 db3_find_key 逻辑)
+    /// 
     /// # 参数
-    /// * `refno` - 要搜索的参考号
-    ///
+    /// * `refno` - 要查找的参考号
+    /// * `sesno` - 指定会话号
+    /// 
     /// # 返回值
-    /// * `Ok(bool)` - 如果找到返回 true,否则返回 false
-    ///
-    /// # 错误
-    /// * 如果文件读取失败会返回错误
-    ///
-    /// # 示例
-    /// ```
-    pub fn check_refno_exists(&mut self, refno: RefU64) -> anyhow::Result<bool> {
-        let file = self.get_file()?;
-        file.seek(SeekFrom::Start(0u64))?;
-        let mut head_data = vec![];
-        head_data.resize(size_of::<PdmsHeader>(), 0u8);
-        file.read_exact(&mut head_data)?;
-        // dbg!(data[]);
-        let pdms_header = PdmsHeader::try_from(head_data.as_ref()).unwrap();
-        // println!("{:#04X?}", &pdms_header);
-
-        let ses_addr = pdms_header.latest_ses_pgno * 0x800;
-        // println!("Ses addr: {:#04X}", ses_addr);
-
-        let mut ses_data = vec![];
-        ses_data.resize(size_of::<SessionPageData>(), 0u8);
-        file.seek(SeekFrom::Start(ses_addr as u64))?;
-        file.read_exact(&mut ses_data)?;
-        let ses_start_part = SessionPageData::try_from(ses_data.as_ref()).unwrap();
-        // println!("{:#04X?}", &ses_start_part);
-
-        //todo find this refno
-        //when not found in current session page, should search back
-        //=23584/5653
-        //00 00 5C 20 00 00 16 15
-        let indx_addr = ses_start_part.index_root_pageno * 0x800;
-        // println!("index addr: {:#04X}", indx_addr);
-        let mut data = vec![];
-        data.resize(size_of::<RootIndexPage>(), 0u8);
-        file.seek(SeekFrom::Start(indx_addr as u64))?;
-        file.read_exact(&mut data)?;
-        let index_root = RootIndexPage::try_from(data.as_ref()).unwrap();
-        // println!("{:#04X?}", &index_root);
-
-        let l = &index_root.lower_root;
-        let u = &index_root.upper_root;
-
-        // dbg!(l);
-        // dbg!(u);
-        // println!("{:#4X?} {:#4X?}", l.refno_0, l.refno_1);
-        // println!("{:#4X?} {:#4X?}", u.refno_0, u.refno_1);
-
-        //先搜索这个最大的范围，然后再缩小范围
-        //here we need a loop to find the right location range
-        let root_loc = if refno.get_0() == l.refno_0
-            && (refno.get_1() >= l.refno_1 && refno.get_1() < u.refno_1)
-        {
-            Some(l)
-        } else {
-            None
+    /// * `Ok(Option<RefnoDataLoc>)` - 找到则返回位置信息，否则返回 None
+    pub fn find_refno_loc(&mut self, refno: RefU64, sesno: u32) -> anyhow::Result<Option<RefnoDataLoc>> {
+        let (root_pgno, cur_end_pgno) = {
+            let ses_data = self.get_ses_data(sesno)?;
+            (ses_data.index_root_pageno, ses_data.end_pgno)
         };
-
-        let root_loc = root_loc.unwrap();
-
-        ///一步步找到目标refno
-        let target_root_addr = root_loc.page_no * 0x800;
-        println!("cur index addr: {:#04X}", target_root_addr);
-        let mut data = vec![0u8; 0x800];
-        file.seek(SeekFrom::Start(target_root_addr as u64))?;
-        file.read_exact(&mut data)?;
-        let index_pgid = RefnoIndexPage::try_from(data.as_ref()).unwrap();
-        // println!("{:#04X?}", &index_pgid);
-
-        //todo 使用memchr直接去找到目标refno
-        let target_refno_loc = index_pgid
-            .data_locs
-            .iter()
-            .position(|x| x.refno_0 == refno.get_0() && x.refno_1 > refno.get_1());
-        let target_refno_pgid = if let Some(mut t) = target_refno_loc {
-            if t > 0 {
-                t = t - 1;
-            }
-            let target_refno_pgid = &index_pgid.data_locs[t];
-            println!("target_refno_pgid: {:#04X?}", target_refno_pgid);
-            Some(target_refno_pgid)
-        } else {
-            None
-        };
-
-        //todo temp
-        let target_refno_pgid = target_refno_pgid.unwrap();
-
-        let target_loc = target_refno_pgid.page_no * 0x800;
-        println!("cur index addr: {:#04X}", target_loc);
-        let mut data = vec![0u8; 0x800];
-        file.seek(SeekFrom::Start(target_loc as u64))?;
-        file.read_exact(&mut data)?;
-        let index_data = IndexPageData::try_from(data.as_ref()).unwrap();
-        // println!("{:#04X?}", &index_data);
-
-        let target_data_loc = index_data
-            .refno_locs
-            .iter()
-            .find(|x| x.refno_0 == refno.get_0() && x.refno_1 == refno.get_1());
-        // println!("{:#04X?}", &target_data_loc);
-
-        if let Some(l) = target_data_loc {
-            let _loc = l.pgno * 0x800 + l.offset as u32 * 2;
-            // println!("data loc {:#04X?}", loc);
-            // let element = self.get_element( loc)?;
-            // dbg!(&element);
+        
+        if root_pgno == 0 {
+            return Ok(None);
         }
 
-        let _upper_root_addr = u.page_no * 0x800;
-        // println!("last index addr: {:#04X}", upper_root_addr);
+        // 1. 读取根页面 (RootIndexPage)
+        let root_data = self.get_page_cached(root_pgno)?;
+        let root_page = RootIndexPage::try_from(root_data.as_ref())
+            .map_err(|e| anyhow!("Failed to parse RootIndexPage at page {}: {}", root_pgno, e))?;
 
-        Ok(true)
+        // 2. 选择子树 (Lower 或 Upper)
+        let mut mid_pgno = 0;
+        let l = &root_page.lower_root;
+        let u = &root_page.upper_root;
+
+        if refno.get_0() == l.refno_0 && refno.get_1() >= l.refno_1 {
+            // 检查是否在 lower 范围内（小于 upper 的起始值）
+            if refno.get_0() < u.refno_0 || (refno.get_0() == u.refno_0 && refno.get_1() < u.refno_1) {
+                mid_pgno = l.page_no;
+            } else {
+                mid_pgno = u.page_no;
+            }
+        }
+
+        if mid_pgno == 0 {
+            return Ok(None);
+        }
+
+        // 3. 读取中间层 (RefnoIndexPage)
+        let mid_data = self.get_page_cached(mid_pgno)?;
+        let mid_page = RefnoIndexPage::try_from(mid_data.as_ref())
+            .map_err(|e| anyhow!("Failed to parse RefnoIndexPage at page {}: {}", mid_pgno, e))?;
+
+        // 找到对应的叶子页面号
+        let leaf_pgno = mid_page.data_locs.iter()
+            .rev()
+            .find(|loc| {
+                let loc_refno = RefU64::from_two_nums(loc.refno_0, loc.refno_1);
+                refno >= loc_refno
+            })
+            .map(|loc| loc.page_no);
+
+        let Some(leaf_pgno) = leaf_pgno else {
+            return Ok(None);
+        };
+
+        // 4. 读取叶子层 (IndexPageData)
+        let leaf_data = self.get_page_cached(leaf_pgno)?;
+        let leaf_page = IndexPageData::try_from(leaf_data.as_ref())
+            .map_err(|e| anyhow!("Failed to parse IndexPageData at page {}: {}", leaf_pgno, e))?;
+
+        // 精确匹配 refno 且 pgno 应该早于当前会话的结束页
+        let found = leaf_page.refno_locs.into_iter()
+            .find(|loc| loc.get_refno() == refno && loc.pgno <= cur_end_pgno);
+
+        Ok(found)
+    }
+
+    /// 检查参考号是否存在
+    pub fn check_refno_exists(&mut self, refno: RefU64) -> anyhow::Result<bool> {
+        let latest_sesno = self.get_latest_sesno()?;
+        Ok(self.find_refno_loc(refno, latest_sesno)?.is_some())
+    }
+
+    /// 获取指定参考号在特定会话的版本数据 (对齐 db5 访问层逻辑)
+    /// 
+    /// # 参数
+    /// * `refno` - 参考号
+    /// * `sesno` - 会话号
+    pub async fn get_element_at_session(&mut self, refno: RefU64, sesno: u32) -> anyhow::Result<EleData> {
+        let loc = self.find_refno_loc(refno, sesno)?
+            .ok_or_else(|| anyhow!("Reference number {:?} not found in session {}", refno, sesno))?;
+        
+        self.parse_element(loc.get_att_offset_with_page_size(self.page_size)).await
     }
 
     /// 构建索引映射表，读取所有index page的数据，组建一个BTreeMap，快速搜索指定的refno
