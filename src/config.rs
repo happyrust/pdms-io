@@ -122,27 +122,31 @@ mod tests {
     fn test_get_test_base_path_default() {
         // 临时移除环境变量
         let original = env::var(PDMS_TEST_PATH_ENV).ok();
-        env::remove_var(PDMS_TEST_PATH_ENV);
+        // SAFETY: 测试中单线程修改环境变量
+        unsafe { env::remove_var(PDMS_TEST_PATH_ENV) };
         
         let path = Config::get_test_base_path();
         assert_eq!(path, DEFAULT_TEST_PATH);
         
         // 恢复原始环境变量
         if let Some(original_value) = original {
-            env::set_var(PDMS_TEST_PATH_ENV, original_value);
+            // SAFETY: 测试中单线程修改环境变量
+            unsafe { env::set_var(PDMS_TEST_PATH_ENV, original_value) };
         }
     }
     
     #[test]
     fn test_get_test_base_path_from_env() {
         let test_path = "/tmp/test_path";
-        env::set_var(PDMS_TEST_PATH_ENV, test_path);
+        // SAFETY: 测试中单线程修改环境变量
+        unsafe { env::set_var(PDMS_TEST_PATH_ENV, test_path) };
         
         let path = Config::get_test_base_path();
         assert_eq!(path, test_path);
         
         // 清理
-        env::remove_var(PDMS_TEST_PATH_ENV);
+        // SAFETY: 测试中单线程修改环境变量
+        unsafe { env::remove_var(PDMS_TEST_PATH_ENV) };
     }
     
     #[test]
@@ -155,7 +159,8 @@ mod tests {
     #[test]
     fn test_get_database_path_relative() {
         let test_base = "/tmp/test_base";
-        env::set_var(PDMS_TEST_PATH_ENV, test_base);
+        // SAFETY: 测试中单线程修改环境变量
+        unsafe { env::set_var(PDMS_TEST_PATH_ENV, test_base) };
         
         let relative_path = "ams000/ams1112_0001";
         let result = Config::get_database_path(relative_path);
@@ -163,7 +168,8 @@ mod tests {
         assert_eq!(result, expected);
         
         // 清理
-        env::remove_var(PDMS_TEST_PATH_ENV);
+        // SAFETY: 测试中单线程修改环境变量
+        unsafe { env::remove_var(PDMS_TEST_PATH_ENV) };
     }
     
     #[test]

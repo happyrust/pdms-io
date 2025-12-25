@@ -9,7 +9,7 @@
 //! - db1_update_page: 标记页面为脏页
 
 use std::collections::HashMap;
-use std::io::{Read, Seek, SeekFrom};
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::fs::File;
 use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -85,7 +85,7 @@ pub type PageKey = (u32, u32);
 #[derive(Debug)]
 pub struct PageManager {
     /// 缓存映射表: (ext_no, page_no) -> CachedPage
-    cache: HashMap<PageKey, CachedPage>,
+    pub(crate) cache: HashMap<PageKey, CachedPage>,
     /// 最大缓存页面数
     max_pages: usize,
     /// 页面大小
@@ -135,6 +135,15 @@ impl PageManager {
     /// 检查页面是否在缓存中
     pub fn is_page_cached(&self, ext_no: u32, page_no: u32) -> bool {
         self.cache.contains_key(&(ext_no, page_no))
+    }
+    
+    /// 直接插入页面到缓存（用于测试或预加载）
+    /// 
+    /// # 参数
+    /// * `page` - 要插入的缓存页面
+    pub fn insert_page(&mut self, page: CachedPage) {
+        let key = (page.ext_no, page.page_no);
+        self.cache.insert(key, page);
     }
     
     /// 获取页面 (缓存优先)
@@ -251,6 +260,8 @@ impl PageManager {
     }
     
     /// 使用 LRU 策略换出一个页面
+    /// 
+    /// 注意：如果页面是脏页，调用者应该先调用 `flush_dirty_pages` 确保数据已写入
     fn evict_one(&mut self) {
         // 找到最久未访问且未锁定的页面
         let mut oldest_key: Option<PageKey> = None;
@@ -269,6 +280,106 @@ impl PageManager {
             // 这里简化处理，只读模式下不需要写回
             self.cache.remove(&key);
         }
+    }
+    
+    // ==================================================================================
+    // 写入功能 (基于 IDA Pro 逆向分析 db1_write_page 实现)
+    // ==================================================================================
+    
+    /// 写入页面到文件 (对应 db1_write_page_basic)
+    /// 
+    /// # 参数
+    /// * `file` - 数据库文件句柄（需可写）
+    /// * `ext_no` - 扩展号
+    /// * `page_no` - 页面号
+    /// * `data` - 页面数据（必须等于 page_size）
+    /// 
+    /// # 返回值
+    /// * `Ok(())` - 写入成功
+    /// * `Err` - I/O 错误
+    pub fn write_page(
+        &mut self,
+        file: &mut File,
+        ext_no: u32,
+        page_no: u32,
+        data: &[u8],
+    ) -> std::io::Result<()> {
+        // 验证数据大小
+        assert_eq!(data.len(), self.page_size, "页面数据大小必须等于 page_size");
+        
+        // 写入到文件
+        self.write_page_to_file(file, page_no, data)?;
+        self.stats.writes += 1;
+        
+        // 更新缓存（如果存在）
+        let key = (ext_no, page_no);
+        if let Some(page) = self.cache.get_mut(&key) {
+            page.data = data.to_vec();
+            page.is_dirty = false;
+            page.last_access = self.access_counter.fetch_add(1, Ordering::SeqCst);
+        }
+        
+        Ok(())
+    }
+    
+    /// 写入页面数据到文件
+    fn write_page_to_file(&self, file: &mut File, page_no: u32, data: &[u8]) -> std::io::Result<()> {
+        let offset = page_no as u64 * self.page_size as u64;
+        file.seek(SeekFrom::Start(offset))?;
+        file.write_all(data)?;
+        file.flush()?;
+        Ok(())
+    }
+    
+    /// 刷新所有脏页到磁盘 (对应 db5_save_work 核心逻辑)
+    /// 
+    /// # 参数
+    /// * `file` - 数据库文件句柄（需可写）
+    /// 
+    /// # 返回值
+    /// * `Ok(usize)` - 成功写入的脏页数量
+    /// * `Err` - I/O 错误
+    pub fn flush_dirty_pages(&mut self, file: &mut File) -> std::io::Result<usize> {
+        let dirty_keys: Vec<PageKey> = self.get_dirty_pages();
+        let mut written_count = 0;
+        
+        for key in dirty_keys {
+            if let Some(page) = self.cache.get(&key) {
+                let page_no = page.page_no;
+                let data = page.data.clone();
+                
+                // 写入到文件
+                self.write_page_to_file(file, page_no, &data)?;
+                self.stats.writes += 1;
+                written_count += 1;
+            }
+            
+            // 清除脏标记
+            if let Some(page) = self.cache.get_mut(&key) {
+                page.is_dirty = false;
+            }
+        }
+        
+        Ok(written_count)
+    }
+    
+    /// 获取所有脏页的键列表
+    pub fn get_dirty_pages(&self) -> Vec<PageKey> {
+        self.cache
+            .iter()
+            .filter(|(_, page)| page.is_dirty)
+            .map(|(key, _)| *key)
+            .collect()
+    }
+    
+    /// 检查是否有脏页
+    pub fn has_dirty_pages(&self) -> bool {
+        self.cache.values().any(|page| page.is_dirty)
+    }
+    
+    /// 获取脏页数量
+    pub fn dirty_count(&self) -> usize {
+        self.cache.values().filter(|page| page.is_dirty).count()
     }
 }
 
@@ -299,5 +410,135 @@ mod tests {
         assert_eq!(pm.cached_count(), 0);
         assert_eq!(pm.max_pages, 128);
         assert_eq!(pm.page_size, 512);
+    }
+    
+    #[test]
+    fn test_dirty_page_tracking() {
+        let mut pm = PageManager::new(16, 512);
+        
+        // 初始状态：无脏页
+        assert!(!pm.has_dirty_pages());
+        assert_eq!(pm.dirty_count(), 0);
+        
+        // 手动添加一个缓存页面并标记为脏
+        let page = CachedPage::new(1, 0, vec![0u8; 512]);
+        pm.cache.insert((0, 1), page);
+        pm.mark_dirty(0, 1);
+        
+        // 验证脏页状态
+        assert!(pm.has_dirty_pages());
+        assert_eq!(pm.dirty_count(), 1);
+        assert_eq!(pm.get_dirty_pages(), vec![(0, 1)]);
+    }
+    
+    #[test]
+    fn test_write_page_basic() {
+        use std::io::Read;
+        use std::fs::OpenOptions;
+        
+        // 创建临时文件
+        let temp_dir = std::env::temp_dir();
+        let temp_file = temp_dir.join("pdms_io_test_write.bin");
+        
+        // 清理可能存在的旧文件
+        let _ = std::fs::remove_file(&temp_file);
+        
+        // 创建并初始化文件
+        {
+            let mut file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .open(&temp_file)
+                .expect("无法创建临时文件");
+            
+            // 写入 4 个空页面 (2KB)
+            let empty_data = vec![0u8; 512 * 4];
+            file.write_all(&empty_data).expect("无法初始化文件");
+        }
+        
+        // 测试写入
+        let mut pm = PageManager::new(16, 512);
+        let test_data: Vec<u8> = (0..512).map(|i| (i % 256) as u8).collect();
+        
+        {
+            let mut file = OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(&temp_file)
+                .expect("无法打开临时文件");
+            
+            pm.write_page(&mut file, 0, 2, &test_data)
+                .expect("写入页面失败");
+        }
+        
+        // 验证写入
+        {
+            let mut file = std::fs::File::open(&temp_file).expect("无法打开临时文件");
+            file.seek(SeekFrom::Start(512 * 2)).expect("无法定位");
+            
+            let mut read_data = vec![0u8; 512];
+            file.read_exact(&mut read_data).expect("无法读取");
+            
+            assert_eq!(read_data, test_data);
+        }
+        
+        // 验证统计
+        assert_eq!(pm.stats().writes, 1);
+        
+        // 清理
+        let _ = std::fs::remove_file(&temp_file);
+    }
+    
+    #[test]
+    fn test_flush_dirty_pages() {
+        use std::fs::OpenOptions;
+        
+        // 创建临时文件
+        let temp_dir = std::env::temp_dir();
+        let temp_file = temp_dir.join("pdms_io_test_flush.bin");
+        let _ = std::fs::remove_file(&temp_file);
+        
+        {
+            let mut file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .open(&temp_file)
+                .expect("无法创建临时文件");
+            
+            let empty_data = vec![0u8; 512 * 4];
+            file.write_all(&empty_data).expect("无法初始化文件");
+        }
+        
+        let mut pm = PageManager::new(16, 512);
+        
+        // 添加多个脏页
+        for i in 0..3 {
+            let mut page = CachedPage::new(i, 0, vec![(i as u8); 512]);
+            page.is_dirty = true;
+            pm.cache.insert((0, i), page);
+        }
+        
+        assert_eq!(pm.dirty_count(), 3);
+        
+        // 刷新脏页
+        {
+            let mut file = OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(&temp_file)
+                .expect("无法打开临时文件");
+            
+            let written = pm.flush_dirty_pages(&mut file).expect("刷新失败");
+            assert_eq!(written, 3);
+        }
+        
+        // 验证脏页已清除
+        assert!(!pm.has_dirty_pages());
+        assert_eq!(pm.dirty_count(), 0);
+        
+        // 清理
+        let _ = std::fs::remove_file(&temp_file);
     }
 }
