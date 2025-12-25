@@ -37,6 +37,7 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
 
     // 测试前几个参考号的操作状态
     println!("\n测试前5个参考号的操作状态:");
+    let locs = io.collect_refno_locs(latest_sesno as i32);
     for (i, loc) in locs.iter().take(5).enumerate() {
         let refno = RefU64::from_two_nums(loc.refno_0, loc.refno_1);
         println!("参考号 {}: {}", i+1, refno);
@@ -131,7 +132,7 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
     // 测试用例1: 获取前几个会话的最新元素，看看是否有修改操作的元素
     println!("\n测试1: 获取前3个会话的最新元素");
     let start = Instant::now();
-    let latest_eles = io.collect_latest_eles(Some(3))?;
+    let latest_eles = io.collect_latest_eles(Some(3)).await?;
     let elapsed = start.elapsed();
 
     println!("前3个会话中共找到 {} 个最新元素, 耗时: {:?}", latest_eles.len(), elapsed);
@@ -558,13 +559,13 @@ async fn test_collect_latest_eles_edge_cases() -> anyhow::Result<()> {
     
     // 测试用例1: 会话数量为0
     println!("\n测试1: 会话数量为0");
-    let result = io.collect_latest_eles(Some(0))?;
+    let result = io.collect_latest_eles(Some(0)).await?;
     assert!(result.is_empty(), "会话数量为0时应该返回空结果");
     println!("✓ 会话数量为0时正确返回空结果");
     
     // 测试用例2: 会话数量为1
     println!("\n测试2: 会话数量为1");
-    let result = io.collect_latest_eles(Some(1))?;
+    let result = io.collect_latest_eles(Some(1)).await?;
     println!("会话数量为1时返回 {} 个元素", result.len());
     
     // 验证所有元素都来自同一个会话（最新会话）
