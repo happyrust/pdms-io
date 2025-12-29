@@ -1655,6 +1655,131 @@ impl PdmsIO {
         Ok(result)
     }
 
+    /// 构建 NounID 到 AttributeID 的映射表 (来自 ATNAIN)
+    ///
+    /// # 参数
+    /// * `attlib_path` - attlib.dat 的路径
+    ///
+    /// # 返回值
+    /// * `Result<HashMap<u32, Vec<u32>>>` - NounID 映射到属性 ID 列表
+    pub fn build_noun_attr_map<P: AsRef<Path>>(attlib_path: P) -> anyhow::Result<HashMap<u32, Vec<u32>>> {
+        let mut file = File::open(attlib_path.as_ref())
+            .with_context(|| format!("无法打开属性库文件: {:?}", attlib_path.as_ref()))?;
+        
+        let mut map = HashMap::new();
+        
+        // 读取 Page 1 目录
+        let mut dir_buf = vec![0u8; 2048];
+        file.read_exact(&mut dir_buf)?;
+        let atnain_start_page = u32::from_be_bytes([dir_buf[12], dir_buf[13], dir_buf[14], dir_buf[15]]) as usize;
+        
+        if atnain_start_page == 0 {
+            return Ok(map);
+        }
+
+        // ATNAIN 格式为 [NounHash, AttrIndex, TypeCode] 三元组
+        // 每个 Page 2048 字节，包含 512 个 u32
+        for page_idx in atnain_start_page..atnain_start_page + 30 {
+            let offset = page_idx as u64 * 2048;
+            if file.seek(SeekFrom::Start(offset)).is_err() { break; }
+            
+            let mut page_buf = vec![0u8; 2048];
+            if file.read_exact(&mut page_buf).is_err() { break; }
+            
+            let mut u32_vals = Vec::with_capacity(512);
+            for chunk in page_buf.chunks_exact(4) {
+                u32_vals.push(u32::from_be_bytes(chunk.try_into().unwrap()));
+            }
+
+            for i in (0..u32_vals.len().saturating_sub(2)).step_by(3) {
+                let noun_id = u32_vals[i];
+                let attr_id = u32_vals[i + 1];
+                // let type_code = u32_vals[i + 2];
+                
+                if noun_id == 0 || noun_id == 0xFFFFFFFF { continue; }
+                if attr_id == 0 || attr_id == 0xFFFFFFFF { continue; }
+                
+                map.entry(noun_id).or_insert_with(Vec::new).push(attr_id);
+            }
+        }
+        
+        Ok(map)
+    }
+
+    /// 获取元素的属性值 (基于物理偏移)
+    /// 
+    /// # 参数
+    /// * `refno` - 元素的参考号
+    /// * `attr_id` - 属性的 ID (AttrID)
+    /// * `noun_id` - 元素的类型 ID (NounID)
+    /// * `phys_offset` - 属性在元素数据块中的物理偏移 (来自 ATNAIN)
+    /// * `dtype` - 属性的数据类型 (来自 ATGTDF)
+    pub fn get_attribute_value(
+        &mut self,
+        refno: RefU64,
+        _attr_id: u32,
+        _noun_id: u32,
+        phys_offset: u32,
+        dtype: u32,
+    ) -> anyhow::Result<NamedAttrValue> {
+        // 1. 定位元素在数据库中的物理地址
+        let (_, ele_offset) = self
+            .search_latest_refno(refno, None)
+            .ok_or_else(|| anyhow!("找不到参考号: {:?}", refno))?;
+            
+        // 2. 计算属性的实际物理偏移
+        // phys_offset 是相对于元素数据块起始位置的，且单位通常是 4 字节 (WORD)
+        let attr_phys_offset = ele_offset + (phys_offset as u64 * 4);
+        
+        // 3. 读取数据并根据 dtype 解码
+        // dtype 参考: 2=REAL, 3=TEXT, 5=POS, 6=ORIENTATION, 7=REF, 8=BOO, etc.
+        match dtype {
+            2 => { // REAL (DOUBLE)
+                let data = self.read_data_cached(attr_phys_offset, 8)?;
+                let val = f64::from_be_bytes(data.try_into().map_err(|_| anyhow!("数据长度不足"))?);
+                Ok(NamedAttrValue::F32Type(val as f32))
+            }
+            3 => { // TEXT
+                let len_data = self.read_data_cached(attr_phys_offset, 4)?;
+                let len = i32::from_be_bytes(len_data.try_into().map_err(|_| anyhow!("读取长度失败"))?) as usize;
+                if len > 0 {
+                    let text_data = self.read_data_cached(attr_phys_offset + 4, len)?;
+                    let (s, _) = aios_core::tool::db_tool::decode_chars_data(&text_data);
+                    Ok(NamedAttrValue::StringType(s.into()))
+                } else {
+                    Ok(NamedAttrValue::StringType("".into()))
+                }
+            }
+            5 | 6 => { // POSITION / ORIENTATION (VEC3)
+                let data = self.read_data_cached(attr_phys_offset, 24)?;
+                let mut vals = [0.0f32; 3];
+                for i in 0..3 {
+                    let chunk = &data[i*8..(i+1)*8];
+                    vals[i] = f64::from_be_bytes(chunk.try_into().unwrap()) as f32;
+                }
+                Ok(NamedAttrValue::Vec3Type(glam::Vec3::from_array(vals)))
+            }
+            7 => { // REFERENCE
+                let data = self.read_data_cached(attr_phys_offset, 8)?;
+                let ref0 = u32::from_be_bytes(data[0..4].try_into().unwrap());
+                let ref1 = u32::from_be_bytes(data[4..8].try_into().unwrap());
+                Ok(NamedAttrValue::RefU64Type(RefU64::from_two_nums(ref0, ref1)))
+            }
+            8 => { // BOOLEAN
+                let data = self.read_data_cached(attr_phys_offset, 4)?;
+                let val = u32::from_be_bytes(data.try_into().unwrap());
+                Ok(NamedAttrValue::BoolType(val != 0))
+            }
+            _ => {
+                // 回退到解析整个元素获取值 (作为兜底方案)
+                let ele_data = self.parse_raw_element(ele_offset)?;
+                // 这里可能需要根据 attr_id 找名称，暂时返回空
+                Err(anyhow!("不支持的属性类型或未实现的快速读取: dtype={}", dtype))
+            }
+        }
+    }
+
+
     /// 搜索指定会话号之前的引用号， 先使用latest_refno， 如果找不到， 则使用search_prev_refno
     /// 搜索指定参考号在指定会话号之前的版本
     ///

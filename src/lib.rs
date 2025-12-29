@@ -10,7 +10,7 @@ pub mod page_manager;
 pub mod writer;
 pub mod element_serializer;
 
-// pub mod sync;
+pub mod sync;
 
 pub mod watch;
 

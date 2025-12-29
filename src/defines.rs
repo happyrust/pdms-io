@@ -139,16 +139,16 @@ pub struct SessionPageData {
     // 计算机名称长度，以4字节为单位 (0x78 - 0x7B)
     pub name_words_len: u32,
     // 计算机名称字节数组 (0x7C - )
-    #[deku(count = "name_words_len * 4")]
+    #[deku(count = "(*name_words_len).min(128) * 4")]
     pub name_bytes: Vec<u8>,
     // 填充字节，使名称总长度为36字节
-    #[deku(count = "(9 - name_words_len) * 4")]
+    #[deku(count = "9u32.saturating_sub(*name_words_len) * 4")]
     pub empty_bytes: Vec<u8>,
 
     // 注释长度，以4字节为单位
     pub comments_words_len: u32,
     // 注释内容字节数组
-    #[deku(count = "comments_words_len * 4")]
+    #[deku(count = "(*comments_words_len).min(1024) * 4")]
     pub comments_bytes: Vec<u8>,
 
     // 剩余的字节数据，每8字节一组

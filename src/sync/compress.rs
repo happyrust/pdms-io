@@ -12,8 +12,8 @@ use tokio::{
 };
 
 use crate::{human_size /*info_cmd*/};
-// use dpcsync::{archive_reader::IoReader, chunk_dictionary as dict, HashSum};
-// use dpcsync::{chunker, Compression};
+use dpcsync::{archive_reader::IoReader, chunk_dictionary as dict, HashSum};
+use dpcsync::{chunker, Compression};
 
 pub const PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -26,7 +26,7 @@ async fn chunk_input<T>(
     num_chunk_buffers: usize,
 ) -> Result<(
     Vec<u8>,
-    // Vec<dpcsync::chunk_dictionary::ChunkDescriptor>,
+    Vec<dict::ChunkDescriptor>,
     u64,
     Vec<usize>,
 )>
@@ -269,7 +269,7 @@ pub async fn execute_compress(opts: CompressOptions) -> Result<HashSum> {
         source_total_size: source_size,
         chunker_params: Some(chunker_params),
     };
-    // let header_buf = dpcsync::header::build(&file_header, None)?;
+    let header_buf = dpcsync::header::build(&file_header, None)?;
     output_file.write_all(&header_buf).context(format!(
         "Failed to write header to output file {}",
         opts.output.display()
