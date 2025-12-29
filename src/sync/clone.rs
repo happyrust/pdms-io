@@ -14,10 +14,10 @@ use tokio::{
 use url::Url;
 
 use crate::{human_size};
-// use dpcsync::{
-//     archive_reader::{ArchiveReader, HttpReader, IoReader},
-//     chunker, Archive, ChunkIndex, CloneOutput, HashSum, VerifiedChunk,
-// };
+use dpcsync::{
+    archive_reader::{ArchiveReader, HttpReader, IoReader},
+    chunker, Archive, ChunkIndex, CloneOutput, HashSum, VerifiedChunk,
+};
 
 async fn file_size(file: &mut File) -> Result<u64, std::io::Error> {
     file.seek(SeekFrom::Start(0)).await?;
