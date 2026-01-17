@@ -93,14 +93,14 @@ fn test_page_size() -> bool {
     println!("   测试 PAGE_SIZE 常量");
     println!("--------------------------------------------------------------------------------");
     
-    let passed = PAGE_SIZE == 0x200;
+    let passed = PAGE_SIZE == 0x800;
     
     println!("   PAGE_SIZE = {} 字节 = 0x{:X}", PAGE_SIZE, PAGE_SIZE);
     
     if passed {
-        println!("   ✅ PAGE_SIZE 正确！512 字节");
+        println!("   ✅ PAGE_SIZE 正确！2048 字节");
     } else {
-        println!("   ❌ PAGE_SIZE 错误！应该是 512 字节，实际是 {} 字节", PAGE_SIZE);
+        println!("   ❌ PAGE_SIZE 错误！应该是 2048 字节，实际是 {} 字节", PAGE_SIZE);
     }
     
     println!();

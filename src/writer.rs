@@ -532,10 +532,24 @@ pub struct SessionBuilder {
     pub sesno: u32,
     /// 上一个会话页号
     pub last_ses_pageno: u32,
+    /// 上一个会话扩展号
+    pub last_ses_extno: u32,
     /// 会话结束页号
     pub end_pgno: u32,
+    /// 会话结束扩展号
+    pub end_extno: u32,
     /// 索引根页号
     pub index_root_pageno: u32,
+    /// 索引根扩展号
+    pub index_root_extno: u32,
+    /// 声明页号
+    pub claim_pageno: u32,
+    /// 声明扩展号
+    pub claim_extno: u32,
+    /// 未知数据1
+    pub unknown_1: i32,
+    /// 未知数据2
+    pub unknown_2: i32,
     /// 计算机名
     pub computer_name: String,
     /// 注释
@@ -548,8 +562,15 @@ impl SessionBuilder {
         Self {
             sesno,
             last_ses_pageno,
+            last_ses_extno: 1,
             end_pgno: 0,
+            end_extno: 1,
             index_root_pageno: 0,
+            index_root_extno: 1,
+            claim_pageno: 0,
+            claim_extno: 1,
+            unknown_1: 0,
+            unknown_2: 0,
             computer_name: String::new(),
             comments: String::new(),
         }
@@ -564,6 +585,12 @@ impl SessionBuilder {
     /// 设置索引根页号
     pub fn index_root(mut self, pgno: u32) -> Self {
         self.index_root_pageno = pgno;
+        self
+    }
+
+    /// 设置声明页号
+    pub fn claim_root(mut self, pgno: u32) -> Self {
+        self.claim_pageno = pgno;
         self
     }
     
@@ -596,7 +623,7 @@ impl SessionBuilder {
         data[4..8].copy_from_slice(&(self.last_ses_pageno as i32).to_be_bytes());
         
         // 写入上一个会话扩展号 (通常为 1)
-        data[8..12].copy_from_slice(&1i32.to_be_bytes());
+        data[8..12].copy_from_slice(&(self.last_ses_extno as i32).to_be_bytes());
         
         // 写入会话号
         data[12..16].copy_from_slice(&(self.sesno as i32).to_be_bytes());
@@ -608,19 +635,27 @@ impl SessionBuilder {
         data[20..24].copy_from_slice(&self.end_pgno.to_be_bytes());
         
         // 写入结束扩展号 (通常为 1)
-        data[24..28].copy_from_slice(&1u32.to_be_bytes());
+        data[24..28].copy_from_slice(&self.end_extno.to_be_bytes());
         
         // 写入索引根页号
         data[28..32].copy_from_slice(&self.index_root_pageno.to_be_bytes());
         
         // 写入索引根扩展号 (通常为 1)
-        data[32..36].copy_from_slice(&1u32.to_be_bytes());
+        data[32..36].copy_from_slice(&self.index_root_extno.to_be_bytes());
+
+        // 写入声明页号与扩展号
+        data[0x24..0x28].copy_from_slice(&self.claim_pageno.to_be_bytes());
+        data[0x28..0x2C].copy_from_slice(&self.claim_extno.to_be_bytes());
+
+        // 写入未知字段
+        data[0x2C..0x30].copy_from_slice(&self.unknown_1.to_be_bytes());
+        data[0x30..0x34].copy_from_slice(&self.unknown_2.to_be_bytes());
         
         // 写入时间戳 (年、月、小时、秒)
-        let now = chrono::Utc::now();
+        let now = chrono::Local::now();
         let year = now.year() as u32;
-        let month = now.month();
-        let hours = now.ordinal() * 24 + now.hour();
+        let month = now.month() as u32;
+        let hours = now.day() * 24 + now.hour();
         let seconds = now.minute() * 60 + now.second();
         
         data[0x34..0x38].copy_from_slice(&year.to_be_bytes());
@@ -630,24 +665,29 @@ impl SessionBuilder {
         
         // 写入计算机名长度和内容
         let name_bytes = self.computer_name.as_bytes();
-        let name_words = (name_bytes.len() + 3) / 4; // 以 4 字节为单位
+        let name_words = ((name_bytes.len() + 3) / 4).min(9); // 以 4 字节为单位，最多 9 words
         data[0x78..0x7C].copy_from_slice(&(name_words as u32).to_be_bytes());
-        
+
         // 写入计算机名
         let name_start = 0x7C;
-        let name_len = std::cmp::min(name_bytes.len(), 36);
-        data[name_start..name_start + name_len].copy_from_slice(&name_bytes[..name_len]);
+        let name_len = std::cmp::min(name_bytes.len(), name_words * 4);
+        if name_len > 0 {
+            data[name_start..name_start + name_len].copy_from_slice(&name_bytes[..name_len]);
+        }
         
         // 写入注释长度和内容
         let comments_start = 0x7C + 36; // 名称固定 36 字节
         let comments_bytes = self.comments.as_bytes();
-        let comments_words = (comments_bytes.len() + 3) / 4;
-        data[comments_start..comments_start + 4].copy_from_slice(&(comments_words as u32).to_be_bytes());
-        
-        let comments_len = std::cmp::min(comments_bytes.len(), page_size - comments_start - 4);
-        if comments_len > 0 {
-            data[comments_start + 4..comments_start + 4 + comments_len]
-                .copy_from_slice(&comments_bytes[..comments_len]);
+        let comments_words = ((comments_bytes.len() + 3) / 4).min(1024);
+        if comments_start + 4 <= page_size {
+            data[comments_start..comments_start + 4].copy_from_slice(&(comments_words as u32).to_be_bytes());
+            let max_payload = page_size - comments_start - 4;
+            let comments_len = std::cmp::min(comments_words * 4, max_payload);
+            let copy_len = std::cmp::min(comments_bytes.len(), comments_len);
+            if copy_len > 0 {
+                data[comments_start + 4..comments_start + 4 + copy_len]
+                    .copy_from_slice(&comments_bytes[..copy_len]);
+            }
         }
         
         data

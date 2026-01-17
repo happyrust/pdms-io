@@ -13,7 +13,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use std::fs::File;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use crate::defines::{PAGE_SIZE, PAGE_SIZE_2K};
+use crate::defines::{PAGE_SIZE_2K, PAGE_SIZE_512};
 
 /// 缓存统计信息
 #[derive(Debug, Default, Clone)]
@@ -101,7 +101,7 @@ impl PageManager {
     /// 
     /// # 参数
     /// * `max_pages` - 最大缓存页面数，默认 256 (约 512KB 或 512MB 取决于页面大小)
-    /// * `page_size` - 页面大小，默认 512 字节
+    /// * `page_size` - 页面大小
     pub fn new(max_pages: usize, page_size: usize) -> Self {
         Self {
             cache: HashMap::with_capacity(max_pages),
@@ -114,7 +114,7 @@ impl PageManager {
     
     /// 使用默认配置创建页面管理器
     pub fn default_512() -> Self {
-        Self::new(256, PAGE_SIZE)
+        Self::new(256, PAGE_SIZE_512)
     }
     
     /// 使用 2K 页面大小创建页面管理器
@@ -385,7 +385,7 @@ impl PageManager {
 
 impl Default for PageManager {
     fn default() -> Self {
-        Self::default_512()
+        Self::default_2k()
     }
 }
 
