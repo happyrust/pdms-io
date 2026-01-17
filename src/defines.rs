@@ -11,28 +11,23 @@ use aios_core::pdms_types::EleOperation;
 use std::str::FromStr;
 
 // 页面大小定义
-// 注意: PDMS 支持多种页面大小，需要根据文件头部动态检测
-pub const PAGE_SIZE: usize = 0x200;       // 512 字节 (兼容旧版)
+// 注意: 目前固定使用 2048 字节页面，后续再恢复动态检测
+pub const PAGE_SIZE: usize = 0x800;       // 2048 字节 (当前固定)
 pub const PAGE_SIZE_512: usize = 0x200;   // 512 字节 (旧版 PDMS)
 pub const PAGE_SIZE_2K: usize = 0x800;    // 2048 字节 (E3D/新版)
 
 /// 根据文件头部信息检测页面大小
 /// 
+/// 当前为适配 E3D 数据，固定返回 2048 字节，暂不使用头部字段
+/// 
 /// # 参数
 /// * `header` - PDMS 文件头部数据
 /// 
 /// # 返回值
-/// * `usize` - 检测到的页面大小 (512 或 2048)
+/// * `usize` - 页面大小
 #[inline]
-pub fn detect_page_size(header: &PdmsHeader) -> usize {
-    // 如果头部记录的页面大小为 0 或 512，使用 512 字节
-    // 否则使用头部记录的值 (通常为 2048)
-    match header.page_size {
-        0 | 512 => PAGE_SIZE_512,
-        2048 => PAGE_SIZE_2K,
-        other if other > 0 && other <= 4096 => other as usize,
-        _ => PAGE_SIZE_512, // 默认回退到 512
-    }
+pub fn detect_page_size(_header: &PdmsHeader) -> usize {
+    PAGE_SIZE_2K
 }
 
 #[derive(Default, Clone, Debug, PartialEq, DekuRead, DekuWrite, Serialize, Deserialize)]
@@ -66,7 +61,7 @@ pub struct PdmsHeader {
     // 新增字段 ✅
     // 偏移 0x30 - 0x33: 会话页面号（值 = 3）
     pub session_page_no: u32,
-    // 偏移 0x34 - 0x37: 页面大小（值 = 512）
+    // 偏移 0x34 - 0x37: 页面大小（头部字段，可能为 0/512/2048）
     pub page_size: u32,
     // 偏移 0x38 - 0x3B: 存储页数（值 = 15522）
     pub stored_page_count: u32,
@@ -253,6 +248,36 @@ impl SessionPageData {
         decode_chars_data(&self.comments_bytes[..(i + 4 - rpos)]).0
     }
 
+    #[inline]
+    pub fn validate_basic(&self) -> Vec<String> {
+        let mut issues = Vec::new();
+        if self.page_type != 3 {
+            issues.push(format!(
+                "page_type 非会话页: {}",
+                self.page_type
+            ));
+        }
+        if self.unknown_0 != -1 {
+            issues.push(format!(
+                "unknown_0 非 -1: {}",
+                self.unknown_0
+            ));
+        }
+        if self.name_words_len > 9 {
+            issues.push(format!(
+                "name_words_len 超出 9: {}",
+                self.name_words_len
+            ));
+        }
+        if self.comments_words_len > 1024 {
+            issues.push(format!(
+                "comments_words_len 超出 1024: {}",
+                self.comments_words_len
+            ));
+        }
+        issues
+    }
+
     //是否需要要检测有无变化？先拿到最新的数据试试看里面的参考号，和之前的比有无变化
     pub fn get_session_saved_refnos() {}
 }
@@ -350,7 +375,7 @@ impl RefnoDataLoc {
     /// 获取属性数据的实际偏移量
     /// 
     /// 根据页号和页内偏移量计算出实际的字节偏移量
-    /// 注意: 此方法使用默认的 PAGE_SIZE (512字节)，对于 E3D 文件请使用 get_att_offset_with_page_size
+    /// 注意: 此方法使用默认的 PAGE_SIZE (当前固定 2048 字节)
     #[inline]
     pub fn get_att_offset(&self) -> u64 {
         self.pgno as u64 * PAGE_SIZE as u64 + self.offset as u64 * 2

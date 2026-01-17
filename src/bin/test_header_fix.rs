@@ -12,10 +12,10 @@ fn main() {
     println!("--------------------------------------------------------------------------------");
     println!("   PAGE_SIZE = {} 字节 = 0x{:X}", PAGE_SIZE, PAGE_SIZE);
     
-    if PAGE_SIZE == 0x200 {
-        println!("   ✅ PAGE_SIZE 正确！512 字节");
+    if PAGE_SIZE == 0x800 {
+        println!("   ✅ PAGE_SIZE 正确！2048 字节");
     } else {
-        println!("   ❌ PAGE_SIZE 错误！应该是 512 字节，实际是 {} 字节", PAGE_SIZE);
+        println!("   ❌ PAGE_SIZE 错误！应该是 2048 字节，实际是 {} 字节", PAGE_SIZE);
     }
     println!();
     
@@ -98,11 +98,11 @@ fn main() {
     println!("================================================================================");
     println!();
     
-    if PAGE_SIZE == 0x200 && all_fields_valid {
+    if PAGE_SIZE == 0x800 && all_fields_valid {
         println!("✅ 所有修复验证通过！");
         println!();
         println!("修复内容:");
-        println!("  1. ✅ PAGE_SIZE 常量已修复为 512 字节");
+        println!("  1. ✅ PAGE_SIZE 常量已修复为 2048 字节");
         println!("  2. ✅ PdmsHeader 新增 4 个字段");
         println!("  3. ✅ 所有字段验证通过");
         println!();
@@ -112,7 +112,7 @@ fn main() {
     } else {
         println!("❌ 修复验证失败！");
         println!();
-        if PAGE_SIZE != 0x200 {
+        if PAGE_SIZE != 0x800 {
             println!("  - PAGE_SIZE 常量错误");
         }
         if !all_fields_valid {

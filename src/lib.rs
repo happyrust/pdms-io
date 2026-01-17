@@ -5,6 +5,7 @@ pub mod defines;
 pub mod common;
 pub mod config;
 pub mod test;
+#[cfg(feature = "meilisearch")]
 pub mod search;
 pub mod page_manager;
 pub mod writer;

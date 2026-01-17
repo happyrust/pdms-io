@@ -6,9 +6,10 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = []            #
+default = []                          #
 debug_parse = []
-debug_btree_search = [] # 启用B+树搜索调试输出
+debug_btree_search = []               # 启用B+树搜索调试输出
+meilisearch = ["dep:meilisearch-sdk"] # MeiliSearch 搜索引擎支持
 
 [dependencies]
 anyhow = "1.0"
@@ -50,7 +51,7 @@ itertools = "0.14.0"
 flume = "0.11.0"
 rand = "0.9.1"
 iter_tools = "0.29.0"
-meilisearch-sdk = "0.28.0"
+meilisearch-sdk = { version = "0.28.0", optional = true }
 glam = "0.30.9"
 
 [profile.dev]
@@ -64,6 +65,25 @@ opt-level = 3
 
 # [patch."https://gitee.com/happydpc/aios-parse-pdms.git"]
 # parse_pdms_db = { path = "../aios-parse-pdms" }
+
+# [patch."https://gitee.com/happydpc/rust-ploop-processor.git"]   
+# ploop-rs = { path = "../rust-ploop-processor/ploop-rs" }
+
+# Binary targets that require meilisearch feature
+[[bin]]
+name = "test_meilisearch"
+path = "src/bin/test_meilisearch.rs"
+required-features = ["meilisearch"]
+
+[[bin]]
+name = "test_meilisearch_simple"
+path = "src/bin/test_meilisearch_simple.rs"
+required-features = ["meilisearch"]
+
+[[bin]]
+name = "test_search_integration"
+path = "src/bin/test_search_integration.rs"
+required-features = ["meilisearch"]
 
 # [patch."https://gitee.com/happydpc/surrealdb.git"]
 # surrealdb = { path = "../surrealdb/crates/sdk" }

@@ -16,3 +16,4 @@ pub mod test_refno_status;
 
 pub mod test_collect_latest_eles;
 pub mod test_write_integration;
+pub mod test_ses_validate;

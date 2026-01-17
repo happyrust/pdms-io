@@ -775,7 +775,7 @@ pub struct PdmsIO {
     pub sesno_pgno_map: BTreeMap<i32, u32>,
     /// 会话页面范围映射表,记录每个会话的起始页号和结束页号
     pub ses_range_map: BTreeMap<i32, Range<u32>>,
-    /// 动态页面大小 (从文件头读取，默认 512 字节)
+    /// 页面大小（当前固定 2048 字节）
     pub page_size: usize,
     /// 页面缓存管理器 (基于 IDA db1 分析实现)
     pub page_cache: PageManager,
@@ -1071,8 +1071,8 @@ impl PdmsIO {
             ses_data_map: Default::default(),
             sesno_pgno_map: Default::default(),
             ses_range_map: Default::default(),
-            page_size: PAGE_SIZE, // 默认使用 512 字节，open() 时会从文件头读取
-            page_cache: PageManager::default_512(), // 使用默认 512 字节页面缓存
+            page_size: PAGE_SIZE_2K, // 固定使用 2K 页面大小
+            page_cache: PageManager::default_2k(), // 固定使用 2K 页面缓存
         }
     }
 
@@ -1097,13 +1097,9 @@ impl PdmsIO {
     pub fn init_ses_range_map(&mut self) -> anyhow::Result<()> {
         let pdms_header = self.read_pdms_header()?;
         
-        // 从文件头检测并设置动态页面大小
-        self.page_size = detect_page_size(&pdms_header);
-        
-        // 根据检测到的页面大小更新缓存配置
-        if self.page_size == PAGE_SIZE_2K {
-            self.page_cache = PageManager::default_2k();
-        }
+        // 页面大小固定为 2K，跳过头部检测
+        self.page_size = PAGE_SIZE_2K;
+        self.page_cache = PageManager::default_2k();
         
         let mut cur_ses_pgno = pdms_header.latest_ses_pgno;
         let mut map = BTreeMap::new();
@@ -3648,18 +3644,34 @@ impl PdmsIO {
         //读取当前会话层有多少属性保存了，是否需要读取 index 数据，然后开始读取属性数据
         //过滤 index 里面的 pgno 大于当前会话的 pgno 的数据
         let (cur_end_pgno, last_ses_pageno, index_root_pageno) = {
-            let d = self.read_ses_data(ses_pgno).unwrap();
+            let Ok(d) = self.read_ses_data(ses_pgno) else {
+                eprintln!("Warning: Failed to read session data for page {}", ses_pgno);
+                return vec![];
+            };
             (d.end_pgno, d.last_ses_pageno, d.index_root_pageno)
         };
+        
+        // 检查 last_ses_pageno 是否有效
+        if last_ses_pageno <= 0 {
+            // 没有上一个会话，返回空
+            return vec![];
+        }
+        
         //读取上一个ses_data
         let last_end_pgno = {
-            let d = self.read_ses_data(last_ses_pageno as u32).unwrap();
+            let Ok(d) = self.read_ses_data(last_ses_pageno as u32) else {
+                eprintln!("Warning: Failed to read last session data for page {}", last_ses_pageno);
+                return vec![];
+            };
             d.end_pgno
         };
         // dbg!((last_end_pgno, cur_end_pgno));
         //只要过滤所有 last_end_pgno 比这个大，比 cur_end_pgno 小的参考号即可
         //过滤 index page data 里面的数据
-        let mut index_data = self.read_index_data(index_root_pageno).unwrap();
+        let Ok(index_data) = self.read_index_data(index_root_pageno) else {
+            eprintln!("Warning: Failed to read index data for page {}", index_root_pageno);
+            return vec![];
+        };
         // dbg!(index_data.level);
         let mut final_locs = vec![];
         // println!("index root pgno: {:#04X}", index_root_pageno * PAGE_SIZE as u32);
