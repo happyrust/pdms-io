@@ -1,0 +1,60 @@
+[package]
+name = "parse_pdms_db"
+version = "3.0.0"
+edition = "2024"
+
+
+[features]
+default = ["compression"] #"compression"
+compression = []
+web = []                  #compile for just web usage, now it is too heavy now
+debug_parse = []
+
+[dependencies]
+memchr = "2.7.2"
+nom = "8.0"
+#nom-derive = "0.10.0"
+itertools = "0.13.0"
+bincode = "1.3.3"
+regex = "1.5.4"
+futures = "0.3.19"
+async-trait = "0.1"
+approx = "0.5"
+bitflags = "2.5.0"
+derivative = "2.2.0"
+concurrent-queue = "2.4.0"
+instant = "0.1.12"
+config = "0.14.0"
+
+hash32 = "0.3.1"
+hash32-derive = "0.1.1"
+
+serde = { version = "1.0.137", features = ["derive"] }
+serde_derive = "1.0.137"
+phf = { version = "0.11.2", features = ["macros"] }
+clap = { version = "4.3.5", features = ["derive"] }
+log = "0.4.14"
+rayon = "1.10.0"
+tokio = { version = "1.37.0", features = ["full"] }
+serde_json = { version = "1.0" }
+lazy_static = "1.4.0"
+cached = { version = "0.54.0", default-features = false, features = ["proc_macro"] }
+dashmap = { version = "=7.0.0-rc2", features = ["serde", "rayon"] }
+hex = "0.4.3"
+tempfile = "3"
+
+id_tree = { version = "1.8.0", features = ["serde_support"] }
+smol_str = { version = "0.3.2", features = ["serde"] }
+#rand = "*"
+# aios_core = { git = "https://gitee.com/happydpc/rs-core", default-features = false }
+
+once_cell = "1.9.0"
+dynfmt = { version = "0.1.5", features = ["curly", "python"] }
+pretty-hex = "0.4.1"
+
+anyhow = "1.0"
+thiserror = "*"
+glam = { version = "0.30.8", features = ["serde"] }
+# aios_core = { git = "https://github.com/happyrust/rs-core.git",  default-features = false }
+# 本 crate 作为 `pdms-io-fork/crates/*` 的子目录时，需要回到 workspace 根再到 rs-core。
+aios_core = { path = "../../../rs-core" }
