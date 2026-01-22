@@ -115,13 +115,13 @@ fn main() {
     println!();
     println!("✅ 所有测试完成！");
     println!();
-    println("测试结果:");
-    println("  1. ✅ PageType 枚举测试通过");
-    println("  2. ✅ DataPageSubtype 枚举测试通过");
-    println("  3. ✅ verify_page_type 函数测试通过");
-    println("  4. ✅ verify_data_page_subtype 函数测试通过");
+    println!("测试结果:");
+    println!("  1. ✅ PageType 枚举测试通过");
+    println!("  2. ✅ DataPageSubtype 枚举测试通过");
+    println!("  3. ✅ verify_page_type 函数测试通过");
+    println!("  4. ✅ verify_data_page_subtype 函数测试通过");
     println!();
-    println("页面类型识别和验证功能已完成！");
+    println!("页面类型识别和验证功能已完成！");
 }
 
 fn test_page_type(page_type: PageType, expected_value: u32, expected_name: &str) {
