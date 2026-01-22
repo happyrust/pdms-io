@@ -438,6 +438,13 @@ impl PdmsIO {
 
     #[cfg(test)]
     pub fn get_att_latest_pgno_old(&mut self) -> anyhow::Result<u32> {
+        // 旧调试函数：通过“页头特征字节”在全文件里反向搜索可能的索引页位置。
+        // 这里只要求能编译/辅助定位问题，不保证命中一定是叶子索引页。
+        use memchr::memmem::rfind_iter;
+
+        // 索引页 page_type 通常为 2（big-endian i32）。
+        const REFNO_LEAF_INDEX_PAGE: [u8; 4] = (2i32).to_be_bytes();
+
         let mut file = self.get_file()?;
         let mut input = vec![];
         file.read_to_end(&mut input)?;
