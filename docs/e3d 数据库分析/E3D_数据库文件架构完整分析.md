@@ -17,6 +17,7 @@
 6. [会话管理](#会话管理)
 7. [文件布局图](#文件布局图)
 8. [数据访问流程](#数据访问流程)
+9. [属性系统与属性数据读取流程](#属性系统与属性数据读取流程)
 
 ---
 
@@ -442,6 +443,173 @@ struct PLUEntry {
 **锁机制**: 读锁和写锁
 
 **写回策略**: 异步写回
+
+---
+
+## 属性系统与属性数据读取流程
+
+本节聚焦“属性数据（Attribute/Property）”的读取：包括属性定义（元数据）如何按哈希检索、元素属性值如何从文件记录中取出，以及系统属性/显式属性/UDA 的分流逻辑。结论均来自 IDA Pro 反编译与实际调用链观测（含 MCP 导出）。
+
+### 关键概念
+
+- **属性（DB_Attribute）**：属性“定义/元数据”，以 `hash(int32)` 为主键；包含类型、长度、单位、可否数组等信息。
+- **元素类型（DB_Noun）**：元素“类型/名词”；定义该类型有哪些系统属性，以及（通常）隐式区的布局信息来源。
+- **元素（DB_Element）**：元素“实例”；属性“值”读取入口在 `getAtt(...)` 系列，底层走 DAB/Fortran 层从当前元素记录中取值。
+- **哈希（hash）**：PDMS/E3D 将属性名（如 `NAME/PX/DESP`）映射为 32 位整数哈希；读取流程中几乎所有索引都围绕该哈希展开。
+
+### 属性定义数据如何读取（DB_Attribute）
+
+1. **从 PML 结构取出 HASH，再定位属性对象**
+   - `PMLdbatt::getDBAttribute()`：从结构成员 `"HASH"` 取值并转为整数，随后调用 `DB_Attribute::findAttribute(hash, &out)`。
+   - 证据（反编译）：`sub_106FF7E0`（字符串常量 `"PMLdbatt::getDBAttribute()"`）。
+
+2. **`DB_Attribute::findAttribute` 的字典/懒加载策略**
+   - 若属性已在 `DB_Attribute::dictionary_` 中，直接返回；
+   - 否则（满足条件时）调用 Fortran 桥接例程验证并构造新的 `DB_Attribute(hash)`（典型“按需加载/缓存”模式）。
+   - 证据（反编译）：`DB_Attribute::findAttribute(int, const DB_Attribute **)` 位于 `0x1075FB35`。
+
+3. **`DB_Attribute::ReadData` 以“hash + 字段ID”方式取字段**
+   - `DB_Attribute::ReadData()` 会把一系列“字段ID”（看起来像属性系统内部的字段哈希/编号，例如 `649072/642215/...`）传给 `internalGetField`，从而填充属性元数据（类型、长度、单位、命名等）。
+   - `internalGetField` 的实现分三类（均调用 Fortran 层例程）：
+     - `bool`：`DB_Attribute::internalGetField(DB_Attribute*, int field_id, bool *out)`，最终调用 `sub_1044B6C3`。
+     - `string`：`DB_Attribute::internalGetField(DB_Attribute*, int field_id, PMLTypeString *out)`，最终调用 `sub_1044B660`（可见返回缓冲区以 4 字节步长存字符）。
+     - `vector<int>`：`DB_Attribute::internalGetField(DB_Attribute*, int field_id, vector<int> *out)`，最终调用 `sub_1044BE64`。
+   - 证据（反编译）：
+     - `DB_Attribute::ReadData`：`0x1075E22A`
+     - `DB_Attribute::internalGetField(bool)`：`0x107621D0`
+     - `DB_Attribute::internalGetField(string)`：`0x10761FC0`
+     - `DB_Attribute::internalGetField(vector<int>)`：`0x10762100`
+
+### 系统属性列表如何获取（DB_Noun）
+
+对“某元素类型有哪些系统属性”的回答并不存放在单个元素记录里，而是由类型系统集中维护：
+
+- `DB_Noun::getSystemAttributes(std::set<int>& out_hashes)` 会调用 `db_get_attribute_list(...)` 拉取该类型的属性哈希列表。
+- `db_get_attribute_list` 是一个薄封装：内部把操作码 `60` 分派给通用调度器，再由 `sub_10993900` 将结果写入调用者传入的两段数组缓冲区，并回填实际数量。
+- 证据（反编译）：
+  - `DB_Noun::getSystemAttributes`：`0x107694AD`
+  - `db_get_attribute_list`：`0x1093DD60`（内部调用 `sub_10953100(60, ...)`）
+  - `sub_10993900`：`0x10993900`（实际填充输出数组/计数）
+
+### 元素属性值如何读取（DB_Element）
+
+元素属性取值入口为 `DB_Element::getAtt(...)` 系列，典型路径为：
+
+1. **类型检查与分流**
+   - `DB_Element::internalGetAtt(...)` 会先检查：属性类型、是否数组、是否受保护、是否为伪属性（Pseudo）、是否为 UDA、是否为分布式属性（Distributed）等。
+   - 证据（反编译）：`DB_Element::internalGetAtt(const DB_Attribute*, const DB_Qualifier&, int&)` 位于 `0x107CEA1E`。
+
+2. **确保“当前元素”已载入 Fortran/DAB 上下文**
+   - `DB_Element::dabGetAtt(...)` 先调用 `DB_Element::elGotoCPP(this, true)`，确保底层上下文切换到该元素（否则后续取值会报错）。
+   - 证据（反编译）：
+     - `DB_Element::dabGetAtt(int, int&)`：`0x107BC6A8`
+     - `DB_Element::elGotoCPP(bool)`：`0x107C1723`
+
+3. **调用底层通用“取值”分派（操作码驱动）**
+   - 标量 `int` 的 `dabGetAtt` 会调用 `sub_1093B800(attr_id, &out)`，其内部使用操作码 `490` 分派到通用取值器（再由 `sub_10945BC0 / sub_10945600 / sub_10944CF0` 等读取当前元素的属性值）。
+   - 分段/数组类（如 `getAttSegment`）则走另一条“分段取值”分派（可见操作码 `654`）。
+   - 证据（反编译）：
+     - `sub_1093B800`：`0x1093B800`（内部调用 `sub_10958160(490, ...)`）
+     - `sub_10958160`：`0x10958160`（最终调用 `sub_10945BC0(...)`）
+     - `DB_Element::dabGetAttSegment(...)`：`0x107BDD67`（内部调用 `sub_10939410`，再分派到 `sub_109534E0(654, ...)`）
+
+4. **UDA（User Defined Attribute）**
+   - 当 `DB_Attribute::isUDA(attr)` 为真时，`internalGetAtt` 会改走 `DB_Element::getUda(...)` 路径（其数据源通常不是“系统隐式区”，而是 UDA 机制相关的专用结构/表）。
+   - 目前可确认“分流点”与“错误语义”，但 UDA 的物理落盘布局仍需结合更多样本与 Fortran 例程进一步落地（见“待验证点”）。
+
+### 属性值的物理布局（隐式/成员/显式）
+
+结合解析器侧的观测（以及代码中对 `0x00000007` 填充的处理约定），一个“元素属性记录”（RefNo 索引指向的属性记录）可抽象为：
+
+1. **对齐/填充**
+   - 记录可能以若干个 `0x00000007`（大端 4 字节）作为对齐填充开头；读取时通常需要跳过该填充值再进入真正头部。
+
+2. **隐式区（Implicit Area）**
+   - 起始 4 字节：`impl_len_words`（大端 `i32`），表示“隐式区总长度”，单位为 `word(4B)`，通常包含头部若干 word。
+   - 紧随其后（常见 24 字节头部）：
+     - `refno`：8B
+     - `type_hash/noun`：4B
+     - `owner`：8B
+   - 其后为“隐式属性 payload”，按类型系统定义的 offset/步长定点取值。
+
+3. **成员块（Members Block，可选）**
+   - 常以 `u16 flag=0x0002` 开头，后跟 `u16 len_words`，再跟自引用 refno 与子元素列表。
+
+4. **显式属性块（Explicit Blocks，可选，0..N 个）**
+   - 常以 `u16 flag=0x0001` 开头，后跟 `u16 block_words`。
+   - 块内通常包含 refno 校验字段（用于确认该显式块属于哪个元素），随后是“显式属性头 + 数据”：
+     - `attr_hash(i32)` + `type_code(u16)` + `data_len_words(u16)` + `data[...]`
+   - `type_code` 典型映射（需结合样本确认全面性）：`0x3C00 => STRING`，`0x0800 => DOUBLE`，`0x0C00 => INTEGER`。
+
+5. **结束标记**
+   - 在部分样本中可见 `0x00000000` 与 `0x00000007` 作为结束/填充标记；解析时需允许它们出现在块边界或跨页对齐处。
+
+> 注：上述布局用于描述“RefNo 索引定位到的属性记录”。在不同版本/数据库配置下，头部 word 数、成员块与显式块的组合方式可能存在差异，建议在实现中保留“按 flag 扫描/容错”的策略。
+
+#### `0x00000007` 追加段（Segment）的统一格式（跨页/跨块续写）
+
+在真实数据中，**members 块**与**显式属性块**常出现“主段声明长度结束后仍未写完”的情况：其后紧跟一个或多个 `0x00000007` 开头的追加段，用来把 payload 续写到当前记录后续空间（也可能跨页）。
+
+追加段的通用布局（大端）可抽象为：
+
+```
+[0..4]   0x00000007            // segment marker
+[4..5]   0x00                  // padding
+[5..6]   flag (0x01/0x02)      // 与主段一致：explicit=0x01, members=0x02
+[6..8]   len_words (u16)       // 本段总长度（word=4B）
+[8..16]  self_refno (8B)       // 自引用 refno（用于校验/关联）
+[16..24] reserved (8B)         // 保留区
+[24..]   payload               // 真正续写的数据
+```
+
+要点：
+- 追加段 payload 起点固定为 **24 字节**（`0x07` 标记 + `flag/len` + `self_refno` + `reserved`）。
+- 追加段数量不定：需要循环拼接，直到不再出现匹配 `0x00000007 00 <flag>` 的段头。
+- `0x00000007` 既可能是“追加段标记”，也可能只是“对齐填充”；必须结合后续 `00 <flag>` 来判别（仅凭 `0x00000007` 不够）。
+
+#### 显式块主段 payload 起点的“12/20”差异（8 字节保留区）
+
+对 **显式属性块主段**，除 `flag+len+self_refno`（12 字节）外，部分样本在主段 payload 起点还存在 **额外 8 字节保留区**：
+
+- 情况 A：主段 payload 从 **12 字节**开始（无额外保留区）
+- 情况 B：主段 payload 从 **20 字节**开始（多出 8 字节 reserved）
+
+实现层建议：
+- 不要硬编码单一偏移；应以“可解析性”进行自适应（例如：若从 offset=12 无法解析出合法的属性流，但从 offset=20 可以，则跳过 8 字节保留区）。
+
+#### `DESP` 的实际语义与类型（重要：不是字符串）
+
+在 E3D/PDMS 语境里，`DESP` 常见并非“描述文本”，而是 **DOUBLEVEC/REAL 向量**（几何/参数描述向量），属于显式属性。
+
+以 `ams1112_0001` 中 `RefNo=17496/171603`（`TYPE=STRT`）为例，可观测到：
+- `DESP hash = 0x000D20C7`（即 `db1_hash("DESP")`）
+- `type_code = 0x1800`（DOUBLEVEC）
+- `data_len_words = 0x00B5`（724 bytes）
+- payload 起始 4 字节为向量长度 `0x0000005A`（90）
+
+因此在解析器/上层使用时，应按“向量”读取 `DESP`（例如取 `Vec<f32>`），而不是按 `String`。
+
+### 推荐的“属性读取”综合流程（从 RefNo 到属性值）
+
+1. 通过会话索引（B+树/索引页）定位 `RefNo -> offset`。
+2. 从 `offset` 读取记录开头，跳过 `0x00000007`/`0x00000000` 对齐填充（若存在）；读取层需支持“跨页连续读取”（分页器/页缓存）。
+3. 读取 `impl_len_words`，计算隐式区总字节数 `impl_len_bytes = impl_len_words * 4`。
+4. 读取完整隐式区（可能跨页；读取层应基于页面缓存/PLU 抽象保证连续字节视图）。
+5. 依据 `type_hash/noun`：
+   - 拉取该类型的系统属性列表（`DB_Noun::getSystemAttributes`/`db_get_attribute_list`），或使用离线构建的类型信息；
+   - 对每个系统属性，依据“属性定义/布局信息”从隐式 payload 按 offset/类型解码。
+6. 从隐式区末尾继续向后解析：
+   - 若遇到 `flag=0x0002`，解析 members，得到 children。
+   - 反复扫描 `flag=0x0001` 的显式块；对每个块合并其 `0x00000007` 追加段 payload；解析并合并/覆盖同名属性（显式优先级通常高于隐式）。
+7. 若请求属性为 UDA：
+   - 走 `DB_Element::getUda(...)` 分支（或实现侧的等价逻辑），并将其结果以 `UDA[...]` 或命名形式并入属性映射。
+
+### 待验证点（建议后续补齐）
+
+- UDA 的物理落盘位置与“按 refno 直接定位”的关系：是否总能通过属性记录后缀取得，还是需要额外索引/表跳转。
+- 显式属性块内部是否允许“一个块多个属性”或“多个块一个属性（分段）”的变体；以及 `block_words` 与 `data_len_words` 的精确定义边界。
+- `0x00000007` 的使用规则：除对齐填充外，追加段的判别条件与终止条件（建议以 `0x00000007 00 <flag>` 作为段头特征）。
+- “记录结束”的判定：在跨页读取时，既要避免吞入下一条记录，又要能容忍块后出现的 0/7 padding（建议优先识别 `0x00000000 + 0x00000007` 组合结束标记，并在遇到非 padding/非块头时收敛结束）。
 
 ---
 

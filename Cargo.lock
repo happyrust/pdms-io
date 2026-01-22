@@ -101,6 +101,7 @@ dependencies = [
  "i_triangle",
  "id_tree 1.8.0 (git+https://gitee.com/happydpc/id_tree)",
  "indexmap 2.12.1",
+ "indextree",
  "itertools 0.14.0",
  "jsonxf",
  "lazy_static",
@@ -137,6 +138,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "surrealdb",
+ "surrealdb-types",
  "thiserror 1.0.69",
  "tokio",
  "toml",
@@ -3222,6 +3224,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "indextree"
+version = "4.7.4"
+dependencies = [
+ "indextree-macros",
+ "rkyv 0.8.12",
+]
+
+[[package]]
+name = "indextree-macros"
+version = "0.1.3"
+dependencies = [
+ "either",
+ "itertools 0.14.0",
+ "proc-macro2",
+ "quote",
+ "strum",
+ "syn 2.0.111",
+ "thiserror 2.0.17",
+]
+
+[[package]]
 name = "inflections"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4294,6 +4317,7 @@ dependencies = [
  "serde",
  "serde_json",
  "surrealdb",
+ "tempfile",
  "tokio",
  "url",
  "walkdir",

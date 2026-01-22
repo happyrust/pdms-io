@@ -10,6 +10,8 @@ pub mod search;
 pub mod page_manager;
 pub mod writer;
 pub mod element_serializer;
+pub mod paged_reader;
+pub mod element_record_reader;
 
 pub mod sync;
 
