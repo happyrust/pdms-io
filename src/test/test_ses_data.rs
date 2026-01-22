@@ -1,5 +1,6 @@
 // use parse_pdms_db::test_cases::convert_str_to_bytes; // 此模块已移除
 use crate::defines::SessionPageData;
+use deku::prelude::*;
 
 /// 从十六进制字符串转换为字节数组
 fn convert_str_to_bytes(s: &str) -> Vec<u8> {
@@ -142,7 +143,7 @@ FF FF FF FF 00 00 00 62 00 00 00 01 00 00 00 60
 #[test]
 pub fn test_parse_ses() -> anyhow::Result<()> {
     let ses_data = convert_str_to_bytes(TEST_SES_DATA_1);
-    let ses = SessionPageData::try_from(ses_data.as_ref()).unwrap();
+    let (_, ses) = SessionPageData::from_bytes((ses_data.as_ref(), 0)).unwrap();
     dbg!(&ses);
     Ok(())
 }
