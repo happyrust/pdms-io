@@ -28,7 +28,7 @@ define function fn::latest_pe($pe: record, $s: option<number>, $db: option<numbe
         return $pe;
     } else{
         let $id = record::id($pe);
-    return type::thing('pe', [$id, $s[0]]);
+    return type::record('pe', [$id, $s[0]]);
     }
 };
 

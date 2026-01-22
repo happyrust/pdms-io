@@ -424,7 +424,7 @@ export async function getChangesBySession(sessionId: string) {
         sesno,
         details
       FROM element_changes
-      WHERE session_id = type::thing('sessions', $sessionId)
+      WHERE session_id = type::record('sessions', $sessionId)
       ORDER BY timestamp DESC
     `, {
       sessionId,
