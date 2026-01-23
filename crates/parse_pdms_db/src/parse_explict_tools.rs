@@ -286,7 +286,7 @@ fn parse_value_expression_number(input: &[u8]) -> IResult<&[u8], f64> {
     Ok((&rest[total_bytes..], value))
 }
 
-pub fn parse_expression_func(input: &[u8], _refno: RefU64) -> IResult<&[u8], String> {
+pub fn parse_expression_func(input: &[u8], refno: RefU64) -> IResult<&[u8], String> {
     if input.len() < 8 {
         return Ok((input, "".to_string()));
     }
@@ -484,21 +484,45 @@ pub fn parse_expression_func(input: &[u8], _refno: RefU64) -> IResult<&[u8], Str
                 }
                 // 字符串
                 &[0x0, 0x0, 0x0, 0x76] => {
-                    if expression_data.len() > 4 {
-                        // 第一个是字符串的长度
-                        let len = parse_to_u32(&expression_data[4..8]);
-                        let mut chars = vec![];
-                        if expression_data.len() >= (len * 4 + 4) as usize {
-                            for i in 0..len {
-                                let start = (8 + i * 4) as usize;
-                                let c = parse_to_u32(&expression_data[start..start + 4]) as u8;
-                                chars.push(c);
-                            }
-                        }
-                        let end = (4 + len * 4) as usize;
-                        expression_data = &expression_data[end..];
-                        symbol = String::from_utf8_lossy(&chars).to_string();
+                    if expression_data.len() < 8 {
+                        return Ok((input, "".to_string()));
                     }
+
+                    let len = parse_to_u32(&expression_data[4..8]) as usize;
+                    let required = 8usize.saturating_add(len.saturating_mul(4));
+                    if expression_data.len() < required {
+                        error!(
+                            "{refno}: parse_expression_func string length out of range: len={len}, bytes={}",
+                            expression_data.len()
+                        );
+                        return Ok((input, "".to_string()));
+                    }
+
+                    let mut chars = Vec::with_capacity(len);
+                    for i in 0..len {
+                        let start = 8usize.saturating_add(i.saturating_mul(4));
+                        let end = start.saturating_add(4);
+                        if end > expression_data.len() {
+                            error!(
+                                "{refno}: parse_expression_func string slice out of range: start={start}, end={end}, bytes={}",
+                                expression_data.len()
+                            );
+                            return Ok((input, "".to_string()));
+                        }
+                        let c = parse_to_u32(&expression_data[start..end]) as u8;
+                        chars.push(c);
+                    }
+
+                    let end = 4usize.saturating_add(len.saturating_mul(4));
+                    if end > expression_data.len() {
+                        error!(
+                            "{refno}: parse_expression_func string advance out of range: end={end}, bytes={}",
+                            expression_data.len()
+                        );
+                        return Ok((input, "".to_string()));
+                    }
+                    expression_data = &expression_data[end..];
+                    symbol = String::from_utf8_lossy(&chars).to_string();
                 }
                 // MAX: 简化为双参数（与 core.dll DBE_Max 一致）
                 &[0x0, 0x0, 0x3, 0xF0] => {
