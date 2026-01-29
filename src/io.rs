@@ -1592,6 +1592,8 @@ impl PdmsIO {
         let pgno = (refno_offset as usize / self.page_size) as u32;
         let sesno = self.get_sesno(pgno).unwrap_or_default() as i32;
         ele_data.att_map_mut().set_sesno(sesno);
+        // 从文件头获取 dbnum 并注入到属性（不使用 refno.get_0() 推导）
+        ele_data.att_map_mut().set_dbnum(self.dbnum as u32);
         Ok(ele_data)
     }
 
