@@ -999,7 +999,7 @@ impl PdmsIO {
                 println!("✅ 找到精确匹配! 位置: [{}] {}_{} -> 页号: 0x{:X}",
                     i, loc.refno_0, loc.refno_1, loc.pgno);
                 let loc_sesno = self.get_sesno(loc.pgno).unwrap_or_default();
-                return Some((loc_sesno, loc.get_att_offset()));
+                return Some((loc_sesno, loc.get_att_offset_with_page_size(self.page_size)));
             }
         }
 
@@ -1076,7 +1076,7 @@ impl PdmsIO {
                     #[cfg(feature = "debug_btree_search")]
                     println!("✅ [{}] 找到目标参考号: {}_{} -> 页号: 0x{:X}", i, loc.refno_0, loc.refno_1, loc.pgno);
                     let loc_sesno = self.get_sesno(loc.pgno).unwrap_or_default();
-                    return Some((loc_sesno, loc.get_att_offset()));
+                    return Some((loc_sesno, loc.get_att_offset_with_page_size(self.page_size)));
                 }
             }
 
@@ -1347,9 +1347,9 @@ impl PdmsIO {
                 if is_target_debug {
                     println!("🔍 [DEBUG-INTERNAL] ✓ 在叶子节点找到目标参考号!");
                     println!("🔍 [DEBUG-INTERNAL] 页号: {:#X}, 会话号: {}, 偏移量: {:#X}",
-                        loc.pgno, loc_sesno, loc.get_att_offset());
+                        loc.pgno, loc_sesno, loc.get_att_offset_with_page_size(self.page_size));
                 }
-                return Some((loc_sesno, loc.get_att_offset()));
+                return Some((loc_sesno, loc.get_att_offset_with_page_size(self.page_size)));
             }
 
             if next_loc_index.is_none() && level > 0 && !index_data.refno_locs.is_empty() {
@@ -1466,7 +1466,7 @@ impl PdmsIO {
                                 loc.pgno, loc_sesno, loc.get_att_offset());
                         }
 
-                        return Some((loc_sesno, loc.get_att_offset()));
+                        return Some((loc_sesno, loc.get_att_offset_with_page_size(self.page_size)));
                     }
                 }
             }

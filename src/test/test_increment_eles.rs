@@ -7,6 +7,7 @@
 
 use aios_core::pdms_types::RefU64;
 use crate::io::{PdmsIO, EleOperationDetail};
+use crate::test::resolve_test_db_path;
 use std::time::Instant;
 use std::ops::RangeInclusive;
 use std::collections::HashSet;
@@ -20,8 +21,14 @@ use std::collections::HashSet;
 #[tokio::test]
 async fn test_collect_increment_eles() -> anyhow::Result<()> {
     // 设置数据库文件路径
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams1112_0001"#;
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let db_filepath = match resolve_test_db_path("ams1112_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams1112_0001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
 
     // 测试用例1: 使用None参数获取最新会话的元素

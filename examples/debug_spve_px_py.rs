@@ -11,11 +11,20 @@
 use anyhow::Result;
 use pdms_io::io::PdmsIO;
 use aios_core::RefU64;
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // ACP 文件路径
-    let db_path = r#"D:\AVEVA\Projects\E3D2.1\AvevaCatalogue\acp000\acp7001_0001"#;
+    let args: Vec<String> = env::args().collect();
+    let db_path = if args.len() > 1 {
+        args[1].clone()
+    } else if let Ok(path) = env::var("PDMS_ACP_FILE") {
+        path
+    } else {
+        eprintln!("未提供 ACP 文件路径，请设置环境变量 PDMS_ACP_FILE 或传入参数");
+        eprintln!("用法: cargo run --example debug_spve_px_py -- <acp_db_path>");
+        return Ok(());
+    };
     
     // 目标 SPVE 元素的 refno 列表
     let target_refnos = [
@@ -31,7 +40,7 @@ async fn main() -> Result<()> {
     println!("========================================\n");
     
     // 打开数据库
-    let mut io = PdmsIO::new("debug", db_path, true);
+    let mut io = PdmsIO::new("debug", &db_path, true);
     io.open()?;
     
     println!("数据库打开成功，dbnum = {}\n", io.dbnum);

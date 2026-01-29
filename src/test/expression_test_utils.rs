@@ -21,6 +21,7 @@
 //! ```
 
 use crate::io::PdmsIO;
+use crate::test::resolve_test_db_path;
 use aios_core::RefU64;
 use parse_pdms_db::parse::parse_ele_data;
 use std::fs::File;
@@ -236,10 +237,13 @@ mod tests {
     #[tokio::test]
     async fn test_phei_via_pdmsio() {
         let file_path = std::env::var("PDMS_AMS_FILE")
-            .unwrap_or_else(|_| "D:/AVEVA/Projects/E3D2.1/AvevaMarineSample/ams000/ams5054_0001".to_string());
+            .ok()
+            .filter(|val| !val.trim().is_empty())
+            .or_else(|| resolve_test_db_path("ams1112_0001").map(|p| p.display().to_string()))
+            .unwrap_or_default();
         assert!(
-            Path::new(&file_path).exists(),
-            "未得 AMS 文件路径：请设置环境变量 PDMS_AMS_FILE，或修正默认路径。当前值='{}'",
+            !file_path.is_empty() && Path::new(&file_path).exists(),
+            "未得 AMS 文件路径：请设置环境变量 PDMS_AMS_FILE，或提供本地 test-file/ams1112_0001。当前值='{}'",
             file_path
         );
         let case = TestCase {
@@ -317,17 +321,21 @@ mod tests {
                  continue;
              }
 
-             let ams_path = if !c.file_path.trim().is_empty() {
-                 c.file_path.clone()
-             } else {
-                 std::env::var("PDMS_AMS_FILE").unwrap_or_else(|_| "".to_string())
-             };
-             assert!(
-                 !ams_path.is_empty() && Path::new(&ams_path).exists(),
-                 "用例 '{}' 未得 AMS 路径：请在 JSON 的 file_path 填入，或设置环境变量 PDMS_AMS_FILE。当前值='{}'",
-                 name,
-                 ams_path
-             );
+            let ams_path = if !c.file_path.trim().is_empty() {
+                c.file_path.clone()
+            } else {
+                std::env::var("PDMS_AMS_FILE")
+                    .ok()
+                    .filter(|val| !val.trim().is_empty())
+                    .or_else(|| resolve_test_db_path("ams1112_0001").map(|p| p.display().to_string()))
+                    .unwrap_or_default()
+            };
+            assert!(
+                !ams_path.is_empty() && Path::new(&ams_path).exists(),
+                "用例 '{}' 未得 AMS 路径：请在 JSON 的 file_path 填入，或设置环境变量 PDMS_AMS_FILE，或提供本地 test-file/ams1112_0001。当前值='{}'",
+                name,
+                ams_path
+            );
              let case = TestCase {
                  refno: c.refno.clone(),
                  file_path: ams_path,

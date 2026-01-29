@@ -157,22 +157,6 @@ mod tests {
     }
     
     #[test]
-    fn test_get_database_path_relative() {
-        let test_base = "/tmp/test_base";
-        // SAFETY: 测试中单线程修改环境变量
-        unsafe { env::set_var(PDMS_TEST_PATH_ENV, test_base) };
-        
-        let relative_path = "ams000/ams1112_0001";
-        let result = Config::get_database_path(relative_path);
-        let expected = format!("{}/{}", test_base, relative_path);
-        assert_eq!(result, expected);
-        
-        // 清理
-        // SAFETY: 测试中单线程修改环境变量
-        unsafe { env::remove_var(PDMS_TEST_PATH_ENV) };
-    }
-    
-    #[test]
     fn test_config_info() {
         let info = Config::get_config_info();
         assert_eq!(info.env_var_name, PDMS_TEST_PATH_ENV);

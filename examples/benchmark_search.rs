@@ -1,5 +1,6 @@
 use anyhow::Result;
 use pdms_io::io::{benchmark_search_refno_pgno, extract_test_refnos, PdmsIO};
+use pdms_io::test::resolve_test_db_path;
 use aios_core::RefU64;
 use std::env;
 
@@ -10,36 +11,34 @@ use std::env;
 /// 参数:
 ///   - db_path: PDMS数据库文件路径
 ///   - iterations: 每个参考号重复测试的次数，默认为10
-///   - refno_count: 用于测试的参考号数量，默认为5
+///   - refno_count: 用于测试的参考号数量，默认为50
 #[tokio::main]
 async fn main() -> Result<()> {
-    // let args: Vec<String> = env::args().collect();
-    
-    // if args.len() < 2 {
-    //     eprintln!("用法: cargo run --example benchmark_search -- <db_path> [iterations] [refno_count]");
-    //     std::process::exit(1);
-    // }
-    
-    // let db_path = &args[1];
-    // let iterations = if args.len() > 2 {
-    //     args[2].parse::<usize>().unwrap_or(10)
-    // } else {
-    //     10
-    // };
+    let args: Vec<String> = env::args().collect();
+    let db_path = if args.len() > 1 {
+        args[1].clone()
+    } else if let Some(path) = resolve_test_db_path("ams1112_0001") {
+        path.display().to_string()
+    } else {
+        eprintln!("未提供数据库路径，且本地 test-file 目录中不存在 ams1112_0001");
+        eprintln!("用法: cargo run --example benchmark_search -- <db_path> [iterations] [refno_count]");
+        return Ok(());
+    };
 
-    let db_path = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams1112_0001"#;
-    // let refno_str = "17496/184133";
-    let refno_count = 50;
-    let iterations = 10;
+    let iterations = if args.len() > 2 {
+        args[2].parse::<usize>().unwrap_or(10)
+    } else {
+        10
+    };
 
-    // let refno_count = if args.len() > 3 {
-    //     args[3].parse::<usize>().unwrap_or(5)
-    // } else {
-    //     5
-    // };
+    let refno_count = if args.len() > 3 {
+        args[3].parse::<usize>().unwrap_or(5)
+    } else {
+        50
+    };
     
     // 打开数据库并获取真实的参考号
-    let mut io = PdmsIO::new("bench", db_path, true);
+    let mut io = PdmsIO::new("bench", &db_path, true);
     io.open()?;
     io.init_ses_range_map()?;
     
@@ -74,7 +73,7 @@ async fn main() -> Result<()> {
     };
     
     // 运行基准测试
-    benchmark_search_refno_pgno(db_path, &real_refnos, iterations).await?;
+    benchmark_search_refno_pgno(&db_path, &real_refnos, iterations).await?;
     
     Ok(())
 } 

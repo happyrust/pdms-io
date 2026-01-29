@@ -11,14 +11,15 @@ use aios_core::pdms_types::EleOperation;
 use std::str::FromStr;
 
 // 页面大小定义
-// 注意: 目前固定使用 2048 字节页面，后续再恢复动态检测
+// 注意: 默认使用 2048 字节页面，但优先采用头部声明值
 pub const PAGE_SIZE: usize = 0x800;       // 2048 字节 (当前固定)
 pub const PAGE_SIZE_512: usize = 0x200;   // 512 字节 (旧版 PDMS)
 pub const PAGE_SIZE_2K: usize = 0x800;    // 2048 字节 (E3D/新版)
+pub const PAGE_SIZE_4K: usize = 0x1000;   // 4096 字节 (部分 E3D/PDMS)
 
 /// 根据文件头部信息检测页面大小
 /// 
-/// 当前为适配 E3D 数据，固定返回 2048 字节，暂不使用头部字段
+/// 优先使用头部声明值；当头部无效时回退到 2048 字节
 /// 
 /// # 参数
 /// * `header` - PDMS 文件头部数据
@@ -26,8 +27,12 @@ pub const PAGE_SIZE_2K: usize = 0x800;    // 2048 字节 (E3D/新版)
 /// # 返回值
 /// * `usize` - 页面大小
 #[inline]
-pub fn detect_page_size(_header: &PdmsHeader) -> usize {
-    PAGE_SIZE_2K
+pub fn detect_page_size(header: &PdmsHeader) -> usize {
+    let declared = header.page_size as usize;
+    match declared {
+        PAGE_SIZE_512 | PAGE_SIZE_2K | PAGE_SIZE_4K => declared,
+        _ => PAGE_SIZE_2K,
+    }
 }
 
 #[derive(Default, Clone, Debug, PartialEq, DekuRead, DekuWrite, Serialize, Deserialize)]
@@ -831,5 +836,34 @@ pub fn verify_data_page_subtype(data: &[u8]) -> Result<DataPageSubtype, PageType
     match DataPageSubtype::from_u32(subtype_value) {
         Some(subtype) => Ok(subtype),
         None => Err(PageTypeError::UnknownType(subtype_value)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_detect_page_size_prefers_header() {
+        let mut header = PdmsHeader::default();
+
+        header.page_size = PAGE_SIZE_512 as u32;
+        assert_eq!(detect_page_size(&header), PAGE_SIZE_512);
+
+        header.page_size = PAGE_SIZE_2K as u32;
+        assert_eq!(detect_page_size(&header), PAGE_SIZE_2K);
+
+        header.page_size = PAGE_SIZE_4K as u32;
+        assert_eq!(detect_page_size(&header), PAGE_SIZE_4K);
+    }
+
+    #[test]
+    fn test_detect_page_size_fallback() {
+        let mut header = PdmsHeader::default();
+        header.page_size = 0;
+        assert_eq!(detect_page_size(&header), PAGE_SIZE_2K);
+
+        header.page_size = 1234;
+        assert_eq!(detect_page_size(&header), PAGE_SIZE_2K);
     }
 }

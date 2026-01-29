@@ -7,9 +7,9 @@
 //! - 能够处理会话数量限制参数
 
 use aios_core::pdms_types::RefU64;
-use aios_core::get_db_option;
 use crate::io::{PdmsIO, EleOperationDetail, extract_test_refnos};
 use crate::defines::RefnoDataLoc;
+use crate::test::resolve_test_db_path;
 use std::time::Instant;
 use std::collections::HashSet;
 
@@ -23,8 +23,14 @@ use std::collections::HashSet;
 #[tokio::test]
 async fn test_collect_latest_session() -> anyhow::Result<()> {
     // 设置数据库文件路径
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let db_filepath = match resolve_test_db_path("ams7999_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams7999_0001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
@@ -168,8 +174,14 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
 /// 专门分析为什么参考号 24383_66457 找不到
 #[tokio::test]
 async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let db_filepath = match resolve_test_db_path("ams7999_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams7999_0001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
@@ -232,7 +244,7 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
     let target_r1_bytes = target_r1.to_le_bytes();
 
     // 读取数据库文件进行二进制搜索
-    let db_path = std::path::Path::new(db_filepath);
+    let db_path = std::path::Path::new(&db_filepath);
     if let Ok(file_data) = std::fs::read(db_path) {
         println!("  数据库文件大小: {} bytes ({:.2} MB)",
                  file_data.len(), file_data.len() as f64 / 1024.0 / 1024.0);
@@ -248,8 +260,9 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
             if absolute_pos >= 4 {
                 let r0_pos = absolute_pos - 4;
                 if &file_data[r0_pos..r0_pos + 4] == &target_r0_bytes {
-                    let page_no = r0_pos / 0x800;
-                    let page_offset = r0_pos % 0x800;
+                    let page_size = io.page_size as usize;
+                    let page_no = r0_pos / page_size;
+                    let page_offset = r0_pos % page_size;
                     found_positions.push((r0_pos, page_no, page_offset));
 
                     println!("  🎯 找到匹配: 文件位置0x{:X}, 页号0x{:X}, 页内偏移0x{:X}",
@@ -284,7 +297,9 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
                                      idx, loc.refno_0, loc.refno_1, loc.pgno);
 
                             // 检查数据页面
-                            if let Ok(ele_data) = io.parse_raw_element(loc.get_att_offset()) {
+                            if let Ok(ele_data) = io.parse_raw_element(
+                                loc.get_att_offset_with_page_size(io.page_size),
+                            ) {
                                 println!("    ✓ 成功解析元素: 类型={}, 所有者={}",
                                          ele_data.att_map().get_type(), ele_data.owner);
                             } else {
@@ -342,8 +357,9 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
                         }
 
                         // 检查这个偏移量对应的页面和位置
-                        let page_no = offset / 0x800;
-                        let page_offset = offset % 0x800;
+                    let page_size = io.page_size as u64;
+                    let page_no = offset / page_size;
+                    let page_offset = offset % page_size;
                         println!("  位置信息: 页号0x{:X}, 页内偏移0x{:X}", page_no, page_offset);
 
                         // 尝试直接搜索这个参考号
@@ -390,8 +406,14 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
 /// 测试B+树搜索算法的问题
 #[tokio::test]
 async fn test_btree_search_algorithm_issue() -> anyhow::Result<()> {
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let db_filepath = match resolve_test_db_path("ams7999_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams7999_0001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
@@ -550,8 +572,14 @@ async fn test_btree_search_algorithm_issue() -> anyhow::Result<()> {
 /// 测试边界情况
 #[tokio::test]
 async fn test_collect_latest_eles_edge_cases() -> anyhow::Result<()> {
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7997_001"#;
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let db_filepath = match resolve_test_db_path("ams7997_001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams7997_001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
@@ -586,435 +614,23 @@ async fn test_collect_latest_eles_edge_cases() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// 测试搜索算法性能优化
-#[tokio::test]
-async fn test_search_performance_optimization() -> anyhow::Result<()> {
-    // 首先尝试 ams7997_001，如果不存在则使用 ams1112_0001
-    let db_filepath_primary = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
-
-    let db_filepath = if std::path::Path::new(db_filepath_primary).exists() {
-        db_filepath_primary
-    }else {
-        println!("❌ 数据库文件都不存在，跳过测试");
-        return Ok(());
-    };
-    let mut io = PdmsIO::new("ams", db_filepath, true);
-    io.open()?;
-    io.init_ses_range_map()?;
-
-    println!("🚀 测试搜索算法性能优化");
-
-    // 首先检查数据库中实际存在的参考号范围
-    println!("🔍 检查数据库中的参考号范围...");
-
-    // 获取数据库基本信息
-    let basic_info = io.get_page_basic_info().unwrap();
-    println!("📊 最新会话数据: sesno={}, index_root_pgno=0x{:X}",
-        basic_info.latest_ses_data.sesno, basic_info.latest_ses_data.index_root_pageno);
-
-    // 检查所有会话的索引根节点
-    println!("📋 检查所有会话的索引根节点:");
-    let sesno_pgno_pairs: Vec<_> = io.sesno_pgno_map.iter().map(|(k, v)| (*k, *v)).collect();
-    for (sesno, pgno) in sesno_pgno_pairs {
-        if let Ok(ses_data) = io.read_ses_data(pgno) {
-            println!("  会话 {}: 索引根页号=0x{:X}", sesno, ses_data.index_root_pageno);
-
-            // 检查这个索引根节点的范围
-            let index_root_pageno = ses_data.index_root_pageno;
-            if let Ok(index_data) = io.read_index_data(index_root_pageno) {
-                if !index_data.refno_locs.is_empty() {
-                    let first = &index_data.refno_locs[0];
-                    let last = &index_data.refno_locs[index_data.refno_locs.len() - 1];
-                    println!("    层级: {}, 范围: {}_{} 到 {}_{}",
-                        index_data.level, first.refno_0, first.refno_1, last.refno_0, last.refno_1);
-                }
-            }
-        }
-    }
-
-    // 使用 memchr 在二进制数据中搜索参考号 24383_101192 的位置
-    println!("🔍 使用 memchr 在二进制数据中搜索参考号 24383_101192...");
-
-    let target_refno = RefU64::from_two_nums(24383, 101192);
-    let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
-
-    println!("🎯 目标参考号: {}_{} (0x{:08X}_{:08X})", target_r0, target_r1, target_r0, target_r1);
-
-    // 将参考号转换为字节序列进行搜索
-    let target_r0_bytes = target_r0.to_le_bytes();
-    let target_r1_bytes = target_r1.to_le_bytes();
-
-    println!("🔍 搜索字节模式:");
-    println!("  r0 bytes: {:02X?}", target_r0_bytes);
-    println!("  r1 bytes: {:02X?}", target_r1_bytes);
-
-    // 读取整个数据库文件进行搜索
-    let db_path = &get_db_option().project_path;
-    println!("📂 数据库路径: {}", db_path);
-
-    // 使用一个示例数据库文件路径 - 使用 7999 文件
-    let sample_db_file = format!("{}/AvevaMarineSample/ams000/ams7999_0001", db_path);
-    println!("📂 示例数据库文件: {}", sample_db_file);
-
-    // 在已加载的页面缓存中搜索
-    println!("🔍 在已加载的页面缓存中搜索参考号...");
-    let mut found_positions = Vec::new();
-
-    // 搜索最新会话的索引页面
-    let root_pgno = basic_info.latest_ses_data.index_root_pageno;
-
-    // 递归搜索所有索引页面
-    let mut pages_to_search = vec![root_pgno];
-    let mut searched_pages = std::collections::HashSet::new();
-
-    while let Some(page_no) = pages_to_search.pop() {
-        if searched_pages.contains(&page_no) {
-            continue;
-        }
-        searched_pages.insert(page_no);
-
-        if let Ok(page_data) = io.read_bytes(page_no * 0x800, 0x800) {
-            let page_bytes = page_data.as_slice();
-            let mut search_start = 0;
-
-            while let Some(pos) = memchr::memmem::find(&page_bytes[search_start..], &target_r1_bytes) {
-                let absolute_pos = search_start + pos;
-
-                // 检查前面4个字节是否匹配 r0
-                if absolute_pos >= 4 {
-                    let r0_pos = absolute_pos - 4;
-                    if &page_bytes[r0_pos..r0_pos + 4] == &target_r0_bytes {
-                        let file_position = (page_no as usize) * 0x800 + r0_pos;
-                        found_positions.push((file_position, page_no as u32, r0_pos));
-                        println!("🎯 在页面 0x{:X} 偏移 0x{:X} 找到匹配 (文件位置: 0x{:X})",
-                            page_no, r0_pos, file_position);
-                    }
-                }
-
-                search_start = absolute_pos + 1;
-            }
-
-            // 如果是索引页面，添加子页面到搜索列表
-            if let Ok(index_data) = io.read_index_data(page_no) {
-                for loc in &index_data.refno_locs {
-                    if !searched_pages.contains(&loc.pgno) {
-                        pages_to_search.push(loc.pgno);
-                    }
-                }
-            }
-        }
-    }
-
-    if !found_positions.is_empty() {
-        println!("✅ 总共找到 {} 个匹配位置:", found_positions.len());
-
-        for (i, (file_pos, page_no, page_offset)) in found_positions.iter().enumerate() {
-            println!("\n📍 匹配 {}: 页面 0x{:X}, 页内偏移 0x{:X}, 文件位置 0x{:X}",
-                i + 1, page_no, page_offset, file_pos);
-
-            // 分析这个页面的类型
-            if let Ok(index_data) = io.read_index_data(*page_no) {
-                println!("  📋 索引页面信息:");
-                println!("    层级: {}", index_data.level);
-                println!("    条目数: {}", index_data.refno_locs.len());
-
-                if index_data.level == 0 {
-                    println!("    🍃 这是叶子节点");
-
-                    // 在叶子节点中查找具体位置
-                    for (idx, loc) in index_data.refno_locs.iter().enumerate() {
-                        if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
-                            println!("    🎯 在索引条目 [{}] 中找到: {}_{} -> 数据页号: 0x{:X}",
-                                idx, loc.refno_0, loc.refno_1, loc.pgno);
-
-                            // 反向查找这个叶子节点在索引树中的路径
-                            println!("    🔍 反向查找索引路径:");
-                            find_leaf_in_index_tree(&mut io, *page_no, 0x673F);
-                            break;
-                        }
-                    }
-                } else {
-                    println!("    🌿 这是非叶子节点 (层级 {})", index_data.level);
-                }
-            } else {
-                println!("  📄 这可能是数据页面，不是索引页面");
-            }
-        }
-    } else {
-        println!("❌ 在已加载的页面缓存中未找到目标参考号");
-
-        // 尝试读取数据库文件进行搜索
-        match std::fs::read(&sample_db_file) {
-            Ok(file_data) => {
-                println!("📊 文件大小: {} bytes ({:.2} MB)", file_data.len(), file_data.len() as f64 / 1024.0 / 1024.0);
-
-                // 使用 memchr 搜索 r1 的字节模式
-                let mut search_start = 0;
-                let mut total_matches = 0;
-
-                println!("🔍 开始 memchr 搜索...");
-                while let Some(pos) = memchr::memmem::find(&file_data[search_start..], &target_r1_bytes) {
-                    let absolute_pos = search_start + pos;
-
-                    // 检查前面4个字节是否匹配 r0
-                    if absolute_pos >= 4 {
-                        let r0_pos = absolute_pos - 4;
-                        if &file_data[r0_pos..r0_pos + 4] == &target_r0_bytes {
-                            total_matches += 1;
-                            found_positions.push((r0_pos, (r0_pos / 0x800) as u32, r0_pos % 0x800));
-                            println!("🎯 找到匹配 #{}: 文件位置 0x{:X} ({}), 页号 0x{:X}, 页内偏移 0x{:X}",
-                                total_matches, r0_pos, r0_pos, r0_pos / 0x800, r0_pos % 0x800);
-                        }
-                    }
-
-                    search_start = absolute_pos + 1;
-                    if found_positions.len() >= 20 { // 增加搜索结果数量限制
-                        break;
-                    }
-                }
-
-                println!("📊 memchr 搜索完成，共找到 {} 个匹配", total_matches);
-
-                if found_positions.is_empty() {
-                    println!("❌ 未在二进制数据中找到参考号 {}_{}", target_r0, target_r1);
-                } else {
-                    println!("✅ 找到 {} 个匹配位置:", found_positions.len());
-
-                    for (i, (file_pos, page_no, page_offset)) in found_positions.iter().enumerate() {
-                        println!("\n📍 位置 {}: 页面 0x{:X}, 页内偏移 0x{:X}, 文件位置 0x{:X}",
-                            i + 1, page_no, page_offset, file_pos);
-
-                        // 分析这个页面的类型
-                        if let Some(sesno) = find_session_for_page(&mut io, *page_no) {
-                            println!("  🏷️  所属会话: {}", sesno);
-
-                            // 检查这个页面是否是索引页面
-                            if let Ok(index_data) = io.read_index_data(*page_no) {
-                                println!("  📋 索引页面信息:");
-                                println!("    层级: {}", index_data.level);
-                                println!("    条目数: {}", index_data.refno_locs.len());
-
-                                if index_data.level == 0 {
-                                    println!("    🍃 这是叶子节点");
-
-                                    // 在叶子节点中查找具体位置
-                                    for (idx, loc) in index_data.refno_locs.iter().enumerate() {
-                                        if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
-                                            println!("    🎯 在索引条目 [{}] 中找到: {}_{} -> 数据页号: 0x{:X}",
-                                                idx, loc.refno_0, loc.refno_1, loc.pgno);
-
-                                            // 反向查找这个叶子节点在索引树中的路径
-                                            println!("    🔍 反向查找索引路径:");
-                                            find_leaf_in_index_tree(&mut io, *page_no, root_pgno);
-                                            break;
-                                        }
-                                    }
-                                } else {
-                                    println!("    🌿 这是非叶子节点 (层级 {})", index_data.level);
-                                }
-                            } else {
-                                println!("  📄 这可能是数据页面，不是索引页面");
-                            }
-                        } else {
-                            println!("  ❓ 无法确定所属会话");
-                        }
-                    }
-                }
-            }
-            Err(e) => {
-                println!("❌ 读取数据库文件失败: {}", e);
-            }
-        }
-    }
-
-    // 分析层级1的索引分布规律（保留原有逻辑作为对比）
-    let root_pgno = basic_info.latest_ses_data.index_root_pageno;
-    if let Ok(root_data) = io.read_index_data(root_pgno) {
-        println!("📊 根节点分析 (层级 {}):", root_data.level);
-
-        // 找到包含目标范围的分支
-        for (i, loc) in root_data.refno_locs.iter().enumerate() {
-            if !(loc.refno_0 == 2147483649 && loc.refno_1 == 2147483649) {
-                if target_r0 < loc.refno_0 || (target_r0 == loc.refno_0 && target_r1 <= loc.refno_1) {
-                    println!("  应该在分支 [{}]: 最大值 {}_{} -> 页号 0x{:X}",
-                        i, loc.refno_0, loc.refno_1, loc.pgno);
-
-                    // 分析这个分支的层级1索引
-                    if let Ok(level1_data) = io.read_index_data(loc.pgno) {
-                        println!("📋 层级1索引分析 (页号 0x{:X}, 层级 {}):", loc.pgno, level1_data.level);
-
-                        // 计算参考号分布规律
-                        let mut valid_entries: Vec<(usize, &RefnoDataLoc)> = level1_data.refno_locs.iter()
-                            .enumerate()
-                            .filter(|(_, loc)| !(loc.refno_0 == 2147483649 && loc.refno_1 == 2147483649))
-                            .collect();
-
-                        if valid_entries.len() >= 2 {
-                            // 分析参考号间隔
-                            let first = valid_entries[0].1;
-                            let second = valid_entries[1].1;
-                            let interval = second.refno_1 - first.refno_1;
-
-                            println!("  参考号分布规律:");
-                            println!("    第一个: {}_{}", first.refno_0, first.refno_1);
-                            println!("    第二个: {}_{}", second.refno_0, second.refno_1);
-                            println!("    间隔: {}", interval);
-
-                            // 根据规律推算目标参考号应该在的位置
-                            let target_index = ((target_r1 - first.refno_1) / interval) as usize;
-
-                            println!("  🎯 推算目标参考号 {}_{} 应该在:", target_r0, target_r1);
-                            println!("    计算索引: {}", target_index);
-
-                            if target_index < valid_entries.len() {
-                                let predicted_entry = valid_entries[target_index].1;
-                                println!("    预测分支: [{}] 最大值 {}_{} -> 页号 0x{:X}",
-                                    target_index, predicted_entry.refno_0, predicted_entry.refno_1, predicted_entry.pgno);
-
-                                // 检查这个叶子节点
-                                if let Ok(leaf_data) = io.read_index_data(predicted_entry.pgno) {
-                                    if leaf_data.level == 0 {
-                                        println!("    🍃 叶子节点分析 (页号 0x{:X}):", predicted_entry.pgno);
-                                        if !leaf_data.refno_locs.is_empty() {
-                                            let first_leaf = &leaf_data.refno_locs[0];
-                                            let last_leaf = &leaf_data.refno_locs[leaf_data.refno_locs.len() - 1];
-                                            println!("      范围: {}_{} 到 {}_{}",
-                                                first_leaf.refno_0, first_leaf.refno_1,
-                                                last_leaf.refno_0, last_leaf.refno_1);
-
-                                            // 检查目标参考号是否在这个范围内
-                                            if target_r1 >= first_leaf.refno_1 && target_r1 <= last_leaf.refno_1 {
-                                                println!("      ✅ 目标参考号在此范围内！");
-
-                                                // 在这个叶子节点中搜索
-                                                if let Some(result) = io.search_in_leaf_node(&leaf_data.refno_locs, target_r0, target_r1) {
-                                                    println!("      🎉 找到目标参考号！结果: {:?}", result);
-                                                } else {
-                                                    println!("      ❌ 在叶子节点中未找到目标参考号");
-
-                                                    // 显示叶子节点的详细内容
-                                                    println!("      📋 叶子节点详细内容:");
-                                                    for (i, loc) in leaf_data.refno_locs.iter().take(10).enumerate() {
-                                                        println!("        [{}] {}_{} -> 页号: 0x{:X}", i, loc.refno_0, loc.refno_1, loc.pgno);
-                                                    }
-                                                    if leaf_data.refno_locs.len() > 10 {
-                                                        println!("        ... (省略中间部分) ...");
-                                                        let start_idx = leaf_data.refno_locs.len().saturating_sub(10);
-                                                        for (i, loc) in leaf_data.refno_locs.iter().skip(start_idx).enumerate() {
-                                                            println!("        [{}] {}_{} -> 页号: 0x{:X}", start_idx + i, loc.refno_0, loc.refno_1, loc.pgno);
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                println!("      ❌ 目标参考号不在此范围内");
-
-                                                // 尝试下一个叶子节点
-                                                if target_index + 1 < valid_entries.len() {
-                                                    let next_entry = valid_entries[target_index + 1].1;
-                                                    println!("    🔍 尝试下一个分支: [{}] 最大值 {}_{} -> 页号 0x{:X}",
-                                                        target_index + 1, next_entry.refno_0, next_entry.refno_1, next_entry.pgno);
-
-                                                    if let Ok(next_leaf_data) = io.read_index_data(next_entry.pgno) {
-                                                        if next_leaf_data.level == 0 && !next_leaf_data.refno_locs.is_empty() {
-                                                            let first_next = &next_leaf_data.refno_locs[0];
-                                                            let last_next = &next_leaf_data.refno_locs[next_leaf_data.refno_locs.len() - 1];
-                                                            println!("      范围: {}_{} 到 {}_{}",
-                                                                first_next.refno_0, first_next.refno_1,
-                                                                last_next.refno_0, last_next.refno_1);
-
-                                                            if target_r1 >= first_next.refno_1 && target_r1 <= last_next.refno_1 {
-                                                                println!("      ✅ 目标参考号在下一个叶子节点范围内！");
-                                                                if let Some(result) = io.search_in_leaf_node(&next_leaf_data.refno_locs, target_r0, target_r1) {
-                                                                    println!("      🎉 找到目标参考号！结果: {:?}", result);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                println!("    ❌ 计算的索引超出范围");
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    // 测试特定的参考号 - 对比新旧算法
-    let test_refnos = vec![
-        RefU64::from_two_nums(24383, 101192), // 用户发现的参考号
-        RefU64::from_two_nums(24383, 101200), // 另一个测试参考号
-    ];
-
-    let latest_sesno = basic_info.latest_ses_data.sesno;
-
-    for (i, target_refno) in test_refnos.iter().enumerate() {
-        println!("\n🎯 测试参考号 {}: {}", i + 1, target_refno);
-
-        // 测试传统算法
-        println!("📊 传统算法测试:");
-        let start_time = Instant::now();
-        let traditional_result = search_refno_in_btree_traditional(&mut io, target_refno, latest_sesno as u32);
-        let traditional_time = start_time.elapsed();
-
-        println!("  ⚡ 传统算法耗时: {:.4}ms", traditional_time.as_secs_f64() * 1000.0);
-        println!("  🔍 传统算法结果: {:?}", traditional_result);
-
-        // 测试优化算法
-        println!("📊 优化算法测试:");
-        let start_time = Instant::now();
-        let optimized_result = search_refno_in_btree_optimized(&mut io, target_refno, latest_sesno as u32);
-        let optimized_time = start_time.elapsed();
-
-        println!("  ⚡ 优化算法耗时: {:.4}ms", optimized_time.as_secs_f64() * 1000.0);
-        println!("  🔍 优化算法结果: {:?}", optimized_result);
-
-        // 性能对比
-        if traditional_time > optimized_time {
-            let speedup = traditional_time.as_secs_f64() / optimized_time.as_secs_f64();
-            println!("  🚀 优化算法快 {:.2}x", speedup);
-        } else if optimized_time > traditional_time {
-            let slowdown = optimized_time.as_secs_f64() / traditional_time.as_secs_f64();
-            println!("  🐌 优化算法慢 {:.2}x", slowdown);
-        } else {
-            println!("  ⚖️ 两种算法性能相当");
-        }
-
-        // 结果对比
-        match (traditional_result.is_some(), optimized_result.is_some()) {
-            (true, true) => println!("  ✅ 两种算法都找到了结果"),
-            (false, true) => println!("  🎯 只有优化算法找到了结果！"),
-            (true, false) => println!("  ⚠️ 只有传统算法找到了结果"),
-            (false, false) => println!("  ❌ 两种算法都未找到结果"),
-        }
-    }
-
-    // 详细分析为什么找不到目标参考号
-    println!("\n🔍 深度分析: 为什么找不到 24383_101192");
-    analyze_missing_refno(&mut io, RefU64::from_two_nums(24383, 101192)).await;
-
-    println!("\n特定参考号测试完成！");
-
-    Ok(())
-}
-
 /// 详细分析参考号 24383/101192 为什么返回"无操作"
 #[tokio::test]
 async fn test_analyze_refno_none_status() -> anyhow::Result<()> {
     // 直接使用 ams7997_0001 数据库
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7997_0001"#;
+    let db_filepath = match resolve_test_db_path("ams7997_0001") {
+        Some(path) => path,
+        None => {
+            println!("❌ 数据库文件不存在: ams7997_0001");
+            return Ok(());
+        }
+    };
 
-    if !std::path::Path::new(db_filepath).exists() {
-        println!("❌ 数据库文件不存在: {}", db_filepath);
+    if !std::path::Path::new(&db_filepath).exists() {
+        println!("❌ 数据库文件不存在: {}", db_filepath.display());
         return Ok(());
     }
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
@@ -1125,13 +741,14 @@ async fn test_analyze_refno_none_status() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_analyze_refno_range_in_db() -> anyhow::Result<()> {
     // 直接使用 ams7997_0001 数据库
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7997_0001"#;
-
-    if !std::path::Path::new(db_filepath).exists() {
-        println!("❌ 数据库文件不存在: {}", db_filepath);
-        return Ok(());
-    }
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let db_filepath = match resolve_test_db_path("ams7997_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams7997_0001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
@@ -1271,13 +888,14 @@ async fn test_analyze_refno_range_in_db() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_debug_search_24383_101192() -> anyhow::Result<()> {
     // 使用正确的 ams7999_0001 数据库
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
-
-    if !std::path::Path::new(db_filepath).exists() {
-        println!("❌ 数据库文件不存在: {}", db_filepath);
-        return Ok(());
-    }
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let db_filepath = match resolve_test_db_path("ams7999_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams7999_0001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
@@ -1316,13 +934,14 @@ async fn test_debug_search_24383_101192() -> anyhow::Result<()> {
 /// 检查数据库中是否存在大于 24383_101112 的参考号
 #[tokio::test]
 async fn test_check_larger_refnos() -> anyhow::Result<()> {
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams7999_0001"#;
-
-    if !std::path::Path::new(db_filepath).exists() {
-        println!("❌ 数据库文件不存在: {}", db_filepath);
-        return Ok(());
-    }
-    let mut io = PdmsIO::new("ams", db_filepath, true);
+    let db_filepath = match resolve_test_db_path("ams7999_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams7999_0001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     io.init_ses_range_map()?;
 
@@ -1542,10 +1161,11 @@ async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
     let upper_index_offset = 0x339EDE0; // 用户发现的上层索引位置
     println!("🧮 位置计算分析:");
     println!("  数据位置: 0x{:X}", target_offset);
-    println!("  页面大小: 0x800 (2048 bytes)");
+    println!("  页面大小: 0x{:X} ({} bytes)", io.page_size, io.page_size);
 
-    let page_no = target_offset / 0x800;
-    let offset_in_page = target_offset % 0x800;
+    let page_size = io.page_size as u64;
+    let page_no = target_offset / page_size;
+    let offset_in_page = target_offset % page_size;
     println!("  计算页号: 0x{:X} (十进制: {})", page_no, page_no);
     println!("  页内偏移: 0x{:X} (十进制: {})", offset_in_page, offset_in_page);
 
@@ -1607,8 +1227,8 @@ async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
                 println!("✅ 确认找到上层索引参考号 24383_101059！");
 
                 // 计算上层索引的页号
-                let upper_page_no = upper_index_offset / 0x800;
-                let upper_offset_in_page = upper_index_offset % 0x800;
+                let upper_page_no = upper_index_offset / page_size;
+                let upper_offset_in_page = upper_index_offset % page_size;
                 println!("📊 上层索引位置分析:");
                 println!("  页号: 0x{:X} (十进制: {})", upper_page_no, upper_page_no);
                 println!("  页内偏移: 0x{:X} (十进制: {})", upper_offset_in_page, upper_offset_in_page);
@@ -2318,8 +1938,13 @@ fn backtrack_and_continue_search(io: &mut PdmsIO, target_r0: u32, target_r1: u32
 async fn test_main_search_algorithm() {
     println!("🚀 测试主流程搜索算法（调试模式需要启用 debug_btree_search feature）");
 
-    let db_option = get_db_option();
-    let db_path = format!("{}/AvevaMarineSample/ams000/ams7999_0001", db_option.project_path);
+    let db_path = match resolve_test_db_path("ams7999_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams7999_0001");
+            return;
+        }
+    };
     let mut io = PdmsIO::new("test", &db_path, true);
     io.open().expect("无法打开数据库");
 
