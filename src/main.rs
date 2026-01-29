@@ -7,6 +7,7 @@ use aios_core::pdms_types::RefU64;
 // use parse_pdms_db::test_cases::convert_str_to_bytes; // 此模块已移除
 use pdms_io::defines::{ElePageData, EleRawData, PAGE_SIZE};
 use pdms_io::io::PdmsIO;
+use pdms_io::test::resolve_test_db_path;
 use pdms_io::test::test_data::TEST_DATA;
 use pdms_io::watch::PdmsWatcher;
 use std::fs::File;
@@ -25,8 +26,14 @@ fn test_read_eles() -> anyhow::Result<()> {
 
     // let mut watch_files: Vec<PathBuf> = Vec::new();
     // watch_files.push(r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000"#.into());
-    let db_filepath = r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams1112_0001"#;
-    let mut io = PdmsIO::new("ams", db_filepath.clone(), true);
+    let db_filepath = match resolve_test_db_path("ams1112_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams1112_0001");
+            return Ok(());
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_filepath, true);
     io.open()?;
     // io.collect_increment_eles(None);
     // io.search_refno(RefU64::from_refno_str("17496/184133").unwrap())?;

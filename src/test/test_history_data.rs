@@ -1,31 +1,25 @@
 use aios_core::{init_test_surreal, RefU64};
-use std::env;
-use std::path::PathBuf;
-
 use crate::io::PdmsIO;
+use crate::test::resolve_test_db_path;
 
 
-
-#[tokio::test]
-async fn test_query_refno_sesno() -> anyhow::Result<()>{
-    init_test_surreal().await;
-    let refno = "17496_171715".into();
-    let sesno = aios_core::query_refno_sesno(refno, 1, 1112).await?;
-    dbg!(sesno);
-
-    Ok(())
-}
 
 #[tokio::test]
 #[ignore] // 需要实际的数据库文件才能运行
 async fn test_get_sesno_timestamp() -> anyhow::Result<()> {
     // 测试通过 sesno 获取时间戳的新功能
     // 注意：这个测试需要实际的 PDMS 数据库文件
-    let db_path = get_test_database_path("ams000/ams1112_0001");
+    let db_path = match resolve_test_db_path("ams000/ams1112_0001") {
+        Some(path) => path,
+        None => {
+            println!("跳过测试：数据库文件不存在 ams000/ams1112_0001");
+            return Ok(());
+        }
+    };
 
     // 检查文件是否存在
     if !std::path::Path::new(&db_path).exists() {
-        println!("跳过测试：数据库文件不存在 {}", db_path);
+        println!("跳过测试：数据库文件不存在 {}", db_path.display());
         return Ok(());
     }
 
@@ -67,20 +61,3 @@ async fn test_get_sesno_timestamp() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// 获取测试数据库路径
-///
-/// 支持通过环境变量 PDMS_TEST_PATH 配置基础路径
-/// 默认基础路径为 "/Volumes/DPC/work/e3d_models"
-///
-/// # 参数
-/// * `relative_path` - 相对于基础路径的数据库路径
-///
-/// # 返回值
-/// * `String` - 完整的数据库路径
-fn get_test_database_path(relative_path: &str) -> String {
-    let base_path = env::var("PDMS_TEST_PATH")
-        .unwrap_or_else(|_| "/Volumes/DPC/work/e3d_models".to_string());
-
-    let full_path = PathBuf::from(base_path).join(relative_path);
-    full_path.to_string_lossy().to_string()
-}

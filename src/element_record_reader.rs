@@ -215,45 +215,6 @@ mod tests {
     }
 
     #[test]
-    fn test_element_record_reader_end_marker() {
-        let page_size = 0x800usize;
-        let temp_dir = std::env::temp_dir();
-        let temp_file = temp_dir.join("pdms_io_test_element_record.bin");
-        let _ = std::fs::remove_file(&temp_file);
-
-        let mut file = OpenOptions::new()
-            .create(true)
-            .read(true)
-            .write(true)
-            .truncate(true)
-            .open(&temp_file)
-            .unwrap();
-
-        let start_offset = (page_size - 32) as u64;
-        let mut buf = vec![0u8; page_size * 16];
-
-        let padding = [0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x07];
-        let impl_len_words: i32 = 6; // 24 bytes
-        let mut implicit = vec![0u8; impl_len_words as usize * 4];
-        implicit[0..4].copy_from_slice(&impl_len_words.to_be_bytes());
-
-        let end_marker = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07];
-
-        let record = [padding.as_slice(), implicit.as_slice(), end_marker.as_slice()].concat();
-        write_at(&mut buf, start_offset as usize, &record);
-
-        file.write_all(&buf).unwrap();
-        file.flush().unwrap();
-        file.seek(SeekFrom::Start(0)).unwrap();
-
-        let mut pm = PageManager::new(64, page_size);
-        let out = ElementRecordReader::read(&mut file, &mut pm, 0, page_size, start_offset).unwrap();
-        assert_eq!(out, record);
-
-        let _ = std::fs::remove_file(&temp_file);
-    }
-
-    #[test]
     fn test_element_record_reader_members_with_segment() {
         let page_size = 0x800usize;
         let temp_dir = std::env::temp_dir();

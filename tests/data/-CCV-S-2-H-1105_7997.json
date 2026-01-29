@@ -1,0 +1,760 @@
+{
+  "source": "-CCV-S-2-H-1105_7997.txt",
+  "elements": [
+    {
+      "kind": "BRANCH",
+      "name": "/-CCV-S-2-H-1105",
+      "attrs": [
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "HPOS",
+          "value": "X -8529.57mm Y 4160.12mm Z -5130mm"
+        },
+        {
+          "key": "TPOS",
+          "value": "X -5334.31mm Y 2600.65mm Z -3230mm"
+        },
+        {
+          "key": "HDIR",
+          "value": "X 26 -Y"
+        },
+        {
+          "key": "TDIR",
+          "value": "-Z"
+        },
+        {
+          "key": "LHEA",
+          "value": "true"
+        },
+        {
+          "key": "LTAI",
+          "value": "true"
+        },
+        {
+          "key": "HBOR",
+          "value": "1300mm"
+        },
+        {
+          "key": "TBOR",
+          "value": "3200mm"
+        },
+        {
+          "key": "HCON",
+          "value": "MAIN"
+        },
+        {
+          "key": "TCON",
+          "value": "RECT"
+        },
+        {
+          "key": "LNTP",
+          "value": "unset"
+        },
+        {
+          "key": "TEMP",
+          "value": "0degC"
+        },
+        {
+          "key": "PRES",
+          "value": "0pascal"
+        },
+        {
+          "key": "TPRESS",
+          "value": "0pascal"
+        },
+        {
+          "key": "HSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/HCTUBE"
+        },
+        {
+          "key": "CCEN",
+          "value": "0"
+        },
+        {
+          "key": "CCLA",
+          "value": "0"
+        },
+        {
+          "key": "PSPE",
+          "value": "SPECIFICATION /CADCHVACSPEC"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "DUTY",
+          "value": "unset"
+        },
+        {
+          "key": "DSCO",
+          "value": "'BHVAC-ABS'"
+        },
+        {
+          "key": "PTSP",
+          "value": "unset"
+        },
+        {
+          "key": "INSC",
+          "value": "unset"
+        },
+        {
+          "key": "PLANU",
+          "value": "unset"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": ":HXYsize",
+          "value": "1300 1300"
+        }
+      ]
+    },
+    {
+      "kind": "TRNS",
+      "name": null,
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -7630.77mm Y 3721.75mm Z -5130mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -Y 26 -X and Z is -X 26 Y"
+        },
+        {
+          "key": "DESP",
+          "value": "SQRD 1200 2150 1300 DIAM 1000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 60 6 6 60 6 6 0 0 0 TRAN 0 MS 3 0 0 0 0 0 0 TRAN 0 0 0 0 0 60 60 0 0 0 0 0 0 0 0 0 0 FB FB 0 0 0 0 0 0 TRAN SQRD 606 606 0 0 0 0 0 0 0 0 0 0 0 5.75771 7.10322 12.8609 7860 135.766 34.3089 170.075 SQMT 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "SPRE",
+          "value": "SPCOMPONENT /CADCHVACSPEC/SQRD"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEC"
+        },
+        {
+          "key": "ARRI",
+          "value": "2"
+        },
+        {
+          "key": "LEAV",
+          "value": "1"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "SPLT",
+          "value": "'Rectangular/Round Transition'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": ":H-SECTCODE",
+          "value": "'001'"
+        }
+      ]
+    },
+    {
+      "kind": "ATTACHMENT",
+      "name": "/-RX-CCV-S1005/DATUM",
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -6008.01mm Y 2930.29mm Z -5430mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -X 26 Y and Z is Z"
+        },
+        {
+          "key": "DESP",
+          "value": "2000 1200 0 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "LAXE",
+          "value": "Y is -X 26 Y and Z is Z"
+        },
+        {
+          "key": "STEX",
+          "value": "'-RX-CCV-S1005'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": ":MDSCp1",
+          "value": "'F;F;0;F'"
+        }
+      ]
+    },
+    {
+      "kind": "ATTACHMENT",
+      "name": "/-RX-CCV-S1005/SREF",
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -6008.01mm Y 2930.29mm Z -5430mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -X 26 Y and Z is Z"
+        },
+        {
+          "key": "DESP",
+          "value": "1270 2000"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "LAXE",
+          "value": "Y is -X 26 Y and Z is Z"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        }
+      ]
+    },
+    {
+      "kind": "ATTACHMENT",
+      "name": "/-RX-CCV-S1004/DATUM",
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -6906.8mm Y 3368.66mm Z -5430mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -X 26 Y and Z is Z"
+        },
+        {
+          "key": "DESP",
+          "value": "2000 1200 0 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "LAXE",
+          "value": "Y is -X 26 Y and Z is Z"
+        },
+        {
+          "key": "STEX",
+          "value": "'-RX-CCV-S1004'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": ":MDSCp1",
+          "value": "'F;F;0;F'"
+        }
+      ]
+    },
+    {
+      "kind": "ATTACHMENT",
+      "name": "/-RX-CCV-S1004/SREF",
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -6906.8mm Y 3368.66mm Z -5430mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -X 26 Y and Z is Z"
+        },
+        {
+          "key": "DESP",
+          "value": "1270 2000"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "LAXE",
+          "value": "Y is -X 26 Y and Z is Z"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        }
+      ]
+    },
+    {
+      "kind": "DAMPER",
+      "name": "/1CCV006VAN",
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -7630.77mm Y 3721.75mm Z -5130mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -Y 26 -X and Z is X 26 -Y"
+        },
+        {
+          "key": "DESP",
+          "value": "VCD 1200 2150 1200 2150 250 0 0 0 0 0 0 0 0 0 0 0 0 0 0 60 6 6 60 6 6 0 0 0 RECT 0 MS 3 0 0 0 0 0 0 RECT 0 0 0 0 0 0 0 0 0 BOP 0 0 0 0 0 0 0 FB FB 0 0 0 0 0 0 DAMP MANU 606 606 0 600 300 300 300 300 0 0 0 0 0 1.68822 3.35382 5.04204 7860 39.8109 43.1986 83.0095 SQMT 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "SPRE",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RVCD"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "SPLT",
+          "value": "'Rectangular Control Damper'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": ":H-VAL-TYPE",
+          "value": "'VAR'"
+        }
+      ]
+    },
+    {
+      "kind": "OFST",
+      "name": null,
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -7406.07mm Y 3612.16mm Z -5130mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -Y 26 -X and Z is X 26 -Y"
+        },
+        {
+          "key": "DESP",
+          "value": "CRAN 1200 2150 1200 2150 285 0 0 0 0 1 0 0 0 60 0 60 0 0 0 60 6 6 60 6 6 0 0 0 RECT 0 MS 3 0 0 0 0 0 0 RECT 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 FB FB 0 0 0 0 0 0 OFFS CRAN 606 606 0 0 0 0 0 0 0 0 0 0 0 1.91527 3.58087 5.49613 7860 45.1636 43.1986 88.3622 SQMT 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "SPRE",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RCRANK"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "SPLT",
+          "value": "'Rectangular Crank Offset'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": ":H-SECTCODE",
+          "value": "'002'"
+        }
+      ]
+    },
+    {
+      "kind": "STRT",
+      "name": null,
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -7150.36mm Y 3486.32mm Z -5130mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -Y 26 -X and Z is X 26 -Y"
+        },
+        {
+          "key": "DESP",
+          "value": "STRA 1200 2150 1200 2150 1220 0 0 0 0 0 0 0 0 0 0 0 0 0 0 60 6 6 60 6 6 0 0 0 RECT 0 MS 3 0 0 0 0 0 0 RECT 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 FB FB 0 0 0 0 0 0 STRA STRA 606 606 0 0 0 0 0 0 0 0 0 0 0 8.17976 9.84536 18.0251 7860 192.877 43.1986 236.076 SQMT 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "SPRE",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RSTRA"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "SPLT",
+          "value": "'Rectangular Straight'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": ":H-SECTCODE",
+          "value": "'003'"
+        }
+      ]
+    },
+    {
+      "kind": "BRCO",
+      "name": null,
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -6905.41mm Y 2003.92mm Z -4730mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -Z and Z is X 26 -Y"
+        },
+        {
+          "key": "DESP",
+          "value": "SBRA 2150 1200 2150 1200 0 150 0 0 350 -400 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 40 40 4 RECT 0 MS 3 0 0 TRUE 0 0 0 RECT 500 300 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 FB FB FJ 0 0 0 SF 25 BRCO STRA 606 606 40 0 0 0 0 0 0 0 0 0 0 0.392432 0.533232 0.925664 7860 9.25122 4.42518 13.6764 SQMT 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "SPRE",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RSBRCO"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "SPLT",
+          "value": "'Rectangular 90 degree Branch Connector'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        }
+      ]
+    },
+    {
+      "kind": "BEND",
+      "name": null,
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -5333.88mm Y 2600.44mm Z -5130mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -Y 26 -X and Z is X 26 -Y"
+        },
+        {
+          "key": "DESP",
+          "value": "RBEN 1200 2150 1200 2150 0 0 90 100 0 0 0 0 0 100 0 100 0 0 0 60 6 6 60 6 6 0 0 0 RECT 0 MS 3 0 0 0 0 0 0 RECT 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 FB FB 0 0 0 0 0 0 BEND RAD 606 606 0 0 0 0 0 0 0 0 0 0 0 8.71186 10.3775 19.0893 7860 205.429 43.1986 248.628 SQMT 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "SPRE",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RRBEND"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEA"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "LOFF",
+          "value": "false"
+        },
+        {
+          "key": "SPLT",
+          "value": "'Rectangular 90 degree Radiused Bend'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": "CLUTCH",
+          "value": "unset"
+        },
+        {
+          "key": ":H-SECTCODE",
+          "value": "'004'"
+        }
+      ]
+    },
+    {
+      "kind": "TAPER",
+      "name": null,
+      "attrs": [
+        {
+          "key": "POS",
+          "value": "X -5334.31mm Y 2600.65mm Z -4330mm"
+        },
+        {
+          "key": "ORI",
+          "value": "Y is -Y 26 -X and Z is Z"
+        },
+        {
+          "key": "DESP",
+          "value": "TAPR 1200 2150 1200 2000 1100 0 0 0 0 0 0 0 0 50 0 50 0 0 0 60 6 6 60 6 6 0 0 0 RECT 0 MS 3 0 0 0 0 0 0 RECT 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 FB FB 0 0 0 0 0 0 TAPR TAPR 606 606 0 0 0 0 0 0 0 0 0 0 0 7.2175 8.8471 16.0646 7860 170.193 42.2632 212.456 SQMT 0 0"
+        },
+        {
+          "key": "BUIL",
+          "value": "false"
+        },
+        {
+          "key": "SHOP",
+          "value": "false"
+        },
+        {
+          "key": "SPRE",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTAPER"
+        },
+        {
+          "key": "LSTU",
+          "value": "SPCOMPONENT /CADCHVACSPEC/RTUBEB"
+        },
+        {
+          "key": "ORIF",
+          "value": "true"
+        },
+        {
+          "key": "POSF",
+          "value": "true"
+        },
+        {
+          "key": "ISPE",
+          "value": "SPECIFICATION /CADCHVACISPEC"
+        },
+        {
+          "key": "SPLT",
+          "value": "'Rectangular Taper'"
+        },
+        {
+          "key": "DELDSG",
+          "value": "FALS"
+        },
+        {
+          "key": ":H-SECTCODE",
+          "value": "'005'"
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    "\u7b2c 332 \u884c: END \u65e0\u5bf9\u5e94 NEW"
+  ]
+}

@@ -2,21 +2,28 @@ use aios_core::RefU64;
 use parse_pdms_db::parse::{collect_explict_data, parse_raw_ele_data};
 use parse_pdms_db::parser::combinator::collect_segmented_payload;
 use pdms_io::io::PdmsIO;
+use pdms_io::test::resolve_test_db_path;
 use std::path::Path;
 
 const DESP_HASH: i32 = 0x000D20C7; // 860359
 
 #[tokio::test]
 async fn test_ams1112_0001_desp_not_empty() -> anyhow::Result<()> {
-    let db_path = r"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000\ams1112_0001";
-    if !Path::new(db_path).exists() {
-        eprintln!("数据库文件不存在，跳过: {}", db_path);
+    let db_path = match resolve_test_db_path("ams1112_0001") {
+        Some(path) => path,
+        None => {
+            eprintln!("数据库文件不存在，跳过: ams1112_0001");
+            return Ok(());
+        }
+    };
+    if !Path::new(&db_path).exists() {
+        eprintln!("数据库文件不存在，跳过: {}", db_path.display());
         return Ok(());
     }
 
     let refno: RefU64 = "17496/171603".into();
 
-    let mut io = PdmsIO::new("ams", db_path, true);
+    let mut io = PdmsIO::new("ams", &db_path, true);
     io.open()?;
 
     // 额外：对比“原始解析(不 refine)”与“当前 PdmsIO 解析(可能 refine)”的差异，

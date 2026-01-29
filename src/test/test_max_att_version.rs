@@ -1,14 +1,17 @@
 use crate::io::PdmsIO;
-use aios_core::get_db_option;
-use std::path::PathBuf;
+use crate::test::resolve_test_db_path;
 
 //讲session 数据保存到数据库中，后面版本更新比较的就是会话层的数据
 #[tokio::test]
 pub async fn test_get_max_att_pgno() {
-    let db_option = get_db_option();
-    // let dir = db_option.get_project_path(&db_option.project_name).unwrap();
-    let db_path = "D:/AVEVA/Projects/E3D2.1/AvevaMarineSample/ams000/ams1112_0001";
-    let mut io = PdmsIO::new("ams", db_path, true);
+    let db_path = match resolve_test_db_path("ams1112_0001") {
+        Some(path) => path,
+        None => {
+            println!("数据库文件不存在，跳过测试: ams1112_0001");
+            return;
+        }
+    };
+    let mut io = PdmsIO::new("ams", &db_path, true);
     let max_att_pgno = io.get_latest_att_pgno().unwrap();
     dbg!(max_att_pgno);
     let max_att_version = io.get_latest_sesno().unwrap();
