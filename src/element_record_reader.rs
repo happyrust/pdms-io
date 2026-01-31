@@ -21,19 +21,44 @@ impl ElementRecordReader {
         const INITIAL: usize = 16 * 1024;
         const MAX: usize = 1024 * 1024;
 
-        let mut buf_size = INITIAL;
-        loop {
-            let data = PagedReader::read(file, page_cache, ext_no, page_size, start_offset, buf_size)?;
-            if let Some(end) = Self::find_record_end(&data)? {
-                let mut out = data;
-                out.truncate(end);
-                return Ok(out);
-            }
+        let file_len = file.metadata().map(|m| m.len()).unwrap_or(u64::MAX);
 
-            if buf_size >= MAX {
+        let mut target = INITIAL;
+        let mut data =
+            PagedReader::read(file, page_cache, ext_no, page_size, start_offset, target)?;
+
+        loop {
+            if let Some(end) = Self::find_record_end(&data)? {
+                data.truncate(end);
                 return Ok(data);
             }
-            buf_size = (buf_size * 2).min(MAX);
+
+            if target >= MAX {
+                return Ok(data);
+            }
+
+            target = (target * 2).min(MAX);
+            let need = target.saturating_sub(data.len());
+            if need == 0 {
+                return Ok(data);
+            }
+
+            // 仅追加读取“新增”部分，避免每轮扩容都从起点重读。
+            let already = data.len() as u64;
+            let available = file_len.saturating_sub(start_offset + already) as usize;
+            if available == 0 {
+                return Ok(data);
+            }
+            let to_read = need.min(available);
+            let more = PagedReader::read(
+                file,
+                page_cache,
+                ext_no,
+                page_size,
+                start_offset + already,
+                to_read,
+            )?;
+            data.extend_from_slice(&more);
         }
     }
 
@@ -252,6 +277,52 @@ mod tests {
         let end_marker = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07];
 
         let record = [padding.as_slice(), implicit.as_slice(), members.as_slice(), seg.as_slice(), end_marker.as_slice()].concat();
+        write_at(&mut buf, start_offset as usize, &record);
+
+        file.write_all(&buf).unwrap();
+        file.flush().unwrap();
+        file.seek(SeekFrom::Start(0)).unwrap();
+
+        let mut pm = PageManager::new(128, page_size);
+        let out = ElementRecordReader::read(&mut file, &mut pm, 0, page_size, start_offset).unwrap();
+        assert_eq!(out, record);
+
+        let _ = std::fs::remove_file(&temp_file);
+    }
+
+    #[test]
+    fn test_element_record_reader_grow_buffer_incrementally() {
+        let page_size = 0x800usize;
+        let temp_dir = std::env::temp_dir();
+        let temp_file = temp_dir.join("pdms_io_test_element_record_grow.bin");
+        let _ = std::fs::remove_file(&temp_file);
+
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .write(true)
+            .truncate(true)
+            .open(&temp_file)
+            .unwrap();
+
+        // 构造一个超过 INITIAL(16KiB) 的 record，确保触发“增量追加读取”分支。
+        let start_offset = 0u64;
+        let mut buf = vec![0u8; page_size * 32];
+
+        let padding = [0x00, 0x00, 0x00, 0x07];
+        let impl_len_words: i32 = 6; // 24 bytes
+        let mut implicit = vec![0u8; impl_len_words as usize * 4];
+        implicit[0..4].copy_from_slice(&impl_len_words.to_be_bytes());
+
+        // 一个很大的 members 块，使 record 长度 > 16KiB。
+        let members_len_words: u16 = 5000; // 20000 bytes
+        let mut members = vec![0u8; members_len_words as usize * 4];
+        members[0..2].copy_from_slice(&0x0002u16.to_be_bytes());
+        members[2..4].copy_from_slice(&members_len_words.to_be_bytes());
+
+        let end_marker = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07];
+
+        let record = [padding.as_slice(), implicit.as_slice(), members.as_slice(), end_marker.as_slice()].concat();
         write_at(&mut buf, start_offset as usize, &record);
 
         file.write_all(&buf).unwrap();
