@@ -133,6 +133,24 @@ pub struct PdmsIO {
 /// RefNo -> 该 RefNo 的所有历史版本“绝对偏移”（升序，last() 为最新）。
 pub type IndexMap = HashMap<RefU64, Vec<u64>>;
 
+/// 元素一致性哈希选项（用于历史版本“内容去重”）。
+///
+/// 目标是“同一元素的相邻历史版本”若内容一致，则可压缩掉冗余版本，降低后续解析/遍历成本。
+/// 因此这里提供 `ignore_keys` 用于忽略明显会随物理位置/会话变化的字段（如 PGNO/SESNO）。
+#[derive(Debug, Clone, Copy)]
+pub struct ElementHashOptions {
+    /// 需要忽略的属性键名列表（精确匹配）。
+    pub ignore_keys: &'static [&'static str],
+}
+
+impl Default for ElementHashOptions {
+    fn default() -> Self {
+        Self {
+            ignore_keys: &["PGNO", "SESNO"],
+        }
+    }
+}
+
 impl PdmsIO {
     // ... (其他代码保持不变)
 
@@ -3305,6 +3323,15 @@ impl PdmsIO {
         &mut self,
         refno_map: &mut IndexMap,
     ) -> anyhow::Result<()> {
+        self.filter_consistent_data_with_options(refno_map, &ElementHashOptions::default())
+            .await
+    }
+
+    async fn filter_consistent_data_with_options(
+        &mut self,
+        refno_map: &mut IndexMap,
+        opts: &ElementHashOptions,
+    ) -> anyhow::Result<()> {
         // 注意：该函数会触发大量 parse_element 调用，默认不在 build_index_map_* 中启用。
         // 需要时请走 build_index_map_and_filter_consistent 或手动调用。
         let items: Vec<(RefU64, Vec<u64>)> = refno_map
@@ -3324,7 +3351,7 @@ impl PdmsIO {
             for offset in offsets {
                 match self.parse_element(offset).await {
                     Ok(ele) => {
-                        let hash = Self::calculate_element_hash(&ele);
+                        let hash = Self::calculate_element_hash_with_options(&ele, opts);
                         if last_hash == Some(hash) {
                             removed += 1;
                             continue;
@@ -3357,10 +3384,11 @@ impl PdmsIO {
 
     /// 计算元素数据的哈希值用于比较
     fn calculate_element_hash(ele_data: &EleData) -> u64 {
-        use std::hash::{Hash, Hasher};
+        Self::calculate_element_hash_with_options(ele_data, &ElementHashOptions::default())
+    }
 
-        // 仅用于“内容一致性去重”。为提升命中率，需要忽略明显会随会话/物理位置变化的字段。
-        const VOLATILE_KEYS: [&str; 2] = ["PGNO", "SESNO"];
+    fn calculate_element_hash_with_options(ele_data: &EleData, opts: &ElementHashOptions) -> u64 {
+        use std::hash::{Hash, Hasher};
 
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
 
@@ -3374,7 +3402,7 @@ impl PdmsIO {
 
         // 隐式/系统属性（稳定顺序：BTreeMap）
         for (k, v) in ele_data.att_map().map.iter() {
-            if VOLATILE_KEYS.contains(&k.as_str()) {
+            if opts.ignore_keys.contains(&k.as_str()) {
                 continue;
             }
             k.hash(&mut hasher);
@@ -3383,7 +3411,7 @@ impl PdmsIO {
 
         // 显式属性
         for (k, v) in ele_data.explicit_attmap().map.iter() {
-            if VOLATILE_KEYS.contains(&k.as_str()) {
+            if opts.ignore_keys.contains(&k.as_str()) {
                 continue;
             }
             k.hash(&mut hasher);
@@ -3494,8 +3522,19 @@ impl PdmsIO {
         &mut self,
         verbose: bool,
     ) -> anyhow::Result<IndexMap> {
+        self.build_index_map_and_filter_consistent_with_options(verbose, ElementHashOptions::default())
+            .await
+    }
+
+    /// 构建索引映射并按指定选项过滤“内容一致”的冗余历史版本。
+    pub async fn build_index_map_and_filter_consistent_with_options(
+        &mut self,
+        verbose: bool,
+        opts: ElementHashOptions,
+    ) -> anyhow::Result<IndexMap> {
         let mut index_map = self.build_index_map_verbose(verbose)?;
-        self.filter_consistent_data(&mut index_map).await?;
+        self.filter_consistent_data_with_options(&mut index_map, &opts)
+            .await?;
         Ok(index_map)
     }
 
@@ -4740,6 +4779,26 @@ mod io_element_hash_tests {
         assert_ne!(
             PdmsIO::calculate_element_hash(&a),
             PdmsIO::calculate_element_hash(&b)
+        );
+    }
+
+    #[test]
+    fn element_hash_options_can_ignore_custom_key() {
+        let opts = ElementHashOptions {
+            ignore_keys: &["PGNO", "SESNO", "FOO"],
+        };
+
+        let mut a = EleData::default();
+        a.att_map_mut()
+            .insert("FOO".to_string(), NamedAttrValue::IntegerType(1));
+
+        let mut b = a.clone();
+        b.att_map_mut()
+            .insert("FOO".to_string(), NamedAttrValue::IntegerType(2));
+
+        assert_eq!(
+            PdmsIO::calculate_element_hash_with_options(&a, &opts),
+            PdmsIO::calculate_element_hash_with_options(&b, &opts)
         );
     }
 }
