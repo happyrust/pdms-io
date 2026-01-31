@@ -1,4 +1,5 @@
 use aios_core::tool::db_tool::db1_dehash;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone)]
 pub enum DecodeError {
@@ -55,6 +56,67 @@ pub fn decode_expression_payload(input: &[u8]) -> Result<(usize, String), Decode
         .ok_or(DecodeError::InvalidPayload)
 }
 
+/// 表达式 payload 的 opcode 扫描报告（用于定位“未覆盖 opcode / 回退原因”）。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OpcodeScanReport {
+    /// 采用的起始 word 偏移（0..=2）。
+    pub start_words: usize,
+    /// payload 声明的 word 数（不含最前面的 len word）。
+    pub declared_words: usize,
+    /// 实际消费的字节数（从 `input` 起始算起）。
+    pub consumed_bytes: usize,
+    /// 解析后缀序列时遇到的 opcode 频次（仅统计 opcode，不统计数值常量/字符串内容等）。
+    pub opcode_counts: BTreeMap<i32, u64>,
+    /// 无法识别为 value opcode 或 operator opcode 的 opcode 列表（去重、升序）。
+    pub unknown_opcodes: Vec<i32>,
+}
+
+/// 扫描表达式 payload 中的 opcode 分布。
+///
+/// - 会尝试 `start_words=0..=2`，并选择“未知 opcode 更少、有效长度更长”的解析起点。
+/// - 本函数不会因为遇到未知 opcode 而失败（未知 opcode 会进入 `unknown_opcodes`），
+///   仅在 payload 长度不合法/越界时返回错误。
+pub fn scan_expression_payload_opcodes(input: &[u8]) -> Result<OpcodeScanReport, DecodeError> {
+    let mut best: Option<OpcodeScanReport> = None;
+
+    for start_words in 0..=2 {
+        let Ok((consumed_bytes, words, start_idx, declared_words)) = read_words_from_start(input, start_words) else {
+            continue;
+        };
+
+        let sliced = if words.len() > start_idx {
+            &words[start_idx..]
+        } else {
+            &[]
+        };
+        let (opcode_counts, unknown_opcodes) = scan_words_for_opcodes(sliced)?;
+
+        let report = OpcodeScanReport {
+            start_words,
+            declared_words,
+            consumed_bytes,
+            opcode_counts,
+            unknown_opcodes,
+        };
+
+        let pick = match &best {
+            None => true,
+            Some(prev) => {
+                // 先比未知 opcode 数（少者优），再比声明长度（大者优）
+                let a = report.unknown_opcodes.len();
+                let b = prev.unknown_opcodes.len();
+                a < b || (a == b && report.declared_words > prev.declared_words)
+            }
+        };
+
+        if pick {
+            best = Some(report);
+        }
+    }
+
+    best.ok_or(DecodeError::InvalidPayload)
+}
+
 fn decode_from_start(
     input: &[u8],
     start_words: usize,
@@ -104,6 +166,51 @@ fn decode_from_start(
     Ok((start + total_bytes, expr, len.saturating_sub(start_idx)))
 }
 
+fn read_words_from_start(
+    input: &[u8],
+    start_words: usize,
+) -> Result<(usize, Vec<i32>, usize, usize), DecodeError> {
+    let start = start_words * 4;
+    if input.len() < start + 4 {
+        return Err(DecodeError::UnexpectedEof);
+    }
+    let len = read_i32(&input[start..start + 4]);
+    if len < 0 {
+        return Err(DecodeError::InvalidLength);
+    }
+    let len = len as usize;
+    let total_words = len + 1;
+    let total_bytes = total_words
+        .checked_mul(4)
+        .ok_or(DecodeError::InvalidLength)?;
+    if input.len() < start + total_bytes {
+        return Err(DecodeError::UnexpectedEof);
+    }
+    if len == 0 {
+        return Ok((start + total_bytes, Vec::new(), 0, 0));
+    }
+    let mut words = Vec::with_capacity(len);
+    for idx in 0..len {
+        let offset = start + 4 + idx * 4;
+        words.push(read_i32(&input[offset..offset + 4]));
+    }
+
+    // 与 decode_from_start 保持一致：识别常见 header，并切掉。
+    let mut start_idx = 1;
+    if words.len() >= 3
+        && words[0] == len as i32
+        && words[1] == 1
+        && matches!(
+            words[2],
+            0x65 | 0x66 | 0x67 | 0x68 | 0x69 | 0x6A | 0x6F | 0x72 | 0x74 | 0x75
+        )
+    {
+        start_idx = 2;
+    }
+
+    Ok((start + total_bytes, words, start_idx, len.saturating_sub(start_idx)))
+}
+
 fn decode_words(words: &[i32]) -> Result<String, DecodeError> {
     let mut stack: Vec<ExprNode> = Vec::new();
     let mut idx = 0;
@@ -125,6 +232,151 @@ fn decode_words(words: &[i32]) -> Result<String, DecodeError> {
     } else {
         Err(DecodeError::InvalidPayload)
     }
+}
+
+fn scan_words_for_opcodes(
+    words: &[i32],
+) -> Result<(BTreeMap<i32, u64>, Vec<i32>), DecodeError> {
+    let mut counts: BTreeMap<i32, u64> = BTreeMap::new();
+    let mut unknown: BTreeMap<i32, u64> = BTreeMap::new();
+
+    let mut idx = 0;
+    while idx < words.len() {
+        let opcode = words[idx];
+
+        // value opcode：需要按长度跳过，避免把常量当作 opcode。
+        if let Some(next) = skip_value_opcode(opcode, words, idx)? {
+            *counts.entry(opcode).or_default() += 1;
+            idx = next;
+            continue;
+        }
+
+        // operator opcode：固定 1 word。
+        if is_operator_opcode(opcode) {
+            *counts.entry(opcode).or_default() += 1;
+            idx += 1;
+            continue;
+        }
+
+        // 未知：按 1 word 前进（无法确定其是否为变长块）。
+        *counts.entry(opcode).or_default() += 1;
+        *unknown.entry(opcode).or_default() += 1;
+        idx += 1;
+    }
+
+    Ok((
+        counts,
+        unknown.keys().copied().collect::<Vec<_>>(),
+    ))
+}
+
+fn skip_value_opcode(
+    opcode: i32,
+    words: &[i32],
+    idx: usize,
+) -> Result<Option<usize>, DecodeError> {
+    let next = match opcode {
+        0x65 => {
+            let count = read_next_word(words, idx + 1)?;
+            if count <= 1 {
+                return Err(DecodeError::InvalidLength);
+            }
+            let count = count as usize;
+            let data_count = count.saturating_sub(1);
+            let data_start = idx + 2;
+            let data_end = data_start
+                .checked_add(data_count)
+                .ok_or(DecodeError::InvalidLength)?;
+            if data_end > words.len() {
+                return Err(DecodeError::UnexpectedEof);
+            }
+            data_end
+        }
+        0x66 | 0x76 | 0x68 | 0x69 => {
+            let len = read_next_word(words, idx + 1)?;
+            if len < 0 {
+                return Err(DecodeError::InvalidLength);
+            }
+            let len = len as usize;
+            let data_start = idx + 2;
+            let data_end = data_start
+                .checked_add(len)
+                .ok_or(DecodeError::InvalidLength)?;
+            if data_end > words.len() {
+                return Err(DecodeError::UnexpectedEof);
+            }
+            data_end
+        }
+        0x67 => {
+            read_next_word(words, idx + 1)?;
+            idx + 2
+        }
+        0x6A => {
+            let data_start = idx + 1;
+            let data_end = data_start + 5;
+            if data_end > words.len() {
+                return Err(DecodeError::UnexpectedEof);
+            }
+            let mut cursor = data_end;
+            if cursor < words.len() && words[cursor] == 2100 {
+                cursor += 1;
+                if cursor >= words.len() {
+                    return Err(DecodeError::UnexpectedEof);
+                }
+                let argc = words[cursor];
+                if argc < 0 {
+                    return Err(DecodeError::InvalidLength);
+                }
+                cursor += 1;
+                let argc = argc as usize;
+                if cursor + argc > words.len() {
+                    return Err(DecodeError::UnexpectedEof);
+                }
+                cursor += argc;
+            }
+            if cursor < words.len() && words[cursor] == 2200 {
+                if cursor + 3 > words.len() {
+                    return Err(DecodeError::UnexpectedEof);
+                }
+                cursor += 3;
+            }
+            if cursor < words.len() {
+                match words[cursor] {
+                    1601 => cursor += 1,
+                    1602 => {
+                        cursor += 1;
+                        cursor = skip_len_block(words, cursor)?;
+                    }
+                    _ => {}
+                }
+            }
+            if cursor < words.len() {
+                match words[cursor] {
+                    1703 => {
+                        if cursor + 3 > words.len() {
+                            return Err(DecodeError::UnexpectedEof);
+                        }
+                        cursor += 3;
+                    }
+                    1702 => {
+                        cursor += 1;
+                        cursor = skip_len_block(words, cursor)?;
+                    }
+                    1701 => cursor += 1,
+                    _ => {}
+                }
+            }
+            cursor
+        }
+        0x6F => idx + 1,
+        0x72 | 0x74 | 0x75 => {
+            read_next_word(words, idx + 1)?;
+            idx + 2
+        }
+        _ => return Ok(None),
+    };
+
+    Ok(Some(next))
 }
 
 fn parse_value_opcode(
@@ -594,6 +846,7 @@ fn is_operator_opcode(value: i32) -> bool {
 #[cfg(test)]
 mod tests {
     use super::decode_expression_payload;
+    use super::scan_expression_payload_opcodes;
 
     fn be_i32(v: i32) -> [u8; 4] {
         v.to_be_bytes()
@@ -644,5 +897,37 @@ mod tests {
         let (consumed, value) = decode_expression_payload(&input).unwrap();
         assert_eq!(consumed, input.len());
         assert_eq!(value, "1 GT 2");
+    }
+
+    #[test]
+    fn test_scan_expression_payload_opcodes_counts_only_opcodes() {
+        // 与 test_decode_expression_payload_gt_alt_opcode_602 相同的 payload，验证扫描只统计 opcode。
+        let words: [i32; 8] = [0, 0x65, 2, 1, 0x65, 2, 2, 602];
+        let mut input = Vec::with_capacity((words.len() + 1) * 4);
+        input.extend_from_slice(&be_i32(words.len() as i32));
+        for w in words {
+            input.extend_from_slice(&be_i32(w));
+        }
+
+        let report = scan_expression_payload_opcodes(&input).unwrap();
+        assert_eq!(report.opcode_counts.get(&0x65).copied().unwrap_or(0), 2);
+        assert_eq!(report.opcode_counts.get(&602).copied().unwrap_or(0), 1);
+        // 常量 1/2 不应被当作 opcode 统计
+        assert!(report.opcode_counts.get(&1).is_none());
+        assert!(report.opcode_counts.get(&2).is_none());
+        assert!(report.unknown_opcodes.is_empty());
+    }
+
+    #[test]
+    fn test_scan_expression_payload_opcodes_reports_unknown() {
+        let words: [i32; 2] = [0, 9999];
+        let mut input = Vec::with_capacity((words.len() + 1) * 4);
+        input.extend_from_slice(&be_i32(words.len() as i32));
+        for w in words {
+            input.extend_from_slice(&be_i32(w));
+        }
+
+        let report = scan_expression_payload_opcodes(&input).unwrap();
+        assert!(report.unknown_opcodes.contains(&9999));
     }
 }

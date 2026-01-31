@@ -1379,7 +1379,7 @@ async fn test_parse_has_07() {
         eprintln!("skip: missing fixture file: {}", path.display());
         return;
     };
-    let data = convert_str_to_bytes(data_str);
+    let data = convert_str_to_bytes(&data_str);
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
     dbg!(&ele_data.whole_attmap.attmap);
 }
