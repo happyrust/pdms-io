@@ -7,6 +7,7 @@
 //! - 常量表达式
 
 use crate::parser::numeric::{parse_explicit_f64_40, parse_explicit_num_00, parse_explicit_num_ff};
+use crate::parse::convert_to_explicit_axis_string;
 use aios_core::types::RefU64;
 use aios_core::helper::parse_to_i16;
 use aios_core::tool::db_tool::{convert_to_hash, db1_dehash};
@@ -287,7 +288,7 @@ pub fn parse_expression_attr(input: &[u8], refno: u64) -> IResult<&[u8], (String
 pub fn parse_other_expression(
     input: &[u8],
     expression_type: String,
-    _refno: u64,
+    refno: u64,
 ) -> IResult<&[u8], (String, String)> {
     // 检查最小长度
     if input.len() < 20 {
@@ -302,7 +303,7 @@ pub fn parse_other_expression(
 
     // PTCDI/PTCD 类型处理
     if expression_type == "PTCDI" || expression_type == "PTCD" {
-        return parse_ptcd_expression(input, expression_type);
+        return parse_ptcd_expression(input, expression_type, refno);
     }
 
     // 通用表达式处理：基于 payload→postfix→pretty 的复刻实现
@@ -361,57 +362,33 @@ fn parse_string_expression(
 fn parse_ptcd_expression(
     input: &[u8],
     expression_type: String,
+    refno: u64,
 ) -> IResult<&[u8], (String, String)> {
-    if input.len() < 8 {
-        return Ok((input, (expression_type, String::new())));
+    // 复刻旧实现的长度与切片规则（PTCD/PTCDI 的 payload 结构与通用表达式不同）
+    if input.len() < 4 {
+        return Err(nom::Err::Incomplete(nom::Needed::Unknown));
     }
 
     // 读取表达式长度
     let (_, expression_length) = nom::number::complete::be_u16(&input[2..4])?;
-    let data_size = (expression_length as usize) * 4;
+    let end = (expression_length as usize)
+        .checked_mul(4)
+        .and_then(|v| v.checked_add(4))
+        .ok_or_else(|| nom::Err::Incomplete(nom::Needed::Unknown))?;
 
-    if input.len() < 8 + data_size {
-        return Ok((input, (expression_type, String::new())));
+    if end > input.len() {
+        return Err(nom::Err::Incomplete(nom::Needed::Unknown));
     }
 
-    // 跳过头部，解析轴向数据
-    let expression_data = &input[8..8 + data_size];
-    let axis_result = parse_axis_data(expression_data);
+    // 显式属性的 length 后有 4 bytes “无用区”，旧实现从 offset 4 开始取数据。
+    let expression_data = &input[4..end];
+    let (_rest, axis) = convert_to_explicit_axis_string(expression_data, RefU64(refno))?;
+    let axis_result = match axis {
+        aios_core::AttrVal::StringType(value) => value,
+        _ => String::new(),
+    };
 
-    Ok((&input[8 + data_size..], (expression_type, axis_result)))
-}
-
-/// 解析通用表达式
-/// 解析轴向数据
-fn parse_axis_data(data: &[u8]) -> String {
-    let mut result = String::new();
-
-    if data.len() >= 12 {
-        // 尝试解析 X/Y/Z 值
-        let values: Vec<f64> = data
-            .chunks(4)
-            .take(3)
-            .filter_map(|chunk| {
-                if chunk.len() == 4 {
-                    Some(f32::from_be_bytes(chunk.try_into().unwrap()) as f64)
-                } else {
-                    None
-                }
-            })
-            .collect();
-
-        if values.len() == 3 {
-            let parts: Vec<String> = ["X", "Y", "Z"]
-                .iter()
-                .zip(values.iter())
-                .filter(|(_, v)| v.abs() > 1e-10)
-                .map(|(&axis, &v)| format!("{}{}", axis, v))
-                .collect();
-            result = parts.join(" ");
-        }
-    }
-
-    result
+    Ok((&input[end..], (expression_type, axis_result)))
 }
 
 /// 解析表达式中的数值
@@ -458,15 +435,11 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_axis_data() {
-        // X=1.0, Y=0, Z=0
-        let data = [
-            0x3F, 0x80, 0x00, 0x00, // 1.0 as f32
-            0x00, 0x00, 0x00, 0x00, // 0.0
-            0x00, 0x00, 0x00, 0x00, // 0.0
-        ];
-        let result = parse_axis_data(&data);
-        assert!(result.contains("X"));
+    fn test_parse_ptcd_expression_incomplete_length_should_error() {
+        // 伪造 PTCD/PTCDI: expression_length=10 => end=44，但 input 只有 8 bytes
+        let input = [0u8, 0u8, 0x00, 0x0A, 0u8, 0u8, 0u8, 0u8];
+        let err = parse_ptcd_expression(&input, "PTCD".to_string(), 0).unwrap_err();
+        assert!(matches!(err, nom::Err::Incomplete(_)));
     }
 
     #[test]
