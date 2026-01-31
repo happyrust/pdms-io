@@ -20,6 +20,63 @@ use std::collections::HashMap;
 use super::axis::{is_axis_expression, parse_axis_expression_str};
 use super::expression_payload::decode_expression_payload;
 
+#[cfg(feature = "debug_parse")]
+mod expr_fallback_stats {
+    use std::sync::atomic::{AtomicU64, Ordering};
+
+    #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+    pub struct ExpressionParseStats {
+        pub new_ok: u64,
+        pub new_err: u64,
+        pub fallback_ok: u64,
+        pub fallback_err: u64,
+    }
+
+    static NEW_OK: AtomicU64 = AtomicU64::new(0);
+    static NEW_ERR: AtomicU64 = AtomicU64::new(0);
+    static FALLBACK_OK: AtomicU64 = AtomicU64::new(0);
+    static FALLBACK_ERR: AtomicU64 = AtomicU64::new(0);
+
+    pub fn inc_new_ok() {
+        NEW_OK.fetch_add(1, Ordering::Relaxed);
+    }
+
+    pub fn inc_new_err() {
+        NEW_ERR.fetch_add(1, Ordering::Relaxed);
+    }
+
+    pub fn inc_fallback_ok() {
+        FALLBACK_OK.fetch_add(1, Ordering::Relaxed);
+    }
+
+    pub fn inc_fallback_err() {
+        FALLBACK_ERR.fetch_add(1, Ordering::Relaxed);
+    }
+
+    pub fn snapshot() -> ExpressionParseStats {
+        ExpressionParseStats {
+            new_ok: NEW_OK.load(Ordering::Relaxed),
+            new_err: NEW_ERR.load(Ordering::Relaxed),
+            fallback_ok: FALLBACK_OK.load(Ordering::Relaxed),
+            fallback_err: FALLBACK_ERR.load(Ordering::Relaxed),
+        }
+    }
+
+    #[cfg(test)]
+    pub fn reset_for_test() {
+        NEW_OK.store(0, Ordering::Relaxed);
+        NEW_ERR.store(0, Ordering::Relaxed);
+        FALLBACK_OK.store(0, Ordering::Relaxed);
+        FALLBACK_ERR.store(0, Ordering::Relaxed);
+    }
+}
+
+/// 读取表达式解析回退统计（需启用 `parse_pdms_db` 的 `debug_parse` feature）。
+#[cfg(feature = "debug_parse")]
+pub fn expression_parse_stats() -> expr_fallback_stats::ExpressionParseStats {
+    expr_fallback_stats::snapshot()
+}
+
 /// 数学运算符映射表
 ///
 /// 将 PDMS 内部操作码映射为可读的表达式格式
@@ -273,8 +330,45 @@ pub fn parse_expression_attr(input: &[u8], refno: u64) -> IResult<&[u8], (String
         parse_axis_expression_str(input, expression_type)
     } else {
         match parse_other_expression(input, expression_type.clone(), refno) {
-            Ok(result) => Ok(result),
-            Err(_) => crate::parse_explict_tools::parse_expression_attr(input, RefU64(refno)),
+            Ok(result) => {
+                #[cfg(feature = "debug_parse")]
+                expr_fallback_stats::inc_new_ok();
+                Ok(result)
+            }
+            Err(e) => {
+                #[cfg(feature = "debug_parse")]
+                {
+                    expr_fallback_stats::inc_new_err();
+                    log::debug!(
+                        "expression parse fallback: refno={:?}, type={}, new_err={:?}",
+                        RefU64(refno),
+                        expression_type,
+                        e
+                    );
+                }
+
+                // 回退到旧实现（历史兼容）
+                match crate::parse_explict_tools::parse_expression_attr(input, RefU64(refno)) {
+                    Ok(ok) => {
+                        #[cfg(feature = "debug_parse")]
+                        expr_fallback_stats::inc_fallback_ok();
+                        Ok(ok)
+                    }
+                    Err(e2) => {
+                        #[cfg(feature = "debug_parse")]
+                        {
+                            expr_fallback_stats::inc_fallback_err();
+                            log::debug!(
+                                "expression parse fallback failed: refno={:?}, type={}, old_err={:?}",
+                                RefU64(refno),
+                                expression_type,
+                                e2
+                            );
+                        }
+                        Err(e2)
+                    }
+                }
+            }
         }
     }
 }
@@ -440,6 +534,49 @@ mod tests {
         let input = [0u8, 0u8, 0x00, 0x0A, 0u8, 0u8, 0u8, 0u8];
         let err = parse_ptcd_expression(&input, "PTCD".to_string(), 0).unwrap_err();
         assert!(matches!(err, nom::Err::Incomplete(_)));
+    }
+
+    #[cfg(feature = "debug_parse")]
+    #[test]
+    fn test_expression_parse_stats_new_ok_increments_on_string_expr() {
+        expr_fallback_stats::reset_for_test();
+
+        // hash(4) + header(24) + 1 char word(4)
+        // - flag@16..20 = 0x66
+        // - str_len@20..24 = 1
+        let mut bytes = vec![0u8; 4 + 24 + 4];
+        // flag
+        bytes[4 + 16..4 + 20].copy_from_slice(&0x66i32.to_be_bytes());
+        // str_len
+        bytes[4 + 20..4 + 24].copy_from_slice(&1i32.to_be_bytes());
+        // 'A'
+        bytes[4 + 24..4 + 28].copy_from_slice(&0x41i32.to_be_bytes());
+
+        let (_rest, (_ty, value)) = parse_expression_attr(&bytes, 0).unwrap();
+        assert_eq!(value, "'A'");
+
+        let stats = expression_parse_stats();
+        assert_eq!(stats.new_ok, 1);
+        assert_eq!(stats.new_err, 0);
+        assert_eq!(stats.fallback_ok, 0);
+        assert_eq!(stats.fallback_err, 0);
+    }
+
+    #[cfg(feature = "debug_parse")]
+    #[test]
+    fn test_expression_parse_stats_fallback_err_increments_on_invalid_payload() {
+        expr_fallback_stats::reset_for_test();
+
+        // hash(4) + payload(20 zeros) => 非字符串、非 PTCD，payload 解码会失败，触发回退；
+        // 回退解析同样会失败（缺少完整结构），因此 fallback_err++。
+        let bytes = vec![0u8; 4 + 20];
+        let _ = parse_expression_attr(&bytes, 0);
+
+        let stats = expression_parse_stats();
+        assert_eq!(stats.new_ok, 0);
+        assert_eq!(stats.new_err, 1);
+        assert_eq!(stats.fallback_ok, 0);
+        assert_eq!(stats.fallback_err, 1);
     }
 
     #[test]
