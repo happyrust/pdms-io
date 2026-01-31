@@ -181,6 +181,28 @@ mod tests {
     use super::*;
 
     #[test]
+    fn parse_dblist_ignores_stray_end() {
+        let txt = r#"
+-- comment
+INPUT BEGIN
+NEW BRANCH /TEST
+FOO BAR
+END
+END
+INPUT END
+"#;
+
+        let doc = parse_dblist_text(txt, "x.txt");
+        assert!(doc.warnings.is_empty(), "warnings={:?}", doc.warnings);
+        assert_eq!(doc.elements.len(), 1);
+        assert_eq!(doc.elements[0].kind, "BRANCH");
+        assert_eq!(doc.elements[0].name.as_deref(), Some("/TEST"));
+        assert_eq!(doc.elements[0].attrs.len(), 1);
+        assert_eq!(doc.elements[0].attrs[0].key, "FOO");
+        assert_eq!(doc.elements[0].attrs[0].value, "BAR");
+    }
+
+    #[test]
     fn normalize_keeps_quoted_spaces() {
         let value = "'Rectangular Control Damper'";
         assert_eq!(normalize_value(value), "'Rectangular Control Damper'");
