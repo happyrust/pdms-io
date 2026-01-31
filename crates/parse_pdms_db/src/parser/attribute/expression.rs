@@ -377,47 +377,37 @@ pub fn parse_expression_attr(input: &[u8], refno: u64) -> IResult<&[u8], (String
 ///
 /// 支持的类型：
 /// - 字符串类型 (flag == 0x66)
-/// - PTCDI/PTCD 类型
 /// - 通用表达式类型
 pub fn parse_other_expression(
     input: &[u8],
     expression_type: String,
     refno: u64,
 ) -> IResult<&[u8], (String, String)> {
-    // 检查最小长度
-    if input.len() < 20 {
-        return Ok((input, (expression_type, String::new())));
-    }
-
-    // 检查是否为字符串类型 (flag at offset 16 == 0x66)
-    let (_, flag) = be_i32(&input[16..20])?;
-    if flag == 0x66 {
-        return parse_string_expression(input, expression_type);
-    }
-
-    // PTCDI/PTCD 类型处理
-    if expression_type == "PTCDI" || expression_type == "PTCD" {
-        return parse_ptcd_expression(input, expression_type, refno);
-    }
-
-    // 通用表达式处理：基于 payload→postfix→pretty 的复刻实现
-    match decode_expression_payload(input) {
-        Ok((consumed, value)) if !value.trim().is_empty() => {
-            let trimmed = value.trim();
-            let numeric_only = trimmed.parse::<f64>().is_ok();
-            if numeric_only && input.len() > 32 {
-                return Err(nom::Err::Error(nom::error::make_error(
-                    input,
-                    nom::error::ErrorKind::Verify,
-                )));
-            }
-            Ok((&input[consumed..], (expression_type, value)))
+    // 字符串类型：按结构判断（避免依赖 expression_type 等“特殊情况”）
+    if input.len() >= 20 {
+        let flag = i32::from_be_bytes(input[16..20].try_into().unwrap_or([0; 4]));
+        if flag == 0x66 {
+            return parse_string_expression(input, expression_type);
         }
-        _ => Err(nom::Err::Error(nom::error::make_error(
-            input,
-            nom::error::ErrorKind::Verify,
-        ))),
     }
+
+    // 通用表达式：payload → postfix → pretty
+    if let Ok((consumed, value)) = decode_expression_payload(input) {
+        if !value.trim().is_empty() {
+            return Ok((&input[consumed..], (expression_type, value)));
+        }
+    }
+
+    // 轴向/坐标类显式表达式：尝试按“显式轴向字符串”通用规则解析
+    if let Ok(result) = parse_explicit_axis_string_expression(input, expression_type.clone(), refno)
+    {
+        return Ok(result);
+    }
+
+    Err(nom::Err::Error(nom::error::make_error(
+        input,
+        nom::error::ErrorKind::Verify,
+    )))
 }
 
 /// 解析字符串表达式
@@ -452,13 +442,15 @@ fn parse_string_expression(
     Ok((&input[24 + str_len * 4..], (expression_type, result)))
 }
 
-/// 解析 PTCD/PTCDI 表达式
-fn parse_ptcd_expression(
+/// 尝试将表达式解析为“显式轴向字符串”（如 PTCD/PTCDI 这类）。
+///
+/// 该结构在数据库中并不总是与 postfix payload 兼容，故作为通用回退路径之一。
+fn parse_explicit_axis_string_expression(
     input: &[u8],
     expression_type: String,
     refno: u64,
 ) -> IResult<&[u8], (String, String)> {
-    // 复刻旧实现的长度与切片规则（PTCD/PTCDI 的 payload 结构与通用表达式不同）
+    // 该类结构的长度字段为 u16，且 length 后有 4 bytes “无用区”，数据从 offset 4 开始。
     if input.len() < 4 {
         return Err(nom::Err::Incomplete(nom::Needed::Unknown));
     }
@@ -474,13 +466,19 @@ fn parse_ptcd_expression(
         return Err(nom::Err::Incomplete(nom::Needed::Unknown));
     }
 
-    // 显式属性的 length 后有 4 bytes “无用区”，旧实现从 offset 4 开始取数据。
     let expression_data = &input[4..end];
     let (_rest, axis) = convert_to_explicit_axis_string(expression_data, RefU64(refno))?;
     let axis_result = match axis {
         aios_core::AttrVal::StringType(value) => value,
         _ => String::new(),
     };
+
+    if axis_result.trim().is_empty() {
+        return Err(nom::Err::Error(nom::error::make_error(
+            input,
+            nom::error::ErrorKind::Verify,
+        )));
+    }
 
     Ok((&input[end..], (expression_type, axis_result)))
 }
@@ -529,10 +527,10 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_ptcd_expression_incomplete_length_should_error() {
-        // 伪造 PTCD/PTCDI: expression_length=10 => end=44，但 input 只有 8 bytes
+    fn test_parse_explicit_axis_string_expression_incomplete_length_should_error() {
+        // 伪造 axis-string 表达式: expression_length=10 => end=44，但 input 只有 8 bytes
         let input = [0u8, 0u8, 0x00, 0x0A, 0u8, 0u8, 0u8, 0u8];
-        let err = parse_ptcd_expression(&input, "PTCD".to_string(), 0).unwrap_err();
+        let err = parse_explicit_axis_string_expression(&input, "PTCD".to_string(), 0).unwrap_err();
         assert!(matches!(err, nom::Err::Incomplete(_)));
     }
 
