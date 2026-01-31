@@ -1544,7 +1544,7 @@ pub fn parse_implicit_attr_value<'a>(
                                 dbg!(step);
                                 dbg!(data_len);
                                 dbg!(f32_flag);
-                                dbg!(cnt);
+                                dbg!(_cnt);
                                 dbg!(attr_info);
                                 println!("parse vec3 有问题的数据：{:#04X?}", origin_bytes);
                             }
@@ -1559,7 +1559,7 @@ pub fn parse_implicit_attr_value<'a>(
                                 dbg!(step);
                                 dbg!(data_len);
                                 dbg!(f32_flag);
-                                dbg!(cnt);
+                                dbg!(_cnt);
                                 dbg!(attr_info);
                             }
                         }
