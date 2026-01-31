@@ -580,7 +580,8 @@ impl TryFrom<i32> for ComparisonOpcode {
         match value {
             401 | 0x191 => Ok(ComparisonOpcode::Eq),
             501 | 0x1F5 => Ok(ComparisonOpcode::Neq),
-            601 | 0x259 => Ok(ComparisonOpcode::Gt),
+            // 0x25A(602) 在部分 DB 中也可见，语义等同 GT。
+            601 | 0x259 | 602 | 0x25A => Ok(ComparisonOpcode::Gt),
             603 | 0x25B => Ok(ComparisonOpcode::Lt),
             605 | 0x25D => Ok(ComparisonOpcode::Ge),
             607 | 0x25F => Ok(ComparisonOpcode::Le),
@@ -807,6 +808,8 @@ mod tests {
         // 测试所有比较运算符
         assert!(ComparisonOpcode::try_from(501).is_ok()); // NEQ
         assert!(ComparisonOpcode::try_from(601).is_ok()); // GT
+        assert!(ComparisonOpcode::try_from(602).is_ok()); // GT (alt)
+        assert!(ComparisonOpcode::try_from(0x25A).is_ok()); // GT (alt, hex)
         assert!(ComparisonOpcode::try_from(603).is_ok()); // LT
         assert!(ComparisonOpcode::try_from(605).is_ok()); // GE
         assert!(ComparisonOpcode::try_from(607).is_ok()); // LE
