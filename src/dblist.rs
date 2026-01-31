@@ -77,7 +77,8 @@ pub fn parse_dblist_text(text: &str, source: &str) -> DblistDocument {
                     if let Some(elem) = current.take() {
                         elements.push(elem);
                     } else {
-                        warnings.push(format!("第 {} 行: END 无对应 NEW", idx + 1));
+                        // 真实 DBLIST 文件中可能出现连续的 END（如段落收尾 / 容错输出），
+                        // 这类 END 不影响元素解析，直接忽略以避免误报。
                     }
                     continuation = false;
                     continue;

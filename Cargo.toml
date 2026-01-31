@@ -2,6 +2,7 @@
 name = "pdms_io"
 version = "0.1.0"
 edition = "2024"
+autobins = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -72,19 +73,72 @@ opt-level = 3
 
 # Binary targets that require meilisearch feature
 [[bin]]
+name = "pdms_io"
+path = "src/main.rs"
+test = false
+
+[[bin]]
+name = "benchmark_increment_eles"
+path = "src/bin/benchmark_increment_eles.rs"
+test = false
+
+[[bin]]
+name = "demo_latest_data_save"
+path = "src/bin/demo_latest_data_save.rs"
+test = false
+
+[[bin]]
+name = "test_all_fixes"
+path = "src/bin/test_all_fixes.rs"
+test = false
+
+[[bin]]
+name = "test_get_refno_status"
+path = "src/bin/test_get_refno_status.rs"
+test = false
+
+[[bin]]
+name = "test_header_fix"
+path = "src/bin/test_header_fix.rs"
+test = false
+
+[[bin]]
+name = "test_increment_eles"
+path = "src/bin/test_increment_eles.rs"
+test = false
+
+[[bin]]
+name = "test_index_map"
+path = "src/bin/test_index_map.rs"
+test = false
+
+[[bin]]
 name = "test_meilisearch"
 path = "src/bin/test_meilisearch.rs"
 required-features = ["meilisearch"]
+test = false
 
 [[bin]]
 name = "test_meilisearch_simple"
 path = "src/bin/test_meilisearch_simple.rs"
 required-features = ["meilisearch"]
+test = false
 
 [[bin]]
 name = "test_search_integration"
 path = "src/bin/test_search_integration.rs"
 required-features = ["meilisearch"]
+test = false
+
+[[bin]]
+name = "test_page_types"
+path = "src/bin/test_page_types.rs"
+test = false
+
+[[bin]]
+name = "test_sesno_timestamp"
+path = "src/bin/test_sesno_timestamp.rs"
+test = false
 
 # [patch."https://gitee.com/happydpc/surrealdb.git"]
 # surrealdb = { path = "../surrealdb/crates/sdk" }
