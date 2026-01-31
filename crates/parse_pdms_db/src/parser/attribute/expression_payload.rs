@@ -380,6 +380,8 @@ fn apply_operator(opcode: i32, stack: &mut Vec<ExprNode>) -> Result<Option<ExprN
         401 => make_binary(stack, "EQ", PREC_COMPARE, false)?,
         501 => make_binary(stack, "NEQ", PREC_COMPARE, false)?,
         601 => make_binary(stack, "GT", PREC_COMPARE, false)?,
+        // 0x25A(602) 在部分 DB 中也可见，语义等同 GT。
+        602 => make_binary(stack, "GT", PREC_COMPARE, false)?,
         603 => make_binary(stack, "LT", PREC_COMPARE, false)?,
         605 => make_binary(stack, "GE", PREC_COMPARE, false)?,
         607 => make_binary(stack, "LE", PREC_COMPARE, false)?,
@@ -578,7 +580,7 @@ fn is_operator_opcode(value: i32) -> bool {
     matches!(
         value,
         301 | 302 | 303
-            | 401 | 501 | 601 | 603 | 605 | 607
+            | 401 | 501 | 601 | 602 | 603 | 605 | 607
             | 801 | 802 | 803 | 804 | 805
             | 901..=907
             | 1001..=1012
@@ -592,6 +594,10 @@ fn is_operator_opcode(value: i32) -> bool {
 #[cfg(test)]
 mod tests {
     use super::decode_expression_payload;
+
+    fn be_i32(v: i32) -> [u8; 4] {
+        v.to_be_bytes()
+    }
 
     #[test]
     fn test_decode_expression_payload_attr_index_1() {
@@ -621,5 +627,22 @@ mod tests {
         let (consumed, value) = decode_expression_payload(&input).unwrap();
         assert_eq!("ATTRIB DESP[2 ]", value);
         assert_eq!(consumed, input.len());
+    }
+
+    #[test]
+    fn test_decode_expression_payload_gt_alt_opcode_602() {
+        // len=8, words=[dummy, 1, 2, GT(602)] in postfix form:
+        // 1 -> 0x65, 2, 1
+        // 2 -> 0x65, 2, 2
+        let words: [i32; 8] = [0, 0x65, 2, 1, 0x65, 2, 2, 602];
+        let mut input = Vec::with_capacity((words.len() + 1) * 4);
+        input.extend_from_slice(&be_i32(words.len() as i32));
+        for w in words {
+            input.extend_from_slice(&be_i32(w));
+        }
+
+        let (consumed, value) = decode_expression_payload(&input).unwrap();
+        assert_eq!(consumed, input.len());
+        assert_eq!(value, "1 GT 2");
     }
 }
