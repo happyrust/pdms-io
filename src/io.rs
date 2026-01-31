@@ -151,6 +151,28 @@ impl Default for ElementHashOptions {
     }
 }
 
+/// 用于统计某个 RefNo “相邻历史版本”之间哪些键最常变化。
+#[derive(Debug, Default, Clone)]
+pub struct RefnoAdjacentChangeStats {
+    /// key -> changed_count（key 带前缀，区分来源：meta/att/exp/uda）
+    pub counts: BTreeMap<String, u64>,
+    pub parsed_pairs: usize,
+    pub skipped_pairs: usize,
+}
+
+impl RefnoAdjacentChangeStats {
+    pub fn top_n(&self, n: usize) -> Vec<(String, u64)> {
+        let mut v: Vec<(String, u64)> = self
+            .counts
+            .iter()
+            .map(|(k, &c)| (k.clone(), c))
+            .collect();
+        v.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+        v.truncate(n);
+        v
+    }
+}
+
 impl PdmsIO {
     // ... (其他代码保持不变)
 
@@ -3517,6 +3539,75 @@ impl PdmsIO {
         }
     }
 
+    fn count_named_attr_map_changes(
+        prefix: &str,
+        a: &NamedAttrMap,
+        b: &NamedAttrMap,
+        counts: &mut BTreeMap<String, u64>,
+    ) {
+        use std::collections::BTreeSet;
+
+        let mut keys: BTreeSet<&String> = BTreeSet::new();
+        keys.extend(a.map.keys());
+        keys.extend(b.map.keys());
+
+        for k in keys {
+            if a.map.get(k) != b.map.get(k) {
+                *counts.entry(format!("{prefix}{k}")).or_insert(0) += 1;
+            }
+        }
+    }
+
+    fn count_ele_adjacent_changes(a: &EleData, b: &EleData, counts: &mut BTreeMap<String, u64>) {
+        if a.noun != b.noun {
+            *counts.entry("meta:noun".to_string()).or_insert(0) += 1;
+        }
+        if a.owner != b.owner {
+            *counts.entry("meta:owner".to_string()).or_insert(0) += 1;
+        }
+        if a.name != b.name {
+            *counts.entry("meta:name".to_string()).or_insert(0) += 1;
+        }
+        if a.children.0 != b.children.0 {
+            *counts.entry("meta:children".to_string()).or_insert(0) += 1;
+        }
+
+        Self::count_named_attr_map_changes("att:", a.att_map(), b.att_map(), counts);
+        Self::count_named_attr_map_changes(
+            "exp:",
+            a.explicit_attmap(),
+            b.explicit_attmap(),
+            counts,
+        );
+
+        // UDA（按 hash_val + name 归并；值变化/新增/删除均记一次）。
+        let uda_a = a.uda_atts();
+        let uda_b = b.uda_atts();
+        if !uda_a.is_empty() || !uda_b.is_empty() {
+            let mut map_a: BTreeMap<String, &NamedAttrValue> = BTreeMap::new();
+            let mut map_b: BTreeMap<String, &NamedAttrValue> = BTreeMap::new();
+
+            for uda in uda_a {
+                map_a.insert(format!("{}:{}", uda.hash_val, uda.name), &uda.value);
+            }
+            for uda in uda_b {
+                map_b.insert(format!("{}:{}", uda.hash_val, uda.name), &uda.value);
+            }
+
+            let mut keys: std::collections::BTreeSet<&String> = std::collections::BTreeSet::new();
+            keys.extend(map_a.keys());
+            keys.extend(map_b.keys());
+
+            for k in keys {
+                let a_v = map_a.get(k);
+                let b_v = map_b.get(k);
+                if a_v != b_v {
+                    *counts.entry(format!("uda:{k}")).or_insert(0) += 1;
+                }
+            }
+        }
+    }
+
     /// 构建索引映射并过滤“内容一致”的冗余历史版本（可选的重型操作）。
     pub async fn build_index_map_and_filter_consistent(
         &mut self,
@@ -3536,6 +3627,59 @@ impl PdmsIO {
         self.filter_consistent_data_with_options(&mut index_map, &opts)
             .await?;
         Ok(index_map)
+    }
+
+    /// 统计某个 RefNo 的“相邻历史版本”中，哪些键最常变化。
+    ///
+    /// 说明：
+    /// - 该函数会解析该 RefNo 的多个历史版本（调用 `parse_element`），用于“挑选 ignore_keys 白名单”。
+    /// - `max_versions` 为 Some 时，仅统计最近 N 个版本（从旧到新取最后 N 个）。
+    pub async fn analyze_refno_adjacent_changes(
+        &mut self,
+        refno: RefU64,
+        index_map: &IndexMap,
+        max_versions: Option<usize>,
+    ) -> anyhow::Result<RefnoAdjacentChangeStats> {
+        let offsets = index_map
+            .get(&refno)
+            .ok_or_else(|| anyhow!("索引映射表中找不到参考号 {:?}", refno))?;
+
+        if offsets.len() <= 1 {
+            return Ok(RefnoAdjacentChangeStats::default());
+        }
+
+        let start = if let Some(n) = max_versions {
+            offsets.len().saturating_sub(n.max(2))
+        } else {
+            0
+        };
+        let window = &offsets[start..];
+
+        let mut stats = RefnoAdjacentChangeStats::default();
+
+        for pair in window.windows(2) {
+            let a_off = pair[0];
+            let b_off = pair[1];
+            let a = match self.parse_element(a_off).await {
+                Ok(v) => v,
+                Err(_) => {
+                    stats.skipped_pairs += 1;
+                    continue;
+                }
+            };
+            let b = match self.parse_element(b_off).await {
+                Ok(v) => v,
+                Err(_) => {
+                    stats.skipped_pairs += 1;
+                    continue;
+                }
+            };
+
+            stats.parsed_pairs += 1;
+            Self::count_ele_adjacent_changes(&a, &b, &mut stats.counts);
+        }
+
+        Ok(stats)
     }
 
     /// 使用构建好的索引映射表快速查找refno对应的所有数据位置
@@ -4800,6 +4944,57 @@ mod io_element_hash_tests {
             PdmsIO::calculate_element_hash_with_options(&a, &opts),
             PdmsIO::calculate_element_hash_with_options(&b, &opts)
         );
+    }
+
+    #[test]
+    fn adjacent_change_counter_counts_map_and_meta() {
+        let mut a = EleData::default();
+        a.noun = 1;
+        a.owner = RefU64::from_two_nums(1, 1);
+        a.name = "A".to_string();
+        a.children.push(RefU64::from_two_nums(10, 10));
+        a.att_map_mut()
+            .insert("PGNO".to_string(), NamedAttrValue::IntegerType(1));
+        a.att_map_mut()
+            .insert("FOO".to_string(), NamedAttrValue::IntegerType(1));
+        a.explicit_attmap_mut()
+            .insert("E1".to_string(), NamedAttrValue::StringType("x".to_string()));
+        a.uda_atts_mut().push(aios_core::types::whole_attmap::ExplicitAttr {
+            name: "U".to_string(),
+            value: NamedAttrValue::IntegerType(1),
+            is_uda: true,
+            hash_val: 123,
+        });
+
+        let mut b = a.clone();
+        b.name = "B".to_string();
+        b.children.push(RefU64::from_two_nums(10, 11));
+        b.att_map_mut()
+            .insert("PGNO".to_string(), NamedAttrValue::IntegerType(2));
+        b.att_map_mut()
+            .insert("FOO".to_string(), NamedAttrValue::IntegerType(2));
+        b.explicit_attmap_mut()
+            .insert("E1".to_string(), NamedAttrValue::StringType("y".to_string()));
+        b.uda_atts_mut().clear();
+        b.uda_atts_mut().push(aios_core::types::whole_attmap::ExplicitAttr {
+            name: "U".to_string(),
+            value: NamedAttrValue::IntegerType(2),
+            is_uda: true,
+            hash_val: 123,
+        });
+
+        let mut counts = BTreeMap::new();
+        PdmsIO::count_ele_adjacent_changes(&a, &b, &mut counts);
+
+        assert_eq!(counts.get("meta:name").copied().unwrap_or_default(), 1);
+        assert_eq!(
+            counts.get("meta:children").copied().unwrap_or_default(),
+            1
+        );
+        assert_eq!(counts.get("att:PGNO").copied().unwrap_or_default(), 1);
+        assert_eq!(counts.get("att:FOO").copied().unwrap_or_default(), 1);
+        assert_eq!(counts.get("exp:E1").copied().unwrap_or_default(), 1);
+        assert_eq!(counts.get("uda:123:U").copied().unwrap_or_default(), 1);
     }
 }
 
