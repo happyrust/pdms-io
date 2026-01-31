@@ -117,19 +117,30 @@ pub struct ConfigInfo {
 mod tests {
     use super::*;
     use std::env;
+    use std::sync::Mutex;
+
+    // 测试默认并行运行会共享进程级环境变量；用锁避免相互干扰。
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
     
     #[test]
     fn test_get_test_base_path_default() {
+        let _guard = ENV_LOCK.lock().unwrap();
         // 临时移除环境变量
-        let original = env::var(PDMS_TEST_PATH_ENV).ok();
+        let original_project = env::var(PDMS_PROJECT_PATH_ENV).ok();
+        let original_test = env::var(PDMS_TEST_PATH_ENV).ok();
         // SAFETY: 测试中单线程修改环境变量
+        unsafe { env::remove_var(PDMS_PROJECT_PATH_ENV) };
         unsafe { env::remove_var(PDMS_TEST_PATH_ENV) };
         
         let path = Config::get_test_base_path();
         assert_eq!(path, DEFAULT_TEST_PATH);
         
         // 恢复原始环境变量
-        if let Some(original_value) = original {
+        if let Some(original_value) = original_project {
+            // SAFETY: 测试中单线程修改环境变量
+            unsafe { env::set_var(PDMS_PROJECT_PATH_ENV, original_value) };
+        }
+        if let Some(original_value) = original_test {
             // SAFETY: 测试中单线程修改环境变量
             unsafe { env::set_var(PDMS_TEST_PATH_ENV, original_value) };
         }
@@ -137,8 +148,12 @@ mod tests {
     
     #[test]
     fn test_get_test_base_path_from_env() {
+        let _guard = ENV_LOCK.lock().unwrap();
         let test_path = "/tmp/test_path";
+        let original_project = env::var(PDMS_PROJECT_PATH_ENV).ok();
+        let original_test = env::var(PDMS_TEST_PATH_ENV).ok();
         // SAFETY: 测试中单线程修改环境变量
+        unsafe { env::remove_var(PDMS_PROJECT_PATH_ENV) };
         unsafe { env::set_var(PDMS_TEST_PATH_ENV, test_path) };
         
         let path = Config::get_test_base_path();
@@ -147,6 +162,14 @@ mod tests {
         // 清理
         // SAFETY: 测试中单线程修改环境变量
         unsafe { env::remove_var(PDMS_TEST_PATH_ENV) };
+        if let Some(original_value) = original_project {
+            // SAFETY: 测试中单线程修改环境变量
+            unsafe { env::set_var(PDMS_PROJECT_PATH_ENV, original_value) };
+        }
+        if let Some(original_value) = original_test {
+            // SAFETY: 测试中单线程修改环境变量
+            unsafe { env::set_var(PDMS_TEST_PATH_ENV, original_value) };
+        }
     }
     
     #[test]

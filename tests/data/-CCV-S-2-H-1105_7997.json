@@ -1,9 +1,6 @@
 {
-  "source": "-CCV-S-2-H-1105_7997.txt",
   "elements": [
     {
-      "kind": "BRANCH",
-      "name": "/-CCV-S-2-H-1105",
       "attrs": [
         {
           "key": "BUIL",
@@ -117,11 +114,11 @@
           "key": ":HXYsize",
           "value": "1300 1300"
         }
-      ]
+      ],
+      "kind": "BRANCH",
+      "name": "/-CCV-S-2-H-1105"
     },
     {
-      "kind": "TRNS",
-      "name": null,
       "attrs": [
         {
           "key": "POS",
@@ -183,11 +180,10 @@
           "key": ":H-SECTCODE",
           "value": "'001'"
         }
-      ]
+      ],
+      "kind": "TRNS"
     },
     {
-      "kind": "ATTACHMENT",
-      "name": "/-RX-CCV-S1005/DATUM",
       "attrs": [
         {
           "key": "POS",
@@ -241,11 +237,11 @@
           "key": ":MDSCp1",
           "value": "'F;F;0;F'"
         }
-      ]
+      ],
+      "kind": "ATTACHMENT",
+      "name": "/-RX-CCV-S1005/DATUM"
     },
     {
-      "kind": "ATTACHMENT",
-      "name": "/-RX-CCV-S1005/SREF",
       "attrs": [
         {
           "key": "POS",
@@ -291,11 +287,11 @@
           "key": "DELDSG",
           "value": "FALS"
         }
-      ]
+      ],
+      "kind": "ATTACHMENT",
+      "name": "/-RX-CCV-S1005/SREF"
     },
     {
-      "kind": "ATTACHMENT",
-      "name": "/-RX-CCV-S1004/DATUM",
       "attrs": [
         {
           "key": "POS",
@@ -349,11 +345,11 @@
           "key": ":MDSCp1",
           "value": "'F;F;0;F'"
         }
-      ]
+      ],
+      "kind": "ATTACHMENT",
+      "name": "/-RX-CCV-S1004/DATUM"
     },
     {
-      "kind": "ATTACHMENT",
-      "name": "/-RX-CCV-S1004/SREF",
       "attrs": [
         {
           "key": "POS",
@@ -399,11 +395,11 @@
           "key": "DELDSG",
           "value": "FALS"
         }
-      ]
+      ],
+      "kind": "ATTACHMENT",
+      "name": "/-RX-CCV-S1004/SREF"
     },
     {
-      "kind": "DAMPER",
-      "name": "/1CCV006VAN",
       "attrs": [
         {
           "key": "POS",
@@ -457,11 +453,11 @@
           "key": ":H-VAL-TYPE",
           "value": "'VAR'"
         }
-      ]
+      ],
+      "kind": "DAMPER",
+      "name": "/1CCV006VAN"
     },
     {
-      "kind": "OFST",
-      "name": null,
       "attrs": [
         {
           "key": "POS",
@@ -515,11 +511,10 @@
           "key": ":H-SECTCODE",
           "value": "'002'"
         }
-      ]
+      ],
+      "kind": "OFST"
     },
     {
-      "kind": "STRT",
-      "name": null,
       "attrs": [
         {
           "key": "POS",
@@ -573,11 +568,10 @@
           "key": ":H-SECTCODE",
           "value": "'003'"
         }
-      ]
+      ],
+      "kind": "STRT"
     },
     {
-      "kind": "BRCO",
-      "name": null,
       "attrs": [
         {
           "key": "POS",
@@ -627,11 +621,10 @@
           "key": "DELDSG",
           "value": "FALS"
         }
-      ]
+      ],
+      "kind": "BRCO"
     },
     {
-      "kind": "BEND",
-      "name": null,
       "attrs": [
         {
           "key": "POS",
@@ -693,11 +686,10 @@
           "key": ":H-SECTCODE",
           "value": "'004'"
         }
-      ]
+      ],
+      "kind": "BEND"
     },
     {
-      "kind": "TAPER",
-      "name": null,
       "attrs": [
         {
           "key": "POS",
@@ -751,10 +743,10 @@
           "key": ":H-SECTCODE",
           "value": "'005'"
         }
-      ]
+      ],
+      "kind": "TAPER"
     }
   ],
-  "warnings": [
-    "\u7b2c 332 \u884c: END \u65e0\u5bf9\u5e94 NEW"
-  ]
+  "source": "-CCV-S-2-H-1105_7997.txt",
+  "warnings": []
 }

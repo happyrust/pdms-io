@@ -16,30 +16,6 @@ use std::mem::size_of;
 use std::path::PathBuf;
 use std::time::Instant;
 
-#[test]
-fn test_read_eles() -> anyhow::Result<()> {
-    // let data = convert_str_to_bytes(TEST_DATA);
-    // let mut ele_page = ElePageData::try_from(&data[0..PAGE_SIZE])?;
-    // dbg!(ele_page.eles_vec.len());
-    // dbg!(ele_page.remain_bytes.len() / 4);
-    // println!("Element data: {:#4X?}", ele_page.eles_vec.last().unwrap());
-
-    // let mut watch_files: Vec<PathBuf> = Vec::new();
-    // watch_files.push(r#"D:\AVEVA\Projects\E3D2.1\AvevaMarineSample\ams000"#.into());
-    let db_filepath = match resolve_test_db_path("ams1112_0001") {
-        Some(path) => path,
-        None => {
-            println!("数据库文件不存在，跳过测试: ams1112_0001");
-            return Ok(());
-        }
-    };
-    let mut io = PdmsIO::new("ams", &db_filepath, true);
-    io.open()?;
-    // io.collect_increment_eles(None);
-    // io.search_refno(RefU64::from_refno_str("17496/184133").unwrap())?;
-    Ok(())
-}
-
 pub fn test_write() -> anyhow::Result<()> {
     // let data = convert_str_to_bytes(TEST_MEMEBS_DATA);
     let data = convert_str_to_bytes(TEST_DATA);

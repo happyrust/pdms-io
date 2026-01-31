@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
 use pdms_io::dblist::parse_dblist_file;
 use pdms_io::io::{EleOperationDetail, PdmsIO};
 use std::collections::HashMap;
@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
             }
             "--sessions" => {
                 let val = next_arg(&mut args, "--sessions 需要数值")?;
-                sessions = Some(val.parse::<u32>().map_err(|_| "sessions 必须为数字")?);
+                sessions = Some(val.parse::<u32>().map_err(|_| anyhow!("sessions 必须为数字"))?);
             }
             "--strict" => strict = true,
             _ => {
@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
 
     let snapshot_path = snapshot_path.unwrap_or_else(|| default_snapshot_path(&dblist_path));
 
-    let doc = parse_dblist_file(&dblist_path)?;
+    let doc = parse_dblist_file(&dblist_path).map_err(anyhow::Error::msg)?;
     if !doc.warnings.is_empty() {
         eprintln!("解析警告: {:?}", doc.warnings);
     }
@@ -101,7 +101,7 @@ async fn main() -> Result<()> {
 }
 
 fn next_arg<I: Iterator<Item = String>>(args: &mut I, err: &str) -> Result<String> {
-    args.next().ok_or_else(|| err.into())
+    args.next().ok_or_else(|| anyhow!("{}", err))
 }
 
 fn default_snapshot_path(dblist_path: &str) -> String {
