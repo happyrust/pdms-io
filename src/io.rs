@@ -3303,39 +3303,200 @@ impl PdmsIO {
     /// * `anyhow::Result<()>` - 成功或错误
     async fn filter_consistent_data(
         &mut self,
-        _refno_map: &mut IndexMap,
+        refno_map: &mut IndexMap,
     ) -> anyhow::Result<()> {
-        // TODO: 该函数依赖 calculate_element_hash 的正确实现。
-        // 当前 calculate_element_hash 返回常量，启用会导致错误去重与额外解析开销，先禁用为 no-op。
+        // 注意：该函数会触发大量 parse_element 调用，默认不在 build_index_map_* 中启用。
+        // 需要时请走 build_index_map_and_filter_consistent 或手动调用。
+        let items: Vec<(RefU64, Vec<u64>)> = refno_map
+            .iter()
+            .map(|(refno, offsets)| (*refno, offsets.clone()))
+            .collect();
+
+        let mut removed = 0usize;
+        for (refno, offsets) in items {
+            if offsets.len() <= 1 {
+                continue;
+            }
+
+            let mut kept: Vec<u64> = Vec::with_capacity(offsets.len());
+            let mut last_hash: Option<u64> = None;
+
+            for offset in offsets {
+                match self.parse_element(offset).await {
+                    Ok(ele) => {
+                        let hash = Self::calculate_element_hash(&ele);
+                        if last_hash == Some(hash) {
+                            removed += 1;
+                            continue;
+                        }
+                        last_hash = Some(hash);
+                        kept.push(offset);
+                    }
+                    Err(_) => {
+                        // 无法解析时，保守起见保留该版本，并重置 last_hash 防止误删后续版本。
+                        last_hash = None;
+                        kept.push(offset);
+                    }
+                }
+            }
+
+            // 极端情况下全部解析失败也会保留原 offsets；这里兜底保证不产生空历史。
+            if kept.is_empty() {
+                continue;
+            }
+
+            refno_map.insert(refno, kept);
+        }
+
+        if self.detail {
+            println!("filter_consistent_data: removed {} redundant versions", removed);
+        }
+
         Ok(())
     }
 
     /// 计算元素数据的哈希值用于比较
     fn calculate_element_hash(ele_data: &EleData) -> u64 {
-        use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
 
-        return 0;
-        // let mut hasher = DefaultHasher::new();
+        // 仅用于“内容一致性去重”。为提升命中率，需要忽略明显会随会话/物理位置变化的字段。
+        const VOLATILE_KEYS: [&str; 2] = ["PGNO", "SESNO"];
 
-        // // 哈希基本属性
-        // ele_data.name.hash(&mut hasher);
-        // ele_data.refno.hash(&mut hasher);
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
 
-        // // 哈希子元素列表
-        // ele_data.children.hash(&mut hasher);
+        // 基本字段
+        ele_data.noun.hash(&mut hasher);
+        ele_data.owner.hash(&mut hasher);
+        ele_data.name.hash(&mut hasher);
 
-        // // 哈希属性映射
-        // let att_map = ele_data.att_map();
-        // let att_type = att_map.get_type();
-        // att_type.hash(&mut hasher);
+        // 子元素列表
+        ele_data.children.hash(&mut hasher);
 
-        // // 哈希状态
-        // let status = att_map.get_status();
-        // status.hash(&mut hasher);
+        // 隐式/系统属性（稳定顺序：BTreeMap）
+        for (k, v) in ele_data.att_map().map.iter() {
+            if VOLATILE_KEYS.contains(&k.as_str()) {
+                continue;
+            }
+            k.hash(&mut hasher);
+            Self::hash_named_attr_value(&mut hasher, v);
+        }
 
-        // // 获取哈希值
-        // hasher.finish()
+        // 显式属性
+        for (k, v) in ele_data.explicit_attmap().map.iter() {
+            if VOLATILE_KEYS.contains(&k.as_str()) {
+                continue;
+            }
+            k.hash(&mut hasher);
+            Self::hash_named_attr_value(&mut hasher, v);
+        }
+
+        // UDA（显式块里的一类）
+        for uda in ele_data.uda_atts() {
+            uda.name.hash(&mut hasher);
+            uda.is_uda.hash(&mut hasher);
+            uda.hash_val.hash(&mut hasher);
+            Self::hash_named_attr_value(&mut hasher, &uda.value);
+        }
+
+        hasher.finish()
+    }
+
+    fn hash_named_attr_value(hasher: &mut impl std::hash::Hasher, v: &NamedAttrValue) {
+        use aios_core::pdms_types::RefnoEnum;
+        use std::hash::Hash;
+
+        // 写入变体 tag，避免不同变体但 payload 可能相同导致碰撞。
+        match v {
+            NamedAttrValue::InvalidType => {
+                0u8.hash(hasher);
+            }
+            NamedAttrValue::IntegerType(x) => {
+                1u8.hash(hasher);
+                x.hash(hasher);
+            }
+            NamedAttrValue::StringType(s) => {
+                2u8.hash(hasher);
+                s.hash(hasher);
+            }
+            NamedAttrValue::F32Type(x) => {
+                3u8.hash(hasher);
+                x.to_bits().hash(hasher);
+            }
+            NamedAttrValue::F32VecType(xs) => {
+                4u8.hash(hasher);
+                xs.len().hash(hasher);
+                for x in xs {
+                    x.to_bits().hash(hasher);
+                }
+            }
+            NamedAttrValue::Vec3Type(v3) => {
+                5u8.hash(hasher);
+                let arr = v3.to_array();
+                arr[0].to_bits().hash(hasher);
+                arr[1].to_bits().hash(hasher);
+                arr[2].to_bits().hash(hasher);
+            }
+            NamedAttrValue::StringArrayType(xs) => {
+                6u8.hash(hasher);
+                xs.hash(hasher);
+            }
+            NamedAttrValue::BoolArrayType(xs) => {
+                7u8.hash(hasher);
+                xs.hash(hasher);
+            }
+            NamedAttrValue::IntArrayType(xs) => {
+                8u8.hash(hasher);
+                xs.hash(hasher);
+            }
+            NamedAttrValue::BoolType(x) => {
+                9u8.hash(hasher);
+                x.hash(hasher);
+            }
+            NamedAttrValue::ElementType(s) => {
+                10u8.hash(hasher);
+                s.hash(hasher);
+            }
+            NamedAttrValue::WordType(s) => {
+                11u8.hash(hasher);
+                s.hash(hasher);
+            }
+            NamedAttrValue::RefU64Type(r) => {
+                12u8.hash(hasher);
+                r.hash(hasher);
+            }
+            NamedAttrValue::RefU64Array(rs) => {
+                13u8.hash(hasher);
+                rs.hash(hasher);
+            }
+            NamedAttrValue::LongType(x) => {
+                14u8.hash(hasher);
+                x.hash(hasher);
+            }
+            NamedAttrValue::RefnoEnumType(r) => {
+                15u8.hash(hasher);
+                // 显式写入 enum tag，避免 serde(untagged) 的潜在歧义。
+                match r {
+                    RefnoEnum::Refno(rr) => {
+                        0u8.hash(hasher);
+                        rr.hash(hasher);
+                    }
+                    RefnoEnum::SesRef(ses) => {
+                        1u8.hash(hasher);
+                        ses.hash(hasher);
+                    }
+                }
+            }
+        }
+    }
+
+    /// 构建索引映射并过滤“内容一致”的冗余历史版本（可选的重型操作）。
+    pub async fn build_index_map_and_filter_consistent(
+        &mut self,
+        verbose: bool,
+    ) -> anyhow::Result<IndexMap> {
+        let mut index_map = self.build_index_map_verbose(verbose)?;
+        self.filter_consistent_data(&mut index_map).await?;
+        Ok(index_map)
     }
 
     /// 使用构建好的索引映射表快速查找refno对应的所有数据位置
@@ -4517,6 +4678,70 @@ pub async fn sync_all_history_data(path: &str) -> anyhow::Result<()> {
     let mut io = PdmsIO::new("ams", path, true);
     io.sync_history().await.unwrap();
     Ok(())
+}
+
+#[cfg(test)]
+mod io_element_hash_tests {
+    use super::*;
+
+    #[test]
+    fn element_hash_ignores_pgno_sesno() {
+        let mut a = EleData::default();
+        a.noun = 0x1234;
+        a.owner = RefU64::from_two_nums(10, 20);
+        a.name = "AAA".to_string();
+        a.children.push(RefU64::from_two_nums(1, 2));
+
+        a.att_map_mut()
+            .insert("PGNO".to_string(), NamedAttrValue::IntegerType(100));
+        a.att_map_mut()
+            .insert("SESNO".to_string(), NamedAttrValue::IntegerType(200));
+        a.att_map_mut().insert(
+            "FOO".to_string(),
+            NamedAttrValue::StringType("BAR".to_string()),
+        );
+
+        let mut b = a.clone();
+        b.att_map_mut()
+            .insert("PGNO".to_string(), NamedAttrValue::IntegerType(101));
+        b.att_map_mut()
+            .insert("SESNO".to_string(), NamedAttrValue::IntegerType(201));
+
+        assert_eq!(
+            PdmsIO::calculate_element_hash(&a),
+            PdmsIO::calculate_element_hash(&b)
+        );
+    }
+
+    #[test]
+    fn element_hash_changes_on_non_volatile_attr_change() {
+        let mut a = EleData::default();
+        a.att_map_mut()
+            .insert("FOO".to_string(), NamedAttrValue::IntegerType(1));
+
+        let mut b = a.clone();
+        b.att_map_mut()
+            .insert("FOO".to_string(), NamedAttrValue::IntegerType(2));
+
+        assert_ne!(
+            PdmsIO::calculate_element_hash(&a),
+            PdmsIO::calculate_element_hash(&b)
+        );
+    }
+
+    #[test]
+    fn element_hash_changes_on_children_change() {
+        let mut a = EleData::default();
+        a.children.push(RefU64::from_two_nums(1, 1));
+
+        let mut b = a.clone();
+        b.children.push(RefU64::from_two_nums(1, 2));
+
+        assert_ne!(
+            PdmsIO::calculate_element_hash(&a),
+            PdmsIO::calculate_element_hash(&b)
+        );
+    }
 }
 
 /// 示例：使用索引映射表快速查询PDMS数据库
