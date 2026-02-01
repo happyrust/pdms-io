@@ -453,30 +453,42 @@ fn parse_string_expression(
     expression_type: String,
 ) -> IResult<&[u8], (String, String)> {
     if input.len() < 24 {
-        return Ok((input, (expression_type, String::new())));
+        return Err(nom::Err::Incomplete(nom::Needed::new(24 - input.len())));
     }
 
     let (_, str_len) = be_i32(&input[20..24])?;
+    if str_len < 0 {
+        return Err(nom::Err::Error(nom::error::make_error(
+            input,
+            nom::error::ErrorKind::Verify,
+        )));
+    }
     let str_len = str_len as usize;
 
-    if input.len() < 24 + str_len * 4 {
-        return Ok((input, (expression_type, String::new())));
+    let total = 24usize
+        .checked_add(str_len.checked_mul(4).ok_or_else(|| {
+            nom::Err::Error(nom::error::make_error(input, nom::error::ErrorKind::TooLarge))
+        })?)
+        .ok_or_else(|| nom::Err::Error(nom::error::make_error(input, nom::error::ErrorKind::TooLarge)))?;
+
+    if input.len() < total {
+        return Err(nom::Err::Incomplete(nom::Needed::new(total - input.len())));
     }
 
-    let string: String = input[24..24 + str_len * 4]
-        .chunks(4)
-        .filter_map(|chunk| {
-            if chunk.len() == 4 {
-                let val = i32::from_be_bytes(chunk.try_into().unwrap());
-                Some(val as u8 as char)
-            } else {
-                None
-            }
-        })
-        .collect();
+    // PDMS 中 string expr 通常为“每字符占 4 字节”，我们取低 8 bit 还原为 bytes，再按 UTF-8(损失容错) 组装。
+    let mut bytes = Vec::with_capacity(str_len);
+    for chunk in input[24..total].chunks(4) {
+        let val = i32::from_be_bytes(chunk.try_into().unwrap_or([0; 4]));
+        bytes.push((val as u32 & 0xFF) as u8);
+    }
+    while bytes.last().copied() == Some(0) {
+        bytes.pop();
+    }
+    let string = String::from_utf8_lossy(&bytes).to_string();
+    let escaped = string.replace('\'', "''");
 
-    let result = format!("'{}'", string);
-    Ok((&input[24 + str_len * 4..], (expression_type, result)))
+    let result = format!("'{}'", escaped);
+    Ok((&input[total..], (expression_type, result)))
 }
 
 /// 尝试将表达式解析为“显式轴向字符串”（如 PTCD/PTCDI 这类）。
@@ -569,6 +581,34 @@ mod tests {
         let input = [0u8, 0u8, 0x00, 0x0A, 0u8, 0u8, 0u8, 0u8];
         let err = parse_explicit_axis_string_expression(&input, "PTCD".to_string(), 0).unwrap_err();
         assert!(matches!(err, nom::Err::Incomplete(_)));
+    }
+
+    #[test]
+    fn test_parse_other_expression_string_incomplete_should_error() {
+        // flag==0x66 但缺少字符串内容：应当返回 Incomplete，而非静默返回空串。
+        // 结构：header(24) = 6 words，其中 flag@16..20, str_len@20..24
+        let mut input = vec![0u8; 24];
+        input[16..20].copy_from_slice(&0x66i32.to_be_bytes());
+        input[20..24].copy_from_slice(&2i32.to_be_bytes()); // 需要 2 个 char word，但不给
+
+        let err = parse_other_expression(&input, "PSTR".to_string(), 0).unwrap_err();
+        assert!(matches!(err, nom::Err::Incomplete(_)));
+    }
+
+    #[test]
+    fn test_parse_other_expression_string_escape_single_quote() {
+        // 构造字符串 A'B，期望输出 'A''B'
+        let mut input = vec![0u8; 24 + 3 * 4];
+        input[16..20].copy_from_slice(&0x66i32.to_be_bytes());
+        input[20..24].copy_from_slice(&3i32.to_be_bytes());
+        // 'A' '\'' 'B'
+        input[24..28].copy_from_slice(&0x41i32.to_be_bytes());
+        input[28..32].copy_from_slice(&0x27i32.to_be_bytes());
+        input[32..36].copy_from_slice(&0x42i32.to_be_bytes());
+
+        let (rest, (_ty, value)) = parse_other_expression(&input, "PSTR".to_string(), 0).unwrap();
+        assert!(rest.is_empty());
+        assert_eq!(value, "'A''B'");
     }
 
     #[cfg(feature = "debug_parse")]

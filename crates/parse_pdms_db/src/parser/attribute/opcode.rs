@@ -581,10 +581,10 @@ impl TryFrom<i32> for ComparisonOpcode {
             401 | 0x191 => Ok(ComparisonOpcode::Eq),
             501 | 0x1F5 => Ok(ComparisonOpcode::Neq),
             // 0x25A(602) 在部分 DB 中也可见，语义等同 GT。
-            601 | 0x259 | 602 | 0x25A => Ok(ComparisonOpcode::Gt),
-            603 | 0x25B => Ok(ComparisonOpcode::Lt),
-            605 | 0x25D => Ok(ComparisonOpcode::Ge),
-            607 | 0x25F => Ok(ComparisonOpcode::Le),
+            601 | 0x259 | 602 => Ok(ComparisonOpcode::Gt),
+            603 => Ok(ComparisonOpcode::Lt),
+            605 => Ok(ComparisonOpcode::Ge),
+            607 => Ok(ComparisonOpcode::Le),
             _ => Err(()),
         }
     }
@@ -651,13 +651,13 @@ impl TryFrom<i32> for GeneralFunctionOpcode {
 
     fn try_from(value: i32) -> Result<Self, Self::Error> {
         match value {
-            1822 | 0x071E => Ok(GeneralFunctionOpcode::Iftrue),
-            1824 | 0x0720 => Ok(GeneralFunctionOpcode::Distconvert),
-            1825 | 0x0721 => Ok(GeneralFunctionOpcode::Set),
-            1826 | 0x0722 => Ok(GeneralFunctionOpcode::Unset),
-            1827 | 0x0723 => Ok(GeneralFunctionOpcode::Array),
-            1828 | 0x0724 => Ok(GeneralFunctionOpcode::Empty),
-            1829 | 0x0725 => Ok(GeneralFunctionOpcode::Split),
+            1822 => Ok(GeneralFunctionOpcode::Iftrue),
+            1824 => Ok(GeneralFunctionOpcode::Distconvert),
+            1825 => Ok(GeneralFunctionOpcode::Set),
+            1826 => Ok(GeneralFunctionOpcode::Unset),
+            1827 => Ok(GeneralFunctionOpcode::Array),
+            1828 => Ok(GeneralFunctionOpcode::Empty),
+            1829 => Ok(GeneralFunctionOpcode::Split),
             _ => Err(()),
         }
     }
