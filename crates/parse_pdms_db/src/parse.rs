@@ -2665,29 +2665,48 @@ pub fn convert_to_explicit_axis_string(input: &[u8], refno: RefU64) -> IResult<&
                 }
             }
             [0x2, 0x34] => {
-                if let Some((func, count)) = match_to_dir(parse_to_u32(&tmp_input[4..8])) {
-                    let mut v = func.to_string();
-                    v.push_str(" ");
-                    let mut axis_data = &tmp_input[8..];
-                    for _i in 0..count {
-                        let (residual, coord) = parse_xyz_data(axis_data, refno, true)?;
-                        // dbg!(&coord);
-                        v.push_str(&coord);
-                        axis_data = residual;
+                // 防御：catalogue 等库文件中偶见截断的显式块；避免切片越界导致 panic。
+                if tmp_input.len() >= 8 {
+                    if let Some((func, count)) = match_to_dir(parse_to_u32(&tmp_input[4..8])) {
+                        let mut v = func.to_string();
+                        v.push_str(" ");
+                        let mut axis_data = &tmp_input[8..];
+                        for _i in 0..count {
+                            let (residual, coord) = parse_xyz_data(axis_data, refno, true)?;
+                            // dbg!(&coord);
+                            v.push_str(&coord);
+                            axis_data = residual;
+                        }
+                        // dbg!(&v);
+                        result = StringType(v);
                     }
-                    // dbg!(&v);
-                    result = StringType(v);
                 }
             }
-            _ => match &tmp_input[..8] {
-                &[0x0, 0x0, 0x0, 0xB, 0x0, 0x0, 0x0, 0x3D] => result = StringType("X".into()),
-                &[0x0, 0x0, 0x0, 0xC, 0x0, 0x0, 0x0, 0x3D] => result = StringType("-X".into()),
-                &[0x0, 0x0, 0x0, 0xD, 0x0, 0x0, 0x0, 0x3D] => result = StringType("Y".into()),
-                &[0x0, 0x0, 0x0, 0xE, 0x0, 0x0, 0x0, 0x3D] => result = StringType("-Y".into()),
-                &[0x0, 0x0, 0x0, 0xF, 0x0, 0x0, 0x0, 0x3D] => result = StringType("Z".into()),
-                &[0x0, 0x0, 0x0, 0x10, 0x0, 0x0, 0x0, 0x3D] => result = StringType("-Z".into()),
-                _ => {}
-            },
+            _ => {
+                if tmp_input.len() >= 8 {
+                    match &tmp_input[..8] {
+                        &[0x0, 0x0, 0x0, 0xB, 0x0, 0x0, 0x0, 0x3D] => {
+                            result = StringType("X".into())
+                        }
+                        &[0x0, 0x0, 0x0, 0xC, 0x0, 0x0, 0x0, 0x3D] => {
+                            result = StringType("-X".into())
+                        }
+                        &[0x0, 0x0, 0x0, 0xD, 0x0, 0x0, 0x0, 0x3D] => {
+                            result = StringType("Y".into())
+                        }
+                        &[0x0, 0x0, 0x0, 0xE, 0x0, 0x0, 0x0, 0x3D] => {
+                            result = StringType("-Y".into())
+                        }
+                        &[0x0, 0x0, 0x0, 0xF, 0x0, 0x0, 0x0, 0x3D] => {
+                            result = StringType("Z".into())
+                        }
+                        &[0x0, 0x0, 0x0, 0x10, 0x0, 0x0, 0x0, 0x3D] => {
+                            result = StringType("-Z".into())
+                        }
+                        _ => {}
+                    }
+                }
+            }
         }
     }
     Ok((input, result))
