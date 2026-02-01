@@ -19,6 +19,8 @@ use std::collections::HashMap;
 
 use super::axis::{is_axis_expression, parse_axis_expression_str};
 use super::expression_payload::decode_expression_payload;
+#[cfg(feature = "debug_parse")]
+use super::expression_payload::scan_expression_payload_opcodes;
 
 #[cfg(feature = "debug_parse")]
 mod expr_fallback_stats {
@@ -392,11 +394,46 @@ pub fn parse_other_expression(
     }
 
     // 通用表达式：payload → postfix → pretty
-    if let Ok((consumed, value)) = decode_expression_payload(input) {
-        if !value.trim().is_empty() {
+    match decode_expression_payload(input) {
+        Ok((consumed, value)) if !value.trim().is_empty() => {
             return Ok((&input[consumed..], (expression_type, value)));
         }
-    }
+        Ok(_) => {}
+        Err(e) => {
+            // debug_parse 下尽量提供“通用线索”，避免为某个 expression_type 单独写特判。
+            #[cfg(feature = "debug_parse")]
+            {
+                if let Ok(report) = scan_expression_payload_opcodes(input) {
+                    // 取 top 6 opcode（按频次降序）
+                    let mut top = report
+                        .opcode_counts
+                        .iter()
+                        .map(|(k, v)| (*k, *v))
+                        .collect::<Vec<_>>();
+                    top.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+                    top.truncate(6);
+
+                    log::debug!(
+                        "expression payload decode failed: refno={:?}, type={}, err={:?}, start_words={}, declared_words={}, unknown={:?}, top={:?}",
+                        RefU64(refno),
+                        expression_type,
+                        e,
+                        report.start_words,
+                        report.declared_words,
+                        report.unknown_opcodes,
+                        top,
+                    );
+                } else {
+                    log::debug!(
+                        "expression payload decode failed: refno={:?}, type={}, err={:?} (opcode scan failed)",
+                        RefU64(refno),
+                        expression_type,
+                        e,
+                    );
+                }
+            }
+        }
+    };
 
     // 轴向/坐标类显式表达式：尝试按“显式轴向字符串”通用规则解析
     if let Ok(result) = parse_explicit_axis_string_expression(input, expression_type.clone(), refno)
