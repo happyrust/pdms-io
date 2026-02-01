@@ -1,6 +1,8 @@
 use aios_core::tool::db_tool::db1_dehash;
 use std::collections::BTreeMap;
 
+use super::opcode::OpcodeCategory;
+
 #[derive(Debug, Clone)]
 pub enum DecodeError {
     InvalidPayload,
@@ -154,7 +156,11 @@ fn decode_from_start(
         && words[1] == 1
         && matches!(
             words[2],
-            0x65 | 0x66 | 0x67 | 0x68 | 0x69 | 0x6A | 0x6F | 0x72 | 0x74 | 0x75
+            // 允许更多 value opcode 作为“payload header”标识，避免误把 header 当表达式内容。
+            0x65 | 0x66 | 0x67 | 0x68 | 0x69 | 0x6A
+                | 0x6B | 0x6C | 0x6D
+                | 0x6F | 0x70 | 0x71 | 0x72
+                | 0x74 | 0x75 | 0x76
         )
     {
         start_idx = 2;
@@ -202,7 +208,10 @@ fn read_words_from_start(
         && words[1] == 1
         && matches!(
             words[2],
-            0x65 | 0x66 | 0x67 | 0x68 | 0x69 | 0x6A | 0x6F | 0x72 | 0x74 | 0x75
+            0x65 | 0x66 | 0x67 | 0x68 | 0x69 | 0x6A
+                | 0x6B | 0x6C | 0x6D
+                | 0x6F | 0x70 | 0x71 | 0x72
+                | 0x74 | 0x75 | 0x76
         )
     {
         start_idx = 2;
@@ -829,17 +838,11 @@ fn format_value_f6(value: f64) -> String {
 }
 
 fn is_operator_opcode(value: i32) -> bool {
-    matches!(
-        value,
-        301 | 302 | 303
-            | 401 | 501 | 601 | 602 | 603 | 605 | 607
-            | 801 | 802 | 803 | 804 | 805
-            | 901..=907
-            | 1001..=1012
-            | 1101 | 1102 | 1103
-            | 1301..=1322
-            | 1369 | 1370 | 1401 | 1410
-            | 1822 | 1824 | 1825 | 1826 | 1827 | 1828 | 1829
+    // 避免在这里再维护一份“operator 白名单”，直接复用 opcode 分类。
+    // 仅用于 opcode 扫描：value opcode 已在 skip_value_opcode 中处理。
+    !matches!(
+        OpcodeCategory::from(value),
+        OpcodeCategory::Unknown | OpcodeCategory::Values
     )
 }
 
@@ -897,6 +900,22 @@ mod tests {
         let (consumed, value) = decode_expression_payload(&input).unwrap();
         assert_eq!(consumed, input.len());
         assert_eq!(value, "1 GT 2");
+    }
+
+    #[test]
+    fn test_decode_expression_payload_header_text_alt_0x76() {
+        // payload 内部带 header: [len, 1, 0x76, ...]，应识别并跳过 header。
+        // 0x76 的语义等同 0x66（文本）。
+        let words: [i32; 5] = [5, 1, 0x76, 1, 0x41]; // 'A'
+        let mut input = Vec::with_capacity((words.len() + 1) * 4);
+        input.extend_from_slice(&be_i32(words.len() as i32));
+        for w in words {
+            input.extend_from_slice(&be_i32(w));
+        }
+
+        let (consumed, value) = decode_expression_payload(&input).unwrap();
+        assert_eq!(consumed, input.len());
+        assert_eq!(value, "'A'");
     }
 
     #[test]
