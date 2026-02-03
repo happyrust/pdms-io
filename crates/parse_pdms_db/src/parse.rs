@@ -6,6 +6,7 @@ use crate::parser::attribute::expression::parse_expression_attr as parse_express
 use crate::parser::attribute::implicit::{
     parse_implicit_attr_value as parse_implicit_attr_value_new, ImplicitAttrOffset,
 };
+use crate::parser::attribute::expression_payload::decode_expression_payload;
 use crate::parser::combinator::collect_segmented_payload;
 use crate::parser::database::header::extract_db_no;
 use crate::parser::database::validation::is_valid_db_header;
@@ -1614,7 +1615,7 @@ fn resolve_uda_label(hash: i32) -> String {
 /// 从数据库批量预加载所有 UDA 名称到缓存
 pub async fn preload_uda_name_cache() -> anyhow::Result<()> {
     use aios_core::SurrealQueryExt;
-    let sql = "SELECT UKEY, UDNA, DYUDNA FROM UDA WHERE UKEY != none";
+    let sql = "SELECT VALUE [UKEY, UDNA, DYUDNA] FROM UDA WHERE UKEY != none";
     let udas: Vec<(i32, Option<String>, Option<String>)> = SUL_DB.query_take(sql, 0).await?;
     for (ukey, udna, dyudna) in udas {
         let name = udna.filter(|s| !s.is_empty())
@@ -2621,6 +2622,21 @@ pub fn parse_to_expression(input: &[u8], default: AttrVal) -> IResult<&[u8], Att
         }
         return Ok((input, StringType(param1.into())));
     }
+
+    // 🔧 修复：如果现有逻辑无法解析，尝试使用 decode_expression_payload 解析
+    // 这可以正确处理 ATTRIB DESP[1] 等表达式
+    let is_empty_result = match &val {
+        StringType(s) => s.trim().is_empty(),
+        _ => false,
+    };
+    if is_empty_result || matches!(val, InvalidType) {
+        if let Ok((consumed, expr_str)) = decode_expression_payload(input) {
+            if !expr_str.trim().is_empty() && consumed > 0 {
+                return Ok((input, StringType(expr_str.into())));
+            }
+        }
+    }
+
     Ok((input, val))
 }
 
