@@ -1,8 +1,6 @@
 use aios_core::tool::db_tool::db1_dehash;
 use std::collections::BTreeMap;
 
-use super::opcode::OpcodeCategory;
-
 #[derive(Debug, Clone)]
 pub enum DecodeError {
     InvalidPayload,
@@ -86,12 +84,22 @@ pub fn scan_expression_payload_opcodes(input: &[u8]) -> Result<OpcodeScanReport,
             continue;
         };
 
+        // 过滤明显的“误起点”：把中间的随机 word 当作 len=0 会造成空报告，
+        // 从而在“unknown 更少”的排序里压过真正的 payload 起点。
+        if declared_words == 0 {
+            continue;
+        }
+
         let sliced = if words.len() > start_idx {
             &words[start_idx..]
         } else {
             &[]
         };
         let (opcode_counts, unknown_opcodes) = scan_words_for_opcodes(sliced)?;
+
+        if opcode_counts.is_empty() {
+            continue;
+        }
 
         let report = OpcodeScanReport {
             start_words,
@@ -837,13 +845,28 @@ fn format_value_f6(value: f64) -> String {
     text
 }
 
+fn is_supported_operator_opcode(opcode: i32) -> bool {
+    // 注意：这里的“operator”指的是 decode_words/apply_operator 能够解释的运算符，
+    // 而非 “opcode 分类 != Values/Unknown”。后者会把不少“未实现的 operator 类别”
+    // 当成已支持，从而让 unknown_opcodes 报告失真。
+    match opcode {
+        301 | 302 | 303 => true,
+        401 | 501 | 601 | 602 | 603 | 605 | 607 => true,
+        801 | 802 | 803 | 804 | 805 => true,
+        901..=907 => true,
+        1001..=1012 => true,
+        1101 | 1102 | 1103 => true,
+        1201..=1220 => true,
+        1301..=1322 => true,
+        1369 | 1370 | 1401 | 1410 => true,
+        1822 | 1824..=1829 => true,
+        _ => false,
+    }
+}
+
 fn is_operator_opcode(value: i32) -> bool {
-    // 避免在这里再维护一份“operator 白名单”，直接复用 opcode 分类。
     // 仅用于 opcode 扫描：value opcode 已在 skip_value_opcode 中处理。
-    !matches!(
-        OpcodeCategory::from(value),
-        OpcodeCategory::Unknown | OpcodeCategory::Values
-    )
+    is_supported_operator_opcode(value)
 }
 
 #[cfg(test)]
@@ -948,5 +971,23 @@ mod tests {
 
         let report = scan_expression_payload_opcodes(&input).unwrap();
         assert!(report.unknown_opcodes.contains(&9999));
+    }
+
+    #[test]
+    fn test_scan_expression_payload_opcodes_reports_unsupported_operator() {
+        // 701 属于 “集合运算” 类别，但当前 pretty printer 并未实现；
+        // 扫描应将其视作 unknown，以便定位“未覆盖 opcode”。
+        let words: [i32; 4] = [0, 0x67, 201, 701]; // true, <UNSUPPORTED>
+        let mut input = Vec::with_capacity((words.len() + 1) * 4);
+        input.extend_from_slice(&be_i32(words.len() as i32));
+        for w in words {
+            input.extend_from_slice(&be_i32(w));
+        }
+
+        let report = scan_expression_payload_opcodes(&input).unwrap();
+        assert!(report.unknown_opcodes.contains(&701));
+
+        // decode 也应当失败（UnknownOpcode），确保扫描与解析一致。
+        assert!(decode_expression_payload(&input).is_err());
     }
 }
