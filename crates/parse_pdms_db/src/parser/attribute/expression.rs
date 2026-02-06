@@ -516,6 +516,15 @@ fn parse_explicit_axis_string_expression(
     }
 
     let expression_data = &input[4..end];
+    // 结构门槛：显式轴向字符串（如 PTCD/PTCDI）在实际数据中通常是较长的显式块。
+    // 过短的数据更可能是其它表达式/残缺数据；若仍尝试走 convert_to_explicit_axis_string，
+    // 容易误判并“成功”返回非空字符串，从而掩盖真正的 payload 结构。
+    if expression_data.len() < 20 {
+        return Err(nom::Err::Error(nom::error::make_error(
+            input,
+            nom::error::ErrorKind::Verify,
+        )));
+    }
     let (_rest, axis) = convert_to_explicit_axis_string(expression_data, RefU64(refno))?;
     let axis_result = match axis {
         aios_core::AttrVal::StringType(value) => value,
@@ -581,6 +590,45 @@ mod tests {
         let input = [0u8, 0u8, 0x00, 0x0A, 0u8, 0u8, 0u8, 0u8];
         let err = parse_explicit_axis_string_expression(&input, "PTCD".to_string(), 0).unwrap_err();
         assert!(matches!(err, nom::Err::Incomplete(_)));
+    }
+
+    #[test]
+    fn test_parse_explicit_axis_string_expression_rejects_short_blocks() {
+        // 构造一个“显式轴向字符串”外壳，但 expression_data 仅 2 words(8 bytes)。
+        // 该类短块不应进入显式轴向字符串解析，避免误判。
+        let mut input = Vec::new();
+        input.extend_from_slice(&[0x00, 0x00]); // reserved
+        input.extend_from_slice(&2u16.to_be_bytes()); // length_words=2 => end=12
+        input.extend_from_slice(&[0u8; 8]); // expression_data
+
+        let err =
+            parse_explicit_axis_string_expression(&input, "ANY".to_string(), 0).unwrap_err();
+        assert!(matches!(err, nom::Err::Error(_)));
+    }
+
+    #[test]
+    fn test_parse_explicit_axis_string_expression_accepts_known_axis_pattern() {
+        // 构造一个满足 convert_to_explicit_axis_string 的已知模式：返回 "-Z"。
+        // expression_data 至少 5*u32(20 bytes) 才会进入显式分支，随后默认分支识别 [0x10,0x3D]。
+        let mut expression_data = Vec::new();
+        for _ in 0..5 {
+            expression_data.extend_from_slice(&0u32.to_be_bytes());
+        }
+        // 默认分支匹配：00 00 00 10 00 00 00 3D => "-Z"
+        expression_data.extend_from_slice(&0x0000_0010u32.to_be_bytes());
+        expression_data.extend_from_slice(&0x0000_003Du32.to_be_bytes());
+
+        let length_words: u16 = (expression_data.len() / 4) as u16;
+
+        let mut input = Vec::new();
+        input.extend_from_slice(&[0x00, 0x00]); // reserved
+        input.extend_from_slice(&length_words.to_be_bytes());
+        input.extend_from_slice(&expression_data);
+
+        let (rest, (_ty, value)) =
+            parse_explicit_axis_string_expression(&input, "ANY".to_string(), 0).unwrap();
+        assert!(rest.is_empty());
+        assert_eq!(value, "-Z");
     }
 
     #[test]
