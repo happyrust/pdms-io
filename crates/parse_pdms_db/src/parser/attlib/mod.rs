@@ -1,3 +1,6 @@
+pub mod noun_schema;
+
+use aios_core::tool::db_tool::{db1_dehash, db1_hash};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -10,9 +13,128 @@ use nom::{
     multi::count,
 };
 use anyhow::{Result, Context};
+use std::fmt;
 
 const PAGE_SIZE: usize = 2048;
 const RECORD_DELIMITER: u32 = 0xFFFFFFFF;
+
+/// 属性数据类型（对应 E3D ATAINT 表中的 TYPE 字段）
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AttrDataType {
+    Integer,
+    Real,
+    Boolean,
+    Reference,
+    Text,
+    Enum,
+    Position,
+    Direction,
+    Orientation,
+    IntArray,
+    RealArray,
+    RefArray,
+    Unknown(u32),
+}
+
+impl fmt::Display for AttrDataType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AttrDataType::Integer => write!(f, "Integer"),
+            AttrDataType::Real => write!(f, "Real"),
+            AttrDataType::Boolean => write!(f, "Boolean"),
+            AttrDataType::Reference => write!(f, "Reference"),
+            AttrDataType::Text => write!(f, "Text"),
+            AttrDataType::Enum => write!(f, "Enum"),
+            AttrDataType::Position => write!(f, "Position"),
+            AttrDataType::Direction => write!(f, "Direction"),
+            AttrDataType::Orientation => write!(f, "Orientation"),
+            AttrDataType::IntArray => write!(f, "IntArray"),
+            AttrDataType::RealArray => write!(f, "RealArray"),
+            AttrDataType::RefArray => write!(f, "RefArray"),
+            AttrDataType::Unknown(v) => write!(f, "Unknown({})", v),
+        }
+    }
+}
+
+impl AttrDataType {
+    pub fn from_type_code(code: u32) -> Self {
+        match code {
+            1 => AttrDataType::Integer,
+            2 => AttrDataType::Real,
+            3 => AttrDataType::Boolean,
+            4 => AttrDataType::Reference,
+            5 => AttrDataType::Text,
+            6 => AttrDataType::Enum,
+            7 => AttrDataType::Position,
+            8 => AttrDataType::Direction,
+            9 => AttrDataType::Orientation,
+            10 => AttrDataType::IntArray,
+            11 => AttrDataType::RealArray,
+            12 => AttrDataType::RefArray,
+            v => AttrDataType::Unknown(v),
+        }
+    }
+}
+
+/// 属性存储方式（对应 E3D ATAINT 表中的 DEFI 字段）
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AttrDefiType {
+    Dab,
+    Pseudo,
+    Unknown(u32),
+}
+
+impl fmt::Display for AttrDefiType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AttrDefiType::Dab => write!(f, "DAB"),
+            AttrDefiType::Pseudo => write!(f, "Pseudo"),
+            AttrDefiType::Unknown(v) => write!(f, "Unknown({})", v),
+        }
+    }
+}
+
+impl AttrDefiType {
+    pub fn from_defi_code(code: u32) -> Self {
+        match code {
+            1 => AttrDefiType::Dab,
+            4 => AttrDefiType::Pseudo,
+            v => AttrDefiType::Unknown(v),
+        }
+    }
+}
+
+/// 属性完整元数据（用于指导读写操作）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AttributeMeta {
+    pub hash: u32,
+    pub name: String,
+    pub data_type: AttrDataType,
+    pub defi: AttrDefiType,
+    pub size: u32,
+    pub unit_type: i32,
+    pub unit_type_name: String,
+    pub description: String,
+    pub category: String,
+}
+
+impl fmt::Display for AttributeMeta {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{:<12} hash=0x{:08X}  type={:<12} defi={:<8} size={} unit={}",
+            self.name, self.hash, self.data_type.to_string(), self.defi.to_string(), self.size, self.unit_type_name
+        )
+    }
+}
+
+/// ATNAIN 三元组中的属性映射条目
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct NounAttrEntry {
+    pub noun_hash: u32,
+    pub attr_index: u32,
+    pub type_code: u32,
+}
 
 /// 属性记录结构
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,6 +157,10 @@ pub struct AttlibData {
     pub name_map: HashMap<String, usize>,
     /// Noun 哈希到属性列表的映射 (来自 ATNAIN)
     pub noun_attr_map: HashMap<u32, Vec<u32>>,
+    /// Noun 哈希到完整属性元数据的映射（含 type_code）
+    pub noun_attr_entries: Vec<NounAttrEntry>,
+    /// 属性 hash → AttributeMeta 的全局映射
+    pub attr_meta_map: HashMap<u32, AttributeMeta>,
     pub atgtix: Vec<AtgtixEntry>,
     pub atgtdf: Vec<AtgtdfEntry>,
     pub atgtsx: Vec<AtgtsxEntry>,
@@ -122,6 +248,9 @@ impl AttlibData {
             Self::parse_atnain(&mut file, atnain_start_page, &mut data)?;
         }
 
+        // 构建属性元数据映射
+        data.build_attr_meta_map();
+
         Ok(data)
     }
 
@@ -138,7 +267,7 @@ impl AttlibData {
             for i in (0..page_data.len() - 2).step_by(3) {
                 let noun_hash = page_data[i];
                 let attr_idx = page_data[i + 1];
-                let _type_code = page_data[i + 2];
+                let type_code = page_data[i + 2];
 
                 // 跳过无效数据
                 if noun_hash == 0 || noun_hash == RECORD_DELIMITER {
@@ -153,9 +282,90 @@ impl AttlibData {
                     .entry(noun_hash)
                     .or_default()
                     .push(attr_idx);
+
+                // 保留完整三元组
+                data.noun_attr_entries.push(NounAttrEntry {
+                    noun_hash,
+                    attr_index: attr_idx,
+                    type_code,
+                });
             }
         }
         Ok(())
+    }
+
+    /// 构建属性元数据映射
+    fn build_attr_meta_map(&mut self) {
+        // 构建 atgtdf hash 索引，用于关联额外元数据
+        let mut atgtdf_map: HashMap<u32, &AtgtdfEntry> = HashMap::new();
+        for entry in &self.atgtdf {
+            atgtdf_map.insert(entry.id_or_hash, entry);
+        }
+
+        for attr in &self.attributes {
+            let hash = db1_hash(&attr.name) as u32;
+
+            // 从 atgtdf 获取额外元数据
+            let (data_type, defi, size) = if let Some(df) = atgtdf_map.get(&hash) {
+                (
+                    AttrDataType::from_type_code(df.tag_or_type),
+                    AttrDefiType::from_defi_code(df.kind),
+                    if df.ext_index > 0 { df.ext_index } else { 1 },
+                )
+            } else {
+                (AttrDataType::Unknown(0), AttrDefiType::Unknown(0), 1)
+            };
+
+            let unit_type_name = match attr.type_code {
+                1 => "Dimensionless",
+                2 => "Distance/Area/Bore",
+                3 => "Temperature/Pressure",
+                4 => "Volume",
+                5 => "Angle",
+                6 => "Mass",
+                _ => "Unknown",
+            }.to_string();
+
+            let meta = AttributeMeta {
+                hash,
+                name: attr.name.clone(),
+                data_type,
+                defi,
+                size,
+                unit_type: attr.type_code,
+                unit_type_name,
+                description: attr.description.clone(),
+                category: attr.category.clone(),
+            };
+
+            self.attr_meta_map.insert(hash, meta);
+        }
+    }
+
+    /// 根据 NOUN 名称获取其关联的所有属性元数据
+    pub fn get_noun_attributes(&self, noun_name: &str) -> Option<Vec<&AttributeMeta>> {
+        let noun_hash = db1_hash(noun_name) as u32;
+        let attr_indices = self.noun_attr_map.get(&noun_hash)?;
+
+        let mut result = Vec::new();
+        for &idx in attr_indices {
+            if let Some(attr) = self.attributes.get(idx as usize) {
+                let attr_hash = db1_hash(&attr.name) as u32;
+                if let Some(meta) = self.attr_meta_map.get(&attr_hash) {
+                    result.push(meta);
+                }
+            }
+        }
+
+        if result.is_empty() { None } else { Some(result) }
+    }
+
+    /// 获取所有已知 NOUN 名称列表
+    pub fn list_nouns(&self) -> Vec<(u32, String)> {
+        self.noun_attr_map
+            .keys()
+            .map(|&h| (h, db1_dehash(h)))
+            .collect()
     }
 
     fn guess_atgtix_start_page(file: &mut File, candidates: &[usize]) -> Result<Option<usize>> {
