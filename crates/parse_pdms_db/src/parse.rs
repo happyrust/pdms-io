@@ -1081,7 +1081,7 @@ pub async fn parse_db_with_chunk_with_info(
         let ref_0 = refno.get_0();
         _refno_info_map
             .entry(ref_0)
-            .or_insert(RefnoInfo { ref_0, db_no: dbnum });
+            .or_insert(RefnoInfo { ref_0, dbnum });
     }
 
     for source_refno in chunk_refnos.iter() {
@@ -1199,7 +1199,7 @@ pub async fn parse_db(
     let ref_0 = refno.get_0();
     refno_info_map
         .entry(ref_0)
-        .or_insert(RefnoInfo { ref_0, db_no: dbnum });
+        .or_insert(RefnoInfo { ref_0, dbnum });
     if children.len() > 0 {
         children_map.insert(refno, children.clone());
     }
