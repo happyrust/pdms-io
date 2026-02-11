@@ -142,3 +142,9 @@ test = false
 
 # [patch."https://gitee.com/happydpc/surrealdb.git"]
 # surrealdb = { path = "../surrealdb/crates/sdk" }
+
+[[bin]]
+name = "check_instances_json"
+path = "src/bin/check_instances_json.rs"
+test = false
+

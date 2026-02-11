@@ -28,3 +28,5 @@ mod test_amssys;
 mod test_axis_explicit_trunc;
 // mod expression_test_utils; // 暂时禁用
 mod test_collect_explict;
+mod test_attlib_noun_query;
+mod test_attlib_diag;
