@@ -57,4 +57,4 @@ thiserror = "*"
 glam = { version = "0.30.8", features = ["serde"] }
 # aios_core = { git = "https://github.com/happyrust/rs-core.git",  default-features = false }
 # 本 crate 作为 `pdms-io-fork/crates/*` 的子目录时，需要回到 workspace 根再到 rs-core。
-aios_core = { path = "../../../rs-core" }
+aios_core = { git = "https://github.com/happyrust/rs-core", branch = "dev-3.1", default-features = false }
