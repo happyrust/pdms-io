@@ -15,7 +15,6 @@ memchr = "2.7.2"
 nom = "8.0"
 #nom-derive = "0.10.0"
 itertools = "0.13.0"
-bincode = "1.3.3"
 regex = "1.5.4"
 futures = "0.3.19"
 async-trait = "0.1"
@@ -31,6 +30,7 @@ hash32-derive = "0.1.1"
 
 serde = { version = "1.0.137", features = ["derive"] }
 serde_derive = "1.0.137"
+rkyv = { version = "0.8.12", features = ["alloc"] }
 phf = { version = "0.11.2", features = ["macros"] }
 clap = { version = "4.3.5", features = ["derive"] }
 log = "0.4.14"
@@ -57,4 +57,4 @@ thiserror = "*"
 glam = { version = "0.30.8", features = ["serde"] }
 # aios_core = { git = "https://github.com/happyrust/rs-core.git",  default-features = false }
 # 本 crate 作为 `pdms-io-fork/crates/*` 的子目录时，需要回到 workspace 根再到 rs-core。
-aios_core = { git = "https://github.com/happyrust/rs-core", branch = "dev-3.1", default-features = false }
+aios_core = { path = "../../../rs-core", default-features = false }
