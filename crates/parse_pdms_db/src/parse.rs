@@ -3,15 +3,17 @@ use crate::parse_explict_tools::*;
 // 使用新 parser 模块中的基础函数
 use crate::parser::attribute::explicit::{get_explicit_attr_type, parse_explicit_header};
 use crate::parser::attribute::expression::parse_expression_attr as parse_expression_attr_nom;
-use crate::parser::attribute::implicit::{
-    parse_implicit_attr_value as parse_implicit_attr_value_new, ImplicitAttrOffset,
-};
 use crate::parser::attribute::expression_payload::decode_expression_payload;
+use crate::parser::attribute::implicit::{
+    ImplicitAttrOffset, parse_implicit_attr_value as parse_implicit_attr_value_new,
+};
 use crate::parser::combinator::collect_segmented_payload;
 use crate::parser::database::header::extract_db_no;
 use crate::parser::database::validation::is_valid_db_header;
 use crate::parser::element::children::{extract_members, parse_element_children};
 use crate::parser::primitives::{parse_members, parse_owner};
+use aios_core::AttrVal::*;
+use aios_core::SUL_DB;
 use aios_core::basic::info::RefnoInfo;
 use aios_core::consts::EXPR_ATT_SET;
 use aios_core::db::*;
@@ -20,11 +22,9 @@ use aios_core::get_default_pdms_db_info;
 use aios_core::helper::*;
 use aios_core::pdms_types::*;
 use aios_core::tool::db_tool::*;
-use aios_core::types::db_info::PdmsDatabaseInfo;
 use aios_core::types::WholeAttMap;
+use aios_core::types::db_info::PdmsDatabaseInfo;
 use aios_core::types::*;
-use aios_core::AttrVal::*;
-use aios_core::SUL_DB;
 use anyhow::*;
 use core::result::Result::Ok;
 #[allow(unused_mut)]
@@ -33,6 +33,8 @@ use dashmap::{DashMap, DashSet};
 use itertools::Itertools;
 use memchr::memmem;
 use memchr::memmem::rfind_iter;
+use nom::IResult;
+use nom::Parser;
 use nom::bytes::complete::take_until;
 use nom::character::complete::alpha1;
 use nom::combinator::verify;
@@ -40,8 +42,6 @@ use nom::error::ErrorKind;
 use nom::multi::{count, many_till};
 use nom::number::complete::{be_i16, be_i32, be_u32, be_u64};
 use nom::sequence::tuple;
-use nom::IResult;
-use nom::Parser;
 use phf::phf_map;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rayon::prelude::IntoParallelIterator;
@@ -60,6 +60,35 @@ use tokio::io::AsyncReadExt;
 //00 00 00 05 00 CC 47 DF 00 00 00 00 00 00 00 02
 // const REFNO_ALL_INDEX_PAGE: [u8; 11] = [0x00u8, 0x00, 0x00, 0x05, 0x00, 0xCC, 0x47, 0xDF, 0x00, 0x00, 0x00];
 const REFNO_ALL_INDEX_PAGE: [u8; 8] = [0x0u8, 0xCC, 0x47, 0xDF, 0x0, 0x0, 0x0, 0x0];
+
+fn rkyv_to_bytes<T>(value: &T) -> anyhow::Result<Vec<u8>>
+where
+    T: rkyv::Archive,
+    for<'a> T: rkyv::Serialize<
+        rkyv::api::high::HighSerializer<
+            rkyv::util::AlignedVec,
+            rkyv::ser::allocator::ArenaHandle<'a>,
+            rkyv::rancor::Error,
+        >,
+    >,
+{
+    let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(value)
+        .map_err(|e| anyhow!("rkyv 序列化失败: {:?}", e))?;
+    Ok(bytes.to_vec())
+}
+
+fn rkyv_from_bytes<T>(bytes: &[u8]) -> anyhow::Result<T>
+where
+    T: rkyv::Archive,
+    <T as rkyv::Archive>::Archived:
+        rkyv::Deserialize<T, rkyv::rancor::Strategy<rkyv::de::Pool, rkyv::rancor::Error>>,
+{
+    let mut aligned: rkyv::util::AlignedVec<16> = rkyv::util::AlignedVec::with_capacity(bytes.len());
+    aligned.extend_from_slice(bytes);
+    // SAFETY: 数据来自完整字节拷贝，且 AlignedVec 保证反序列化对齐要求。
+    unsafe { rkyv::from_bytes_unchecked::<T, rkyv::rancor::Error>(&aligned) }
+        .map_err(|e| anyhow!("rkyv 反序列化失败: {:?}", e))
+}
 
 ///一个pdms db的整体数据
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -110,8 +139,25 @@ pub async fn parse_pdms_dir(
     if config_path.is_some() {
         if let Ok(mut file) = File::open(config_path.unwrap()) {
             let mut attr_buf: Vec<u8> = Vec::new();
-            file.read_to_end(&mut attr_buf).context("read database_info config")?;
-            database_info = bincode::deserialize(&attr_buf).ok();
+            file.read_to_end(&mut attr_buf)
+                .context("read database_info config")?;
+            let decoded = rkyv_from_bytes::<Vec<(i32, Vec<(i32, AttrInfo)>)>>(&attr_buf).ok();
+            database_info = decoded.map(|entries| {
+                let noun_attr_info_map = DashMap::new();
+                for (type_hash, attrs) in entries {
+                    let attr_map = DashMap::new();
+                    for (attr_hash, attr_info) in attrs {
+                        attr_map.insert(attr_hash, attr_info);
+                    }
+                    noun_attr_info_map.insert(type_hash, attr_map);
+                }
+                let mut db_info = PdmsDatabaseInfo {
+                    noun_attr_info_map,
+                    named_attr_info_map: DashMap::new(),
+                };
+                db_info.fill_named_map();
+                db_info
+            });
         }
     }
 
@@ -397,6 +443,9 @@ pub fn parse_raw_ele_data_with_info(
     let mut explicit_attmap = NamedAttrMap::default();
     let mut children = RefU64Vec::default();
     let data_len = input.len();
+    if data_len < 24 {
+        return Err(anyhow!("element data too short: len={}", data_len));
+    }
     let impl_len = try_parse_to_i32(&input[0..4])?; //隐含数据长度  0-4
     if impl_len < 0 || (impl_len as usize) > data_len {
         return Err(anyhow!("impl_len < 0 || impl_len > data_len"));
@@ -416,12 +465,14 @@ pub fn parse_raw_ele_data_with_info(
         .get(&type_hash)
         .ok_or(anyhow!("{} not exist in attr_info_map", &noun_name))?;
     let owner = RefU64::from(&input[16..24]);
-    if actual_impl_len + 4 < input.len() {
-        let mut tmp_value = parse_to_i32(&input[actual_impl_len..actual_impl_len + 4]);
-        while tmp_value == 0 || tmp_value == 7 {
-            actual_impl_len += 4;
-            tmp_value = parse_to_i32(&input[actual_impl_len..actual_impl_len + 4]);
+    // Skip trailing 0/7 padding safely. Some records end with multiple padding words;
+    // keep a strict bound check to avoid slicing past the input end.
+    while actual_impl_len + 4 <= input.len() {
+        let tmp_value = parse_to_i32(&input[actual_impl_len..actual_impl_len + 4]);
+        if tmp_value != 0 && tmp_value != 7 {
+            break;
         }
+        actual_impl_len += 4;
     }
     if actual_impl_len > data_len {
         return Err(anyhow!("actual_impl_len > data_len"));
@@ -442,9 +493,8 @@ pub fn parse_raw_ele_data_with_info(
             let declared_bytes = parse_to_u16(&membs_data[2..4]) as usize * 4;
             memb_bytes_len = declared_bytes;
             // 使用新的 collect_segmented_payload 替换 get_merged_data
-            let (rest, merged_data) =
-                collect_segmented_payload(membs_data, declared_bytes, 0x2)
-                    .map_err(|_| anyhow!("parse members segment failed"))?;
+            let (rest, merged_data) = collect_segmented_payload(membs_data, declared_bytes, 0x2)
+                .map_err(|_| anyhow!("parse members segment failed"))?;
             if let Ok((_, c)) = parse_attr_members(&merged_data) {
                 children = c;
             }
@@ -507,8 +557,7 @@ pub fn parse_raw_ele_data_with_info(
         }
         if i < sorted_noun_hash.len() - 1 {
             let next_attr_info = hash_type_info_map.get(&sorted_noun_hash[i + 1]).unwrap();
-            step_w =
-                (next_attr_info.offset & 0xFFFFF) as i32 - (attr_info.offset & 0xFFFFF) as i32 ;
+            step_w = (next_attr_info.offset & 0xFFFFF) as i32 - (attr_info.offset & 0xFFFFF) as i32;
         } else {
             step_w = origin_impl_len / 4 - (attr_info.offset as i32 & 0xFFFFF);
         }
@@ -558,16 +607,12 @@ pub fn parse_raw_ele_data_with_info(
         // - examples/new_parser_usage.rs - 使用示例
         // ============================================================
 
-        let is_expr =
-            check_is_expr(attr_info.hash) || is_force_implicit_expr_attr_name(attr_info.name.trim());
+        let is_expr = check_is_expr(attr_info.hash)
+            || is_force_implicit_expr_attr_name(attr_info.name.trim());
         if is_expr {
-            if let Ok((_, legacy_val)) = parse_implicit_attr_value(
-                &implicit_data,
-                &attr_info,
-                is_f32,
-                f32_neg_offset,
-                step,
-            ) {
+            if let Ok((_, legacy_val)) =
+                parse_implicit_attr_value(&implicit_data, &attr_info, is_f32, f32_neg_offset, step)
+            {
                 let att_val = NamedAttrValue::from(&legacy_val);
                 if attr_info.name != "unset" {
                     implicit_attmap.insert(attr_info.name.clone(), att_val);
@@ -594,13 +639,9 @@ pub fn parse_raw_ele_data_with_info(
             }
         }
         if att_val.is_none() {
-            if let Ok((_, legacy_val)) = parse_implicit_attr_value(
-                &implicit_data,
-                &attr_info,
-                is_f32,
-                f32_neg_offset,
-                step,
-            ) {
+            if let Ok((_, legacy_val)) =
+                parse_implicit_attr_value(&implicit_data, &attr_info, is_f32, f32_neg_offset, step)
+            {
                 att_val = Some(NamedAttrValue::from(&legacy_val));
             }
         }
@@ -841,10 +882,7 @@ pub fn collect_explict_data(mut input: &[u8], refno: RefU64) -> Vec<u8> {
                     if cfg!(feature = "debug_parse") {
                         eprintln!(
                             "[DEBUG collect_explict_data] block#{} break: len_words={}, maybe_refno={}, expected_refno={}",
-                            block_count,
-                            len_words,
-                            maybe_refno,
-                            refno
+                            block_count, len_words, maybe_refno, refno
                         );
                     }
                     input = &input[4..];
@@ -854,9 +892,7 @@ pub fn collect_explict_data(mut input: &[u8], refno: RefU64) -> Vec<u8> {
                 if cfg!(feature = "debug_parse") {
                     eprintln!(
                         "[DEBUG collect_explict_data] block#{} found: len_words={}, declared_len_bytes={}",
-                        block_count,
-                        len_words,
-                        declared_len_bytes
+                        block_count, len_words, declared_len_bytes
                     );
                 }
                 match collect_segmented_payload(input, declared_len_bytes, 0x01) {
@@ -878,8 +914,7 @@ pub fn collect_explict_data(mut input: &[u8], refno: RefU64) -> Vec<u8> {
                         if cfg!(feature = "debug_parse") {
                             eprintln!(
                                 "[DEBUG collect_explict_data] block#{} break: collect_segmented_payload error: {:?}",
-                                block_count,
-                                e
+                                block_count, e
                             );
                         }
                         break;
@@ -910,7 +945,11 @@ pub fn take_off_007_explicit(mut input: &[u8]) -> &[u8] {
 }
 
 ///解析db文件的chidlren部分，得到参考号和对应的类型集合
-pub fn parse_db_basic_data(input: Vec<u8>, _file_name: &str, _project: &str) -> Result<DbBasicData> {
+pub fn parse_db_basic_data(
+    input: Vec<u8>,
+    _file_name: &str,
+    _project: &str,
+) -> Result<DbBasicData> {
     let gen_ref_time = Instant::now();
     let (refno_table_map, world_refno) = gen_ref_type_pos_table(&input);
     println!(
@@ -921,10 +960,11 @@ pub fn parse_db_basic_data(input: Vec<u8>, _file_name: &str, _project: &str) -> 
     let _root_refno = world_refno;
 
     let memb_time = Instant::now();
-    
+
     // 并行处理：直接遍历所有 refno 解析 children
-    let children_map_dash: DashMap<RefU64, Vec<RefU64>> = DashMap::with_capacity(refno_table_map.len());
-    
+    let children_map_dash: DashMap<RefU64, Vec<RefU64>> =
+        DashMap::with_capacity(refno_table_map.len());
+
     // 并行处理所有 refno 的 children 解析
     refno_table_map.par_iter().for_each(|entry| {
         let refno = *entry.key();
@@ -938,14 +978,12 @@ pub fn parse_db_basic_data(input: Vec<u8>, _file_name: &str, _project: &str) -> 
             .collect();
         children_map_dash.insert(refno, children);
     });
-    
+
     // 转换为 HashMap
-    let children_map: HashMap<RefU64, Vec<RefU64>> = children_map_dash
-        .into_iter()
-        .collect();
-    
+    let children_map: HashMap<RefU64, Vec<RefU64>> = children_map_dash.into_iter().collect();
+
     let all_refnos_count = children_map.len();
-    
+
     println!(
         "Parsing children members cost: {} ms",
         memb_time.elapsed().as_millis()
@@ -1043,9 +1081,12 @@ pub async fn parse_db_with_chunk_with_info(
     // 只保留当前分块相关的 children，避免超大 children_map 占用
     if !chunk_refnos.is_empty() {
         let keep_set: HashSet<RefU64> = chunk_refnos.iter().cloned().collect();
-        children_map.retain(|k, _| keep_set.contains(k) || (!ignore_world_refno && *k == root_refno));
+        children_map
+            .retain(|k, _| keep_set.contains(k) || (!ignore_world_refno && *k == root_refno));
         for (_, v) in children_map.iter_mut() {
-            v.retain(|child| keep_set.contains(child) || (!ignore_world_refno && *child == root_refno));
+            v.retain(|child| {
+                keep_set.contains(child) || (!ignore_world_refno && *child == root_refno)
+            });
         }
     }
     //如果忽略world_refno，则不解析world_refno的数据
@@ -1079,9 +1120,10 @@ pub async fn parse_db_with_chunk_with_info(
             .or_insert(HashSet::default())
             .insert(refno);
         let ref_0 = refno.get_0();
-        _refno_info_map
-            .entry(ref_0)
-            .or_insert(RefnoInfo { ref_0, db_no: dbnum });
+        _refno_info_map.entry(ref_0).or_insert(RefnoInfo {
+            ref_0,
+            db_no: dbnum,
+        });
     }
 
     for source_refno in chunk_refnos.iter() {
@@ -1184,8 +1226,7 @@ pub async fn parse_db(
         whole_attmap,
         children,
         name: _,
-    } = parse_ele_data_with_info(&input[entry.pos - 4..], database_info)
-        .await?;
+    } = parse_ele_data_with_info(&input[entry.pos - 4..], database_info).await?;
 
     {
         let mut named_attmap: NamedAttrMap = whole_attmap.merge().into();
@@ -1197,9 +1238,10 @@ pub async fn parse_db(
         .or_insert(HashSet::default())
         .insert(refno);
     let ref_0 = refno.get_0();
-    refno_info_map
-        .entry(ref_0)
-        .or_insert(RefnoInfo { ref_0, db_no: dbnum });
+    refno_info_map.entry(ref_0).or_insert(RefnoInfo {
+        ref_0,
+        db_no: dbnum,
+    });
     if children.len() > 0 {
         children_map.insert(refno, children.clone());
     }
@@ -1374,9 +1416,10 @@ pub fn parse_implicit_attr_value<'a>(
                 if let AttrVal::StringType(s2) = &val
                     && s2.trim().is_empty()
                 {
-                    if let Ok((_, v)) =
-                        crate::parse_explict_tools::parse_expression_func(expr_bytes, RefU64::default())
-                    {
+                    if let Ok((_, v)) = crate::parse_explict_tools::parse_expression_func(
+                        expr_bytes,
+                        RefU64::default(),
+                    ) {
                         if !v.trim().is_empty() {
                             val = StringType(v.into());
                         }
@@ -1385,9 +1428,10 @@ pub fn parse_implicit_attr_value<'a>(
                 if let AttrVal::StringType(s2) = &val
                     && s2.trim().is_empty()
                 {
-                    if let Ok((_, (_, v))) =
-                        crate::parse_explict_tools::parse_expression_attr(expr_bytes, RefU64::default())
-                    {
+                    if let Ok((_, (_, v))) = crate::parse_explict_tools::parse_expression_attr(
+                        expr_bytes,
+                        RefU64::default(),
+                    ) {
                         if !v.trim().is_empty() {
                             val = StringType(v.into());
                         }
@@ -1618,7 +1662,8 @@ pub async fn preload_uda_name_cache() -> anyhow::Result<()> {
     let sql = "SELECT VALUE [UKEY, UDNA, DYUDNA] FROM UDA WHERE UKEY != none";
     let udas: Vec<(i32, Option<String>, Option<String>)> = SUL_DB.query_take(sql, 0).await?;
     for (ukey, udna, dyudna) in udas {
-        let name = udna.filter(|s| !s.is_empty())
+        let name = udna
+            .filter(|s| !s.is_empty())
             .or(dyudna.filter(|s| !s.is_empty()));
         if let Some(n) = name {
             UDA_NAME_CACHE.insert(ukey, n);
@@ -1744,7 +1789,10 @@ pub fn parse_raw_explicit_attrs<'a>(
                 sc
             };
             if prefer_dual_parse || need_fallback {
-                match (parsed.as_ref().map(|(_, v)| v), legacy.as_ref().map(|(_, v)| v)) {
+                match (
+                    parsed.as_ref().map(|(_, v)| v),
+                    legacy.as_ref().map(|(_, v)| v),
+                ) {
                     (Some(new_v), Some(old_v)) => {
                         if score(old_v) > score(new_v) {
                             parsed = legacy;
@@ -1753,30 +1801,33 @@ pub fn parse_raw_explicit_attrs<'a>(
                     (None, Some(_)) => parsed = legacy,
                     _ => {}
                 }
-            } else if let (Some(new_v), Some(old_v)) = (parsed.as_ref().map(|(_, v)| v), legacy.as_ref().map(|(_, v)| v)) {
+            } else if let (Some(new_v), Some(old_v)) = (
+                parsed.as_ref().map(|(_, v)| v),
+                legacy.as_ref().map(|(_, v)| v),
+            ) {
                 if !old_v.trim().is_empty() && score(old_v) >= score(new_v) {
                     parsed = legacy;
                 }
             }
-              if let Some((input, value)) = parsed {
-                   if value.is_empty() {
-                       att_value = None;
-                   } else {
-                       let mut parsed_numeric = None;
-                       if !force_expr {
-                           if let Some(attr_info) = attr_info_map.get(&att_name) {
-                               if matches!(&attr_info.default_val, DoubleType(_)) {
-                                   if let Ok(num) = value.trim().parse::<f64>() {
-                                       parsed_numeric = Some(DoubleType(num));
-                                   }
-                               }
-                           }
-                       }
-                       att_value = parsed_numeric.or_else(|| Some(StringType(value)));
-                   }
-                   if is_debug {
-                     #[cfg(feature = "debug_parse")]
-                     {
+            if let Some((input, value)) = parsed {
+                if value.is_empty() {
+                    att_value = None;
+                } else {
+                    let mut parsed_numeric = None;
+                    if !force_expr {
+                        if let Some(attr_info) = attr_info_map.get(&att_name) {
+                            if matches!(&attr_info.default_val, DoubleType(_)) {
+                                if let Ok(num) = value.trim().parse::<f64>() {
+                                    parsed_numeric = Some(DoubleType(num));
+                                }
+                            }
+                        }
+                    }
+                    att_value = parsed_numeric.or_else(|| Some(StringType(value)));
+                }
+                if is_debug {
+                    #[cfg(feature = "debug_parse")]
+                    {
                         dbg!(&att_value);
                     }
                 }
@@ -2124,7 +2175,7 @@ fn parse_param_with_index(input: i32) -> String {
 }
 
 /// 获取所有的members
-/// 
+///
 /// 已迁移到 crate::parser::primitives::parse_members
 #[inline]
 pub fn parse_attr_members(input: &[u8]) -> IResult<&[u8], RefU64Vec> {
@@ -2134,7 +2185,7 @@ pub fn parse_attr_members(input: &[u8]) -> IResult<&[u8], RefU64Vec> {
 }
 
 /// 获取该节点的owner
-/// 
+///
 /// 已迁移到 crate::parser::primitives::parse_owner
 pub fn parse_attr_owner(input: &[u8]) -> IResult<&[u8], String> {
     // 委托给新的 parser::primitives 模块
@@ -2661,7 +2712,7 @@ pub fn convert_to_explicit_axis_string(input: &[u8], refno: RefU64) -> IResult<&
                     first_data = format!("AXIS {}", first_data);
                 }
                 let second = match_axis(parse_to_u32(&tmp_input[..4]));
-                result = StringType(format!("{}{}", first_data, second) );
+                result = StringType(format!("{}{}", first_data, second));
             }
             // 0x17 开头代表是 X () Y () Z 这种类型
             [0x2, 0x17] => {
@@ -2671,13 +2722,13 @@ pub fn convert_to_explicit_axis_string(input: &[u8], refno: RefU64) -> IResult<&
                 }
                 let (tmp_input, second_data) = parse_xyz_data(tmp_input, refno, false)?;
                 let third = match_axis(parse_to_u32(&tmp_input[..4]));
-                result = StringType(format!("{}{}{}", first_data, second_data, third) );
+                result = StringType(format!("{}{}{}", first_data, second_data, third));
             }
             [0x2, 0x22] => {
                 let (_, (a, b, c, d)) = tuple((be_u32, be_u32, be_u32, be_u32))(tmp_input)?;
                 // dbg!((a, b, c, d));
                 if a == 0x52 && b == 0x3 && c == 0x7 {
-                    result = StringType(format!("PP {}", d) );
+                    result = StringType(format!("PP {}", d));
                 }
             }
             [0x2, 0x34] => {
@@ -2830,7 +2881,12 @@ pub fn save_type_hash_file(dir: &str, out_name: &str) -> Result<()> {
         println!("read {:?} finished in {:?}", path, time);
         process_type_hash(&buf[..], &mut unique_hash_refno_map, &path);
         println!("noun_hash_refnos len = {:?}", unique_hash_refno_map.len());
-        let encode = bincode::serialize(&unique_hash_refno_map)?;
+        let mut encode_entries = unique_hash_refno_map
+            .iter()
+            .map(|entry| (*entry.key(), entry.value().clone()))
+            .collect::<Vec<_>>();
+        encode_entries.sort_unstable_by_key(|(noun_hash, _)| *noun_hash);
+        let encode = rkyv_to_bytes(&encode_entries)?;
         let mut file = OpenOptions::new()
             .write(true)
             .create(true)
@@ -2876,7 +2932,7 @@ fn check_path_db_header(path: &Path) -> bool {
 mod tests_filters {
     use super::{check_path_db_header, is_pdms_db_file};
     use aios_core::tool::db_tool::db1_hash;
-    
+
     use tempfile::tempdir;
 
     #[test]
@@ -3066,15 +3122,13 @@ pub fn parse_file_basic_info(input: &[u8]) -> DbBasicInfo {
     if t >= 0x81BF1 {
         file_type = db1_dehash(t);
     }
-    let dbnum = extract_db_no(input)
-        .map(|v| v as u32)
-        .unwrap_or_else(|| {
-            if input.len() >= 12 {
-                parse_to_u32(&input[8..12])
-            } else {
-                0
-            }
-        });
+    let dbnum = extract_db_no(input).map(|v| v as u32).unwrap_or_else(|| {
+        if input.len() >= 12 {
+            parse_to_u32(&input[8..12])
+        } else {
+            0
+        }
+    });
     let ses_pgno = if input.len() >= 44 {
         parse_to_u32(&input[40..44])
     } else {
@@ -3122,7 +3176,7 @@ fn get_refno_entry(input: &[u8], offset: usize) -> Option<(RefU64, EleDataEntry)
             if found_0_7.is_some() {
                 //允许一定范围去查找
                 if let Some(next_pos) = memmem::find(&input[12..tmp_pos + 20], &input[4..12]) {
-                    let end_pos = next_pos + 12 ; //隐含属性实际结束点
+                    let end_pos = next_pos + 12; //隐含属性实际结束点
                     if end_pos >= tmp_pos + 4 {
                         let diff_len = end_pos - tmp_pos - 4;
                         if is_debug {
@@ -3133,12 +3187,9 @@ fn get_refno_entry(input: &[u8], offset: usize) -> Option<(RefU64, EleDataEntry)
                         }
                         is_ok = diff_len == 0;
                         if diff_len > 0 && diff_len % 4 == 0 && end_pos > tmp_pos {
-                            let s: IResult<&[u8], (Vec<i32>, i32)> = many_till(
-                                verify(be_i32, |&x| x == 0),
-                                verify(be_i32, |&x| x == 7),
-                            ).parse(
-                                &input[tmp_pos..end_pos]
-                            );
+                            let s: IResult<&[u8], (Vec<i32>, i32)> =
+                                many_till(verify(be_i32, |&x| x == 0), verify(be_i32, |&x| x == 7))
+                                    .parse(&input[tmp_pos..end_pos]);
                             if is_debug {
                                 #[cfg(feature = "debug_parse")]
                                 {
@@ -3146,7 +3197,7 @@ fn get_refno_entry(input: &[u8], offset: usize) -> Option<(RefU64, EleDataEntry)
                                 }
                             }
                             if s.is_ok() {
-                                is_ok = (diff_len / 4) == (s.unwrap().1 .0.len() + 1);
+                                is_ok = (diff_len / 4) == (s.unwrap().1.0.len() + 1);
                             }
                         }
                     }
