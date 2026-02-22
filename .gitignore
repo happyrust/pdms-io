@@ -18,3 +18,5 @@ protoc/bin/*.zip
 protoc/bin/bin/
 protoc/bin/include/
 .ace-tool/
+
+**/target/
