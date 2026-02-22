@@ -111,7 +111,7 @@ pub async fn parse_pdms_dir(
         if let Ok(mut file) = File::open(config_path.unwrap()) {
             let mut attr_buf: Vec<u8> = Vec::new();
             file.read_to_end(&mut attr_buf).context("read database_info config")?;
-            database_info = bincode::deserialize(&attr_buf).ok();
+            database_info = serde_json::from_slice(&attr_buf).ok();
         }
     }
 
@@ -2830,7 +2830,7 @@ pub fn save_type_hash_file(dir: &str, out_name: &str) -> Result<()> {
         println!("read {:?} finished in {:?}", path, time);
         process_type_hash(&buf[..], &mut unique_hash_refno_map, &path);
         println!("noun_hash_refnos len = {:?}", unique_hash_refno_map.len());
-        let encode = bincode::serialize(&unique_hash_refno_map)?;
+        let encode = serde_json::to_vec(&unique_hash_refno_map)?;
         let mut file = OpenOptions::new()
             .write(true)
             .create(true)
