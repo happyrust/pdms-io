@@ -1765,18 +1765,9 @@ pub fn get_uda_full_name(hash: i32) -> Option<String> {
 
 /// 注册 UDA 名称到缓存（在解析过程中动态收集）
 pub fn register_uda_name(hash: i32, name: String) {
-    UDA_NAME_CACHE.insert(hash, name);
+    UDA_NAME_CACHE.insert(hash, format!("UDA_{}", name));
 }
 
-fn get_uda_short_name(hash: i32) -> Option<String> {
-    get_uda_full_name(hash).map(|x| {
-        if x.len() < 4 {
-            x.to_uppercase()
-        } else {
-            x[..4].to_uppercase()
-        }
-    })
-}
 
 lazy_static! {
     static ref UDA_NAME_CACHE: DashMap<i32, String> = DashMap::new();
@@ -1784,7 +1775,7 @@ lazy_static! {
 
 fn resolve_uda_label(hash: i32) -> String {
     if let Some(name) = UDA_NAME_CACHE.get(&hash) {
-        return format!("UDA_{}", name.value());
+        return name.value().clone();
     }
     format!("UDA_HASH_{hash}")
 }
@@ -1798,7 +1789,7 @@ pub async fn preload_uda_name_cache() -> anyhow::Result<()> {
         let name = udna.filter(|s| !s.is_empty())
             .or(dyudna.filter(|s| !s.is_empty()));
         if let Some(n) = name {
-            UDA_NAME_CACHE.insert(ukey, n);
+            UDA_NAME_CACHE.insert(ukey, format!("UDA_{}", n));
         }
     }
     Ok(())
@@ -1816,7 +1807,7 @@ pub fn process_explicit_attrs(
             attr_data_map.insert(label, attr.value.into());
         } else {
             //覆盖可能在隐含属性里出现过的数据
-            attr_data_map.insert(attr.name.clone(), attr.value.into());
+            attr_data_map.insert(attr.name, attr.value.into());
         }
     }
 
@@ -1842,8 +1833,8 @@ pub fn parse_raw_explicit_attrs<'a>(
         }
         let is_uda = is_uda(hash_val);
         let att_name = if is_uda {
-            //UDA 单独处理
-            "_UDAS".into()
+            //UDA 单独处理, 占位不发生分配
+            String::new()
         } else {
             db1_dehash(hash_val.abs() as _)
         };

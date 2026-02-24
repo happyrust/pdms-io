@@ -41,8 +41,8 @@ pub fn init_log(level: log::LevelFilter) -> Result<()> {
 pub fn init_log_with_file(
     level: log::LevelFilter, 
     log_file_path: &str,
-    rotate_size: u64,
-    max_files: usize
+    _rotate_size: u64,
+    _max_files: usize
 ) -> Result<()> {
     let local_level = level;
     

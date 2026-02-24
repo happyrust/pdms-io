@@ -132,10 +132,10 @@ impl PdmsWatcher {
                 };
 
                 //初始化CBA的Archive文件，来保证后续增量下载
-                let input = path.to_path_buf();
-                let output: PathBuf =
+                let _input = path.to_path_buf();
+                let _output: PathBuf =
                     format!("{}/{}.cba", cbas_dir_path.as_str(), file_name).into();
-                let tmp_path = cbas_dir_path.clone();
+                let _tmp_path = cbas_dir_path.clone();
                 join_set.spawn(async move {
                     // let compress_opt = CompressOptions::new(input, output, tmp_path.as_str());
                     // execute_compress(compress_opt).await.unwrap();
