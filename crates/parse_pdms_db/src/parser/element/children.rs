@@ -4,11 +4,11 @@
 
 use aios_core::pdms_types::RefI32Tuple;
 use aios_core::types::{RefU64, RefU64Vec};
+use nom::IResult;
+use nom::Parser;
 use nom::error::{ErrorKind, make_error};
 use nom::multi::count;
 use nom::number::complete::{be_u16, be_u64};
-use nom::IResult;
-use nom::Parser;
 
 use crate::parser::combinator::{collect_segmented_payload, extend_impl_len};
 use crate::parser::primitives::parse_impl_len_bytes;

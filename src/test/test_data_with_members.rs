@@ -53,7 +53,3 @@ pub const TEST_MEMEBS_DATA: &'static str = "
 2D 42 2D 38 2D 42 31 00 00 08 DF C1 1C 00 00 02
 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00
 ";
-
-
-
-

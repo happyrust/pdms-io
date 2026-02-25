@@ -5,10 +5,10 @@
 //! - 标记检测
 //! - 数据块提取
 
-use nom::bytes::complete::take;
-use nom::error::{ErrorKind, make_error};
 use nom::IResult;
 use nom::Parser;
+use nom::bytes::complete::take;
+use nom::error::{ErrorKind, make_error};
 
 /// 默认 members 主段 payload 起始偏移（flag+len+self_ref 共 12 字节）
 const MEMBERS_BASE_PAYLOAD_OFFSET: usize = 12;
@@ -147,10 +147,7 @@ pub fn collect_segmented_payload(
             u16::from_be_bytes(input[cursor + 6..cursor + 8].try_into().unwrap()) as usize;
         let seg_len_bytes = seg_len_words * 4;
         if seg_len_bytes == 0 {
-            return Err(nom::Err::Error(make_error(
-                input,
-                ErrorKind::LengthValue,
-            )));
+            return Err(nom::Err::Error(make_error(input, ErrorKind::LengthValue)));
         }
 
         // 与旧逻辑保持一致：总长 = len_bytes + 4（含前导长度字段）
@@ -161,10 +158,7 @@ pub fn collect_segmented_payload(
 
         let seg_payload_start = cursor + SEGMENT_PAYLOAD_OFFSET;
         if seg_payload_start > seg_end {
-            return Err(nom::Err::Error(make_error(
-                input,
-                ErrorKind::LengthValue,
-            )));
+            return Err(nom::Err::Error(make_error(input, ErrorKind::LengthValue)));
         }
 
         payload.extend_from_slice(&input[seg_payload_start..seg_end]);
@@ -266,9 +260,7 @@ mod tests {
     #[test]
     fn test_skip_padding() {
         let input = [
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x07,
-            0x00, 0x00, 0x00, 0x01,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01,
         ];
         let rest = skip_padding(&input);
         assert_eq!(rest, &[0x00, 0x00, 0x00, 0x01]);
@@ -355,6 +347,12 @@ mod tests {
 
         let (rest, payload) = collect_segmented_payload(&data, 20, MEMBERS_FLAG as u8).unwrap();
         assert!(rest.is_empty());
-        assert_eq!(payload, vec![0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC]);
+        assert_eq!(
+            payload,
+            vec![
+                0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
+                0xBB, 0xCC
+            ]
+        );
     }
 }

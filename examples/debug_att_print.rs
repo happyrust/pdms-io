@@ -4,9 +4,9 @@
 //! 示例: cargo run --example debug_ams1112_272310 -- "D:\AVEVA\Projects\...\ams1112_0001" "17496/272310"
 //!
 
+use aios_core::RefU64;
 use anyhow::{Result, bail};
 use pdms_io::io::PdmsIO;
-use aios_core::RefU64;
 use std::env;
 
 #[tokio::main]
@@ -15,7 +15,10 @@ async fn main() -> Result<()> {
 
     if args.len() < 3 {
         println!("用法: {} <db_path> <refno>", args[0]);
-        println!("示例: {} \"D:\\AVEVA\\...\\ams1112_0001\" \"17496/272310\"", args[0]);
+        println!(
+            "示例: {} \"D:\\AVEVA\\...\\ams1112_0001\" \"17496/272310\"",
+            args[0]
+        );
         bail!("参数不足");
     }
 
@@ -28,7 +31,11 @@ async fn main() -> Result<()> {
     println!("文件: {}", db_path);
     println!("RefNo 字符串: {}", refno_str);
     println!("RefNo 解析后: {}", refno);
-    println!("RefNo 内部值: db_idx={}, ele_idx={}", refno.get_0(), refno.get_1());
+    println!(
+        "RefNo 内部值: db_idx={}, ele_idx={}",
+        refno.get_0(),
+        refno.get_1()
+    );
     println!("========================================\n");
 
     let mut io = PdmsIO::new("ams", db_path, true);
@@ -40,7 +47,10 @@ async fn main() -> Result<()> {
     if let Ok(basic_info) = io.get_page_basic_info() {
         println!("=== 数据库基本信息 ===");
         println!("最新会话: sesno={}", basic_info.latest_ses_data.sesno);
-        println!("索引根页: {:#X}", basic_info.latest_ses_data.index_root_pageno);
+        println!(
+            "索引根页: {:#X}",
+            basic_info.latest_ses_data.index_root_pageno
+        );
     }
 
     // 尝试定位元素
@@ -83,7 +93,10 @@ async fn main() -> Result<()> {
         for test_refno_str in test_refnos {
             let test_refno: RefU64 = test_refno_str.into();
             if let Some((sesno, offset)) = io.search_latest_refno(test_refno, None) {
-                println!("  {} => 存在 (sesno={}, offset={:#X})", test_refno_str, sesno, offset);
+                println!(
+                    "  {} => 存在 (sesno={}, offset={:#X})",
+                    test_refno_str, sesno, offset
+                );
             } else {
                 println!("  {} => 不存在", test_refno_str);
             }

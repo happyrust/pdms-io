@@ -1,19 +1,15 @@
 pub mod noun_schema;
 
 use aios_core::tool::db_tool::{db1_dehash, db1_hash};
+use anyhow::{Context, Result};
+use nom::{IResult, multi::count, number::complete::be_u32};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
-use nom::{
-    number::complete::be_u32,
-    IResult,
-    multi::count,
-};
-use anyhow::{Result, Context};
-use std::fmt;
 
 const PAGE_SIZE: usize = 2048;
 const RECORD_DELIMITER: u32 = 0xFFFFFFFF;
@@ -123,7 +119,12 @@ impl fmt::Display for AttributeMeta {
         write!(
             f,
             "{:<12} hash=0x{:08X}  type={:<12} defi={:<8} size={} unit={}",
-            self.name, self.hash, self.data_type.to_string(), self.defi.to_string(), self.size, self.unit_type_name
+            self.name,
+            self.hash,
+            self.data_type.to_string(),
+            self.defi.to_string(),
+            self.size,
+            self.unit_type_name
         )
     }
 }
@@ -210,9 +211,12 @@ impl AttlibData {
         candidates.sort_unstable();
         candidates.dedup();
 
-        let atgtix_start_page = Self::guess_atgtix_start_page(&mut file, &candidates).unwrap_or(None);
-        let atgtdf_table_start_page = Self::guess_atgtdf_start_page(&mut file, &candidates).unwrap_or(None);
-        let atgtsx_start_page = Self::guess_atgtsx_start_page(&mut file, &candidates).unwrap_or(None);
+        let atgtix_start_page =
+            Self::guess_atgtix_start_page(&mut file, &candidates).unwrap_or(None);
+        let atgtdf_table_start_page =
+            Self::guess_atgtdf_start_page(&mut file, &candidates).unwrap_or(None);
+        let atgtsx_start_page =
+            Self::guess_atgtsx_start_page(&mut file, &candidates).unwrap_or(None);
         let atnain_start_page = dir_page.get(3).copied().map(|v| v as usize).unwrap_or(0);
 
         // 收集所有记录
@@ -324,7 +328,8 @@ impl AttlibData {
                 5 => "Angle",
                 6 => "Mass",
                 _ => "Unknown",
-            }.to_string();
+            }
+            .to_string();
 
             let meta = AttributeMeta {
                 hash,
@@ -357,7 +362,11 @@ impl AttlibData {
             }
         }
 
-        if result.is_empty() { None } else { Some(result) }
+        if result.is_empty() {
+            None
+        } else {
+            Some(result)
+        }
     }
 
     /// 获取所有已知 NOUN 名称列表
@@ -416,7 +425,11 @@ impl AttlibData {
         Ok(None)
     }
 
-    fn parse_atgtix(file: &mut File, start_page: usize, max_entries: u32) -> Result<Vec<AtgtixEntry>> {
+    fn parse_atgtix(
+        file: &mut File,
+        start_page: usize,
+        max_entries: u32,
+    ) -> Result<Vec<AtgtixEntry>> {
         let mut out = Vec::new();
         let mut page_idx = start_page;
         while (out.len() as u32) < max_entries {
@@ -454,7 +467,11 @@ impl AttlibData {
         Ok(out)
     }
 
-    fn parse_atgtsx(file: &mut File, start_page: usize, max_entries: u32) -> Result<Vec<AtgtsxEntry>> {
+    fn parse_atgtsx(
+        file: &mut File,
+        start_page: usize,
+        max_entries: u32,
+    ) -> Result<Vec<AtgtsxEntry>> {
         let mut out = Vec::new();
         let mut page_idx = start_page;
         while (out.len() as u32) < max_entries {
@@ -579,7 +596,7 @@ impl AttlibData {
 
         let mut buf = vec![0u8; PAGE_SIZE];
         file.read_exact(&mut buf)?;
-        
+
         let (_, page_data) = Self::parse_page(&buf)
             .map_err(|e| anyhow::anyhow!("Failed to parse page {}: {:?}", page_num, e))?;
         Ok(page_data)
@@ -596,13 +613,13 @@ impl AttlibData {
         let mut records = Vec::new();
         let mut current_rec = Vec::new();
         let mut found_first_delimiter = false;
-        
+
         for page_idx in start_page..start_page + 1500 {
             let page_data = match Self::read_page(file, page_idx) {
                 Ok(data) => data,
                 Err(_) => break,
             };
-            
+
             for val in page_data {
                 if val == RECORD_DELIMITER {
                     if found_first_delimiter && !current_rec.is_empty() {
@@ -614,12 +631,12 @@ impl AttlibData {
                 }
             }
         }
-        
+
         // 添加最后一条记录
         if !current_rec.is_empty() {
             records.push(current_rec);
         }
-        
+
         Ok(records)
     }
 
@@ -651,7 +668,9 @@ impl AttlibData {
         while idx < data.len() && data[idx] == 0 {
             idx += 1;
         }
-        if idx >= data.len() { return None; }
+        if idx >= data.len() {
+            return None;
+        }
 
         let attr_id = data[idx];
         idx += 1;
@@ -682,7 +701,8 @@ impl AttlibData {
             6 => "Mass",
             -1 => "Invalid",
             _ => "Unknown",
-        }.to_string();
+        }
+        .to_string();
 
         let mut record = AttributeRecord {
             id: attr_id,
@@ -703,7 +723,7 @@ impl AttlibData {
                 let is_str = (0..val as usize).all(|k| {
                     idx + 1 + k < data.len() && (0x20..=0x7E).contains(&data[idx + 1 + k])
                 });
-                
+
                 if is_str {
                     let (s, next_idx) = Self::extract_string(data, idx);
                     if let Some(s) = s {
@@ -716,10 +736,18 @@ impl AttlibData {
             idx += 1;
         }
 
-        if !strings.is_empty() { record.description = strings[0].clone(); }
-        if strings.len() >= 2 { record.short_name = strings[1].clone(); }
-        if strings.len() >= 3 { record.ui_name = strings[2].clone(); }
-        if strings.len() >= 5 { record.category = strings.last().unwrap().clone(); }
+        if !strings.is_empty() {
+            record.description = strings[0].clone();
+        }
+        if strings.len() >= 2 {
+            record.short_name = strings[1].clone();
+        }
+        if strings.len() >= 3 {
+            record.ui_name = strings[2].clone();
+        }
+        if strings.len() >= 5 {
+            record.category = strings.last().unwrap().clone();
+        }
 
         Some(record)
     }
@@ -736,21 +764,31 @@ mod tests {
             let data = AttlibData::parse_attlib_file(path).unwrap();
             println!("Parsed {} attributes", data.attributes.len());
             println!("Noun-Attr mappings: {} nouns", data.noun_attr_map.len());
-            
-            assert!(data.attributes.len() > 5000, "Should parse 5000+ attributes");
-            
+
+            assert!(
+                data.attributes.len() > 5000,
+                "Should parse 5000+ attributes"
+            );
+
             // 验证已知属性
             if let Some(&idx) = data.name_map.get("XLENGTH") {
                 let attr = &data.attributes[idx];
                 assert_eq!(attr.type_code, 2, "XLENGTH should have type_code 2");
             }
-            
+
             // 验证 noun_attr_map 有内容
-            assert!(!data.noun_attr_map.is_empty(), "noun_attr_map should not be empty");
-            
+            assert!(
+                !data.noun_attr_map.is_empty(),
+                "noun_attr_map should not be empty"
+            );
+
             // 打印一些示例映射
             for (noun_hash, attr_indices) in data.noun_attr_map.iter().take(3) {
-                println!("Noun 0x{:08X} -> {} attributes", noun_hash, attr_indices.len());
+                println!(
+                    "Noun 0x{:08X} -> {} attributes",
+                    noun_hash,
+                    attr_indices.len()
+                );
             }
         }
     }

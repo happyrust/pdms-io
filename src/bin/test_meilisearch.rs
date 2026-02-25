@@ -17,7 +17,7 @@ async fn main() -> anyhow::Result<()> {
     init_log(log::LevelFilter::Info).unwrap();
     let db_option = get_db_option();
     dbg!(&db_option.get_version_db_conn_str());
-    
+
     // 初始化SurrealDB连接
     init_test_surreal().await.unwrap();
 
@@ -51,7 +51,7 @@ async fn main() -> anyhow::Result<()> {
 
     // 创建搜索客户端
     let search_client = ElementSearchClient::new(config)?;
-    
+
     // 初始化索引
     println!("初始化 Meilisearch 索引...");
     search_client.initialize_index().await?;
@@ -68,11 +68,12 @@ async fn main() -> anyhow::Result<()> {
     let start_time = Instant::now();
     let latest_elements = io.collect_latest_eles(Some(10)).await?;
     let elapsed = start_time.elapsed();
-    
+
     let total_elements = latest_elements.len();
     println!("收集到 {} 个元素，耗时: {:?}", total_elements, elapsed);
     //保存到数据库
-    io.collect_and_save_latest_data(Some(10), Some(latest_elements.clone())).await?;
+    io.collect_and_save_latest_data(Some(10), Some(latest_elements.clone()))
+        .await?;
 
     if total_elements > 0 {
         // 将元素数据索引到 Meilisearch
@@ -104,8 +105,13 @@ async fn main() -> anyhow::Result<()> {
         let elapsed = start_time.elapsed();
         println!("找到 {} 个结果，耗时: {:?}", name_results.len(), elapsed);
         for (i, result) in name_results.iter().take(5).enumerate() {
-            println!("  {}. {} (类型: {}, 参考号: {})", 
-                     i + 1, result.name, result.element_type, result.refno);
+            println!(
+                "  {}. {} (类型: {}, 参考号: {})",
+                i + 1,
+                result.name,
+                result.element_type,
+                result.refno
+            );
         }
 
         println!("\n=== 搜索测试完成 ===");
@@ -114,4 +120,4 @@ async fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
-} 
+}

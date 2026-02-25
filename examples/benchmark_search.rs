@@ -1,13 +1,13 @@
-use anyhow::Result;
-use pdms_io::io::{benchmark_search_refno_pgno, extract_test_refnos, PdmsIO};
-use pdms_io::test::resolve_test_db_path;
 use aios_core::RefU64;
+use anyhow::Result;
+use pdms_io::io::{PdmsIO, benchmark_search_refno_pgno, extract_test_refnos};
+use pdms_io::test::resolve_test_db_path;
 use std::env;
 
 /// 运行search_refno_pgno的性能基准测试
-/// 
+///
 /// 用法: cargo run --example benchmark_search -- <db_path> [iterations] [refno_count]
-/// 
+///
 /// 参数:
 ///   - db_path: PDMS数据库文件路径
 ///   - iterations: 每个参考号重复测试的次数，默认为10
@@ -21,7 +21,9 @@ async fn main() -> Result<()> {
         path.display().to_string()
     } else {
         eprintln!("未提供数据库路径，且本地 test-file 目录中不存在 ams1112_0001");
-        eprintln!("用法: cargo run --example benchmark_search -- <db_path> [iterations] [refno_count]");
+        eprintln!(
+            "用法: cargo run --example benchmark_search -- <db_path> [iterations] [refno_count]"
+        );
         return Ok(());
     };
 
@@ -36,12 +38,12 @@ async fn main() -> Result<()> {
     } else {
         50
     };
-    
+
     // 打开数据库并获取真实的参考号
     let mut io = PdmsIO::new("bench", &db_path, true);
     io.open()?;
     io.init_ses_range_map()?;
-    
+
     println!("从数据库中提取测试用的参考号...");
     let real_refnos = match extract_test_refnos(&mut io, refno_count) {
         Ok(refnos) => {
@@ -58,7 +60,7 @@ async fn main() -> Result<()> {
                 println!("找到 {} 个真实参考号用于测试", refnos.len());
                 refnos
             }
-        },
+        }
         Err(e) => {
             eprintln!("提取参考号时出错: {}", e);
             println!("将使用模拟数据");
@@ -71,9 +73,9 @@ async fn main() -> Result<()> {
             ]
         }
     };
-    
+
     // 运行基准测试
     benchmark_search_refno_pgno(&db_path, &real_refnos, iterations).await?;
-    
+
     Ok(())
-} 
+}

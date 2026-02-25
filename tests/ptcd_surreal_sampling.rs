@@ -1,13 +1,13 @@
-use anyhow::{anyhow, Context, Result};
 use aios_core::RefU64;
+use anyhow::{Context, Result, anyhow};
 use pdms_io::io::PdmsIO;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
+use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
 use surrealdb::types::{Number, Object, RecordId, RecordIdKey, Value};
-use surrealdb::Surreal;
 
 fn normalize_pdms_string(s: &str) -> String {
     let s = s.trim();
@@ -49,7 +49,9 @@ fn resolve_project_path() -> Option<PathBuf> {
     for line in content.lines() {
         let line = line.trim();
         if let Some(v) = line.strip_prefix("project_path") {
-            let v = v.trim_start_matches(|c: char| c.is_whitespace() || c == '=').trim();
+            let v = v
+                .trim_start_matches(|c: char| c.is_whitespace() || c == '=')
+                .trim();
             let v = v.trim_matches('"');
             if !v.is_empty() {
                 let p = PathBuf::from(v);
@@ -77,10 +79,16 @@ fn resolve_ams_db_file(project_path: &Path, dbnum: u32) -> Option<PathBuf> {
 
     // 回退：扫描目录找首个匹配前缀的文件（避免过多“特殊情况”）
     let prefix = format!("ams{}_", dbnum);
-    let mut cands = fs::read_dir(&dir).ok()?
+    let mut cands = fs::read_dir(&dir)
+        .ok()?
         .filter_map(|e| e.ok())
         .map(|e| e.path())
-        .filter(|p| p.file_name().and_then(|s| s.to_str()).map(|s| s.starts_with(&prefix)).unwrap_or(false))
+        .filter(|p| {
+            p.file_name()
+                .and_then(|s| s.to_str())
+                .map(|s| s.starts_with(&prefix))
+                .unwrap_or(false)
+        })
         .collect::<Vec<_>>();
     cands.sort();
     cands.into_iter().next()
@@ -120,7 +128,9 @@ async fn test_ptcd_parse_matches_surreal_samples() -> Result<()> {
     let project_path = match resolve_project_path() {
         Some(p) => p,
         None => {
-            eprintln!("未找到项目路径：请设置环境变量 PDMS_PROJECT_PATH 或配置 DbOption.toml 的 project_path；跳过。");
+            eprintln!(
+                "未找到项目路径：请设置环境变量 PDMS_PROJECT_PATH 或配置 DbOption.toml 的 project_path；跳过。"
+            );
             return Ok(());
         }
     };
@@ -194,7 +204,8 @@ async fn test_ptcd_parse_matches_surreal_samples() -> Result<()> {
         let samples = rs.into_iter().take(PER_DBNUM).collect::<Vec<_>>();
 
         let mut io = PdmsIO::new("ams", &db_file, true);
-        io.open().with_context(|| format!("open db file: {}", db_file.display()))?;
+        io.open()
+            .with_context(|| format!("open db file: {}", db_file.display()))?;
         io.init_ses_range_map()
             .with_context(|| format!("init ses range map: {}", db_file.display()))?;
 
@@ -233,13 +244,7 @@ async fn test_ptcd_parse_matches_surreal_samples() -> Result<()> {
             let got = normalize_pdms_string(&got);
 
             if got != expected {
-                mismatches.push((
-                    dbnum,
-                    refno.to_string(),
-                    noun,
-                    expected,
-                    got,
-                ));
+                mismatches.push((dbnum, refno.to_string(), noun, expected, got));
             }
             tested += 1;
         }
@@ -249,9 +254,15 @@ async fn test_ptcd_parse_matches_surreal_samples() -> Result<()> {
         eprintln!("缺失 AMS DB 文件的 dbnum（跳过）：{:?}", missing_files);
     }
     if !missing_refnos.is_empty() {
-        eprintln!("在对应 DB 文件中找不到 refno（跳过，可能为跨库/数据不一致）：{}", missing_refnos.len());
+        eprintln!(
+            "在对应 DB 文件中找不到 refno（跳过，可能为跨库/数据不一致）：{}",
+            missing_refnos.len()
+        );
         for (dbnum, refno, noun, ptcd) in missing_refnos.iter().take(8) {
-            eprintln!("  - dbnum={}, refno={}, noun={:?}, ptcd={}", dbnum, refno, noun, ptcd);
+            eprintln!(
+                "  - dbnum={}, refno={}, noun={:?}, ptcd={}",
+                dbnum, refno, noun, ptcd
+            );
         }
     }
 

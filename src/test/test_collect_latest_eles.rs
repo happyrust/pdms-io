@@ -1,20 +1,20 @@
 //! 测试最新元素收集功能
-//! 
+//!
 //! 本测试模块验证`collect_latest_eles`方法是否能正确收集最新的元素数据：
 //! - 能够从后往前检索最新数据
 //! - 能够正确跳过已删除的元素
 //! - 只保留增加和修改的元素
 //! - 能够处理会话数量限制参数
 
-use aios_core::pdms_types::RefU64;
-use crate::io::{PdmsIO, EleOperationDetail, extract_test_refnos};
 use crate::defines::RefnoDataLoc;
+use crate::io::{EleOperationDetail, PdmsIO, extract_test_refnos};
 use crate::test::resolve_test_db_path;
-use std::time::Instant;
+use aios_core::pdms_types::RefU64;
 use std::collections::HashSet;
+use std::time::Instant;
 
 /// 测试`collect_latest_eles`方法
-/// 
+///
 /// 本测试验证以下情况：
 /// 1. 使用None参数获取所有会话的最新元素
 /// 2. 使用指定会话数量限制获取最新元素
@@ -46,7 +46,7 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
     let locs = io.collect_refno_locs(latest_sesno as i32);
     for (i, loc) in locs.iter().take(5).enumerate() {
         let refno = RefU64::from_two_nums(loc.refno_0, loc.refno_1);
-        println!("参考号 {}: {}", i+1, refno);
+        println!("参考号 {}: {}", i + 1, refno);
 
         // 首先检查搜索结果
         let [latest, previous] = io.search_latest_and_prev_refno(refno, Some(85));
@@ -67,24 +67,35 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
                                 println!("    分析: 找到最新版本在会话{}偏移{:#X}", sesno, offset);
                                 match io.parse_raw_element(offset) {
                                     Ok(ele) => {
-                                        println!("    元素解析成功: 类型={}, 所有者={}",
-                                                ele.att_map().get_type(), ele.owner);
+                                        println!(
+                                            "    元素解析成功: 类型={}, 所有者={}",
+                                            ele.att_map().get_type(),
+                                            ele.owner
+                                        );
 
                                         // 检查所有者元素
                                         println!("    尝试获取所有者元素: {}", ele.owner);
 
                                         // 先检查所有者元素是否存在于索引中
-                                        let owner_search_result = io.search_latest_refno(ele.owner, None);
-                                        println!("    所有者元素搜索结果: {:?}", owner_search_result);
+                                        let owner_search_result =
+                                            io.search_latest_refno(ele.owner, None);
+                                        println!(
+                                            "    所有者元素搜索结果: {:?}",
+                                            owner_search_result
+                                        );
 
                                         match io.auto_get_raw_element(ele.owner) {
                                             Ok(owner_ele) => {
-                                                println!("    所有者元素获取成功: 类型={}",
-                                                        owner_ele.att_map().get_type());
+                                                println!(
+                                                    "    所有者元素获取成功: 类型={}",
+                                                    owner_ele.att_map().get_type()
+                                                );
                                                 if owner_ele.children.contains(&refno) {
                                                     println!("    ✓ 参考号在所有者的子元素列表中");
                                                 } else {
-                                                    println!("    ❌ 参考号不在所有者的子元素列表中");
+                                                    println!(
+                                                        "    ❌ 参考号不在所有者的子元素列表中"
+                                                    );
                                                 }
                                             }
                                             Err(e) => {
@@ -97,22 +108,39 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
                                                 match io.search_history_refnos(ele.owner, None) {
                                                     Ok(history) => {
                                                         if history.is_empty() {
-                                                            println!("      所有者元素在任何会话中都不存在");
+                                                            println!(
+                                                                "      所有者元素在任何会话中都不存在"
+                                                            );
                                                         } else {
-                                                            println!("      所有者元素历史记录: {} 个版本", history.len());
-                                                            for (sesno, offset) in history.iter().take(3) {
-                                                                println!("        会话{}: 偏移{:#X}", sesno, offset);
+                                                            println!(
+                                                                "      所有者元素历史记录: {} 个版本",
+                                                                history.len()
+                                                            );
+                                                            for (sesno, offset) in
+                                                                history.iter().take(3)
+                                                            {
+                                                                println!(
+                                                                    "        会话{}: 偏移{:#X}",
+                                                                    sesno, offset
+                                                                );
                                                             }
                                                         }
                                                     }
                                                     Err(e) => {
-                                                        println!("      搜索所有者元素历史失败: {}", e);
+                                                        println!(
+                                                            "      搜索所有者元素历史失败: {}",
+                                                            e
+                                                        );
                                                     }
                                                 }
 
                                                 // 检查所有者元素是否在当前会话范围内
-                                                let owner_latest = io.search_latest_refno(ele.owner, Some(85));
-                                                println!("      所有者在会话85中的搜索结果: {:?}", owner_latest);
+                                                let owner_latest =
+                                                    io.search_latest_refno(ele.owner, Some(85));
+                                                println!(
+                                                    "      所有者在会话85中的搜索结果: {:?}",
+                                                    owner_latest
+                                                );
                                             }
                                         }
                                     }
@@ -141,7 +169,11 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
     let latest_eles = io.collect_latest_eles(Some(3)).await?;
     let elapsed = start.elapsed();
 
-    println!("前3个会话中共找到 {} 个最新元素, 耗时: {:?}", latest_eles.len(), elapsed);
+    println!(
+        "前3个会话中共找到 {} 个最新元素, 耗时: {:?}",
+        latest_eles.len(),
+        elapsed
+    );
 
     // 验证返回的元素都不是删除状态
     let mut add_count = 0;
@@ -156,17 +188,18 @@ async fn test_collect_latest_session() -> anyhow::Result<()> {
             EleOperationDetail::Deleted => {
                 deleted_count += 1;
                 println!("警告: 发现已删除元素 {}, 这不应该出现在结果中", refno);
-            },
+            }
             EleOperationDetail::None => none_count += 1,
         }
     }
 
-    println!("操作类型统计: 新增={}, 修改={}, 删除={}, 无操作={}",
-             add_count, modified_count, deleted_count, none_count);
+    println!(
+        "操作类型统计: 新增={}, 修改={}, 删除={}, 无操作={}",
+        add_count, modified_count, deleted_count, none_count
+    );
 
     // 断言：结果中不应该有删除的元素
     assert_eq!(deleted_count, 0, "结果中不应该包含已删除的元素");
-
 
     Ok(())
 }
@@ -220,7 +253,9 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
 
     let mut found_sessions = Vec::new();
     for &sesno in &all_sessions {
-        if let Some((found_sesno, offset)) = io.search_latest_refno(missing_refno, Some(sesno as u32)) {
+        if let Some((found_sesno, offset)) =
+            io.search_latest_refno(missing_refno, Some(sesno as u32))
+        {
             found_sessions.push((found_sesno, offset));
             println!("  ✓ 在会话{}中找到: 偏移{:#X}", found_sesno, offset);
         }
@@ -237,8 +272,10 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
     let target_r0 = missing_refno.get_0();
     let target_r1 = missing_refno.get_1();
 
-    println!("  搜索字节模式: r0={} (0x{:08X}), r1={} (0x{:08X})",
-             target_r0, target_r0, target_r1, target_r1);
+    println!(
+        "  搜索字节模式: r0={} (0x{:08X}), r1={} (0x{:08X})",
+        target_r0, target_r0, target_r1, target_r1
+    );
 
     let target_r0_bytes = target_r0.to_le_bytes();
     let target_r1_bytes = target_r1.to_le_bytes();
@@ -246,8 +283,11 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
     // 读取数据库文件进行二进制搜索
     let db_path = std::path::Path::new(&db_filepath);
     if let Ok(file_data) = std::fs::read(db_path) {
-        println!("  数据库文件大小: {} bytes ({:.2} MB)",
-                 file_data.len(), file_data.len() as f64 / 1024.0 / 1024.0);
+        println!(
+            "  数据库文件大小: {} bytes ({:.2} MB)",
+            file_data.len(),
+            file_data.len() as f64 / 1024.0 / 1024.0
+        );
 
         let mut found_positions = Vec::new();
         let mut search_start = 0;
@@ -265,13 +305,16 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
                     let page_offset = r0_pos % page_size;
                     found_positions.push((r0_pos, page_no, page_offset));
 
-                    println!("  🎯 找到匹配: 文件位置0x{:X}, 页号0x{:X}, 页内偏移0x{:X}",
-                             r0_pos, page_no, page_offset);
+                    println!(
+                        "  🎯 找到匹配: 文件位置0x{:X}, 页号0x{:X}, 页内偏移0x{:X}",
+                        r0_pos, page_no, page_offset
+                    );
                 }
             }
 
             search_start = absolute_pos + 1;
-            if found_positions.len() >= 10 { // 限制搜索结果数量
+            if found_positions.len() >= 10 {
+                // 限制搜索结果数量
                 break;
             }
         }
@@ -279,12 +322,20 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
         if found_positions.is_empty() {
             println!("  ❌ 在二进制数据中未找到该参考号");
         } else {
-            println!("  ✓ 在二进制数据中找到 {} 个匹配位置", found_positions.len());
+            println!(
+                "  ✓ 在二进制数据中找到 {} 个匹配位置",
+                found_positions.len()
+            );
 
             // 分析找到的位置
             for (i, (file_pos, page_no, page_offset)) in found_positions.iter().enumerate() {
-                println!("\n  位置 {}: 文件0x{:X}, 页号0x{:X}, 偏移0x{:X}",
-                         i+1, file_pos, page_no, page_offset);
+                println!(
+                    "\n  位置 {}: 文件0x{:X}, 页号0x{:X}, 偏移0x{:X}",
+                    i + 1,
+                    file_pos,
+                    page_no,
+                    page_offset
+                );
 
                 // 检查这个页面是否在索引中
                 if let Ok(index_data) = io.read_index_data(*page_no as u32) {
@@ -293,15 +344,20 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
                     // 在索引页面中查找
                     for (idx, loc) in index_data.refno_locs.iter().enumerate() {
                         if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
-                            println!("    🎯 在索引条目[{}]中找到: {}_{} -> 数据页号0x{:X}",
-                                     idx, loc.refno_0, loc.refno_1, loc.pgno);
+                            println!(
+                                "    🎯 在索引条目[{}]中找到: {}_{} -> 数据页号0x{:X}",
+                                idx, loc.refno_0, loc.refno_1, loc.pgno
+                            );
 
                             // 检查数据页面
-                            if let Ok(ele_data) = io.parse_raw_element(
-                                loc.get_att_offset_with_page_size(io.page_size),
-                            ) {
-                                println!("    ✓ 成功解析元素: 类型={}, 所有者={}",
-                                         ele_data.att_map().get_type(), ele_data.owner);
+                            if let Ok(ele_data) = io
+                                .parse_raw_element(loc.get_att_offset_with_page_size(io.page_size))
+                            {
+                                println!(
+                                    "    ✓ 成功解析元素: 类型={}, 所有者={}",
+                                    ele_data.att_map().get_type(),
+                                    ele_data.owner
+                                );
                             } else {
                                 println!("    ❌ 解析元素失败");
                             }
@@ -357,10 +413,13 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
                         }
 
                         // 检查这个偏移量对应的页面和位置
-                    let page_size = io.page_size as u64;
-                    let page_no = offset / page_size;
-                    let page_offset = offset % page_size;
-                        println!("  位置信息: 页号0x{:X}, 页内偏移0x{:X}", page_no, page_offset);
+                        let page_size = io.page_size as u64;
+                        let page_no = offset / page_size;
+                        let page_offset = offset % page_size;
+                        println!(
+                            "  位置信息: 页号0x{:X}, 页内偏移0x{:X}",
+                            page_no, page_offset
+                        );
 
                         // 尝试直接搜索这个参考号
                         println!("  测试搜索算法:");
@@ -380,7 +439,8 @@ async fn test_analyze_missing_owner_24383_66457() -> anyhow::Result<()> {
                 println!("  ❌ 目标参考号不在索引映射中");
 
                 // 查找相近的参考号
-                let nearby_refnos: Vec<_> = index_map.keys()
+                let nearby_refnos: Vec<_> = index_map
+                    .keys()
                     .filter(|&refno| refno.get_0() == target_r0)
                     .take(10)
                     .collect();
@@ -453,27 +513,48 @@ async fn test_btree_search_algorithm_issue() -> anyhow::Result<()> {
     loop {
         match io.read_index_data(current_pgno) {
             Ok(index_data) => {
-                println!("\n层级 {}: 页号 0x{:X}, 索引层级: {}, 条目数: {}",
-                         level, current_pgno, index_data.level, index_data.refno_locs.len());
+                println!(
+                    "\n层级 {}: 页号 0x{:X}, 索引层级: {}, 条目数: {}",
+                    level,
+                    current_pgno,
+                    index_data.level,
+                    index_data.refno_locs.len()
+                );
 
                 // 显示前几个和后几个条目
                 let entries_to_show = 5;
                 println!("  前{}个条目:", entries_to_show);
-                for (i, loc) in index_data.refno_locs.iter().take(entries_to_show).enumerate() {
-                    println!("    [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
-                             i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset);
+                for (i, loc) in index_data
+                    .refno_locs
+                    .iter()
+                    .take(entries_to_show)
+                    .enumerate()
+                {
+                    println!(
+                        "    [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
+                        i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset
+                    );
                 }
 
                 if index_data.refno_locs.len() > entries_to_show * 2 {
-                    println!("    ... ({} 个条目被省略)", index_data.refno_locs.len() - entries_to_show * 2);
+                    println!(
+                        "    ... ({} 个条目被省略)",
+                        index_data.refno_locs.len() - entries_to_show * 2
+                    );
                 }
 
                 if index_data.refno_locs.len() > entries_to_show {
                     println!("  后{}个条目:", entries_to_show);
                     let start_idx = index_data.refno_locs.len().saturating_sub(entries_to_show);
                     for (i, loc) in index_data.refno_locs.iter().skip(start_idx).enumerate() {
-                        println!("    [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
-                                 start_idx + i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset);
+                        println!(
+                            "    [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
+                            start_idx + i,
+                            loc.refno_0,
+                            loc.refno_1,
+                            loc.pgno,
+                            loc.offset
+                        );
                     }
                 }
 
@@ -483,8 +564,10 @@ async fn test_btree_search_algorithm_issue() -> anyhow::Result<()> {
                     let mut found = false;
                     for (i, loc) in index_data.refno_locs.iter().enumerate() {
                         if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
-                            println!("    ✅ 找到目标: [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
-                                     i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset);
+                            println!(
+                                "    ✅ 找到目标: [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
+                                i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset
+                            );
                             found = true;
                             break;
                         }
@@ -504,8 +587,10 @@ async fn test_btree_search_algorithm_issue() -> anyhow::Result<()> {
                         if !closest_entries.is_empty() {
                             println!("    相同第一部分的条目:");
                             for (i, loc) in closest_entries {
-                                println!("      [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
-                                         i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset);
+                                println!(
+                                    "      [{}] {}_{} -> 页号: 0x{:X}, 偏移: 0x{:X}",
+                                    i, loc.refno_0, loc.refno_1, loc.pgno, loc.offset
+                                );
                             }
                         }
                     }
@@ -521,14 +606,21 @@ async fn test_btree_search_algorithm_issue() -> anyhow::Result<()> {
                     for (i, loc) in index_data.refno_locs.iter().enumerate() {
                         // 跳过起始标记
                         if loc.refno_0 == 0x80000001 && loc.refno_1 == 0x80000001 {
-                            println!("    [{}] 起始标记: 0x80000001_0x80000001 -> 页号: 0x{:X}", i, loc.pgno);
+                            println!(
+                                "    [{}] 起始标记: 0x80000001_0x80000001 -> 页号: 0x{:X}",
+                                i, loc.pgno
+                            );
                             continue;
                         }
 
-                        println!("    [{}] 比较: {}_{} vs 目标 {}_{}",
-                                 i, loc.refno_0, loc.refno_1, target_r0, target_r1);
+                        println!(
+                            "    [{}] 比较: {}_{} vs 目标 {}_{}",
+                            i, loc.refno_0, loc.refno_1, target_r0, target_r1
+                        );
 
-                        if target_r0 < loc.refno_0 || (target_r0 == loc.refno_0 && target_r1 <= loc.refno_1) {
+                        if target_r0 < loc.refno_0
+                            || (target_r0 == loc.refno_0 && target_r1 <= loc.refno_1)
+                        {
                             println!("      ✅ 选择此条目 (目标 <= 当前)");
                             next_pgno = Some(loc.pgno);
                             selected_idx = Some(i);
@@ -541,14 +633,19 @@ async fn test_btree_search_algorithm_issue() -> anyhow::Result<()> {
                     // 如果没有找到合适的条目，选择最后一个
                     if next_pgno.is_none() && !index_data.refno_locs.is_empty() {
                         let last_entry = &index_data.refno_locs[index_data.refno_locs.len() - 1];
-                        println!("    🎯 目标超出范围，选择最后一个条目: {}_{} -> 页号: 0x{:X}",
-                                 last_entry.refno_0, last_entry.refno_1, last_entry.pgno);
+                        println!(
+                            "    🎯 目标超出范围，选择最后一个条目: {}_{} -> 页号: 0x{:X}",
+                            last_entry.refno_0, last_entry.refno_1, last_entry.pgno
+                        );
                         next_pgno = Some(last_entry.pgno);
                         selected_idx = Some(index_data.refno_locs.len() - 1);
                     }
 
                     if let Some(pgno) = next_pgno {
-                        println!("    ➡️  继续搜索页号: 0x{:X} (索引: {:?})", pgno, selected_idx);
+                        println!(
+                            "    ➡️  继续搜索页号: 0x{:X} (索引: {:?})",
+                            pgno, selected_idx
+                        );
                         current_pgno = pgno;
                         level += 1;
                     } else {
@@ -584,31 +681,35 @@ async fn test_collect_latest_eles_edge_cases() -> anyhow::Result<()> {
     io.init_ses_range_map()?;
 
     println!("测试边界情况");
-    
+
     // 测试用例1: 会话数量为0
     println!("\n测试1: 会话数量为0");
     let result = io.collect_latest_eles(Some(0)).await?;
     assert!(result.is_empty(), "会话数量为0时应该返回空结果");
     println!("✓ 会话数量为0时正确返回空结果");
-    
+
     // 测试用例2: 会话数量为1
     println!("\n测试2: 会话数量为1");
     let result = io.collect_latest_eles(Some(1)).await?;
     println!("会话数量为1时返回 {} 个元素", result.len());
-    
+
     // 验证所有元素都来自同一个会话（最新会话）
     let latest_sesno = io.get_latest_sesno()?;
     let mut session_numbers: HashSet<u32> = HashSet::new();
     for (_, operation_data) in &result {
         session_numbers.insert(operation_data.sesno);
     }
-    
+
     if !result.is_empty() {
-        assert_eq!(session_numbers.len(), 1, "会话数量为1时，所有元素应该来自同一个会话");
+        assert_eq!(
+            session_numbers.len(),
+            1,
+            "会话数量为1时，所有元素应该来自同一个会话"
+        );
         assert!(session_numbers.contains(&latest_sesno), "应该是最新会话");
         println!("✓ 所有元素都来自最新会话 {}", latest_sesno);
     }
-    
+
     println!("\n边界情况测试通过！");
 
     Ok(())
@@ -657,7 +758,7 @@ async fn test_analyze_refno_none_status() -> anyhow::Result<()> {
         Ok(history) => {
             println!("找到 {} 个历史版本:", history.len());
             for (i, (sesno, offset)) in history.iter().enumerate() {
-                println!("  版本 {}: 会话号={}, 偏移={:#X}", i+1, sesno, offset);
+                println!("  版本 {}: 会话号={}, 偏移={:#X}", i + 1, sesno, offset);
             }
         }
         Err(e) => {
@@ -671,11 +772,17 @@ async fn test_analyze_refno_none_status() -> anyhow::Result<()> {
 
     match latest {
         Some((latest_sesno, latest_offset)) => {
-            println!("✓ 最新版本 - 会话号: {}, 偏移量: {:#X}", latest_sesno, latest_offset);
+            println!(
+                "✓ 最新版本 - 会话号: {}, 偏移量: {:#X}",
+                latest_sesno, latest_offset
+            );
 
             match previous {
                 Some((prev_sesno, prev_offset)) => {
-                    println!("✓ 前一版本 - 会话号: {}, 偏移量: {:#X}", prev_sesno, prev_offset);
+                    println!(
+                        "✓ 前一版本 - 会话号: {}, 偏移量: {:#X}",
+                        prev_sesno, prev_offset
+                    );
                     println!("  → 有两个版本，应该进行比较分析");
                 }
                 None => {
@@ -760,7 +867,7 @@ async fn test_analyze_refno_range_in_db() -> anyhow::Result<()> {
         Ok(refnos) => {
             println!("成功提取 {} 个参考号样本:", refnos.len());
             for (i, refno) in refnos.iter().enumerate() {
-                println!("  {}: {}", i+1, refno);
+                println!("  {}: {}", i + 1, refno);
             }
 
             // 分析参考号的范围
@@ -815,7 +922,7 @@ async fn test_analyze_refno_range_in_db() -> anyhow::Result<()> {
                     if let Some(offsets) = index_map.get(&target_refno) {
                         println!("    偏移量数量: {}", offsets.len());
                         for (i, offset) in offsets.iter().enumerate() {
-                            println!("    偏移量 {}: {:#X}", i+1, offset);
+                            println!("    偏移量 {}: {:#X}", i + 1, offset);
                         }
                     }
                 } else {
@@ -825,14 +932,16 @@ async fn test_analyze_refno_range_in_db() -> anyhow::Result<()> {
                 // 查找相近的参考号
                 println!("\n查找与目标参考号相近的参考号:");
                 let target_refno = RefU64::from_two_nums(24383, 101192);
-                let mut nearby_refnos: Vec<_> = all_refnos.iter()
+                let mut nearby_refnos: Vec<_> = all_refnos
+                    .iter()
                     .filter(|&&refno| {
                         let diff = if *refno > target_refno {
-                            refno.get_0() as u64 * 0x100000000 + refno.get_1() as u64 -
-                            (target_refno.get_0() as u64 * 0x100000000 + target_refno.get_1() as u64)
+                            refno.get_0() as u64 * 0x100000000 + refno.get_1() as u64
+                                - (target_refno.get_0() as u64 * 0x100000000
+                                    + target_refno.get_1() as u64)
                         } else {
-                            target_refno.get_0() as u64 * 0x100000000 + target_refno.get_1() as u64 -
-                            (refno.get_0() as u64 * 0x100000000 + refno.get_1() as u64)
+                            target_refno.get_0() as u64 * 0x100000000 + target_refno.get_1() as u64
+                                - (refno.get_0() as u64 * 0x100000000 + refno.get_1() as u64)
                         };
                         diff < 1000000 // 在100万范围内
                     })
@@ -845,13 +954,14 @@ async fn test_analyze_refno_range_in_db() -> anyhow::Result<()> {
                 } else {
                     println!("  找到 {} 个相近的参考号:", nearby_refnos.len());
                     for (i, refno) in nearby_refnos.iter().take(10).enumerate() {
-                        println!("    {}: {}", i+1, refno);
+                        println!("    {}: {}", i + 1, refno);
                     }
                 }
 
                 // 分析参考号的第一部分分布
                 println!("\n分析参考号第一部分的分布:");
-                let mut first_parts: std::collections::HashMap<u32, u32> = std::collections::HashMap::new();
+                let mut first_parts: std::collections::HashMap<u32, u32> =
+                    std::collections::HashMap::new();
                 for refno in all_refnos.iter() {
                     let first_part = refno.get_0();
                     *first_parts.entry(first_part).or_insert(0) += 1;
@@ -862,13 +972,16 @@ async fn test_analyze_refno_range_in_db() -> anyhow::Result<()> {
 
                 println!("  前10个最常见的第一部分:");
                 for (i, (part, count)) in sorted_parts.iter().take(10).enumerate() {
-                    println!("    {}: {} (出现 {} 次)", i+1, part, count);
+                    println!("    {}: {} (出现 {} 次)", i + 1, part, count);
                 }
 
                 // 检查目标参考号的第一部分
                 let target_first_part = 24383;
                 if let Some(count) = first_parts.get(&target_first_part) {
-                    println!("  ✓ 目标第一部分 {} 存在，出现 {} 次", target_first_part, count);
+                    println!(
+                        "  ✓ 目标第一部分 {} 存在，出现 {} 次",
+                        target_first_part, count
+                    );
                 } else {
                     println!("  ❌ 目标第一部分 {} 不存在", target_first_part);
                 }
@@ -957,7 +1070,8 @@ async fn test_check_larger_refnos() -> anyhow::Result<()> {
             println!("  总参考号数量: {}", index_map.len());
 
             // 查找所有 24383 开头的参考号
-            let mut refnos_24383: Vec<_> = index_map.keys()
+            let mut refnos_24383: Vec<_> = index_map
+                .keys()
                 .filter(|refno| refno.get_0() == 24383)
                 .collect();
 
@@ -974,7 +1088,8 @@ async fn test_check_larger_refnos() -> anyhow::Result<()> {
 
                 // 检查是否存在大于 101112 的参考号
                 let target_threshold = RefU64::from_two_nums(24383, 101112);
-                let larger_refnos: Vec<_> = refnos_24383.iter()
+                let larger_refnos: Vec<_> = refnos_24383
+                    .iter()
                     .filter(|&&refno| *refno > target_threshold)
                     .collect();
 
@@ -982,9 +1097,12 @@ async fn test_check_larger_refnos() -> anyhow::Result<()> {
                     println!("  ❌ 没有找到大于 24383_101112 的参考号");
                     println!("  ✓ 这解释了为什么 24383_101192 找不到");
                 } else {
-                    println!("  ✓ 找到 {} 个大于 24383_101112 的参考号:", larger_refnos.len());
+                    println!(
+                        "  ✓ 找到 {} 个大于 24383_101112 的参考号:",
+                        larger_refnos.len()
+                    );
                     for (i, refno) in larger_refnos.iter().take(10).enumerate() {
-                        println!("    {}: {}", i+1, refno);
+                        println!("    {}: {}", i + 1, refno);
                     }
                     if larger_refnos.len() > 10 {
                         println!("    ... (还有 {} 个)", larger_refnos.len() - 10);
@@ -1001,7 +1119,8 @@ async fn test_check_larger_refnos() -> anyhow::Result<()> {
 
                 // 显示 101100-101200 范围内的参考号
                 println!("\n101100-101200 范围内的 24383 参考号:");
-                let range_refnos: Vec<_> = refnos_24383.iter()
+                let range_refnos: Vec<_> = refnos_24383
+                    .iter()
                     .filter(|&&refno| {
                         let r1 = refno.get_1();
                         r1 >= 101100 && r1 <= 101200
@@ -1064,12 +1183,23 @@ fn find_parent_index_path(io: &mut PdmsIO, leaf_page_no: u32, sesno: u32) {
 }
 
 // 递归查找到叶子节点的路径
-fn find_path_to_leaf(io: &mut PdmsIO, current_page: u32, target_leaf: u32, mut path: Vec<u32>) -> bool {
+fn find_path_to_leaf(
+    io: &mut PdmsIO,
+    current_page: u32,
+    target_leaf: u32,
+    mut path: Vec<u32>,
+) -> bool {
     if let Ok(index_data) = io.read_index_data(current_page) {
         if index_data.level == 0 {
             // 到达叶子节点
             if current_page == target_leaf {
-                println!("  🎯 找到路径: {:?}", path.iter().map(|p| format!("0x{:X}", p)).collect::<Vec<_>>().join(" → "));
+                println!(
+                    "  🎯 找到路径: {:?}",
+                    path.iter()
+                        .map(|p| format!("0x{:X}", p))
+                        .collect::<Vec<_>>()
+                        .join(" → ")
+                );
                 return true;
             }
             return false;
@@ -1083,8 +1213,10 @@ fn find_path_to_leaf(io: &mut PdmsIO, current_page: u32, target_leaf: u32, mut p
                 new_path.push(child_page);
 
                 if find_path_to_leaf(io, child_page, target_leaf, new_path) {
-                    println!("    通过分支 [{}] 找到: 最大值 {}_{} -> 页号 0x{:X}",
-                        i, loc.refno_0, loc.refno_1, loc.pgno);
+                    println!(
+                        "    通过分支 [{}] 找到: 最大值 {}_{} -> 页号 0x{:X}",
+                        i, loc.refno_0, loc.refno_1, loc.pgno
+                    );
                     return true;
                 }
             }
@@ -1096,7 +1228,10 @@ fn find_path_to_leaf(io: &mut PdmsIO, current_page: u32, target_leaf: u32, mut p
 // 反向查找叶子节点在索引树中的路径
 fn find_leaf_in_index_tree(io: &mut PdmsIO, target_leaf_page: u32, current_page: u32) -> bool {
     if let Ok(index_data) = io.read_index_data(current_page) {
-        println!("      🔍 检查页面 0x{:X} (层级 {})", current_page, index_data.level);
+        println!(
+            "      🔍 检查页面 0x{:X} (层级 {})",
+            current_page, index_data.level
+        );
 
         if index_data.level == 0 {
             // 如果是叶子节点，检查是否是目标页面
@@ -1105,8 +1240,10 @@ fn find_leaf_in_index_tree(io: &mut PdmsIO, target_leaf_page: u32, current_page:
             // 如果是非叶子节点，递归检查所有子页面
             for (i, loc) in index_data.refno_locs.iter().enumerate() {
                 if find_leaf_in_index_tree(io, target_leaf_page, loc.pgno) {
-                    println!("      ✅ 找到路径: 页面 0x{:X} -> 条目[{}] ({}_{}) -> 子页面 0x{:X}",
-                        current_page, i, loc.refno_0, loc.refno_1, loc.pgno);
+                    println!(
+                        "      ✅ 找到路径: 页面 0x{:X} -> 条目[{}] ({}_{}) -> 子页面 0x{:X}",
+                        current_page, i, loc.refno_0, loc.refno_1, loc.pgno
+                    );
                     return true;
                 }
             }
@@ -1131,18 +1268,24 @@ async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
                 let mut max_refno = (0u32, 0u32);
                 for loc in &root_data.refno_locs {
                     if !(loc.refno_0 == 2147483649 && loc.refno_1 == 2147483649) {
-                        if loc.refno_0 > max_refno.0 || (loc.refno_0 == max_refno.0 && loc.refno_1 > max_refno.1) {
+                        if loc.refno_0 > max_refno.0
+                            || (loc.refno_0 == max_refno.0 && loc.refno_1 > max_refno.1)
+                        {
                             max_refno = (loc.refno_0, loc.refno_1);
                         }
                     }
                 }
 
                 if max_refno.0 >= target_r0 && max_refno.1 >= target_r1 {
-                    println!("  会话 {}: 最大参考号 {}_{} ✅ 可能包含目标",
-                        sesno, max_refno.0, max_refno.1);
+                    println!(
+                        "  会话 {}: 最大参考号 {}_{} ✅ 可能包含目标",
+                        sesno, max_refno.0, max_refno.1
+                    );
                 } else {
-                    println!("  会话 {}: 最大参考号 {}_{} ❌ 不包含目标",
-                        sesno, max_refno.0, max_refno.1);
+                    println!(
+                        "  会话 {}: 最大参考号 {}_{} ❌ 不包含目标",
+                        sesno, max_refno.0, max_refno.1
+                    );
                 }
             }
         }
@@ -1167,7 +1310,10 @@ async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
     let page_no = target_offset / page_size;
     let offset_in_page = target_offset % page_size;
     println!("  计算页号: 0x{:X} (十进制: {})", page_no, page_no);
-    println!("  页内偏移: 0x{:X} (十进制: {})", offset_in_page, offset_in_page);
+    println!(
+        "  页内偏移: 0x{:X} (十进制: {})",
+        offset_in_page, offset_in_page
+    );
 
     if let Ok(data) = io.read_bytes(target_offset, 16) {
         println!("📍 验证位置 0x{:X} 的数据:", target_offset);
@@ -1193,10 +1339,18 @@ async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
                 println!("  位置: 0x{:X}", target_offset);
                 println!("  所在页号: 0x{:X}", page_no);
                 println!("  页内偏移: 0x{:X}", offset_in_page);
-                println!("  r1 ({}): {:02X} {:02X} {:02X} {:02X}", r1, data[0], data[1], data[2], data[3]);
-                println!("  中间数据: {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}",
-                    data[4], data[5], data[6], data[7], data[8], data[9], data[10], data[11]);
-                println!("  r0 ({}): {:02X} {:02X} {:02X} {:02X}", r0, data[12], data[13], data[14], data[15]);
+                println!(
+                    "  r1 ({}): {:02X} {:02X} {:02X} {:02X}",
+                    r1, data[0], data[1], data[2], data[3]
+                );
+                println!(
+                    "  中间数据: {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}",
+                    data[4], data[5], data[6], data[7], data[8], data[9], data[10], data[11]
+                );
+                println!(
+                    "  r0 ({}): {:02X} {:02X} {:02X} {:02X}",
+                    r0, data[12], data[13], data[14], data[15]
+                );
 
                 // 检查这个页面是否在B+树索引中
                 println!("🔍 检查页号 0x{:X} 是否在索引中...", page_no);
@@ -1219,8 +1373,14 @@ async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
 
         // 解析上层索引参考号 - 使用大端序
         if upper_data.len() >= 16 {
-            let r1 = u32::from_be_bytes([upper_data[0], upper_data[1], upper_data[2], upper_data[3]]);
-            let r0 = u32::from_be_bytes([upper_data[12], upper_data[13], upper_data[14], upper_data[15]]);
+            let r1 =
+                u32::from_be_bytes([upper_data[0], upper_data[1], upper_data[2], upper_data[3]]);
+            let r0 = u32::from_be_bytes([
+                upper_data[12],
+                upper_data[13],
+                upper_data[14],
+                upper_data[15],
+            ]);
             println!("解析出的上层索引参考号: {}_{}", r0, r1);
 
             if r0 == 24383 && r1 == 101059 {
@@ -1231,7 +1391,10 @@ async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
                 let upper_offset_in_page = upper_index_offset % page_size;
                 println!("📊 上层索引位置分析:");
                 println!("  页号: 0x{:X} (十进制: {})", upper_page_no, upper_page_no);
-                println!("  页内偏移: 0x{:X} (十进制: {})", upper_offset_in_page, upper_offset_in_page);
+                println!(
+                    "  页内偏移: 0x{:X} (十进制: {})",
+                    upper_offset_in_page, upper_offset_in_page
+                );
 
                 // 检查这个页号是否在索引中
                 println!("🔍 检查上层索引页号 0x{:X} 是否在索引中...", upper_page_no);
@@ -1239,8 +1402,14 @@ async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
 
                 // 分析两个位置的关系
                 println!("\n🔗 分析索引层级关系:");
-                println!("  叶子数据: 24383_101192 位于 0x{:X} (页号: 0x{:X})", target_offset, page_no);
-                println!("  上层索引: 24383_101059 位于 0x{:X} (页号: 0x{:X})", upper_index_offset, upper_page_no);
+                println!(
+                    "  叶子数据: 24383_101192 位于 0x{:X} (页号: 0x{:X})",
+                    target_offset, page_no
+                );
+                println!(
+                    "  上层索引: 24383_101059 位于 0x{:X} (页号: 0x{:X})",
+                    upper_index_offset, upper_page_no
+                );
                 println!("  📊 这证明了层级索引结构的存在！");
             } else {
                 println!("❌ 上层索引参考号不匹配");
@@ -1275,7 +1444,11 @@ fn search_page_in_level1_index(io: &mut PdmsIO, target_page_no: u32) {
 
         // 读取根节点
         if let Ok(root_page) = io.read_index_data(root_page_no) {
-            println!("📄 根节点层级: {}, 条目数: {}", root_page.level, root_page.refno_locs.len());
+            println!(
+                "📄 根节点层级: {}, 条目数: {}",
+                root_page.level,
+                root_page.refno_locs.len()
+            );
 
             // 注意：IndexPageData 不是B+树索引结构，而是参考号位置索引
             // 我们需要在 refno_locs 中搜索目标页号
@@ -1287,7 +1460,10 @@ fn search_page_in_level1_index(io: &mut PdmsIO, target_page_no: u32) {
 
             // 根据用户发现，搜索上层索引参考号 24383_101059
             let upper_index_refno = (24383u32, 101059u32);
-            println!("🔍 搜索用户发现的上层索引参考号: {}_{}", upper_index_refno.0, upper_index_refno.1);
+            println!(
+                "🔍 搜索用户发现的上层索引参考号: {}_{}",
+                upper_index_refno.0, upper_index_refno.1
+            );
 
             let mut found = false;
             for (i, refno_loc) in root_page.refno_locs.iter().enumerate() {
@@ -1308,7 +1484,9 @@ fn search_page_in_level1_index(io: &mut PdmsIO, target_page_no: u32) {
                 }
 
                 // 搜索上层索引参考号
-                if refno_loc.refno_0 == upper_index_refno.0 && refno_loc.refno_1 == upper_index_refno.1 {
+                if refno_loc.refno_0 == upper_index_refno.0
+                    && refno_loc.refno_1 == upper_index_refno.1
+                {
                     println!("  🎯 找到用户发现的上层索引参考号！");
                     println!("    位置: 索引条目 {}", i);
                     println!("    参考号: {}_{}", refno_loc.refno_0, refno_loc.refno_1);
@@ -1324,10 +1502,14 @@ fn search_page_in_level1_index(io: &mut PdmsIO, target_page_no: u32) {
 
                 // 显示页号范围
                 if !root_page.refno_locs.is_empty() {
-                    let page_numbers: Vec<u32> = root_page.refno_locs.iter().map(|loc| loc.pgno).collect();
+                    let page_numbers: Vec<u32> =
+                        root_page.refno_locs.iter().map(|loc| loc.pgno).collect();
                     let min_page = page_numbers.iter().min().unwrap();
                     let max_page = page_numbers.iter().max().unwrap();
-                    println!("  📋 当前索引页包含的页号范围: 0x{:X} 到 0x{:X}", min_page, max_page);
+                    println!(
+                        "  📋 当前索引页包含的页号范围: 0x{:X} 到 0x{:X}",
+                        min_page, max_page
+                    );
 
                     if target_page_no >= *min_page && target_page_no <= *max_page {
                         println!("  ⚠️  目标页号在范围内但未找到！");
@@ -1339,7 +1521,11 @@ fn search_page_in_level1_index(io: &mut PdmsIO, target_page_no: u32) {
 
                         println!("  📋 前10个页号:");
                         for (i, &page) in unique_pages.iter().take(10).enumerate() {
-                            let marker = if page == target_page_no { " ← 目标" } else { "" };
+                            let marker = if page == target_page_no {
+                                " ← 目标"
+                            } else {
+                                ""
+                            };
                             println!("    [{}] 0x{:X}{}", i, page, marker);
                         }
 
@@ -1347,8 +1533,17 @@ fn search_page_in_level1_index(io: &mut PdmsIO, target_page_no: u32) {
                             println!("  ... (省略中间部分) ...");
                             println!("  📋 后10个页号:");
                             for (i, &page) in unique_pages.iter().rev().take(10).enumerate() {
-                                let marker = if page == target_page_no { " ← 目标" } else { "" };
-                                println!("    [{}] 0x{:X}{}", unique_pages.len() - 10 + i, page, marker);
+                                let marker = if page == target_page_no {
+                                    " ← 目标"
+                                } else {
+                                    ""
+                                };
+                                println!(
+                                    "    [{}] 0x{:X}{}",
+                                    unique_pages.len() - 10 + i,
+                                    page,
+                                    marker
+                                );
                             }
                         }
                     } else {
@@ -1364,12 +1559,20 @@ fn search_page_in_level1_index(io: &mut PdmsIO, target_page_no: u32) {
 async fn analyze_correct_index_traversal(io: &mut PdmsIO, target_refno: RefU64) {
     let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
 
-    println!("🎯 分析正确的索引遍历方式 (目标: {}_{}):", target_r0, target_r1);
+    println!(
+        "🎯 分析正确的索引遍历方式 (目标: {}_{}):",
+        target_r0, target_r1
+    );
 
     // 读取根节点
     let root_pgno = 0x673F;
     if let Ok(root_data) = io.read_index_data(root_pgno) {
-        println!("📄 根节点 0x{:X}, 层级: {}, 条目数: {}", root_pgno, root_data.level, root_data.refno_locs.len());
+        println!(
+            "📄 根节点 0x{:X}, 层级: {}, 条目数: {}",
+            root_pgno,
+            root_data.level,
+            root_data.refno_locs.len()
+        );
 
         // 分析索引条目，去除重复
         let mut unique_entries = Vec::new();
@@ -1381,25 +1584,37 @@ async fn analyze_correct_index_traversal(io: &mut PdmsIO, target_refno: RefU64) 
             if !seen_refnos.contains(&refno_key) {
                 seen_refnos.insert(refno_key);
                 unique_entries.push((i, entry));
-                println!("  ✅ [{}] 唯一条目: {}_{} -> 页号: 0x{:X}",
-                    i, entry.refno_0, entry.refno_1, entry.pgno);
+                println!(
+                    "  ✅ [{}] 唯一条目: {}_{} -> 页号: 0x{:X}",
+                    i, entry.refno_0, entry.refno_1, entry.pgno
+                );
             } else {
-                println!("  ❌ [{}] 重复条目: {}_{} -> 页号: 0x{:X} (忽略)",
-                    i, entry.refno_0, entry.refno_1, entry.pgno);
+                println!(
+                    "  ❌ [{}] 重复条目: {}_{} -> 页号: 0x{:X} (忽略)",
+                    i, entry.refno_0, entry.refno_1, entry.pgno
+                );
             }
         }
 
-        println!("\n📊 去重后的索引条目数: {} (原始: {})", unique_entries.len(), root_data.refno_locs.len());
+        println!(
+            "\n📊 去重后的索引条目数: {} (原始: {})",
+            unique_entries.len(),
+            root_data.refno_locs.len()
+        );
 
         // 使用去重后的条目进行搜索
         println!("\n🔍 使用去重索引进行搜索:");
         let mut selected_entry = None;
 
         for (original_idx, entry) in &unique_entries {
-            if target_r0 < entry.refno_0 || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1) {
+            if target_r0 < entry.refno_0
+                || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1)
+            {
                 selected_entry = Some((*original_idx, *entry));
-                println!("  🎯 选择条目 [{}]: {}_{} -> 页号: 0x{:X}",
-                    original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                println!(
+                    "  🎯 选择条目 [{}]: {}_{} -> 页号: 0x{:X}",
+                    original_idx, entry.refno_0, entry.refno_1, entry.pgno
+                );
                 break;
             }
         }
@@ -1408,8 +1623,10 @@ async fn analyze_correct_index_traversal(io: &mut PdmsIO, target_refno: RefU64) 
         if selected_entry.is_none() && !unique_entries.is_empty() {
             let (original_idx, entry) = unique_entries.last().unwrap();
             selected_entry = Some((*original_idx, *entry));
-            println!("  🎯 目标超出范围，选择最后一个条目 [{}]: {}_{} -> 页号: 0x{:X}",
-                original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+            println!(
+                "  🎯 目标超出范围，选择最后一个条目 [{}]: {}_{} -> 页号: 0x{:X}",
+                original_idx, entry.refno_0, entry.refno_1, entry.pgno
+            );
         }
 
         // 继续搜索下一层
@@ -1423,12 +1640,20 @@ async fn analyze_correct_index_traversal(io: &mut PdmsIO, target_refno: RefU64) 
 }
 
 /// 分析1层索引并去重
-async fn analyze_level1_index_with_deduplication(io: &mut PdmsIO, page_no: u32, target_refno: RefU64) {
+async fn analyze_level1_index_with_deduplication(
+    io: &mut PdmsIO,
+    page_no: u32,
+    target_refno: RefU64,
+) {
     let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
 
     if let Ok(level1_data) = io.read_index_data(page_no) {
-        println!("📄 1层索引页号: 0x{:X}, 层级: {}, 条目数: {}",
-            page_no, level1_data.level, level1_data.refno_locs.len());
+        println!(
+            "📄 1层索引页号: 0x{:X}, 层级: {}, 条目数: {}",
+            page_no,
+            level1_data.level,
+            level1_data.refno_locs.len()
+        );
 
         // 去重处理
         let mut unique_entries = Vec::new();
@@ -1443,18 +1668,27 @@ async fn analyze_level1_index_with_deduplication(io: &mut PdmsIO, page_no: u32, 
 
                 // 检查是否包含目标范围
                 if target_r0 == entry.refno_0 && target_r1 <= entry.refno_1 {
-                    println!("  🎯 [{}] 可能包含目标: {}_{} -> 页号: 0x{:X}",
-                        i, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!(
+                        "  🎯 [{}] 可能包含目标: {}_{} -> 页号: 0x{:X}",
+                        i, entry.refno_0, entry.refno_1, entry.pgno
+                    );
                 }
             }
         }
 
-        println!("📊 1层索引去重后条目数: {} (原始: {})", unique_entries.len(), level1_data.refno_locs.len());
+        println!(
+            "📊 1层索引去重后条目数: {} (原始: {})",
+            unique_entries.len(),
+            level1_data.refno_locs.len()
+        );
 
         // 查找包含目标参考号的叶子节点
         for (original_idx, entry) in &unique_entries {
             if target_r0 == entry.refno_0 && target_r1 <= entry.refno_1 {
-                println!("\n🍃 检查叶子节点 0x{:X} (来自条目 [{}]):", entry.pgno, original_idx);
+                println!(
+                    "\n🍃 检查叶子节点 0x{:X} (来自条目 [{}]):",
+                    entry.pgno, original_idx
+                );
                 check_leaf_node_for_target(io, entry.pgno, target_refno).await;
             }
         }
@@ -1468,15 +1702,21 @@ async fn check_leaf_node_for_target(io: &mut PdmsIO, page_no: u32, target_refno:
     let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
 
     if let Ok(leaf_data) = io.read_index_data(page_no) {
-        println!("  📄 叶子节点: 0x{:X}, 层级: {}, 条目数: {}",
-            page_no, leaf_data.level, leaf_data.refno_locs.len());
+        println!(
+            "  📄 叶子节点: 0x{:X}, 层级: {}, 条目数: {}",
+            page_no,
+            leaf_data.level,
+            leaf_data.refno_locs.len()
+        );
 
         // 检查是否包含目标参考号
         let mut found = false;
         for (i, entry) in leaf_data.refno_locs.iter().enumerate() {
             if entry.refno_0 == target_r0 && entry.refno_1 == target_r1 {
-                println!("    ✅ [{}] 找到目标参考号: {}_{} -> 页号: 0x{:X}",
-                    i, entry.refno_0, entry.refno_1, entry.pgno);
+                println!(
+                    "    ✅ [{}] 找到目标参考号: {}_{} -> 页号: 0x{:X}",
+                    i, entry.refno_0, entry.refno_1, entry.pgno
+                );
                 found = true;
                 break;
             }
@@ -1487,11 +1727,16 @@ async fn check_leaf_node_for_target(io: &mut PdmsIO, page_no: u32, target_refno:
             if !leaf_data.refno_locs.is_empty() {
                 let first = &leaf_data.refno_locs[0];
                 let last = &leaf_data.refno_locs[leaf_data.refno_locs.len() - 1];
-                println!("    📋 叶子节点范围: {}_{} 到 {}_{}",
-                    first.refno_0, first.refno_1, last.refno_0, last.refno_1);
+                println!(
+                    "    📋 叶子节点范围: {}_{} 到 {}_{}",
+                    first.refno_0, first.refno_1, last.refno_0, last.refno_1
+                );
 
                 if target_r1 > last.refno_1 {
-                    println!("    ⚠️  目标参考号 {}_{} 超出此叶子节点范围", target_r0, target_r1);
+                    println!(
+                        "    ⚠️  目标参考号 {}_{} 超出此叶子节点范围",
+                        target_r0, target_r1
+                    );
                 }
             }
         }
@@ -1516,7 +1761,12 @@ async fn test_new_search_strategy(io: &mut PdmsIO, target_refno: RefU64) {
     // 从根节点开始
     let root_pgno = 0x673F;
     if let Ok(root_data) = io.read_index_data(root_pgno) {
-        println!("📄 根节点 0x{:X}, 层级: {}, 条目数: {}", root_pgno, root_data.level, root_data.refno_locs.len());
+        println!(
+            "📄 根节点 0x{:X}, 层级: {}, 条目数: {}",
+            root_pgno,
+            root_data.level,
+            root_data.refno_locs.len()
+        );
 
         // 去重处理，同时识别起始索引标记
         let mut unique_entries = Vec::new();
@@ -1527,8 +1777,10 @@ async fn test_new_search_strategy(io: &mut PdmsIO, target_refno: RefU64) {
             if is_start_index_marker(entry.refno_0, entry.refno_1) {
                 if start_marker_entry.is_none() {
                     start_marker_entry = Some((i, entry));
-                    println!("  🏁 发现起始索引标记 [{}]: 0x{:08X}_0x{:08X} -> 页号: 0x{:X}",
-                        i, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!(
+                        "  🏁 发现起始索引标记 [{}]: 0x{:08X}_0x{:08X} -> 页号: 0x{:X}",
+                        i, entry.refno_0, entry.refno_1, entry.pgno
+                    );
                 }
                 continue; // 跳过起始标记的去重检查
             }
@@ -1540,7 +1792,11 @@ async fn test_new_search_strategy(io: &mut PdmsIO, target_refno: RefU64) {
             }
         }
 
-        println!("📊 去重后条目数: {} (原始: {})", unique_entries.len(), root_data.refno_locs.len());
+        println!(
+            "📊 去重后条目数: {} (原始: {})",
+            unique_entries.len(),
+            root_data.refno_locs.len()
+        );
         if start_marker_entry.is_some() {
             println!("📊 发现起始索引标记，将在搜索时特殊处理");
         }
@@ -1552,11 +1808,15 @@ async fn test_new_search_strategy(io: &mut PdmsIO, target_refno: RefU64) {
         if let Some((marker_idx, marker_entry)) = start_marker_entry {
             // 如果目标值小于第一个正常索引条目，使用起始标记
             if let Some((_, first_normal_entry)) = unique_entries.first() {
-                if target_r0 < first_normal_entry.refno_0 ||
-                   (target_r0 == first_normal_entry.refno_0 && target_r1 < first_normal_entry.refno_1) {
+                if target_r0 < first_normal_entry.refno_0
+                    || (target_r0 == first_normal_entry.refno_0
+                        && target_r1 < first_normal_entry.refno_1)
+                {
                     selected_entry = Some((marker_idx, marker_entry.clone()));
-                    println!("  🎯 目标值小于第一个正常索引，选择起始标记 [{}]: 0x{:08X}_0x{:08X} -> 页号: 0x{:X}",
-                        marker_idx, marker_entry.refno_0, marker_entry.refno_1, marker_entry.pgno);
+                    println!(
+                        "  🎯 目标值小于第一个正常索引，选择起始标记 [{}]: 0x{:08X}_0x{:08X} -> 页号: 0x{:X}",
+                        marker_idx, marker_entry.refno_0, marker_entry.refno_1, marker_entry.pgno
+                    );
                 }
             }
         }
@@ -1565,10 +1825,14 @@ async fn test_new_search_strategy(io: &mut PdmsIO, target_refno: RefU64) {
         if selected_entry.is_none() {
             // 首先尝试找到包含目标值的条目
             for (original_idx, entry) in &unique_entries {
-                if target_r0 < entry.refno_0 || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1) {
+                if target_r0 < entry.refno_0
+                    || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1)
+                {
                     selected_entry = Some((*original_idx, (*entry).clone()));
-                    println!("  🎯 找到包含范围的条目 [{}]: {}_{} -> 页号: 0x{:X}",
-                        original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!(
+                        "  🎯 找到包含范围的条目 [{}]: {}_{} -> 页号: 0x{:X}",
+                        original_idx, entry.refno_0, entry.refno_1, entry.pgno
+                    );
                     break;
                 }
             }
@@ -1577,8 +1841,10 @@ async fn test_new_search_strategy(io: &mut PdmsIO, target_refno: RefU64) {
             if selected_entry.is_none() && !unique_entries.is_empty() {
                 let (original_idx, entry) = unique_entries.last().unwrap();
                 selected_entry = Some((*original_idx, (*entry).clone()));
-                println!("  🎯 目标超出范围，选择最后一个条目 [{}]: {}_{} -> 页号: 0x{:X}",
-                    original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                println!(
+                    "  🎯 目标超出范围，选择最后一个条目 [{}]: {}_{} -> 页号: 0x{:X}",
+                    original_idx, entry.refno_0, entry.refno_1, entry.pgno
+                );
             }
         }
 
@@ -1597,8 +1863,13 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
     let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
 
     if let Ok(page_data) = io.read_index_data(page_no) {
-        println!("📄 第{}层页号: 0x{:X}, 层级: {}, 条目数: {}",
-            depth, page_no, page_data.level, page_data.refno_locs.len());
+        println!(
+            "📄 第{}层页号: 0x{:X}, 层级: {}, 条目数: {}",
+            depth,
+            page_no,
+            page_data.level,
+            page_data.refno_locs.len()
+        );
 
         if page_data.level == 0 {
             // 叶子节点：直接搜索目标
@@ -1607,8 +1878,10 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
             let mut found = false;
             for (i, entry) in page_data.refno_locs.iter().enumerate() {
                 if entry.refno_0 == target_r0 && entry.refno_1 == target_r1 {
-                    println!("    ✅ [{}] 找到目标参考号: {}_{} -> 页号: 0x{:X}",
-                        i, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!(
+                        "    ✅ [{}] 找到目标参考号: {}_{} -> 页号: 0x{:X}",
+                        i, entry.refno_0, entry.refno_1, entry.pgno
+                    );
                     found = true;
                     break;
                 }
@@ -1619,12 +1892,16 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
                 if !page_data.refno_locs.is_empty() {
                     let first = &page_data.refno_locs[0];
                     let last = &page_data.refno_locs[page_data.refno_locs.len() - 1];
-                    println!("    📋 叶子节点范围: {}_{} 到 {}_{}",
-                        first.refno_0, first.refno_1, last.refno_0, last.refno_1);
+                    println!(
+                        "    📋 叶子节点范围: {}_{} 到 {}_{}",
+                        first.refno_0, first.refno_1, last.refno_0, last.refno_1
+                    );
 
                     if target_r0 == last.refno_0 && target_r1 > last.refno_1 {
-                        println!("    ⚠️  目标参考号 {}_{} 超出此叶子节点最大值 {}_{}",
-                            target_r0, target_r1, last.refno_0, last.refno_1);
+                        println!(
+                            "    ⚠️  目标参考号 {}_{} 超出此叶子节点最大值 {}_{}",
+                            target_r0, target_r1, last.refno_0, last.refno_1
+                        );
                         println!("    💡 这说明目标数据可能在更新的数据中，但索引未完全更新");
                     } else {
                         println!("    ❌ 目标参考号不在此叶子节点中");
@@ -1644,8 +1921,10 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
                 if is_start_index_marker(entry.refno_0, entry.refno_1) {
                     if start_marker_entry.is_none() {
                         start_marker_entry = Some((i, entry));
-                        println!("    🏁 发现起始索引标记 [{}]: 0x{:08X}_0x{:08X} -> 页号: 0x{:X}",
-                            i, entry.refno_0, entry.refno_1, entry.pgno);
+                        println!(
+                            "    🏁 发现起始索引标记 [{}]: 0x{:08X}_0x{:08X} -> 页号: 0x{:X}",
+                            i, entry.refno_0, entry.refno_1, entry.pgno
+                        );
                     }
                     continue; // 跳过起始标记的去重检查
                 }
@@ -1657,7 +1936,11 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
                 }
             }
 
-            println!("📊 去重后条目数: {} (原始: {})", unique_entries.len(), page_data.refno_locs.len());
+            println!(
+                "📊 去重后条目数: {} (原始: {})",
+                unique_entries.len(),
+                page_data.refno_locs.len()
+            );
             if start_marker_entry.is_some() {
                 println!("    📊 发现起始索引标记，将在搜索时特殊处理");
             }
@@ -1669,11 +1952,18 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
             if let Some((marker_idx, marker_entry)) = start_marker_entry {
                 // 如果目标值小于第一个正常索引条目，使用起始标记
                 if let Some((_, first_normal_entry)) = unique_entries.first() {
-                    if target_r0 < first_normal_entry.refno_0 ||
-                       (target_r0 == first_normal_entry.refno_0 && target_r1 < first_normal_entry.refno_1) {
+                    if target_r0 < first_normal_entry.refno_0
+                        || (target_r0 == first_normal_entry.refno_0
+                            && target_r1 < first_normal_entry.refno_1)
+                    {
                         selected_entry = Some((marker_idx, marker_entry.clone()));
-                        println!("    🎯 目标值小于第一个正常索引，选择起始标记 [{}]: 0x{:08X}_0x{:08X} -> 页号: 0x{:X}",
-                            marker_idx, marker_entry.refno_0, marker_entry.refno_1, marker_entry.pgno);
+                        println!(
+                            "    🎯 目标值小于第一个正常索引，选择起始标记 [{}]: 0x{:08X}_0x{:08X} -> 页号: 0x{:X}",
+                            marker_idx,
+                            marker_entry.refno_0,
+                            marker_entry.refno_1,
+                            marker_entry.pgno
+                        );
                     }
                 }
             }
@@ -1682,10 +1972,14 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
             if selected_entry.is_none() {
                 // 首先尝试找到包含目标值的条目
                 for (original_idx, entry) in &unique_entries {
-                    if target_r0 < entry.refno_0 || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1) {
+                    if target_r0 < entry.refno_0
+                        || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1)
+                    {
                         selected_entry = Some((*original_idx, (*entry).clone()));
-                        println!("    🎯 找到包含范围的条目 [{}]: {}_{} -> 页号: 0x{:X}",
-                            original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                        println!(
+                            "    🎯 找到包含范围的条目 [{}]: {}_{} -> 页号: 0x{:X}",
+                            original_idx, entry.refno_0, entry.refno_1, entry.pgno
+                        );
                         break;
                     }
                 }
@@ -1694,15 +1988,23 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
                 if selected_entry.is_none() && !unique_entries.is_empty() {
                     let (original_idx, entry) = unique_entries.last().unwrap();
                     selected_entry = Some((*original_idx, (*entry).clone()));
-                    println!("    🎯 目标超出范围，选择最后一个条目 [{}]: {}_{} -> 页号: 0x{:X}",
-                        original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!(
+                        "    🎯 目标超出范围，选择最后一个条目 [{}]: {}_{} -> 页号: 0x{:X}",
+                        original_idx, entry.refno_0, entry.refno_1, entry.pgno
+                    );
                 }
             }
 
             // 继续搜索下一层
             if let Some((_, selected)) = selected_entry {
                 println!("\n➡️  继续搜索子页号: 0x{:X}", selected.pgno);
-                Box::pin(search_with_new_strategy(io, selected.pgno, target_refno, depth + 1)).await;
+                Box::pin(search_with_new_strategy(
+                    io,
+                    selected.pgno,
+                    target_refno,
+                    depth + 1,
+                ))
+                .await;
             }
         }
     } else {
@@ -1711,7 +2013,11 @@ async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: R
 }
 
 /// 传统B+树搜索算法（原始版本）
-fn search_refno_in_btree_traditional(io: &mut PdmsIO, target_refno: &RefU64, latest_sesno: u32) -> Option<(u32, u32)> {
+fn search_refno_in_btree_traditional(
+    io: &mut PdmsIO,
+    target_refno: &RefU64,
+    latest_sesno: u32,
+) -> Option<(u32, u32)> {
     let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
 
     // 获取根节点页号
@@ -1726,7 +2032,12 @@ fn search_refno_in_btree_traditional(io: &mut PdmsIO, target_refno: &RefU64, lat
 }
 
 /// 传统递归搜索函数
-fn search_btree_traditional_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u32, target_r1: u32) -> Option<(u32, u32)> {
+fn search_btree_traditional_recursive(
+    io: &mut PdmsIO,
+    page_no: u32,
+    target_r0: u32,
+    target_r1: u32,
+) -> Option<(u32, u32)> {
     if let Ok(index_data) = io.read_index_data(page_no) {
         if index_data.level == 0 {
             // 叶子节点：直接搜索
@@ -1739,7 +2050,8 @@ fn search_btree_traditional_recursive(io: &mut PdmsIO, page_no: u32, target_r0: 
         } else {
             // 非叶子节点：找到第一个大于等于目标值的条目
             for loc in &index_data.refno_locs {
-                if target_r0 < loc.refno_0 || (target_r0 == loc.refno_0 && target_r1 <= loc.refno_1) {
+                if target_r0 < loc.refno_0 || (target_r0 == loc.refno_0 && target_r1 <= loc.refno_1)
+                {
                     return search_btree_traditional_recursive(io, loc.pgno, target_r0, target_r1);
                 }
             }
@@ -1751,10 +2063,17 @@ fn search_btree_traditional_recursive(io: &mut PdmsIO, page_no: u32, target_r0: 
 }
 
 /// 优化B+树搜索算法（新版本）
-fn search_refno_in_btree_optimized(io: &mut PdmsIO, target_refno: &RefU64, latest_sesno: u32) -> Option<(u32, u32)> {
+fn search_refno_in_btree_optimized(
+    io: &mut PdmsIO,
+    target_refno: &RefU64,
+    latest_sesno: u32,
+) -> Option<(u32, u32)> {
     let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
 
-    println!("🔍 开始B+树搜索: 目标参考号 {}_{}, 根页号 0x{:X}", target_r0, target_r1, latest_sesno);
+    println!(
+        "🔍 开始B+树搜索: 目标参考号 {}_{}, 根页号 0x{:X}",
+        target_r0, target_r1, latest_sesno
+    );
 
     // 获取根节点页号
     if let Ok(session_info) = io.get_ses_data(latest_sesno) {
@@ -1768,9 +2087,20 @@ fn search_refno_in_btree_optimized(io: &mut PdmsIO, target_refno: &RefU64, lates
 }
 
 /// 优化递归搜索函数
-fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u32, target_r1: u32, mut path: Vec<(u32, usize)>) -> Option<(u32, u32)> {
+fn search_btree_optimized_recursive(
+    io: &mut PdmsIO,
+    page_no: u32,
+    target_r0: u32,
+    target_r1: u32,
+    mut path: Vec<(u32, usize)>,
+) -> Option<(u32, u32)> {
     if let Ok(index_data) = io.read_index_data(page_no) {
-        println!("📄 当前页号: 0x{:X}, 层级: {}, 条目数: {}", page_no, index_data.level, index_data.refno_locs.len());
+        println!(
+            "📄 当前页号: 0x{:X}, 层级: {}, 条目数: {}",
+            page_no,
+            index_data.level,
+            index_data.refno_locs.len()
+        );
 
         if index_data.level == 0 {
             // 叶子节点
@@ -1779,7 +2109,10 @@ fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u3
             if !index_data.refno_locs.is_empty() {
                 let first = &index_data.refno_locs[0];
                 let last = &index_data.refno_locs[index_data.refno_locs.len() - 1];
-                println!("📋 叶子节点范围: {}_{} 到 {}_{}", first.refno_0, first.refno_1, last.refno_0, last.refno_1);
+                println!(
+                    "📋 叶子节点范围: {}_{} 到 {}_{}",
+                    first.refno_0, first.refno_1, last.refno_0, last.refno_1
+                );
             }
 
             println!("🔍 在叶子节点中搜索目标: {}_{}", target_r0, target_r1);
@@ -1787,7 +2120,10 @@ fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u3
             // 在叶子节点中搜索目标参考号
             for (i, loc) in index_data.refno_locs.iter().enumerate() {
                 if loc.refno_0 == target_r0 && loc.refno_1 == target_r1 {
-                    println!("✅ [{}] 找到目标参考号: {}_{} -> 页号: 0x{:X}", i, loc.refno_0, loc.refno_1, loc.pgno);
+                    println!(
+                        "✅ [{}] 找到目标参考号: {}_{} -> 页号: 0x{:X}",
+                        i, loc.refno_0, loc.refno_1, loc.pgno
+                    );
                     return Some((loc.pgno, loc.offset));
                 }
             }
@@ -1798,19 +2134,30 @@ fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u3
             println!("📋 叶子节点中包含的参考号范围:");
             let show_count = std::cmp::min(10, index_data.refno_locs.len());
             for (i, loc) in index_data.refno_locs.iter().take(show_count).enumerate() {
-                println!("  前[{}] {}_{} -> 页号: 0x{:X}", i, loc.refno_0, loc.refno_1, loc.pgno);
+                println!(
+                    "  前[{}] {}_{} -> 页号: 0x{:X}",
+                    i, loc.refno_0, loc.refno_1, loc.pgno
+                );
             }
             if index_data.refno_locs.len() > show_count {
                 println!("  ... (省略中间部分) ...");
                 let start_idx = index_data.refno_locs.len().saturating_sub(show_count);
                 for (i, loc) in index_data.refno_locs.iter().skip(start_idx).enumerate() {
-                    println!("  后[{}] {}_{} -> 页号: 0x{:X}", start_idx + i, loc.refno_0, loc.refno_1, loc.pgno);
+                    println!(
+                        "  后[{}] {}_{} -> 页号: 0x{:X}",
+                        start_idx + i,
+                        loc.refno_0,
+                        loc.refno_1,
+                        loc.pgno
+                    );
                 }
             }
 
             // 检查是否需要回溯
             if let Some(last_loc) = index_data.refno_locs.last() {
-                if target_r0 > last_loc.refno_0 || (target_r0 == last_loc.refno_0 && target_r1 > last_loc.refno_1) {
+                if target_r0 > last_loc.refno_0
+                    || (target_r0 == last_loc.refno_0 && target_r1 > last_loc.refno_1)
+                {
                     println!("🔄 目标值超出当前叶子节点范围，回溯到上级节点继续搜索");
                     return backtrack_and_continue_search(io, target_r0, target_r1, path);
                 }
@@ -1846,9 +2193,15 @@ fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u3
             println!("📋 非叶子节点所有条目:");
             for (i, entry) in index_data.refno_locs.iter().enumerate() {
                 if i == 0 && entry.refno_0 == 0x80000001 && entry.refno_1 == 0x80000001 {
-                    println!("  🏁 [{}] 起始标记: 0x{:X}_0x{:X} -> 子页号: 0x{:X}", i, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!(
+                        "  🏁 [{}] 起始标记: 0x{:X}_0x{:X} -> 子页号: 0x{:X}",
+                        i, entry.refno_0, entry.refno_1, entry.pgno
+                    );
                 } else {
-                    println!("  [{}] 最大值: {}_{} -> 子页号: 0x{:X}", i, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!(
+                        "  [{}] 最大值: {}_{} -> 子页号: 0x{:X}",
+                        i, entry.refno_0, entry.refno_1, entry.pgno
+                    );
                 }
             }
 
@@ -1856,15 +2209,27 @@ fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u3
                 println!("📊 发现起始索引标记，将在搜索时特殊处理");
             }
 
-            println!("📊 去重后条目数: {} (原始: {})", unique_entries.len(), index_data.refno_locs.len());
+            println!(
+                "📊 去重后条目数: {} (原始: {})",
+                unique_entries.len(),
+                index_data.refno_locs.len()
+            );
 
             // 搜索逻辑
             let mut selected_entry: Option<(usize, RefnoDataLoc)> = None;
 
             // 首先检查起始标记
             if let Some((marker_idx, marker_entry)) = start_marker_entry {
-                if target_r0 < unique_entries.first().map(|(_, e)| e.refno_0).unwrap_or(u32::MAX) {
-                    println!("🎯 目标值小于第一个正常索引，选择起始标记: [{}] -> 页号: 0x{:X}", marker_idx, marker_entry.pgno);
+                if target_r0
+                    < unique_entries
+                        .first()
+                        .map(|(_, e)| e.refno_0)
+                        .unwrap_or(u32::MAX)
+                {
+                    println!(
+                        "🎯 目标值小于第一个正常索引，选择起始标记: [{}] -> 页号: 0x{:X}",
+                        marker_idx, marker_entry.pgno
+                    );
                     selected_entry = Some((marker_idx, marker_entry.clone()));
                 }
             }
@@ -1872,8 +2237,13 @@ fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u3
             // 如果没有选择起始标记，在去重后的条目中搜索
             if selected_entry.is_none() {
                 for (original_idx, entry) in &unique_entries {
-                    if target_r0 < entry.refno_0 || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1) {
-                        println!("🎯 找到合适的分支: [{}] {}_{} -> 页号: 0x{:X}", original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                    if target_r0 < entry.refno_0
+                        || (target_r0 == entry.refno_0 && target_r1 <= entry.refno_1)
+                    {
+                        println!(
+                            "🎯 找到合适的分支: [{}] {}_{} -> 页号: 0x{:X}",
+                            original_idx, entry.refno_0, entry.refno_1, entry.pgno
+                        );
                         selected_entry = Some((*original_idx, entry.clone()));
                         break;
                     }
@@ -1882,16 +2252,28 @@ fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u3
                 // 如果没有找到合适的分支，选择最后一个条目（关键优化）
                 if selected_entry.is_none() && !unique_entries.is_empty() {
                     let (original_idx, entry) = &unique_entries[unique_entries.len() - 1];
-                    println!("🎯 目标值超出范围，选择最后一个条目: [{}] {}_{} -> 页号: 0x{:X}", original_idx, entry.refno_0, entry.refno_1, entry.pgno);
+                    println!(
+                        "🎯 目标值超出范围，选择最后一个条目: [{}] {}_{} -> 页号: 0x{:X}",
+                        original_idx, entry.refno_0, entry.refno_1, entry.pgno
+                    );
                     selected_entry = Some((*original_idx, entry.clone()));
                 }
             }
 
             // 继续搜索选中的子页面
             if let Some((selected_idx, selected)) = selected_entry {
-                println!("➡️  选择子页号: 0x{:X} (索引: {})", selected.pgno, selected_idx);
+                println!(
+                    "➡️  选择子页号: 0x{:X} (索引: {})",
+                    selected.pgno, selected_idx
+                );
                 path.push((page_no, selected_idx));
-                return search_btree_optimized_recursive(io, selected.pgno, target_r0, target_r1, path);
+                return search_btree_optimized_recursive(
+                    io,
+                    selected.pgno,
+                    target_r0,
+                    target_r1,
+                    path,
+                );
             } else {
                 println!("❌ 没有找到合适的子页面");
                 return None;
@@ -1904,18 +2286,37 @@ fn search_btree_optimized_recursive(io: &mut PdmsIO, page_no: u32, target_r0: u3
 }
 
 /// 回溯并继续搜索
-fn backtrack_and_continue_search(io: &mut PdmsIO, target_r0: u32, target_r1: u32, mut path: Vec<(u32, usize)>) -> Option<(u32, u32)> {
+fn backtrack_and_continue_search(
+    io: &mut PdmsIO,
+    target_r0: u32,
+    target_r1: u32,
+    mut path: Vec<(u32, usize)>,
+) -> Option<(u32, u32)> {
     while let Some((parent_page, last_selected_idx)) = path.pop() {
-        println!("🔙 回溯到页号: 0x{:X}, 上次选择索引: {}", parent_page, last_selected_idx);
+        println!(
+            "🔙 回溯到页号: 0x{:X}, 上次选择索引: {}",
+            parent_page, last_selected_idx
+        );
 
         if let Ok(parent_data) = io.read_index_data(parent_page) {
             // 尝试下一个分支
             let mut found_next = false;
             for (i, loc) in parent_data.refno_locs.iter().enumerate() {
-                if i > last_selected_idx && !(loc.refno_0 == 0x80000001 && loc.refno_1 == 0x80000001) {
-                    println!("🔄 尝试下一个分支: [{}] {}_{} -> 页号: 0x{:X}", i, loc.refno_0, loc.refno_1, loc.pgno);
+                if i > last_selected_idx
+                    && !(loc.refno_0 == 0x80000001 && loc.refno_1 == 0x80000001)
+                {
+                    println!(
+                        "🔄 尝试下一个分支: [{}] {}_{} -> 页号: 0x{:X}",
+                        i, loc.refno_0, loc.refno_1, loc.pgno
+                    );
                     path.push((parent_page, i));
-                    if let Some(result) = search_btree_optimized_recursive(io, loc.pgno, target_r0, target_r1, path.clone()) {
+                    if let Some(result) = search_btree_optimized_recursive(
+                        io,
+                        loc.pgno,
+                        target_r0,
+                        target_r1,
+                        path.clone(),
+                    ) {
                         return Some(result);
                     }
                     path.pop(); // 移除刚添加的路径
@@ -1961,7 +2362,10 @@ async fn test_main_search_algorithm() {
         let result = io.search_latest_refno(*target_refno, None);
         let search_time = start_time.elapsed();
 
-        println!("⚡ 主流程搜索耗时: {:.4}ms", search_time.as_secs_f64() * 1000.0);
+        println!(
+            "⚡ 主流程搜索耗时: {:.4}ms",
+            search_time.as_secs_f64() * 1000.0
+        );
         println!("🔍 主流程搜索结果: {:?}", result);
 
         if result.is_some() {

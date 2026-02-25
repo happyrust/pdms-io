@@ -345,11 +345,11 @@ impl TryFrom<i32> for RealFunctionOpcode {
 // ============================================================================
 
 /// 字符串函数操作码
-/// 
+///
 /// 基于 IDA 分析的 core.dll 函数名表：
-/// SINE COSINE TANGENT SQRT ASIN ACOS ATAN ATANT BOOLEAN POWER LOG ALOG ABS INT NINT 
-/// LENGTH REAL MATCH MAX MIN AFTER BEFORE STRING UPCASE LOWCASE SUBSTRING 
-/// DEFINED UNDEFINED SIZE DLENGTH DMATCH DSUBSTRING TRIM MATCHWILD WIDTH PART 
+/// SINE COSINE TANGENT SQRT ASIN ACOS ATAN ATANT BOOLEAN POWER LOG ALOG ABS INT NINT
+/// LENGTH REAL MATCH MAX MIN AFTER BEFORE STRING UPCASE LOWCASE SUBSTRING
+/// DEFINED UNDEFINED SIZE DLENGTH DMATCH DSUBSTRING TRIM MATCHWILD WIDTH PART
 /// SET UNSET ARRAY EMPTY OCCURS REPLACE VTEXT VVALUE VLOGICAL SPLIT IFTRUE DISTCONVERT
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringFunctionOpcode {
@@ -426,8 +426,7 @@ impl StringFunctionOpcode {
             | StringFunctionOpcode::Vvalue
             | StringFunctionOpcode::String => 2,
             // 三元函数
-            StringFunctionOpcode::Substring
-            | StringFunctionOpcode::Replace => 3,
+            StringFunctionOpcode::Substring | StringFunctionOpcode::Replace => 3,
         }
     }
 
@@ -595,7 +594,7 @@ impl TryFrom<i32> for ComparisonOpcode {
 // ============================================================================
 
 /// 通用函数操作码
-/// 
+///
 /// 包含 IFTRUE、DISTCONVERT 等高级控制函数
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GeneralFunctionOpcode {
@@ -708,7 +707,9 @@ mod tests {
         assert!(TrigonometricOpcode::try_from(901).is_ok());
         assert!(TrigonometricOpcode::try_from(0x385).is_ok());
         assert_eq!(
-            TrigonometricOpcode::try_from(901).unwrap().format_template(),
+            TrigonometricOpcode::try_from(901)
+                .unwrap()
+                .format_template(),
             "SIN({})"
         );
     }
@@ -717,7 +718,10 @@ mod tests {
     fn test_real_function_opcode() {
         assert!(RealFunctionOpcode::try_from(1001).is_ok());
         assert!(RealFunctionOpcode::try_from(0x3E9).is_ok());
-        assert_eq!(RealFunctionOpcode::try_from(1008).unwrap().operand_count(), 2);
+        assert_eq!(
+            RealFunctionOpcode::try_from(1008).unwrap().operand_count(),
+            2
+        );
     }
 
     #[test]
@@ -727,23 +731,44 @@ mod tests {
         assert!(StringFunctionOpcode::try_from(0x515).is_ok()); // LENGTH (hex)
         assert!(StringFunctionOpcode::try_from(1314).is_ok()); // TRIM
         assert!(StringFunctionOpcode::try_from(0x522).is_ok()); // TRIM (hex)
-        
+
         // 测试操作数个数
-        assert_eq!(StringFunctionOpcode::try_from(1301).unwrap().operand_count(), 1); // LENGTH: 1参数
-        assert_eq!(StringFunctionOpcode::try_from(1303).unwrap().operand_count(), 2); // MATCH: 2参数
-        assert_eq!(StringFunctionOpcode::try_from(1309).unwrap().operand_count(), 3); // SUBSTRING: 3参数
-        
+        assert_eq!(
+            StringFunctionOpcode::try_from(1301)
+                .unwrap()
+                .operand_count(),
+            1
+        ); // LENGTH: 1参数
+        assert_eq!(
+            StringFunctionOpcode::try_from(1303)
+                .unwrap()
+                .operand_count(),
+            2
+        ); // MATCH: 2参数
+        assert_eq!(
+            StringFunctionOpcode::try_from(1309)
+                .unwrap()
+                .operand_count(),
+            3
+        ); // SUBSTRING: 3参数
+
         // 测试格式化模板
         assert_eq!(
-            StringFunctionOpcode::try_from(1301).unwrap().format_template(),
+            StringFunctionOpcode::try_from(1301)
+                .unwrap()
+                .format_template(),
             "LEN({})"
         );
         assert_eq!(
-            StringFunctionOpcode::try_from(1314).unwrap().format_template(),
+            StringFunctionOpcode::try_from(1314)
+                .unwrap()
+                .format_template(),
             "TRIM({})"
         );
         assert_eq!(
-            StringFunctionOpcode::try_from(1309).unwrap().format_template(),
+            StringFunctionOpcode::try_from(1309)
+                .unwrap()
+                .format_template(),
             "SUBSTRING({},{},{})"
         );
     }
@@ -753,25 +778,52 @@ mod tests {
         // 测试 IFTRUE
         assert!(GeneralFunctionOpcode::try_from(1822).is_ok());
         assert!(GeneralFunctionOpcode::try_from(0x071E).is_ok());
-        assert_eq!(GeneralFunctionOpcode::try_from(1822).unwrap(), GeneralFunctionOpcode::Iftrue);
-        
+        assert_eq!(
+            GeneralFunctionOpcode::try_from(1822).unwrap(),
+            GeneralFunctionOpcode::Iftrue
+        );
+
         // 测试 DISTCONVERT
         assert!(GeneralFunctionOpcode::try_from(1824).is_ok());
         assert!(GeneralFunctionOpcode::try_from(0x0720).is_ok());
-        
+
         // 测试操作数个数
-        assert_eq!(GeneralFunctionOpcode::try_from(1822).unwrap().operand_count(), 3); // IFTRUE: 3参数
-        assert_eq!(GeneralFunctionOpcode::try_from(1824).unwrap().operand_count(), 1); // DISTCONVERT: 1参数
-        assert_eq!(GeneralFunctionOpcode::try_from(1825).unwrap().operand_count(), 2); // SET: 2参数
-        assert_eq!(GeneralFunctionOpcode::try_from(1826).unwrap().operand_count(), 1); // UNSET: 1参数
-        
+        assert_eq!(
+            GeneralFunctionOpcode::try_from(1822)
+                .unwrap()
+                .operand_count(),
+            3
+        ); // IFTRUE: 3参数
+        assert_eq!(
+            GeneralFunctionOpcode::try_from(1824)
+                .unwrap()
+                .operand_count(),
+            1
+        ); // DISTCONVERT: 1参数
+        assert_eq!(
+            GeneralFunctionOpcode::try_from(1825)
+                .unwrap()
+                .operand_count(),
+            2
+        ); // SET: 2参数
+        assert_eq!(
+            GeneralFunctionOpcode::try_from(1826)
+                .unwrap()
+                .operand_count(),
+            1
+        ); // UNSET: 1参数
+
         // 测试格式化模板
         assert_eq!(
-            GeneralFunctionOpcode::try_from(1822).unwrap().format_template(),
+            GeneralFunctionOpcode::try_from(1822)
+                .unwrap()
+                .format_template(),
             "IFTRUE({},{},{})"
         );
         assert_eq!(
-            GeneralFunctionOpcode::try_from(1826).unwrap().format_template(),
+            GeneralFunctionOpcode::try_from(1826)
+                .unwrap()
+                .format_template(),
             "UNSET({})"
         );
     }
@@ -782,20 +834,29 @@ mod tests {
         assert!(BooleanOpcode::try_from(301).is_ok());
         assert!(BooleanOpcode::try_from(0x12D).is_ok());
         assert_eq!(BooleanOpcode::try_from(301).unwrap(), BooleanOpcode::Not);
-        
+
         // 测试 AND 和 OR
         assert!(BooleanOpcode::try_from(302).is_ok()); // AND
         assert!(BooleanOpcode::try_from(303).is_ok()); // OR
-        
+
         // 测试操作数个数
         assert_eq!(BooleanOpcode::try_from(301).unwrap().operand_count(), 1); // NOT: 1参数
         assert_eq!(BooleanOpcode::try_from(302).unwrap().operand_count(), 2); // AND: 2参数
         assert_eq!(BooleanOpcode::try_from(303).unwrap().operand_count(), 2); // OR: 2参数
-        
+
         // 测试格式化模板
-        assert_eq!(BooleanOpcode::try_from(301).unwrap().format_template(), "NOT({})");
-        assert_eq!(BooleanOpcode::try_from(302).unwrap().format_template(), "{} AND {}");
-        assert_eq!(BooleanOpcode::try_from(303).unwrap().format_template(), "{} OR {}");
+        assert_eq!(
+            BooleanOpcode::try_from(301).unwrap().format_template(),
+            "NOT({})"
+        );
+        assert_eq!(
+            BooleanOpcode::try_from(302).unwrap().format_template(),
+            "{} AND {}"
+        );
+        assert_eq!(
+            BooleanOpcode::try_from(303).unwrap().format_template(),
+            "{} OR {}"
+        );
     }
 
     #[test]
@@ -803,8 +864,11 @@ mod tests {
         // 测试 EQ
         assert!(ComparisonOpcode::try_from(401).is_ok());
         assert!(ComparisonOpcode::try_from(0x191).is_ok());
-        assert_eq!(ComparisonOpcode::try_from(401).unwrap(), ComparisonOpcode::Eq);
-        
+        assert_eq!(
+            ComparisonOpcode::try_from(401).unwrap(),
+            ComparisonOpcode::Eq
+        );
+
         // 测试所有比较运算符
         assert!(ComparisonOpcode::try_from(501).is_ok()); // NEQ
         assert!(ComparisonOpcode::try_from(601).is_ok()); // GT
@@ -813,9 +877,15 @@ mod tests {
         assert!(ComparisonOpcode::try_from(603).is_ok()); // LT
         assert!(ComparisonOpcode::try_from(605).is_ok()); // GE
         assert!(ComparisonOpcode::try_from(607).is_ok()); // LE
-        
+
         // 测试格式化模板
-        assert_eq!(ComparisonOpcode::try_from(401).unwrap().format_template(), "{} EQ {}");
-        assert_eq!(ComparisonOpcode::try_from(603).unwrap().format_template(), "{} LT {}");
+        assert_eq!(
+            ComparisonOpcode::try_from(401).unwrap().format_template(),
+            "{} EQ {}"
+        );
+        assert_eq!(
+            ComparisonOpcode::try_from(603).unwrap().format_template(),
+            "{} LT {}"
+        );
     }
 }

@@ -4,16 +4,16 @@
 //!
 //! 如果不传入参数，则使用默认的数据库路径和参考号
 
+use aios_core::RefU64;
 use aios_core::get_db_option;
 use aios_core::pdms_types::EleOperation;
-use aios_core::RefU64;
 use pdms_io::init_log;
 use pdms_io::io::{EleOperationData, EleOperationDetail, PdmsIO};
 use std::path::Path;
 use std::time::Instant;
 // use aios_core::NamedAttrValue;
-use aios_core::init_test_surreal; // 导入初始化SurrealDB的函数
 use aios_core::SUL_DB; // 导入SurrealDB全局连接
+use aios_core::init_test_surreal; // 导入初始化SurrealDB的函数
 use std::collections::HashMap;
 
 #[tokio::main]
@@ -31,7 +31,6 @@ async fn main() -> anyhow::Result<()> {
     let refno_str = std::env::args()
         .nth(2)
         .unwrap_or_else(|| "17496_497143".to_string());
-
 
     let project_name = Path::new(&db_path)
         .file_name()
@@ -77,4 +76,3 @@ async fn main() -> anyhow::Result<()> {
     io.update_elements_to_database(&range_eles, true).await?;
     Ok(())
 }
-

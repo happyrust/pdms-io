@@ -2,7 +2,7 @@
 //!
 //! 解析 ams7330_0001 测试文件，保存到 SurrealDB，并添加 profile 耗时分析
 
-use aios_core::{init_test_surreal, insert_into_table_with_chunks, SUL_DB};
+use aios_core::{SUL_DB, init_test_surreal, insert_into_table_with_chunks};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Read;
@@ -43,17 +43,36 @@ impl std::fmt::Display for ProfileStats {
         writeln!(f, "\n╔════════════════════════════════════════╗")?;
         writeln!(f, "║          Profile 耗时分析报告           ║")?;
         writeln!(f, "╠════════════════════════════════════════╣")?;
-        writeln!(f, "║ 📁 文件读取耗时:    {:>10.2} ms      ║", self.file_read_ms)?;
+        writeln!(
+            f,
+            "║ 📁 文件读取耗时:    {:>10.2} ms      ║",
+            self.file_read_ms
+        )?;
         writeln!(f, "║ 🔍 解析处理耗时:    {:>10.2} ms      ║", self.parse_ms)?;
-        writeln!(f, "║ 💾 数据库保存耗时:  {:>10.2} ms      ║", self.db_save_ms)?;
+        writeln!(
+            f,
+            "║ 💾 数据库保存耗时:  {:>10.2} ms      ║",
+            self.db_save_ms
+        )?;
         writeln!(f, "╠════════════════════════════════════════╣")?;
         writeln!(f, "║ ⏱️  总耗时:         {:>10.2} ms      ║", self.total_ms)?;
         writeln!(f, "╠════════════════════════════════════════╣")?;
-        writeln!(f, "║ 📊 解析元素数量:    {:>10}          ║", self.element_count)?;
-        writeln!(f, "║ 📋 总属性数量:      {:>10}          ║", self.total_attr_count)?;
+        writeln!(
+            f,
+            "║ 📊 解析元素数量:    {:>10}          ║",
+            self.element_count
+        )?;
+        writeln!(
+            f,
+            "║ 📋 总属性数量:      {:>10}          ║",
+            self.total_attr_count
+        )?;
         if self.element_count > 0 {
-            writeln!(f, "║ ⚡ 平均解析速度:    {:>10.2} 元素/秒  ║", 
-                self.element_count as f64 / (self.parse_ms / 1000.0))?;
+            writeln!(
+                f,
+                "║ ⚡ 平均解析速度:    {:>10.2} 元素/秒  ║",
+                self.element_count as f64 / (self.parse_ms / 1000.0)
+            )?;
         }
         writeln!(f, "╚════════════════════════════════════════╝")?;
         Ok(())
@@ -122,7 +141,9 @@ async fn test_parse_ams7330_0001() {
                 // 获取属性信息
                 let attr_count = ele_data.whole_attmap.attmap.len();
                 let explicit_attr_count = ele_data.whole_attmap.explicit_attmap.len();
-                let noun = ele_data.whole_attmap.attmap
+                let noun = ele_data
+                    .whole_attmap
+                    .attmap
                     .get_as_string("TYPE")
                     .unwrap_or_else(|| "UNKNOWN".to_string());
                 let refno = ele_data.refno.to_string();
@@ -140,8 +161,10 @@ async fn test_parse_ams7330_0001() {
                 };
 
                 if element_index < 10 || element_index % 100 == 0 {
-                    println!("  📌 元素 #{}: {} (属性: {}, 显式属性: {})",
-                        element_index, record.refno, attr_count, explicit_attr_count);
+                    println!(
+                        "  📌 元素 #{}: {} (属性: {}, 显式属性: {})",
+                        element_index, record.refno, attr_count, explicit_attr_count
+                    );
                 }
 
                 parsed_records.push(record);
@@ -152,7 +175,10 @@ async fn test_parse_ams7330_0001() {
                 break; // 先只解析第一个元素，后续可以扩展
             }
             Err(e) => {
-                eprintln!("⚠️ 解析元素 #{} 时出错 (offset={}): {:?}", element_index, offset, e);
+                eprintln!(
+                    "⚠️ 解析元素 #{} 时出错 (offset={}): {:?}",
+                    element_index, offset, e
+                );
                 break;
             }
         }
@@ -212,7 +238,7 @@ async fn test_parse_ams7330_0001_detail() {
         Ok(ele_data) => {
             println!("\n✅ 解析成功!");
             println!("📌 参考号: {}", ele_data.refno.to_string());
-            
+
             // 打印普通属性
             println!("\n📋 普通属性 ({} 个):", ele_data.whole_attmap.attmap.len());
             for (key, value) in ele_data.whole_attmap.attmap.iter() {
@@ -220,7 +246,10 @@ async fn test_parse_ams7330_0001_detail() {
             }
 
             // 打印显式属性
-            println!("\n📋 显式属性 ({} 个):", ele_data.whole_attmap.explicit_attmap.len());
+            println!(
+                "\n📋 显式属性 ({} 个):",
+                ele_data.whole_attmap.explicit_attmap.len()
+            );
             for (key, value) in ele_data.whole_attmap.explicit_attmap.iter() {
                 println!("  {} = {:?}", key, value);
             }

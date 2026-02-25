@@ -1,10 +1,10 @@
-use std::fs::File;
-use std::mem::size_of;
+use anyhow::anyhow;
 use deku::prelude::*;
 use std::convert::{TryFrom, TryInto};
 use std::fmt::Debug;
+use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
-use anyhow::anyhow;
+use std::mem::size_of;
 
 // pub fn get_parsed_data<'a, T: Clone + Debug + DekuRead<'a> + DekuWrite + TryFrom<&'a [u8]>>(file: &mut File, start: u64) -> anyhow::Result<T>{
 //

@@ -1,0 +1,992 @@
+warning: unused import: `std::fs`
+ --> build.rs:1:5
+  |
+1 | use std::fs;
+  |     ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::process::Command`
+ --> build.rs:3:5
+  |
+3 | use std::process::Command;
+  |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: `pdms_io` (build script) generated 2 warnings
+   Compiling aios_core v0.2.3 (D:\work\plant-code\rs-core)
+   Compiling parse_pdms_db v3.0.0 (D:\work\plant-code\pdms-io-fork\crates\parse_pdms_db)
+warning: unused `#[macro_use]` import
+ --> crates\parse_pdms_db\src\lib.rs:8:1
+  |
+8 | #[macro_use]
+  | ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unexpected `cfg` condition name: `debug_parse_expr`
+    --> crates\parse_pdms_db\src\parse.rs:2697:11
+     |
+2697 |     #[cfg(debug_parse_expr)]
+     |           ^^^^^^^^^^^^^^^^
+     |
+     = help: expected names are: `docsrs`, `feature`, and `test` and 31 more
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(debug_parse_expr)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(debug_parse_expr)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+  --> crates\parse_pdms_db\src\parse.rs:44:20
+   |
+44 | use nom::sequence::tuple;
+   |                    ^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1562:47
+     |
+1562 |                     let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(bytes)?;
+     |                                               ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1971:55
+     |
+1971 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1988:55
+     |
+1988 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2045:59
+     |
+2045 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2613:45
+     |
+2613 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2626:45
+     |
+2626 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2646:45
+     |
+2646 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2658:45
+     |
+2658 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2705:13
+     |
+2705 |             tuple((be_u32, be_u32, be_u32, be_u32, be_u32))(input)?;
+     |             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2728:41
+     |
+2728 |                 let (_, (a, b, c, d)) = tuple((be_u32, be_u32, be_u32, be_u32))(tmp_input)?;
+     |                                         ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:3154:35
+     |
+3154 |         let (_, (_len, _refno)) = tuple::<_, _, nom::error::Error<&[u8]>, _>((
+     |                                   ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+  --> crates\parse_pdms_db\src\parse_explict_tools.rs:15:20
+   |
+15 | use nom::sequence::tuple;
+   |                    ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+   --> crates\parse_pdms_db\src\parse_explict_tools.rs:427:25
+    |
+427 |                         tuple((be_i32, be_i32))(&expression_input[..])?;
+    |                         ^^^^^
+
+warning: unused import: `tokio::io::AsyncReadExt`
+  --> crates\parse_pdms_db\src\parse.rs:58:5
+   |
+58 | use tokio::io::AsyncReadExt;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `itertools::Itertools`
+  --> crates\parse_pdms_db\src\parse.rs:33:5
+   |
+33 | use itertools::Itertools;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `core::slice::SlicePattern`
+  --> crates\parse_pdms_db\src\parse.rs:31:5
+   |
+31 | use core::slice::SlicePattern;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: value assigned to `memb_bytes_len` is never read
+   --> crates\parse_pdms_db\src\parse.rs:494:13
+    |
+494 |             memb_bytes_len = declared_bytes;
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `step_w` is never read
+   --> crates\parse_pdms_db\src\parse.rs:539:26
+    |
+539 |         let mut step_w = 0;
+    |                          ^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: unused variable: `e`
+   --> crates\parse_pdms_db\src\parser\attribute\expression.rs:347:17
+    |
+347 |             Err(e) => {
+    |                 ^ help: if this is intentional, prefix it with an underscore: `_e`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `e`
+   --> crates\parse_pdms_db\src\parser\attribute\expression.rs:409:13
+    |
+409 |         Err(e) => {
+    |             ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:199:19
+    |
+199 |             801 | 0x321 => Ok(ArithmeticOpcode::Negate),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+    |
+    = note: `#[warn(unreachable_patterns)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:200:19
+    |
+200 |             802 | 0x322 => Ok(ArithmeticOpcode::Plus),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:201:19
+    |
+201 |             803 | 0x323 => Ok(ArithmeticOpcode::Sub),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:202:19
+    |
+202 |             804 | 0x324 => Ok(ArithmeticOpcode::Mul),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:203:19
+    |
+203 |             805 | 0x325 => Ok(ArithmeticOpcode::Div),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:260:19
+    |
+260 |             901 | 0x385 => Ok(TrigonometricOpcode::Sin),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:261:19
+    |
+261 |             902 | 0x386 => Ok(TrigonometricOpcode::Cos),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:262:19
+    |
+262 |             903 | 0x387 => Ok(TrigonometricOpcode::Tan),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:263:19
+    |
+263 |             904 | 0x388 => Ok(TrigonometricOpcode::Asin),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:264:19
+    |
+264 |             905 | 0x389 => Ok(TrigonometricOpcode::Acos),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:265:19
+    |
+265 |             906 | 0x38A => Ok(TrigonometricOpcode::Atan),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:266:19
+    |
+266 |             907 | 0x38B => Ok(TrigonometricOpcode::Atan2),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:329:20
+    |
+329 |             1001 | 0x3E9 => Ok(RealFunctionOpcode::Sqrt),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:330:20
+    |
+330 |             1002 | 0x3EA => Ok(RealFunctionOpcode::Pow),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:331:20
+    |
+331 |             1003 | 0x3EB => Ok(RealFunctionOpcode::Log),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:332:20
+    |
+332 |             1004 | 0x3EC => Ok(RealFunctionOpcode::Alog),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:333:20
+    |
+333 |             1005 | 0x3ED => Ok(RealFunctionOpcode::Int),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:334:20
+    |
+334 |             1006 | 0x3EE => Ok(RealFunctionOpcode::Nint),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:335:20
+    |
+335 |             1007 | 0x3EF => Ok(RealFunctionOpcode::Abs),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:336:20
+    |
+336 |             1008 | 0x3F0 => Ok(RealFunctionOpcode::Max),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:337:20
+    |
+337 |             1009 | 0x3F1 => Ok(RealFunctionOpcode::Min),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:466:20
+    |
+466 |             1301 | 0x515 => Ok(StringFunctionOpcode::Length),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:467:20
+    |
+467 |             1302 | 0x516 => Ok(StringFunctionOpcode::Real),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:468:20
+    |
+468 |             1303 | 0x517 => Ok(StringFunctionOpcode::Match),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:469:20
+    |
+469 |             1304 | 0x518 => Ok(StringFunctionOpcode::After),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:470:20
+    |
+470 |             1305 | 0x519 => Ok(StringFunctionOpcode::Before),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:471:20
+    |
+471 |             1306 | 0x51A => Ok(StringFunctionOpcode::String),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:472:20
+    |
+472 |             1307 | 0x51B => Ok(StringFunctionOpcode::Upcase),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:473:20
+    |
+473 |             1308 | 0x51C => Ok(StringFunctionOpcode::Lowcase),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:474:20
+    |
+474 |             1309 | 0x51D => Ok(StringFunctionOpcode::Substring),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:475:20
+    |
+475 |             1311 | 0x51F => Ok(StringFunctionOpcode::Defined),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:476:20
+    |
+476 |             1312 | 0x520 => Ok(StringFunctionOpcode::Undefined),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:477:20
+    |
+477 |             1313 | 0x521 => Ok(StringFunctionOpcode::Size),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:478:20
+    |
+478 |             1314 | 0x522 => Ok(StringFunctionOpcode::Trim),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:479:20
+    |
+479 |             1315 | 0x523 => Ok(StringFunctionOpcode::Matchwild),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:480:20
+    |
+480 |             1316 | 0x524 => Ok(StringFunctionOpcode::Width),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:481:20
+    |
+481 |             1317 | 0x525 => Ok(StringFunctionOpcode::Part),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:482:20
+    |
+482 |             1321 | 0x529 => Ok(StringFunctionOpcode::Occurs),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:483:20
+    |
+483 |             1322 | 0x52A => Ok(StringFunctionOpcode::Replace),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:484:20
+    |
+484 |             1369 | 0x559 => Ok(StringFunctionOpcode::Vtext),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:485:20
+    |
+485 |             1370 | 0x55A => Ok(StringFunctionOpcode::Vvalue),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:486:20
+    |
+486 |             1401 | 0x579 => Ok(StringFunctionOpcode::RealAlt),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:487:20
+    |
+487 |             1410 | 0x582 => Ok(StringFunctionOpcode::Str),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:532:19
+    |
+532 |             301 | 0x12D => Ok(BooleanOpcode::Not),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:533:19
+    |
+533 |             302 | 0x12E => Ok(BooleanOpcode::And),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:534:19
+    |
+534 |             303 | 0x12F => Ok(BooleanOpcode::Or),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:580:19
+    |
+580 |             401 | 0x191 => Ok(ComparisonOpcode::Eq),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:581:19
+    |
+581 |             501 | 0x1F5 => Ok(ComparisonOpcode::Neq),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:583:19
+    |
+583 |             601 | 0x259 | 602 => Ok(ComparisonOpcode::Gt),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: function `gen_resolve_error` is never used
+  --> crates\parse_pdms_db\src\error_types.rs:57:4
+   |
+57 | fn gen_resolve_error() -> anyhow::Result<u32> {
+   |    ^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `get_uda_short_name` is never used
+    --> crates\parse_pdms_db\src\parse.rs:1638:4
+     |
+1638 | fn get_uda_short_name(hash: i32) -> Option<String> {
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `convert_int_to_axis_str` is never used
+    --> crates\parse_pdms_db\src\parse.rs:2201:4
+     |
+2201 | fn convert_int_to_axis_str(n: i32) -> &'static str {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+   Compiling pdms_io v0.1.0 (D:\work\plant-code\pdms-io-fork)
+warning: unused import: `anyhow::anyhow`
+ --> src\common.rs:1:5
+  |
+1 | use anyhow::anyhow;
+  |     ^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `deku::prelude::*`
+ --> src\common.rs:2:5
+  |
+2 | use deku::prelude::*;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused imports: `TryFrom` and `TryInto`
+ --> src\common.rs:3:20
+  |
+3 | use std::convert::{TryFrom, TryInto};
+  |                    ^^^^^^^  ^^^^^^^
+
+warning: unused import: `std::fmt::Debug`
+ --> src\common.rs:4:5
+  |
+4 | use std::fmt::Debug;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `std::fs::File`
+ --> src\common.rs:5:5
+  |
+5 | use std::fs::File;
+  |     ^^^^^^^^^^^^^
+
+warning: unused imports: `Read`, `SeekFrom`, and `Seek`
+ --> src\common.rs:6:15
+  |
+6 | use std::io::{Read, Seek, SeekFrom};
+  |               ^^^^  ^^^^  ^^^^^^^^
+
+warning: unused import: `std::mem::size_of`
+ --> src\common.rs:7:5
+  |
+7 | use std::mem::size_of;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `MappedLocalTime`
+ --> src\defines.rs:4:31
+  |
+4 | use chrono::{DateTime, Local, MappedLocalTime, TimeZone, Utc};
+  |                               ^^^^^^^^^^^^^^^
+
+warning: unused import: `TryInto`
+  --> src\defines.rs:10:29
+   |
+10 | use std::convert::{TryFrom, TryInto};
+   |                             ^^^^^^^
+
+warning: unused import: `std::str::FromStr`
+  --> src\defines.rs:11:5
+   |
+11 | use std::str::FromStr;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> src\element_serializer.rs:24:5
+   |
+24 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PageKey`
+  --> src\writer.rs:14:27
+   |
+14 | use crate::page_manager::{PageKey, PageManager};
+   |                           ^^^^^^^
+
+warning: unused import: `tokio::fs::File`
+ --> src\sync\sync.rs:5:5
+  |
+5 | use tokio::fs::File;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `log::*`
+ --> src\sync\compress.rs:4:5
+  |
+4 | use log::*;
+  |     ^^^^^^
+
+warning: unused import: `std::fs::create_dir_all`
+ --> src\sync\compress.rs:5:5
+  |
+5 | use std::fs::create_dir_all;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `human_size`
+  --> src\sync\compress.rs:14:13
+   |
+14 | use crate::{human_size /*info_cmd*/};
+   |             ^^^^^^^^^^
+
+warning: unused import: `archive_reader::IoReader`
+  --> src\sync\compress.rs:16:24
+   |
+16 | use dpcsync::{HashSum, archive_reader::IoReader, chunk_dictionary as dict};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PdmsHeader`
+ --> src\watch.rs:1:39
+  |
+1 | use crate::defines::{DbPageBasicInfo, PdmsHeader};
+  |                                       ^^^^^^^^^^
+
+warning: unused import: `future::ok`
+ --> src\watch.rs:7:5
+  |
+7 |     future::ok,
+  |     ^^^^^^^^^^
+
+warning: unused import: `RecursiveMode`
+  --> src\watch.rs:11:49
+   |
+11 | use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+   |                                                 ^^^^^^^^^^^^^
+
+warning: unused import: `Read`
+  --> src\watch.rs:13:15
+   |
+13 | use std::io::{Read, Write};
+   |               ^^^^
+
+warning: unreachable expression
+  --> src\sync\sync.rs:37:5
+   |
+35 |     anyhow::bail!("compress_archive is not available: dpcsync dependency is commented out");
+   |     --------------------------------------------------------------------------------------- any code following this expression is unreachable
+36 |
+37 |     Ok(())
+   |     ^^^^^^ unreachable expression
+   |
+   = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `parse_pdms_db` (lib) generated 75 warnings (run `cargo fix --lib -p parse_pdms_db` to apply 2 suggestions)
+warning: unused import: `TryFrom`
+  --> src\defines.rs:10:20
+   |
+10 | use std::convert::{TryFrom, TryInto};
+   |                    ^^^^^^^
+
+warning: unused import: `StreamExt`
+ --> src\watch.rs:5:14
+  |
+5 |     SinkExt, StreamExt,
+  |              ^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src\defines.rs:497:25
+    |
+497 |         let (next_rest, mut d) = RefnoDataLoc::read(rest, ())?;
+    |                         ----^
+    |                         |
+    |                         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `written`
+   --> src\writer.rs:835:13
+    |
+835 |         let written = self.element_writer.flush(file)?;
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_written`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `index`
+  --> src\sync\compress.rs:93:18
+   |
+93 |             let (index, offset, verified, compressed) = result.context("Error compressing")?;
+   |                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_index`
+
+warning: unused variable: `offset`
+  --> src\sync\compress.rs:93:25
+   |
+93 |             let (index, offset, verified, compressed) = result.context("Error compressing")?;
+   |                         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_offset`
+
+warning: unused variable: `input`
+   --> src\watch.rs:139:21
+    |
+139 |                 let input = path.to_path_buf();
+    |                     ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+
+warning: unused variable: `output`
+   --> src\watch.rs:140:21
+    |
+140 |                 let output: PathBuf =
+    |                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_output`
+
+warning: unused variable: `tmp_path`
+   --> src\watch.rs:142:21
+    |
+142 |                 let tmp_path = cbas_dir_path.clone();
+    |                     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_tmp_path`
+
+warning: unused variable: `rotate_size`
+  --> src\io_log.rs:44:5
+   |
+44 |     rotate_size: u64,
+   |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rotate_size`
+
+warning: unused variable: `max_files`
+  --> src\io_log.rs:45:5
+   |
+45 |     max_files: usize,
+   |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_max_files`
+
+warning: associated function `has_next_block_header` is never used
+   --> src\element_record_reader.rs:168:8
+    |
+ 10 | impl ElementRecordReader {
+    | ------------------------ associated function in this implementation
+...
+168 |     fn has_next_block_header(data: &[u8], pos: usize) -> bool {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pdms_io` (lib) generated 34 warnings (run `cargo fix --lib -p pdms_io` to apply 30 suggestions)
+warning: unused import: `PageTypeError`
+ --> src\bin\test_page_types.rs:2:32
+  |
+2 |     DataPageSubtype, PageType, PageTypeError, verify_data_page_subtype, verify_page_type,
+  |                                ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Utc`
+  --> src\bin\test_sesno_timestamp.rs:95:36
+   |
+95 |             use chrono::{DateTime, Utc};
+   |                                    ^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `PageTypeError`
+ --> src\bin\test_all_fixes.rs:2:43
+  |
+2 |     DataPageSubtype, PAGE_SIZE, PageType, PageTypeError, PdmsHeader, verify_data_page_subtype,
+  |                                           ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::NamedAttrValue`
+ --> src\bin\test_get_refno_status.rs:1:5
+  |
+1 | use aios_core::NamedAttrValue;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::pdms_types::RefU64`
+ --> src\main.rs:5:5
+  |
+5 | use aios_core::pdms_types::RefU64;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `EleRawData`
+ --> src\main.rs:7:37
+  |
+7 | use pdms_io::defines::{ElePageData, EleRawData, PAGE_SIZE};
+  |                                     ^^^^^^^^^^
+
+warning: unused import: `pdms_io::test::resolve_test_db_path`
+ --> src\main.rs:9:5
+  |
+9 | use pdms_io::test::resolve_test_db_path;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `EleOperation`
+ --> src\bin\test_get_refno_status.rs:2:29
+  |
+2 | use aios_core::pdms_types::{EleOperation, RefU64};
+  |                             ^^^^^^^^^^^^
+
+warning: unused import: `std::mem::size_of`
+  --> src\main.rs:14:5
+   |
+14 | use std::mem::size_of;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::env`
+ --> src\bin\benchmark_increment_eles.rs:3:5
+  |
+3 | use std::env;
+  |     ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::RefU64`
+ --> src\bin\test_increment_eles.rs:7:5
+  |
+7 | use aios_core::RefU64;
+  |     ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::pdms_types::EleOperation`
+ --> src\bin\test_increment_eles.rs:9:5
+  |
+9 | use aios_core::pdms_types::EleOperation;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `EleOperationData` and `EleOperationDetail`
+  --> src\bin\test_increment_eles.rs:11:19
+   |
+11 | use pdms_io::io::{EleOperationData, EleOperationDetail, PdmsIO};
+   |                   ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::SUL_DB`
+  --> src\bin\test_increment_eles.rs:15:5
+   |
+15 | use aios_core::SUL_DB; // 导入SurrealDB全局连接
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> src\bin\test_increment_eles.rs:17:5
+   |
+17 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> src\main.rs:44:9
+   |
+44 |     let mut bytes: Vec<u8> = ele_page.clone().try_into().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> src\main.rs:60:9
+   |
+60 |     let mut bytes: Vec<u8> = ele_page.try_into().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: unused variable: `elapsed`
+  --> src\bin\test_increment_eles.rs:73:9
+   |
+73 |     let elapsed = start_time.elapsed();
+   |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_elapsed`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> src\main.rs:74:9
+   |
+74 |     let mut watch_files: Vec<PathBuf> = Vec::new();
+   |         ----^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:81:9
+   |
+81 |     let mut watcher = PdmsWatcher::new(db_paths);
+   |         ----^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:83:9
+   |
+83 |     let mut time = Instant::now();
+   |         ----^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: unused variable: `watch_files`
+  --> src\main.rs:74:9
+   |
+74 |     let mut watch_files: Vec<PathBuf> = Vec::new();
+   |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_watch_files`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pdms_io` (bin "test_page_types") generated 1 warning (run `cargo fix --bin "test_page_types" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "test_all_fixes") generated 1 warning (run `cargo fix --bin "test_all_fixes" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "test_sesno_timestamp") generated 1 warning (run `cargo fix --bin "test_sesno_timestamp" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "benchmark_increment_eles") generated 1 warning (run `cargo fix --bin "benchmark_increment_eles" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "test_get_refno_status") generated 2 warnings (run `cargo fix --bin "test_get_refno_status" -p pdms_io` to apply 2 suggestions)
+warning: `pdms_io` (bin "test_increment_eles") generated 6 warnings (run `cargo fix --bin "test_increment_eles" -p pdms_io` to apply 6 suggestions)
+warning: `pdms_io` (bin "pdms_io") generated 10 warnings (run `cargo fix --bin "pdms_io" -p pdms_io` to apply 10 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 34s
+     Running tests\diag_ams1112_full_parse.rs (target\debug\deps\diag_ams1112_full_parse-c43c8280bd3550e8.exe)
+
+running 1 test
+会话5解析成功: op_count=743
+test diag_ams1112_session5_no_panic ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 12.08s
+

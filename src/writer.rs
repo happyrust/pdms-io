@@ -11,7 +11,7 @@ use std::fs::File;
 use std::io::{Seek, SeekFrom, Write};
 
 use crate::defines::*;
-use crate::page_manager::{PageManager, PageKey};
+use crate::page_manager::{PageKey, PageManager};
 
 /// 写入操作错误类型
 #[derive(Debug)]
@@ -37,7 +37,11 @@ impl std::fmt::Display for WriteError {
         match self {
             WriteError::Io(e) => write!(f, "I/O 错误: {}", e),
             WriteError::PageSizeMismatch { expected, actual } => {
-                write!(f, "页面大小不匹配: 期望 {} 字节, 实际 {} 字节", expected, actual)
+                write!(
+                    f,
+                    "页面大小不匹配: 期望 {} 字节, 实际 {} 字节",
+                    expected, actual
+                )
             }
             WriteError::IndexNotFound(refno) => write!(f, "索引未找到: refno={}", refno),
             WriteError::SerializationError(msg) => write!(f, "序列化错误: {}", msg),
@@ -59,7 +63,7 @@ pub struct WriteStats {
 }
 
 /// 元素写入器
-/// 
+///
 /// 提供元素级别的写入操作，封装页面管理和索引更新逻辑。
 pub struct ElementWriter {
     /// 页面管理器
@@ -80,34 +84,34 @@ impl ElementWriter {
             stats: WriteStats::default(),
         }
     }
-    
+
     /// 使用 512 字节页面大小创建
     pub fn new_512() -> Self {
         Self::new(PAGE_SIZE_512)
     }
-    
+
     /// 使用 2K 字节页面大小创建
     pub fn new_2k() -> Self {
         Self::new(PAGE_SIZE_2K)
     }
-    
+
     /// 获取写入统计
     pub fn stats(&self) -> &WriteStats {
         &self.stats
     }
-    
+
     /// 获取页面管理器的可变引用
     pub fn page_manager_mut(&mut self) -> &mut PageManager {
         &mut self.page_manager
     }
-    
+
     /// 获取页面管理器的引用
     pub fn page_manager(&self) -> &PageManager {
         &self.page_manager
     }
-    
+
     /// 写入单个页面
-    /// 
+    ///
     /// # 参数
     /// * `file` - 数据库文件句柄
     /// * `ext_no` - 扩展号
@@ -126,14 +130,14 @@ impl ElementWriter {
                 actual: data.len(),
             });
         }
-        
+
         self.page_manager.write_page(file, ext_no, page_no, data)?;
         self.stats.pages_written += 1;
         self.stats.bytes_written += data.len() as u64;
-        
+
         Ok(())
     }
-    
+
     /// 刷新所有脏页到磁盘
     pub fn flush(&mut self, file: &mut File) -> Result<usize, WriteError> {
         let written = self.page_manager.flush_dirty_pages(file)?;
@@ -141,36 +145,36 @@ impl ElementWriter {
         self.stats.bytes_written += (written * self.page_size) as u64;
         Ok(written)
     }
-    
+
     /// 分配新页面
-    /// 
+    ///
     /// # 参数
     /// * `file` - 数据库文件句柄
-    /// 
+    ///
     /// # 返回值
     /// 新分配的页面号
     pub fn allocate_page(&mut self, file: &mut File) -> Result<u32, WriteError> {
         // 获取文件末尾位置
         let file_size = file.seek(SeekFrom::End(0))?;
-        
+
         // 计算新页面号
         let new_page_no = (file_size / self.page_size as u64) as u32;
-        
+
         // 写入空页面
         let empty_page = vec![0u8; self.page_size];
         file.write_all(&empty_page)?;
         file.flush()?;
-        
+
         self.stats.pages_written += 1;
         self.stats.bytes_written += self.page_size as u64;
-        
+
         Ok(new_page_no)
     }
-    
+
     /// 更新参考号索引位置
-    /// 
+    ///
     /// 更新 B+ 树索引中的参考号位置信息
-    /// 
+    ///
     /// # 参数
     /// * `file` - 数据库文件句柄
     /// * `ext_no` - 扩展号
@@ -184,60 +188,71 @@ impl ElementWriter {
         refno_loc: &RefnoDataLoc,
     ) -> Result<(), WriteError> {
         // 读取索引页面
-        let page_data = self.page_manager.get_page(file, ext_no, index_page_no)
+        let page_data = self
+            .page_manager
+            .get_page(file, ext_no, index_page_no)
             .map_err(WriteError::Io)?
             .to_vec();
-        
+
         // 验证页面类型
         if page_data.len() < 8 {
             return Err(WriteError::SerializationError("页面数据太短".into()));
         }
-        
-        let page_type = u32::from_be_bytes([page_data[0], page_data[1], page_data[2], page_data[3]]);
+
+        let page_type =
+            u32::from_be_bytes([page_data[0], page_data[1], page_data[2], page_data[3]]);
         if page_type != 5 && page_type != 8 {
-            return Err(WriteError::SerializationError(
-                format!("非索引页面类型: {}", page_type)
-            ));
+            return Err(WriteError::SerializationError(format!(
+                "非索引页面类型: {}",
+                page_type
+            )));
         }
-        
+
         // 序列化新的 RefnoDataLoc
         let target_refno_bytes = [
-            (refno_loc.refno_0 >> 24) as u8, (refno_loc.refno_0 >> 16) as u8,
-            (refno_loc.refno_0 >> 8) as u8, refno_loc.refno_0 as u8,
-            (refno_loc.refno_1 >> 24) as u8, (refno_loc.refno_1 >> 16) as u8,
-            (refno_loc.refno_1 >> 8) as u8, refno_loc.refno_1 as u8,
+            (refno_loc.refno_0 >> 24) as u8,
+            (refno_loc.refno_0 >> 16) as u8,
+            (refno_loc.refno_0 >> 8) as u8,
+            refno_loc.refno_0 as u8,
+            (refno_loc.refno_1 >> 24) as u8,
+            (refno_loc.refno_1 >> 16) as u8,
+            (refno_loc.refno_1 >> 8) as u8,
+            refno_loc.refno_1 as u8,
         ];
-        
+
         // 在页面中查找目标参考号
         let mut found_offset = None;
         for offset in (0x24..page_data.len()).step_by(16) {
-            if offset + 8 <= page_data.len() && &page_data[offset..offset+8] == &target_refno_bytes {
+            if offset + 8 <= page_data.len()
+                && &page_data[offset..offset + 8] == &target_refno_bytes
+            {
                 found_offset = Some(offset);
                 break;
             }
         }
-        
+
         if let Some(offset) = found_offset {
             // 更新页面数据
             let mut new_page_data = page_data.clone();
-            
+
             // 写入新的 pgno 和 offset
             let pgno_bytes = refno_loc.pgno.to_be_bytes();
             new_page_data[offset + 8..offset + 12].copy_from_slice(&pgno_bytes);
-            
+
             // offset 和 flag 打包为 4 字节
             let packed = ((refno_loc.offset as u32) << 12) | (refno_loc.flag as u32);
             let packed_bytes = packed.to_be_bytes();
             new_page_data[offset + 12..offset + 16].copy_from_slice(&packed_bytes);
-            
+
             // 写回页面
-            self.page_manager.write_page(file, ext_no, index_page_no, &new_page_data)?;
+            self.page_manager
+                .write_page(file, ext_no, index_page_no, &new_page_data)?;
             self.stats.index_updates += 1;
-            
+
             Ok(())
         } else {
             Err(WriteError::IndexNotFound(
-                ((refno_loc.refno_0 as u64) << 32) | (refno_loc.refno_1 as u64)
+                ((refno_loc.refno_0 as u64) << 32) | (refno_loc.refno_1 as u64),
             ))
         }
     }
@@ -261,22 +276,26 @@ impl ElementWriter {
         refno_loc: &RefnoDataLoc,
     ) -> Result<(), WriteError> {
         // 读取索引页面
-        let page_data = self.page_manager.get_page(file, ext_no, index_page_no)
+        let page_data = self
+            .page_manager
+            .get_page(file, ext_no, index_page_no)
             .map_err(WriteError::Io)?
             .to_vec();
-        
+
         if page_data.len() < 0x24 {
             return Err(WriteError::SerializationError("索引页面数据太短".into()));
         }
-        
+
         // 验证页面类型 (5 = 数据页, 8 = 索引页)
-        let page_type = u32::from_be_bytes([page_data[0], page_data[1], page_data[2], page_data[3]]);
+        let page_type =
+            u32::from_be_bytes([page_data[0], page_data[1], page_data[2], page_data[3]]);
         if page_type != 5 && page_type != 8 {
-            return Err(WriteError::SerializationError(
-                format!("非索引页面类型: {}", page_type)
-            ));
+            return Err(WriteError::SerializationError(format!(
+                "非索引页面类型: {}",
+                page_type
+            )));
         }
-        
+
         // 查找插入位置 (第一个全零的 16 字节槽位)
         let mut insert_offset = None;
         for offset in (0x24..page_data.len()).step_by(16) {
@@ -289,31 +308,34 @@ impl ElementWriter {
                 }
             }
         }
-        
+
         if let Some(offset) = insert_offset {
             let mut new_page_data = page_data.clone();
-            
+
             // 写入 refno_0 (4B)
             new_page_data[offset..offset + 4].copy_from_slice(&refno_loc.refno_0.to_be_bytes());
-            
+
             // 写入 refno_1 (4B)
             new_page_data[offset + 4..offset + 8].copy_from_slice(&refno_loc.refno_1.to_be_bytes());
-            
+
             // 写入 pgno (4B)
             new_page_data[offset + 8..offset + 12].copy_from_slice(&refno_loc.pgno.to_be_bytes());
-            
+
             // 写入 offset(20bit) + flag(12bit) 打包为 4B
             let packed = ((refno_loc.offset as u32) << 12) | (refno_loc.flag as u32);
             new_page_data[offset + 12..offset + 16].copy_from_slice(&packed.to_be_bytes());
-            
+
             // 写回页面
-            self.page_manager.write_page(file, ext_no, index_page_no, &new_page_data)?;
+            self.page_manager
+                .write_page(file, ext_no, index_page_no, &new_page_data)?;
             self.stats.index_updates += 1;
-            
+
             Ok(())
         } else {
             // 页面已满，需要分裂
-            Err(WriteError::SerializationError("索引页面已满，需要分裂（当前不支持）".into()))
+            Err(WriteError::SerializationError(
+                "索引页面已满，需要分裂（当前不支持）".into(),
+            ))
         }
     }
 
@@ -364,7 +386,11 @@ pub struct DataPageLocation {
 impl DataPageLocation {
     /// 创建新的位置信息
     pub fn new(ext_no: u32, page_no: u32, offset: usize) -> Self {
-        Self { ext_no, page_no, offset }
+        Self {
+            ext_no,
+            page_no,
+            offset,
+        }
     }
 }
 
@@ -399,12 +425,12 @@ impl DataPageWriter {
     /// * `ext_no` - 扩展号
     pub fn new(page_size: usize, start_page_no: u32, ext_no: u32) -> Self {
         let mut current_page = vec![0u8; page_size];
-        
+
         // 初始化数据页头部
         // 页面类型 (4B) + 子类型 (4B) = 8B
         current_page[0..4].copy_from_slice(&DATA_PAGE_TYPE.to_be_bytes());
         current_page[4..8].copy_from_slice(&MAIN_DATA_SUBTYPE.to_be_bytes());
-        
+
         Self {
             current_page,
             current_offset: 8, // 跳过页面头部
@@ -445,12 +471,13 @@ impl DataPageWriter {
     /// 刷新当前页到已写入列表，并开始新页
     fn flush_current_page(&mut self) {
         // 保存当前页
-        self.written_pages.push((self.current_page_no, self.current_page.clone()));
-        
+        self.written_pages
+            .push((self.current_page_no, self.current_page.clone()));
+
         // 创建新页
         self.current_page_no += 1;
         self.current_page = vec![0u8; self.page_size];
-        
+
         // 初始化新页头部
         self.current_page[0..4].copy_from_slice(&DATA_PAGE_TYPE.to_be_bytes());
         self.current_page[4..8].copy_from_slice(&MAIN_DATA_SUBTYPE.to_be_bytes());
@@ -503,7 +530,8 @@ impl DataPageWriter {
     pub fn finish(mut self) -> Vec<(u32, Vec<u8>)> {
         // 如果当前页有数据，也要包含
         if self.current_offset > 8 {
-            self.written_pages.push((self.current_page_no, self.current_page));
+            self.written_pages
+                .push((self.current_page_no, self.current_page));
         }
         self.written_pages
     }
@@ -524,7 +552,7 @@ impl DataPageWriter {
 // ==================================================================================
 
 /// 会话页面构建器
-/// 
+///
 /// 用于创建新的会话页面数据，对应 db5_save_work 中的会话创建逻辑
 #[derive(Debug, Clone)]
 pub struct SessionBuilder {
@@ -575,13 +603,13 @@ impl SessionBuilder {
             comments: String::new(),
         }
     }
-    
+
     /// 设置结束页号
     pub fn end_pgno(mut self, pgno: u32) -> Self {
         self.end_pgno = pgno;
         self
     }
-    
+
     /// 设置索引根页号
     pub fn index_root(mut self, pgno: u32) -> Self {
         self.index_root_pageno = pgno;
@@ -593,53 +621,53 @@ impl SessionBuilder {
         self.claim_pageno = pgno;
         self
     }
-    
+
     /// 设置计算机名
     pub fn computer_name(mut self, name: impl Into<String>) -> Self {
         self.computer_name = name.into();
         self
     }
-    
+
     /// 设置注释
     pub fn comments(mut self, comments: impl Into<String>) -> Self {
         self.comments = comments.into();
         self
     }
-    
+
     /// 构建会话页面二进制数据
-    /// 
+    ///
     /// # 参数
     /// * `page_size` - 页面大小
-    /// 
+    ///
     /// # 返回值
     /// * 会话页面的二进制数据
     pub fn build(&self, page_size: usize) -> Vec<u8> {
         let mut data = vec![0u8; page_size];
-        
+
         // 写入页面类型 (0x00000003 = 会话页)
         data[0..4].copy_from_slice(&3i32.to_be_bytes());
-        
+
         // 写入上一个会话页号
         data[4..8].copy_from_slice(&(self.last_ses_pageno as i32).to_be_bytes());
-        
+
         // 写入上一个会话扩展号 (通常为 1)
         data[8..12].copy_from_slice(&(self.last_ses_extno as i32).to_be_bytes());
-        
+
         // 写入会话号
         data[12..16].copy_from_slice(&(self.sesno as i32).to_be_bytes());
-        
+
         // 写入 unknown_0 (0xFFFFFFFF)
         data[16..20].copy_from_slice(&(-1i32).to_be_bytes());
-        
+
         // 写入结束页号
         data[20..24].copy_from_slice(&self.end_pgno.to_be_bytes());
-        
+
         // 写入结束扩展号 (通常为 1)
         data[24..28].copy_from_slice(&self.end_extno.to_be_bytes());
-        
+
         // 写入索引根页号
         data[28..32].copy_from_slice(&self.index_root_pageno.to_be_bytes());
-        
+
         // 写入索引根扩展号 (通常为 1)
         data[32..36].copy_from_slice(&self.index_root_extno.to_be_bytes());
 
@@ -650,19 +678,19 @@ impl SessionBuilder {
         // 写入未知字段
         data[0x2C..0x30].copy_from_slice(&self.unknown_1.to_be_bytes());
         data[0x30..0x34].copy_from_slice(&self.unknown_2.to_be_bytes());
-        
+
         // 写入时间戳 (年、月、小时、秒)
         let now = chrono::Local::now();
         let year = now.year() as u32;
         let month = now.month() as u32;
         let hours = now.day() * 24 + now.hour();
         let seconds = now.minute() * 60 + now.second();
-        
+
         data[0x34..0x38].copy_from_slice(&year.to_be_bytes());
         data[0x38..0x3C].copy_from_slice(&month.to_be_bytes());
         data[0x3C..0x40].copy_from_slice(&hours.to_be_bytes());
         data[0x40..0x44].copy_from_slice(&seconds.to_be_bytes());
-        
+
         // 写入计算机名长度和内容
         let name_bytes = self.computer_name.as_bytes();
         let name_words = ((name_bytes.len() + 3) / 4).min(9); // 以 4 字节为单位，最多 9 words
@@ -674,13 +702,14 @@ impl SessionBuilder {
         if name_len > 0 {
             data[name_start..name_start + name_len].copy_from_slice(&name_bytes[..name_len]);
         }
-        
+
         // 写入注释长度和内容
         let comments_start = 0x7C + 36; // 名称固定 36 字节
         let comments_bytes = self.comments.as_bytes();
         let comments_words = ((comments_bytes.len() + 3) / 4).min(1024);
         if comments_start + 4 <= page_size {
-            data[comments_start..comments_start + 4].copy_from_slice(&(comments_words as u32).to_be_bytes());
+            data[comments_start..comments_start + 4]
+                .copy_from_slice(&(comments_words as u32).to_be_bytes());
             let max_payload = page_size - comments_start - 4;
             let comments_len = std::cmp::min(comments_words * 4, max_payload);
             let copy_len = std::cmp::min(comments_bytes.len(), comments_len);
@@ -689,19 +718,19 @@ impl SessionBuilder {
                     .copy_from_slice(&comments_bytes[..copy_len]);
             }
         }
-        
+
         data
     }
 }
 
 /// 数据库头更新器
-/// 
+///
 /// 用于更新 PDMS 数据库头部信息
 pub struct HeaderUpdater;
 
 impl HeaderUpdater {
     /// 更新数据库头的最新会话页号
-    /// 
+    ///
     /// # 参数
     /// * `file` - 数据库文件句柄
     /// * `new_ses_pgno` - 新的会话页号
@@ -712,9 +741,9 @@ impl HeaderUpdater {
         file.flush()?;
         Ok(())
     }
-    
+
     /// 更新数据库头的存储页数
-    /// 
+    ///
     /// # 参数
     /// * `file` - 数据库文件句柄
     /// * `page_count` - 新的页数
@@ -725,18 +754,14 @@ impl HeaderUpdater {
         file.flush()?;
         Ok(())
     }
-    
+
     /// 批量更新数据库头
-    /// 
+    ///
     /// # 参数
     /// * `file` - 数据库文件句柄
     /// * `ses_pgno` - 新的会话页号
     /// * `page_count` - 新的页数
-    pub fn update_header(
-        file: &mut File,
-        ses_pgno: u32,
-        page_count: u32,
-    ) -> std::io::Result<()> {
+    pub fn update_header(file: &mut File, ses_pgno: u32, page_count: u32) -> std::io::Result<()> {
         Self::update_latest_ses_pgno(file, ses_pgno)?;
         Self::update_stored_page_count(file, page_count)?;
         Ok(())
@@ -746,7 +771,7 @@ impl HeaderUpdater {
 use chrono::{Datelike, Timelike};
 
 /// 完整的数据库写入器
-/// 
+///
 /// 组合 ElementWriter 和会话管理功能，提供高层 API
 pub struct DatabaseWriter {
     /// 元素写入器
@@ -766,33 +791,33 @@ impl DatabaseWriter {
             page_size,
         }
     }
-    
+
     /// 使用 512 字节页面创建
     pub fn new_512() -> Self {
         Self::new(PAGE_SIZE_512)
     }
-    
+
     /// 使用 2K 字节页面创建
     pub fn new_2k() -> Self {
         Self::new(PAGE_SIZE_2K)
     }
-    
+
     /// 开始新会话
-    /// 
+    ///
     /// # 参数
     /// * `sesno` - 会话号
     pub fn begin_session(&mut self, sesno: u32) {
         self.current_sesno = Some(sesno);
     }
-    
+
     /// 提交当前会话
-    /// 
+    ///
     /// # 参数
     /// * `file` - 数据库文件句柄
     /// * `last_ses_pgno` - 上一个会话页号
     /// * `computer_name` - 计算机名（可选）
     /// * `comments` - 注释（可选）
-    /// 
+    ///
     /// # 返回值
     /// * 新会话页的页号
     pub fn commit_session(
@@ -802,15 +827,16 @@ impl DatabaseWriter {
         computer_name: Option<&str>,
         comments: Option<&str>,
     ) -> Result<u32, WriteError> {
-        let sesno = self.current_sesno
+        let sesno = self
+            .current_sesno
             .ok_or_else(|| WriteError::SerializationError("未开始会话".into()))?;
-        
+
         // 1. 刷新所有脏页
         let written = self.element_writer.flush(file)?;
-        
+
         // 2. 分配会话页面
         let new_ses_pgno = self.element_writer.allocate_page(file)?;
-        
+
         // 3. 构建会话页面数据
         let session = SessionBuilder::new(sesno, last_ses_pgno)
             .end_pgno(new_ses_pgno)
@@ -818,26 +844,27 @@ impl DatabaseWriter {
             .computer_name(computer_name.unwrap_or("PDMS-IO"))
             .comments(comments.unwrap_or(""))
             .build(self.page_size);
-        
+
         // 4. 写入会话页面
-        self.element_writer.write_page(file, 0, new_ses_pgno, &session)?;
-        
+        self.element_writer
+            .write_page(file, 0, new_ses_pgno, &session)?;
+
         // 5. 更新数据库头
         let file_size = file.seek(SeekFrom::End(0))?;
         let page_count = (file_size / self.page_size as u64) as u32;
         HeaderUpdater::update_header(file, new_ses_pgno, page_count)?;
-        
+
         // 6. 清除会话状态
         self.current_sesno = None;
-        
+
         Ok(new_ses_pgno)
     }
-    
+
     /// 是否有活跃会话
     pub fn has_active_session(&self) -> bool {
         self.current_sesno.is_some()
     }
-    
+
     /// 获取写入统计
     pub fn stats(&self) -> &WriteStats {
         self.element_writer.stats()
@@ -849,20 +876,20 @@ mod tests {
     use super::*;
     use std::fs::OpenOptions;
     use std::io::Read;
-    
+
     #[test]
     fn test_element_writer_creation() {
         let writer = ElementWriter::new_512();
         assert_eq!(writer.page_size, 512);
         assert_eq!(writer.stats.pages_written, 0);
     }
-    
+
     #[test]
     fn test_write_page() {
         let temp_dir = std::env::temp_dir();
         let temp_file = temp_dir.join("pdms_io_writer_test.bin");
         let _ = std::fs::remove_file(&temp_file);
-        
+
         // 初始化文件
         {
             let mut file = OpenOptions::new()
@@ -871,47 +898,49 @@ mod tests {
                 .truncate(true)
                 .open(&temp_file)
                 .expect("无法创建临时文件");
-            
+
             let empty_data = vec![0u8; 512 * 4];
             file.write_all(&empty_data).expect("无法初始化文件");
         }
-        
+
         let mut writer = ElementWriter::new_512();
         let test_data: Vec<u8> = (0..512).map(|i| (i % 256) as u8).collect();
-        
+
         {
             let mut file = OpenOptions::new()
                 .read(true)
                 .write(true)
                 .open(&temp_file)
                 .expect("无法打开临时文件");
-            
-            writer.write_page(&mut file, 0, 1, &test_data).expect("写入失败");
+
+            writer
+                .write_page(&mut file, 0, 1, &test_data)
+                .expect("写入失败");
         }
-        
+
         // 验证
         {
             let mut file = std::fs::File::open(&temp_file).expect("无法打开文件");
             file.seek(SeekFrom::Start(512)).expect("无法定位");
-            
+
             let mut read_data = vec![0u8; 512];
             file.read_exact(&mut read_data).expect("无法读取");
-            
+
             assert_eq!(read_data, test_data);
         }
-        
+
         assert_eq!(writer.stats.pages_written, 1);
         assert_eq!(writer.stats.bytes_written, 512);
-        
+
         let _ = std::fs::remove_file(&temp_file);
     }
-    
+
     #[test]
     fn test_allocate_page() {
         let temp_dir = std::env::temp_dir();
         let temp_file = temp_dir.join("pdms_io_alloc_test.bin");
         let _ = std::fs::remove_file(&temp_file);
-        
+
         // 创建初始文件 (2 页)
         {
             let mut file = OpenOptions::new()
@@ -920,28 +949,28 @@ mod tests {
                 .truncate(true)
                 .open(&temp_file)
                 .expect("无法创建临时文件");
-            
+
             let data = vec![0u8; 512 * 2];
             file.write_all(&data).expect("无法初始化文件");
         }
-        
+
         let mut writer = ElementWriter::new_512();
-        
+
         {
             let mut file = OpenOptions::new()
                 .read(true)
                 .write(true)
                 .open(&temp_file)
                 .expect("无法打开临时文件");
-            
+
             let new_page = writer.allocate_page(&mut file).expect("分配失败");
             assert_eq!(new_page, 2); // 第三个页面 (0, 1, 2)
         }
-        
+
         // 验证文件大小增加
         let file_size = std::fs::metadata(&temp_file).expect("无法获取元数据").len();
         assert_eq!(file_size, 512 * 3);
-        
+
         let _ = std::fs::remove_file(&temp_file);
     }
 
@@ -955,14 +984,14 @@ mod tests {
     #[test]
     fn test_data_page_writer_write_element() {
         let mut writer = DataPageWriter::new_512(10);
-        
+
         // 写入一个 100 字节的元素
         let element_data = vec![0xABu8; 100];
         let location = writer.write_element(&element_data);
-        
+
         assert_eq!(location.page_no, 10);
         assert_eq!(location.offset, 8); // 头部后的第一个位置
-        
+
         let (elements, bytes) = writer.stats();
         assert_eq!(elements, 1);
         assert_eq!(bytes, 100);
@@ -971,13 +1000,13 @@ mod tests {
     #[test]
     fn test_data_page_writer_auto_flush() {
         let mut writer = DataPageWriter::new_512(10);
-        
+
         // 写入多个元素直到需要刷新页面
         // 每个元素 100 字节，页面可用空间 504 字节，可容纳 5 个
         for i in 0..6 {
             let element_data = vec![i as u8; 100];
             let location = writer.write_element(&element_data);
-            
+
             if i < 5 {
                 assert_eq!(location.page_no, 10);
             } else {
@@ -990,11 +1019,11 @@ mod tests {
     #[test]
     fn test_data_page_writer_finish() {
         let mut writer = DataPageWriter::new_512(10);
-        
+
         // 写入一个元素
         let element_data = vec![0xABu8; 50];
         writer.write_element(&element_data);
-        
+
         // 完成
         let pages = writer.finish();
         assert_eq!(pages.len(), 1);
@@ -1002,4 +1031,3 @@ mod tests {
         assert_eq!(pages[0].1.len(), 512); // 完整页面大小
     }
 }
-

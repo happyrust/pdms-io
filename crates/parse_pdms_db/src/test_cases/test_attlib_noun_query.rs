@@ -1,5 +1,5 @@
 use crate::parser::attlib::noun_schema::NounSchema;
-use crate::parser::attlib::{AttrDataType, AttrDefiType, AttlibData};
+use crate::parser::attlib::{AttlibData, AttrDataType, AttrDefiType};
 use aios_core::tool::db_tool::{db1_dehash, db1_hash};
 
 const ATTLIB_PATH: &str = "D:\\work\\plant-code\\pdms-io-fork\\test-file\\attlib.dat";
@@ -29,19 +29,15 @@ fn test_parse_attlib_basic() {
         "应解析到大量属性定义，实际: {}",
         data.attributes.len()
     );
-    assert!(
-        !data.noun_attr_map.is_empty(),
-        "noun_attr_map 不应为空"
-    );
-    assert!(
-        !data.attr_meta_map.is_empty(),
-        "attr_meta_map 不应为空"
-    );
+    assert!(!data.noun_attr_map.is_empty(), "noun_attr_map 不应为空");
+    assert!(!data.attr_meta_map.is_empty(), "attr_meta_map 不应为空");
 }
 
 #[test]
 fn test_hash_roundtrip() {
-    let names = ["ELBO", "PIPE", "TEE", "VALV", "EQUI", "SITE", "BORE", "TYPE", "NAME"];
+    let names = [
+        "ELBO", "PIPE", "TEE", "VALV", "EQUI", "SITE", "BORE", "TYPE", "NAME",
+    ];
     for name in &names {
         let hash = db1_hash(name) as u32;
         let decoded = db1_dehash(hash);
@@ -98,7 +94,9 @@ fn test_noun_schema_pipe() {
 fn test_noun_schema_multiple_nouns() {
     let Some(data) = load_attlib() else { return };
 
-    let nouns = ["ELBO", "TEE", "VALV", "EQUI", "NOZZ", "SITE", "ZONE", "PIPE"];
+    let nouns = [
+        "ELBO", "TEE", "VALV", "EQUI", "NOZZ", "SITE", "ZONE", "PIPE",
+    ];
     for noun in &nouns {
         match NounSchema::from_attlib(&data, noun) {
             Some(schema) => {
@@ -119,7 +117,9 @@ fn test_noun_schema_multiple_nouns() {
 #[test]
 fn test_noun_schema_filter_by_type() {
     let Some(data) = load_attlib() else { return };
-    let Some(schema) = NounSchema::from_attlib(&data, "ELBO") else { return };
+    let Some(schema) = NounSchema::from_attlib(&data, "ELBO") else {
+        return;
+    };
 
     let int_attrs = schema.filter_by_type(AttrDataType::Integer);
     let real_attrs = schema.filter_by_type(AttrDataType::Real);
@@ -136,7 +136,9 @@ fn test_noun_schema_filter_by_type() {
 #[test]
 fn test_noun_schema_filter_by_defi() {
     let Some(data) = load_attlib() else { return };
-    let Some(schema) = NounSchema::from_attlib(&data, "ELBO") else { return };
+    let Some(schema) = NounSchema::from_attlib(&data, "ELBO") else {
+        return;
+    };
 
     let dab_attrs = schema.filter_by_defi(AttrDefiType::Dab);
     let pseudo_attrs = schema.filter_by_defi(AttrDefiType::Pseudo);
@@ -168,7 +170,11 @@ fn test_attr_meta_map_consistency() {
 
     // 验证 attr_meta_map 中的每个条目都有合法的 hash
     for (hash, meta) in &data.attr_meta_map {
-        assert_eq!(*hash, meta.hash, "hash 不匹配: {} -> 0x{:08X} vs 0x{:08X}", meta.name, hash, meta.hash);
+        assert_eq!(
+            *hash, meta.hash,
+            "hash 不匹配: {} -> 0x{:08X} vs 0x{:08X}",
+            meta.name, hash, meta.hash
+        );
         assert!(!meta.name.is_empty(), "属性名不应为空");
 
         let computed_hash = db1_hash(&meta.name) as u32;

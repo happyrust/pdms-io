@@ -4,8 +4,8 @@
 //! - 轴向表达式（X/Y/Z 正负方向）
 //! - 轴向数值解析
 
-use nom::number::complete::be_i32;
 use nom::IResult;
+use nom::number::complete::be_i32;
 
 /// 轴向类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -219,7 +219,8 @@ mod tests {
 
         // 负方向
         let input_neg = [
-            0x1C, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, // 负标志
+            0x1C, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+            0x02, // 负标志
             0x00, 0x00, 0x00, 0x01, // X 轴
         ];
         let (_, expr) = parse_axis_expression(&input_neg).unwrap();

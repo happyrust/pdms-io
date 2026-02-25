@@ -1,8 +1,6 @@
-use aios_core::{init_test_surreal, RefU64};
 use crate::io::PdmsIO;
 use crate::test::resolve_test_db_path;
-
-
+use aios_core::{RefU64, init_test_surreal};
 
 #[tokio::test]
 #[ignore] // 需要实际的数据库文件才能运行
@@ -60,4 +58,3 @@ async fn test_get_sesno_timestamp() -> anyhow::Result<()> {
 
     Ok(())
 }
-

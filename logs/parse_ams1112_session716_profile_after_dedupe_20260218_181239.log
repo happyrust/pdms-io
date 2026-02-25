@@ -1,0 +1,1590 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.44
+   Compiling unicode-ident v1.0.23
+   Compiling cfg-if v1.0.4
+   Compiling serde_core v1.0.228
+   Compiling serde v1.0.228
+   Compiling windows-link v0.2.1
+   Compiling getrandom v0.3.4
+   Compiling equivalent v1.0.2
+   Compiling memchr v2.8.0
+   Compiling libm v0.2.16
+   Compiling autocfg v1.5.0
+   Compiling once_cell v1.21.3
+   Compiling itoa v1.0.17
+   Compiling version_check v0.9.5
+   Compiling scopeguard v1.2.0
+   Compiling pin-project-lite v0.2.16
+   Compiling parking_lot_core v0.9.12
+   Compiling foldhash v0.2.0
+   Compiling fnv v1.0.7
+   Compiling zerocopy v0.8.39
+   Compiling futures-core v0.3.31
+   Compiling windows_x86_64_msvc v0.53.1
+   Compiling stable_deref_trait v1.2.1
+   Compiling shlex v1.3.0
+   Compiling find-msvc-tools v0.1.9
+   Compiling crossbeam-utils v0.8.21
+   Compiling typenum v1.19.0
+   Compiling log v0.4.29
+   Compiling futures-sink v0.3.31
+   Compiling slab v0.4.12
+   Compiling futures-io v0.3.31
+   Compiling windows-sys v0.61.2
+   Compiling getrandom v0.2.17
+   Compiling pin-utils v0.1.0
+   Compiling lock_api v0.4.14
+   Compiling allocator-api2 v0.2.21
+   Compiling futures-channel v0.3.31
+   Compiling futures-task v0.3.31
+   Compiling either v1.15.0
+   Compiling siphasher v1.0.2
+   Compiling tracing-core v0.1.36
+   Compiling hashbrown v0.16.1
+   Compiling anyhow v1.0.101
+   Compiling byteorder v1.5.0
+   Compiling thiserror v2.0.18
+   Compiling subtle v2.6.1
+   Compiling libc v0.2.182
+   Compiling ident_case v1.0.1
+   Compiling httparse v1.10.1
+   Compiling generic-array v0.14.7
+   Compiling percent-encoding v2.3.2
+   Compiling strsim v0.11.1
+   Compiling phf_shared v0.11.3
+   Compiling zmij v1.0.21
+   Compiling litemap v0.8.1
+   Compiling writeable v0.6.2
+   Compiling rand_core v0.6.4
+   Compiling foldhash v0.1.5
+   Compiling rayon-core v1.13.0
+   Compiling tower-service v0.3.3
+   Compiling num-traits v0.2.19
+   Compiling rand v0.8.5
+   Compiling hashbrown v0.15.5
+   Compiling ahash v0.8.12
+   Compiling serde_json v1.0.149
+   Compiling httpdate v1.0.3
+   Compiling icu_normalizer_data v2.1.1
+   Compiling try-lock v0.2.5
+   Compiling indexmap v2.13.0
+   Compiling icu_properties_data v2.1.2
+   Compiling want v0.3.1
+   Compiling aho-corasick v1.1.4
+   Compiling winnow v0.7.14
+   Compiling phf_generator v0.11.3
+   Compiling regex-syntax v0.8.9
+   Compiling heapless v0.8.0
+   Compiling hash32 v0.3.1
+   Compiling bytemuck v1.25.0
+   Compiling semver v1.0.27
+   Compiling fastrand v2.3.0
+   Compiling windows-link v0.1.3
+   Compiling mime v0.3.17
+   Compiling getrandom v0.4.1
+   Compiling rustc_version v0.4.1
+   Compiling cpufeatures v0.2.17
+   Compiling form_urlencoded v1.2.2
+   Compiling jobserver v0.1.34
+   Compiling itertools v0.14.0
+   Compiling atomic-waker v1.1.2
+   Compiling utf8_iter v1.0.4
+   Compiling heck v0.5.0
+   Compiling base64 v0.22.1
+   Compiling cc v1.2.56
+   Compiling robust v1.2.0
+   Compiling matrixmultiply v0.3.10
+   Compiling windows-targets v0.53.5
+   Compiling itertools v0.11.0
+   Compiling toml_datetime v0.7.5+spec-1.1.0
+   Compiling simd-adler32 v0.3.8
+   Compiling syn v1.0.109
+   Compiling simdutf8 v0.1.5
+   Compiling windows-sys v0.60.2
+   Compiling new_debug_unreachable v1.0.6
+   Compiling crunchy v0.2.4
+   Compiling sync_wrapper v1.0.2
+   Compiling tower-layer v0.3.3
+   Compiling crc32fast v1.5.0
+   Compiling i_key_sort v0.6.0
+   Compiling i_tree v0.16.0
+   Compiling rand_core v0.9.5
+   Compiling windows-strings v0.4.2
+   Compiling windows-result v0.3.4
+   Compiling phf_codegen v0.11.3
+   Compiling fs_extra v1.3.0
+   Compiling mio v1.1.1
+   Compiling toml_parser v1.0.8+spec-1.1.0
+   Compiling winapi-util v0.1.11
+   Compiling rawpointer v0.2.1
+   Compiling dunce v1.0.5
+   Compiling utf-8 v0.7.6
+   Compiling crossbeam-epoch v0.9.18
+   Compiling tiny-keccak v2.0.2
+   Compiling winapi v0.3.9
+   Compiling encoding_rs v0.8.35
+   Compiling float_next_after v1.0.0
+   Compiling windows_x86_64_msvc v0.52.6
+   Compiling mac v0.1.1
+   Compiling powerfmt v0.2.0
+   Compiling rustversion v1.0.22
+   Compiling time-core v0.1.8
+   Compiling syn v2.0.115
+   Compiling string_cache_codegen v0.5.4
+   Compiling adler2 v2.0.1
+   Compiling precomputed-hash v0.1.1
+   Compiling num-conv v0.2.0
+   Compiling crossbeam-deque v0.8.6
+   Compiling toml_edit v0.23.10+spec-1.0.0
+   Compiling cmake v0.1.57
+   Compiling rust_decimal v1.40.0
+   Compiling matchit v0.8.4
+   Compiling unicase v2.9.0
+   Compiling time-macros v0.2.27
+   Compiling regex-automata v0.4.14
+   Compiling i_float v1.15.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling web_atoms v0.1.3
+   Compiling inout v0.1.4
+   Compiling geographiclib-rs v0.2.6
+   Compiling digest v0.10.7
+   Compiling i_shape v1.14.0
+   Compiling proc-macro-crate v3.4.0
+   Compiling cipher v0.4.4
+   Compiling miniz_oxide v0.8.9
+   Compiling deranged v0.5.6
+   Compiling rayon v1.11.0
+   Compiling futf v0.1.5
+   Compiling num-integer v0.1.46
+   Compiling approx v0.5.1
+   Compiling earcutr v0.4.3
+   Compiling ring v0.17.14
+   Compiling aws-lc-sys v0.37.1
+   Compiling socket2 v0.6.2
+   Compiling lz4-sys v1.11.1+lz4-1.10.0
+   Compiling rstest_macros v0.26.1
+   Compiling flatbuffers v25.12.19
+   Compiling itertools v0.12.1
+   Compiling ucd-trie v0.1.7
+   Compiling zlib-rs v0.6.0
+   Compiling untrusted v0.9.0
+   Compiling base64ct v1.8.3
+   Compiling paste v1.0.15
+   Compiling pest v2.8.6
+   Compiling const-random-macro v0.1.16
+   Compiling password-hash v0.5.0
+   Compiling tendril v0.4.3
+   Compiling bitflags v2.10.0
+   Compiling uuid v1.20.0
+   Compiling sha1 v0.10.6
+   Compiling phf_shared v0.13.1
+   Compiling same-file v1.0.6
+   Compiling crossbeam-queue v0.3.12
+   Compiling concurrent-queue v2.5.0
+   Compiling seize v0.5.1
+   Compiling windows-threading v0.1.0
+   Compiling safe_arch v0.7.4
+   Compiling aws-lc-rs v1.15.4
+   Compiling base64 v0.21.7
+   Compiling zeroize v1.8.2
+   Compiling strsim v0.10.0
+   Compiling ntapi v0.4.3
+   Compiling regex v1.12.3
+   Compiling glob v0.3.3
+   Compiling virtue v0.0.18
+   Compiling dtoa v1.0.11
+   Compiling windows_x86_64_msvc v0.48.5
+   Compiling parking v2.2.1
+   Compiling time v0.3.47
+   Compiling sif-itree v0.4.0
+   Compiling relative-path v1.9.3
+   Compiling wide v0.7.33
+   Compiling papaya v0.2.3
+   Compiling event-listener v5.4.1
+   Compiling dtoa-short v0.3.5
+   Compiling i_overlay v4.0.7
+   Compiling pest_meta v2.8.6
+   Compiling walkdir v2.5.0
+   Compiling phf_generator v0.13.1
+   Compiling windows-targets v0.52.6
+   Compiling num-bigint v0.4.6
+   Compiling tempfile v3.25.0
+   Compiling blake3 v1.8.3
+   Compiling rmp v0.8.15
+   Compiling hmac v0.12.1
+   Compiling blake2 v0.10.6
+   Compiling sha2 v0.10.9
+   Compiling crossbeam-channel v0.5.15
+   Compiling futures-timer v3.0.3
+   Compiling num_cpus v1.17.0
+   Compiling toml_datetime v0.6.11
+   Compiling bincode_derive v2.0.1
+   Compiling unty v0.0.4
+   Compiling rustls v0.21.12
+   Compiling radium v0.7.0
+   Compiling once_cell_polyfill v1.70.2
+   Compiling thiserror v1.0.69
+   Compiling utf8parse v0.2.2
+   Compiling ipnet v2.11.0
+   Compiling const-random v0.1.18
+   Compiling fst v0.4.7
+   Compiling prettyplease v0.2.37
+   Compiling bytes v1.11.1
+   Compiling ciborium-io v0.2.2
+   Compiling untrusted v0.7.1
+   Compiling fastnum v0.7.4
+   Compiling winnow v0.5.40
+   Compiling anstyle v1.0.13
+   Compiling synstructure v0.13.2
+   Compiling darling_core v0.20.11
+   Compiling flate2 v1.1.9
+   Compiling darling_core v0.21.3
+   Compiling urlencoding v2.1.3
+   Compiling darling_core v0.14.4
+   Compiling ryu v1.0.23
+   Compiling anstyle-wincon v3.0.11
+   Compiling pest_generator v2.8.6
+   Compiling anstyle-parse v0.2.7
+   Compiling arc-swap v1.8.1
+   Compiling dlv-list v0.5.2
+   Compiling pbkdf2 v0.12.2
+   Compiling crossbeam v0.8.4
+   Compiling windows-sys v0.52.0
+   Compiling event-listener-strategy v0.5.4
+   Compiling num-rational v0.4.2
+   Compiling noisy_float v0.2.1
+   Compiling pxfm v0.1.27
+   Compiling blowfish v0.9.1
+   Compiling salsa20 v0.10.2
+   Compiling crossbeam-skiplist v0.1.3
+   Compiling anstyle-query v1.1.5
+   Compiling fdeflate v0.3.7
+   Compiling pem v3.0.6
+   Compiling itertools v0.13.0
+   Compiling thread_local v1.1.9
+   Compiling signature v2.2.0
+   Compiling colorchoice v1.0.4
+   Compiling trice v0.4.0
+   Compiling tap v1.0.1
+   Compiling inflections v1.1.1
+   Compiling deunicode v1.6.2
+   Compiling bnum v0.12.1
+   Compiling maplit v1.0.2
+   Compiling toml_write v0.1.2
+   Compiling humantime v2.3.0
+   Compiling bumpalo v3.19.1
+   Compiling psl-types v2.0.11
+   Compiling endian-type v0.2.0
+   Compiling hex v0.4.3
+   Compiling constant_time_eq v0.4.2
+   Compiling toml_edit v0.19.15
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling fixedbitset v0.4.2
+   Compiling surrealdb-core v3.0.0-beta (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling arrayref v0.3.9
+   Compiling data-encoding v2.10.0
+   Compiling zune-core v0.5.1
+   Compiling zopfli v0.8.3
+   Compiling addr v0.15.6
+   Compiling anstream v0.6.21
+   Compiling lexicmp v0.2.0
+   Compiling fuzzy-matcher v0.3.7
+   Compiling png v0.18.0
+   Compiling petgraph v0.6.5
+   Compiling dmp v0.2.3
+   Compiling wyz v0.5.1
+   Compiling socket2 v0.5.10
+   Compiling zune-jpeg v0.5.12
+   Compiling scrypt v0.11.0
+   Compiling bcrypt v0.18.0
+   Compiling async-channel v2.5.0
+   Compiling windows-targets v0.48.5
+   Compiling serde_derive v1.0.228
+   Compiling zerocopy-derive v0.8.39
+   Compiling tokio-macros v2.6.0
+   Compiling futures-macro v0.3.31
+   Compiling zerofrom-derive v0.1.6
+   Compiling yoke-derive v0.8.1
+   Compiling tracing-attributes v0.1.31
+   Compiling zerovec-derive v0.11.2
+   Compiling displaydoc v0.2.5
+   Compiling thiserror-impl v2.0.18
+   Compiling ptr_meta_derive v0.3.1
+   Compiling async-trait v0.1.89
+   Compiling bytecheck_derive v0.8.2
+   Compiling munge_macro v0.4.7
+   Compiling phf_macros v0.11.3
+   Compiling windows-interface v0.59.3
+   Compiling windows-implement v0.60.2
+   Compiling prost-derive v0.14.3
+   Compiling pin-project-internal v1.1.10
+   Compiling rkyv_derive v0.8.15
+   Compiling darling_macro v0.20.11
+   Compiling prost-derive v0.12.6
+   Compiling match_token v0.35.0
+   Compiling cssparser-macros v0.6.1
+   Compiling futures-util v0.3.31
+   Compiling ptr_meta v0.3.1
+   Compiling darling_macro v0.21.3
+   Compiling rancor v0.1.1
+   Compiling darling v0.20.11
+   Compiling darling_macro v0.14.4
+   Compiling strum_macros v0.27.2
+   Compiling storekey-derive v0.11.0
+   Compiling revision-derive v0.17.0
+   Compiling phf_macros v0.13.1
+   Compiling munge v0.4.7
+   Compiling nalgebra-macros v0.3.0
+   Compiling thiserror-impl v1.0.69
+   Compiling surrealdb-types-derive v3.0.0-beta (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling moxcms v0.7.11
+   Compiling tracing v0.1.44
+   Compiling windows-core v0.61.2
+   Compiling proc-macro-crate v1.3.1
+   Compiling phf v0.11.3
+   Compiling bytecheck v0.8.2
+   Compiling windows-collections v0.2.0
+   Compiling windows-numerics v0.2.0
+   Compiling windows-future v0.2.1
+   Compiling pin-project v1.1.10
+   Compiling num-derive v0.4.2
+   Compiling rend v0.5.3
+   Compiling pest_derive v2.8.6
+   Compiling zerofrom v0.1.6
+   Compiling gltf-derive v1.4.1
+   Compiling simple_asn1 v0.6.4
+   Compiling argon2 v0.5.3
+   Compiling ordered-float v5.1.0
+   Compiling yoke v0.8.1
+   Compiling md-5 v0.10.6
+   Compiling windows v0.61.3
+   Compiling ena v0.14.4
+   Compiling zerovec v0.11.5
+   Compiling zerotrie v0.2.3
+   Compiling debug_unsafe v0.1.4
+   Compiling tinyvec_macros v0.1.1
+   Compiling unicode-xid v0.2.6
+   Compiling darling v0.21.3
+   Compiling cached_proc_macro_types v0.1.1
+   Compiling darling v0.14.4
+   Compiling reblessive v0.4.3
+   Compiling surrealdb v3.0.0-beta (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling prost v0.12.6
+   Compiling vart v0.9.3
+   Compiling unicode-segmentation v1.12.0
+   Compiling web-time v1.1.0
+   Compiling funty v2.0.0
+   Compiling minimal-lexical v0.2.1
+   Compiling multimap v0.10.1
+   Compiling const_soft_float v0.1.4
+   Compiling byteorder-lite v0.1.0
+   Compiling path-clean v1.0.1
+   Compiling futures-executor v0.3.31
+   Compiling tinystr v0.8.2
+   Compiling potential_utf v0.1.4
+   Compiling prost-types v0.12.6
+   Compiling alloc-no-stdlib v2.0.4
+   Compiling unicode-width v0.2.2
+   Compiling phf v0.13.1
+   Compiling arraydeque v0.5.1
+   Compiling lazy_static v1.5.0
+   Compiling icu_locale_core v2.1.1
+   Compiling futures v0.3.31
+   Compiling clap_lex v1.0.0
+   Compiling icu_collections v2.1.1
+   Compiling downcast-rs v2.0.2
+   Compiling bitvec v1.0.1
+   Compiling convert_case v0.6.0
+   Compiling getopts v0.2.24
+   Compiling alloc-stdlib v0.2.2
+   Compiling constgebra v0.1.4
+   Compiling nom v7.1.3
+   Compiling derive_more-impl v1.0.0
+   Compiling deku_derive v0.16.0
+   Compiling serde_with_macros v3.16.1
+   Compiling tinyvec v1.10.0
+   Compiling clap_builder v4.5.58
+   Compiling atoi_simd v0.16.1
+   Compiling cached_proc_macro v0.25.0
+   Compiling num_enum_derive v0.7.5
+   Compiling clap_derive v4.5.55
+   Compiling windows-sys v0.48.0
+   Compiling zip v4.6.1
+   Compiling quick-xml v0.37.5
+   Compiling codepage v0.1.2
+   Compiling static_aabb2d_index v2.0.0
+   Compiling termcolor v1.4.1
+   Compiling boxcar v0.2.14
+   Compiling fast-float2 v0.2.3
+   Compiling glam v0.29.3
+   Compiling base64 v0.13.1
+   Compiling static_assertions v1.1.0
+   Compiling icu_provider v2.1.1
+   Compiling prost-build v0.12.6
+   Compiling unsafe-libyaml v0.2.11
+   Compiling i_key_sort v0.10.1
+   Compiling fixedbitset v0.5.7
+   Compiling icu_properties v2.1.2
+   Compiling pathdiff v0.2.3
+   Compiling smallvec v1.15.1
+   Compiling arrayvec v0.7.6
+   Compiling num-complex v0.4.6
+   Compiling icu_normalizer v2.1.1
+   Compiling rstar v0.12.2
+   Compiling spade v2.15.0
+   Compiling parking_lot v0.12.5
+   Compiling http v1.4.0
+   Compiling prost v0.14.3
+   Compiling chrono v0.4.43
+   Compiling idna_adapter v1.2.1
+   Compiling tokio v1.49.0
+   Compiling rkyv v0.8.15
+   Compiling idna v1.1.0
+   Compiling geo-types v0.7.18
+   Compiling string_cache v0.8.9
+   Compiling http v0.2.12
+   Compiling prost-types v0.14.3
+   Compiling simba v0.9.1
+   Compiling ndarray v0.17.2
+   Compiling nibble_vec v0.1.0
+   Compiling ppv-lite86 v0.2.21
+   Compiling http-body v1.0.1
+   Compiling half v2.7.1
+   Compiling rstest v0.26.1
+   Compiling headers-core v0.3.0
+   Compiling cssparser v0.35.0
+   Compiling url v2.5.8
+   Compiling hashbrown v0.14.5
+   Compiling rand_chacha v0.3.1
+   Compiling http-body-util v0.1.3
+   Compiling rand_chacha v0.9.0
+   Compiling geo v0.31.0
+   Compiling roaring v0.11.3
+   Compiling ciborium-ll v0.2.2
+   Compiling bincode v2.0.1
+   Compiling serde_spanned v0.6.9
+   Compiling rand v0.9.2
+   Compiling axum-core v0.5.6
+   Compiling rmp-serde v1.3.1
+   Compiling toml_edit v0.22.27
+   Compiling http-body v0.4.6
+   Compiling ciborium v0.2.2
+   Compiling quick_cache v0.6.18
+   Compiling dashmap v6.1.0
+   Compiling ordered-multimap v0.7.3
+   Compiling hashlink v0.8.4
+   Compiling headers v0.4.1
+   Compiling radix_trie v0.3.0
+   Compiling geo v0.32.0
+   Compiling markup5ever v0.35.0
+   Compiling nanoid v0.4.0
+   Compiling ulid v1.2.1
+   Compiling tungstenite v0.28.0
+   Compiling ext-sort v0.1.5
+   Compiling strum v0.27.2
+   Compiling storekey v0.11.0
+   Compiling snowflake v1.3.0
+   Compiling html5ever v0.35.0
+   Compiling rust-stemmers v1.2.0
+   Compiling serde_arrays v0.2.0
+   Compiling yaml-rust2 v0.8.1
+   Compiling rust-ini v0.20.0
+   Compiling image v0.25.9
+   Compiling indextree-macros v0.1.3 (https://github.com/happyrust/indextree?branch=main#2416dca0)
+   Compiling json5 v0.4.1
+   Compiling gltf-json v1.4.1
+   Compiling ron v0.8.1
+   Compiling clap v4.5.58
+   Compiling id_tree v1.8.0 (https://github.com/happyrust/id_tree#483f2ec0)
+   Compiling winreg v0.50.0
+   Compiling derive_more v1.0.0
+   Compiling deku v0.16.0
+   Compiling glam v0.30.10
+   Compiling serde_with v3.16.1
+   Compiling num_enum v0.7.5
+   Compiling lz4 v1.28.1
+   Compiling dpcsync v0.1.0 (https://github.com/happyrust/dpc-sync#1432df6b)
+   Compiling dashmap v7.0.0-rc2
+   Compiling surrealmx v0.16.0
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling ammonia v4.1.2
+   Compiling calamine v0.26.1 (https://github.com/happyrust/calamine#f35ae176)
+   Compiling hexasphere v15.1.0
+   Compiling rstar v0.11.0 (https://github.com/happyrust/rstar#13be3c25)
+   Compiling petgraph v0.8.3
+   Compiling i_triangle v0.37.2
+   Compiling erased-serde v0.3.31
+   Compiling cavalier_contours v0.4.0 (https://github.com/happyrust/cavalier_contours#d2d0db13)
+   Compiling serde_urlencoded v0.7.1
+   Compiling ndarray-stats v0.7.0
+   Compiling toml v0.8.23
+   Compiling simplelog v0.12.2
+   Compiling jsonxf v1.1.1
+   Compiling brotli-decompressor v2.5.1
+   Compiling cached_proc_macro v0.23.0
+   Compiling derivative v2.2.0
+   Compiling revision v0.17.0
+   Compiling serde_repr v0.1.20
+   Compiling async-recursion v1.1.1
+   Compiling rustls-pemfile v1.0.4
+   Compiling config v0.14.1
+   Compiling smol_str v0.3.5
+   Compiling lru v0.12.5
+   Compiling tokio-util v0.7.18
+   Compiling tokio-stream v0.1.18
+   Compiling affinitypool v0.4.0
+   Compiling object_store v0.13.1
+   Compiling tokio-tungstenite v0.28.0
+   Compiling cached v0.56.0
+   Compiling nom v8.0.0
+   Compiling once_cell_serde v1.20.3
+   Compiling webpki-roots v0.25.4
+   Compiling gltf v1.4.1
+   Compiling evalexpr v13.1.0
+   Compiling dyn-clone v1.0.20
+   Compiling h2 v0.4.13
+   Compiling tower v0.5.3
+   Compiling h2 v0.3.27
+   Compiling indextree v4.7.4 (https://github.com/happyrust/indextree?branch=main#2416dca0)
+   Compiling sync_wrapper v0.1.2
+   Compiling hash32 v1.0.0
+   Compiling parse_pdms_db v3.0.0 (D:\work\plant-code\pdms-io-fork\crates\parse_pdms_db)
+   Compiling pretty-hex v0.4.1
+   Compiling brotli v3.5.0
+   Compiling dynfmt v0.1.5
+   Compiling id_tree v1.8.0
+   Compiling cached v0.54.0
+   Compiling hash32-derive v0.1.1
+   Compiling notify-types v2.1.0
+   Compiling spin v0.9.8
+   Compiling nanorand v0.7.0
+   Compiling instant v0.1.13
+   Compiling clone_dyn_types v0.31.0
+   Compiling axum v0.8.8
+   Compiling pdms_io v0.1.0 (D:\work\plant-code\pdms-io-fork)
+   Compiling iter_tools v0.29.0
+   Compiling atty v0.2.14
+warning: unused import: `std::fs`
+ --> build.rs:1:5
+  |
+1 | use std::fs;
+  |     ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::process::Command`
+ --> build.rs:3:5
+  |
+3 | use std::process::Command;
+  |     ^^^^^^^^^^^^^^^^^^^^^
+
+   Compiling notify v8.2.0
+   Compiling fern v0.7.1
+   Compiling flume v0.11.1
+warning: `pdms_io` (build script) generated 2 warnings
+   Compiling hyper v1.8.1
+   Compiling hyper v0.14.32
+   Compiling nalgebra v0.34.1
+   Compiling hyper-util v0.1.20
+   Compiling ploop-rs v0.1.0 (https://github.com/happyrust/rust-ploop-processor?branch=1.0#33985df4)
+   Compiling hyper-timeout v0.5.2
+   Compiling tonic v0.14.3
+   Compiling tonic-prost v0.14.3
+   Compiling rustls-webpki v0.101.7
+   Compiling sct v0.7.1
+   Compiling surrealdb-protocol v0.7.0 (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling tokio-rustls v0.24.1
+   Compiling hyper-rustls v0.24.2
+   Compiling reqwest v0.11.27
+   Compiling surrealdb-types v3.0.0-beta (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling parry2d v0.25.3
+   Compiling parry3d v0.25.3
+   Compiling jsonwebtoken v10.3.0
+   Compiling sysinfo v0.37.2
+   Compiling aios_core v0.2.3 (D:\work\plant-code\rs-core)
+warning: unused `#[macro_use]` import
+ --> crates\parse_pdms_db\src\lib.rs:8:1
+  |
+8 | #[macro_use]
+  | ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unexpected `cfg` condition name: `debug_parse_expr`
+    --> crates\parse_pdms_db\src\parse.rs:2697:11
+     |
+2697 |     #[cfg(debug_parse_expr)]
+     |           ^^^^^^^^^^^^^^^^
+     |
+     = help: expected names are: `docsrs`, `feature`, and `test` and 31 more
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(debug_parse_expr)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(debug_parse_expr)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+  --> crates\parse_pdms_db\src\parse.rs:44:20
+   |
+44 | use nom::sequence::tuple;
+   |                    ^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1562:47
+     |
+1562 |                     let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(bytes)?;
+     |                                               ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1971:55
+     |
+1971 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1988:55
+     |
+1988 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2045:59
+     |
+2045 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2613:45
+     |
+2613 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2626:45
+     |
+2626 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2646:45
+     |
+2646 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2658:45
+     |
+2658 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2705:13
+     |
+2705 |             tuple((be_u32, be_u32, be_u32, be_u32, be_u32))(input)?;
+     |             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2728:41
+     |
+2728 |                 let (_, (a, b, c, d)) = tuple((be_u32, be_u32, be_u32, be_u32))(tmp_input)?;
+     |                                         ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:3154:35
+     |
+3154 |         let (_, (_len, _refno)) = tuple::<_, _, nom::error::Error<&[u8]>, _>((
+     |                                   ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+  --> crates\parse_pdms_db\src\parse_explict_tools.rs:15:20
+   |
+15 | use nom::sequence::tuple;
+   |                    ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+   --> crates\parse_pdms_db\src\parse_explict_tools.rs:427:25
+    |
+427 |                         tuple((be_i32, be_i32))(&expression_input[..])?;
+    |                         ^^^^^
+
+warning: unused import: `tokio::io::AsyncReadExt`
+  --> crates\parse_pdms_db\src\parse.rs:58:5
+   |
+58 | use tokio::io::AsyncReadExt;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `itertools::Itertools`
+  --> crates\parse_pdms_db\src\parse.rs:33:5
+   |
+33 | use itertools::Itertools;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `core::slice::SlicePattern`
+  --> crates\parse_pdms_db\src\parse.rs:31:5
+   |
+31 | use core::slice::SlicePattern;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: value assigned to `memb_bytes_len` is never read
+   --> crates\parse_pdms_db\src\parse.rs:494:13
+    |
+494 |             memb_bytes_len = declared_bytes;
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `step_w` is never read
+   --> crates\parse_pdms_db\src\parse.rs:539:26
+    |
+539 |         let mut step_w = 0;
+    |                          ^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: unused variable: `e`
+   --> crates\parse_pdms_db\src\parser\attribute\expression.rs:347:17
+    |
+347 |             Err(e) => {
+    |                 ^ help: if this is intentional, prefix it with an underscore: `_e`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `e`
+   --> crates\parse_pdms_db\src\parser\attribute\expression.rs:409:13
+    |
+409 |         Err(e) => {
+    |             ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:199:19
+    |
+199 |             801 | 0x321 => Ok(ArithmeticOpcode::Negate),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+    |
+    = note: `#[warn(unreachable_patterns)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:200:19
+    |
+200 |             802 | 0x322 => Ok(ArithmeticOpcode::Plus),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:201:19
+    |
+201 |             803 | 0x323 => Ok(ArithmeticOpcode::Sub),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:202:19
+    |
+202 |             804 | 0x324 => Ok(ArithmeticOpcode::Mul),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:203:19
+    |
+203 |             805 | 0x325 => Ok(ArithmeticOpcode::Div),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:260:19
+    |
+260 |             901 | 0x385 => Ok(TrigonometricOpcode::Sin),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:261:19
+    |
+261 |             902 | 0x386 => Ok(TrigonometricOpcode::Cos),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:262:19
+    |
+262 |             903 | 0x387 => Ok(TrigonometricOpcode::Tan),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:263:19
+    |
+263 |             904 | 0x388 => Ok(TrigonometricOpcode::Asin),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:264:19
+    |
+264 |             905 | 0x389 => Ok(TrigonometricOpcode::Acos),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:265:19
+    |
+265 |             906 | 0x38A => Ok(TrigonometricOpcode::Atan),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:266:19
+    |
+266 |             907 | 0x38B => Ok(TrigonometricOpcode::Atan2),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:329:20
+    |
+329 |             1001 | 0x3E9 => Ok(RealFunctionOpcode::Sqrt),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:330:20
+    |
+330 |             1002 | 0x3EA => Ok(RealFunctionOpcode::Pow),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:331:20
+    |
+331 |             1003 | 0x3EB => Ok(RealFunctionOpcode::Log),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:332:20
+    |
+332 |             1004 | 0x3EC => Ok(RealFunctionOpcode::Alog),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:333:20
+    |
+333 |             1005 | 0x3ED => Ok(RealFunctionOpcode::Int),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:334:20
+    |
+334 |             1006 | 0x3EE => Ok(RealFunctionOpcode::Nint),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:335:20
+    |
+335 |             1007 | 0x3EF => Ok(RealFunctionOpcode::Abs),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:336:20
+    |
+336 |             1008 | 0x3F0 => Ok(RealFunctionOpcode::Max),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:337:20
+    |
+337 |             1009 | 0x3F1 => Ok(RealFunctionOpcode::Min),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:466:20
+    |
+466 |             1301 | 0x515 => Ok(StringFunctionOpcode::Length),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:467:20
+    |
+467 |             1302 | 0x516 => Ok(StringFunctionOpcode::Real),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:468:20
+    |
+468 |             1303 | 0x517 => Ok(StringFunctionOpcode::Match),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:469:20
+    |
+469 |             1304 | 0x518 => Ok(StringFunctionOpcode::After),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:470:20
+    |
+470 |             1305 | 0x519 => Ok(StringFunctionOpcode::Before),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:471:20
+    |
+471 |             1306 | 0x51A => Ok(StringFunctionOpcode::String),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:472:20
+    |
+472 |             1307 | 0x51B => Ok(StringFunctionOpcode::Upcase),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:473:20
+    |
+473 |             1308 | 0x51C => Ok(StringFunctionOpcode::Lowcase),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:474:20
+    |
+474 |             1309 | 0x51D => Ok(StringFunctionOpcode::Substring),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:475:20
+    |
+475 |             1311 | 0x51F => Ok(StringFunctionOpcode::Defined),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:476:20
+    |
+476 |             1312 | 0x520 => Ok(StringFunctionOpcode::Undefined),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:477:20
+    |
+477 |             1313 | 0x521 => Ok(StringFunctionOpcode::Size),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:478:20
+    |
+478 |             1314 | 0x522 => Ok(StringFunctionOpcode::Trim),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:479:20
+    |
+479 |             1315 | 0x523 => Ok(StringFunctionOpcode::Matchwild),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:480:20
+    |
+480 |             1316 | 0x524 => Ok(StringFunctionOpcode::Width),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:481:20
+    |
+481 |             1317 | 0x525 => Ok(StringFunctionOpcode::Part),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:482:20
+    |
+482 |             1321 | 0x529 => Ok(StringFunctionOpcode::Occurs),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:483:20
+    |
+483 |             1322 | 0x52A => Ok(StringFunctionOpcode::Replace),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:484:20
+    |
+484 |             1369 | 0x559 => Ok(StringFunctionOpcode::Vtext),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:485:20
+    |
+485 |             1370 | 0x55A => Ok(StringFunctionOpcode::Vvalue),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:486:20
+    |
+486 |             1401 | 0x579 => Ok(StringFunctionOpcode::RealAlt),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:487:20
+    |
+487 |             1410 | 0x582 => Ok(StringFunctionOpcode::Str),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:532:19
+    |
+532 |             301 | 0x12D => Ok(BooleanOpcode::Not),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:533:19
+    |
+533 |             302 | 0x12E => Ok(BooleanOpcode::And),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:534:19
+    |
+534 |             303 | 0x12F => Ok(BooleanOpcode::Or),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:580:19
+    |
+580 |             401 | 0x191 => Ok(ComparisonOpcode::Eq),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:581:19
+    |
+581 |             501 | 0x1F5 => Ok(ComparisonOpcode::Neq),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:583:19
+    |
+583 |             601 | 0x259 | 602 => Ok(ComparisonOpcode::Gt),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: function `gen_resolve_error` is never used
+  --> crates\parse_pdms_db\src\error_types.rs:57:4
+   |
+57 | fn gen_resolve_error() -> anyhow::Result<u32> {
+   |    ^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `get_uda_short_name` is never used
+    --> crates\parse_pdms_db\src\parse.rs:1638:4
+     |
+1638 | fn get_uda_short_name(hash: i32) -> Option<String> {
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `convert_int_to_axis_str` is never used
+    --> crates\parse_pdms_db\src\parse.rs:2201:4
+     |
+2201 | fn convert_int_to_axis_str(n: i32) -> &'static str {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `anyhow::anyhow`
+ --> src\common.rs:1:5
+  |
+1 | use anyhow::anyhow;
+  |     ^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `deku::prelude::*`
+ --> src\common.rs:2:5
+  |
+2 | use deku::prelude::*;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused imports: `TryFrom` and `TryInto`
+ --> src\common.rs:3:20
+  |
+3 | use std::convert::{TryFrom, TryInto};
+  |                    ^^^^^^^  ^^^^^^^
+
+warning: unused import: `std::fmt::Debug`
+ --> src\common.rs:4:5
+  |
+4 | use std::fmt::Debug;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `std::fs::File`
+ --> src\common.rs:5:5
+  |
+5 | use std::fs::File;
+  |     ^^^^^^^^^^^^^
+
+warning: unused imports: `Read`, `SeekFrom`, and `Seek`
+ --> src\common.rs:6:15
+  |
+6 | use std::io::{Read, Seek, SeekFrom};
+  |               ^^^^  ^^^^  ^^^^^^^^
+
+warning: unused import: `std::mem::size_of`
+ --> src\common.rs:7:5
+  |
+7 | use std::mem::size_of;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `MappedLocalTime`
+ --> src\defines.rs:4:31
+  |
+4 | use chrono::{DateTime, Local, MappedLocalTime, TimeZone, Utc};
+  |                               ^^^^^^^^^^^^^^^
+
+warning: unused import: `TryInto`
+  --> src\defines.rs:10:29
+   |
+10 | use std::convert::{TryFrom, TryInto};
+   |                             ^^^^^^^
+
+warning: unused import: `std::str::FromStr`
+  --> src\defines.rs:11:5
+   |
+11 | use std::str::FromStr;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> src\element_serializer.rs:24:5
+   |
+24 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PageKey`
+  --> src\writer.rs:14:27
+   |
+14 | use crate::page_manager::{PageKey, PageManager};
+   |                           ^^^^^^^
+
+warning: unused import: `tokio::fs::File`
+ --> src\sync\sync.rs:5:5
+  |
+5 | use tokio::fs::File;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `log::*`
+ --> src\sync\compress.rs:4:5
+  |
+4 | use log::*;
+  |     ^^^^^^
+
+warning: unused import: `std::fs::create_dir_all`
+ --> src\sync\compress.rs:5:5
+  |
+5 | use std::fs::create_dir_all;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `human_size`
+  --> src\sync\compress.rs:14:13
+   |
+14 | use crate::{human_size /*info_cmd*/};
+   |             ^^^^^^^^^^
+
+warning: unused import: `archive_reader::IoReader`
+  --> src\sync\compress.rs:16:24
+   |
+16 | use dpcsync::{HashSum, archive_reader::IoReader, chunk_dictionary as dict};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PdmsHeader`
+ --> src\watch.rs:1:39
+  |
+1 | use crate::defines::{DbPageBasicInfo, PdmsHeader};
+  |                                       ^^^^^^^^^^
+
+warning: unused import: `future::ok`
+ --> src\watch.rs:7:5
+  |
+7 |     future::ok,
+  |     ^^^^^^^^^^
+
+warning: unused import: `RecursiveMode`
+  --> src\watch.rs:11:49
+   |
+11 | use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+   |                                                 ^^^^^^^^^^^^^
+
+warning: unused import: `Read`
+  --> src\watch.rs:13:15
+   |
+13 | use std::io::{Read, Write};
+   |               ^^^^
+
+warning: unreachable expression
+  --> src\sync\sync.rs:37:5
+   |
+35 |     anyhow::bail!("compress_archive is not available: dpcsync dependency is commented out");
+   |     --------------------------------------------------------------------------------------- any code following this expression is unreachable
+36 |
+37 |     Ok(())
+   |     ^^^^^^ unreachable expression
+   |
+   = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `parse_pdms_db` (lib) generated 75 warnings (run `cargo fix --lib -p parse_pdms_db` to apply 2 suggestions)
+warning: unused import: `TryFrom`
+  --> src\defines.rs:10:20
+   |
+10 | use std::convert::{TryFrom, TryInto};
+   |                    ^^^^^^^
+
+warning: unused import: `StreamExt`
+ --> src\watch.rs:5:14
+  |
+5 |     SinkExt, StreamExt,
+  |              ^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src\defines.rs:497:25
+    |
+497 |         let (next_rest, mut d) = RefnoDataLoc::read(rest, ())?;
+    |                         ----^
+    |                         |
+    |                         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `written`
+   --> src\writer.rs:835:13
+    |
+835 |         let written = self.element_writer.flush(file)?;
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_written`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `index`
+  --> src\sync\compress.rs:93:18
+   |
+93 |             let (index, offset, verified, compressed) = result.context("Error compressing")?;
+   |                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_index`
+
+warning: unused variable: `offset`
+  --> src\sync\compress.rs:93:25
+   |
+93 |             let (index, offset, verified, compressed) = result.context("Error compressing")?;
+   |                         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_offset`
+
+warning: unused variable: `input`
+   --> src\watch.rs:139:21
+    |
+139 |                 let input = path.to_path_buf();
+    |                     ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+
+warning: unused variable: `output`
+   --> src\watch.rs:140:21
+    |
+140 |                 let output: PathBuf =
+    |                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_output`
+
+warning: unused variable: `tmp_path`
+   --> src\watch.rs:142:21
+    |
+142 |                 let tmp_path = cbas_dir_path.clone();
+    |                     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_tmp_path`
+
+warning: unused variable: `rotate_size`
+  --> src\io_log.rs:44:5
+   |
+44 |     rotate_size: u64,
+   |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rotate_size`
+
+warning: unused variable: `max_files`
+  --> src\io_log.rs:45:5
+   |
+45 |     max_files: usize,
+   |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_max_files`
+
+warning: associated function `has_next_block_header` is never used
+   --> src\element_record_reader.rs:168:8
+    |
+ 10 | impl ElementRecordReader {
+    | ------------------------ associated function in this implementation
+...
+168 |     fn has_next_block_header(data: &[u8], pos: usize) -> bool {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pdms_io` (lib) generated 34 warnings (run `cargo fix --lib -p pdms_io` to apply 30 suggestions)
+warning: unused import: `Utc`
+  --> src\bin\test_sesno_timestamp.rs:95:36
+   |
+95 |             use chrono::{DateTime, Utc};
+   |                                    ^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `PageTypeError`
+ --> src\bin\test_page_types.rs:2:32
+  |
+2 |     DataPageSubtype, PageType, PageTypeError, verify_data_page_subtype, verify_page_type,
+  |                                ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `PageTypeError`
+ --> src\bin\test_all_fixes.rs:2:43
+  |
+2 |     DataPageSubtype, PAGE_SIZE, PageType, PageTypeError, PdmsHeader, verify_data_page_subtype,
+  |                                           ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::env`
+ --> src\bin\benchmark_increment_eles.rs:3:5
+  |
+3 | use std::env;
+  |     ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::pdms_types::RefU64`
+ --> src\main.rs:5:5
+  |
+5 | use aios_core::pdms_types::RefU64;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `EleRawData`
+ --> src\main.rs:7:37
+  |
+7 | use pdms_io::defines::{ElePageData, EleRawData, PAGE_SIZE};
+  |                                     ^^^^^^^^^^
+
+warning: unused import: `pdms_io::test::resolve_test_db_path`
+ --> src\main.rs:9:5
+  |
+9 | use pdms_io::test::resolve_test_db_path;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::mem::size_of`
+  --> src\main.rs:14:5
+   |
+14 | use std::mem::size_of;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::NamedAttrValue`
+ --> src\bin\test_get_refno_status.rs:1:5
+  |
+1 | use aios_core::NamedAttrValue;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `EleOperation`
+ --> src\bin\test_get_refno_status.rs:2:29
+  |
+2 | use aios_core::pdms_types::{EleOperation, RefU64};
+  |                             ^^^^^^^^^^^^
+
+warning: unused import: `aios_core::RefU64`
+ --> src\bin\test_increment_eles.rs:7:5
+  |
+7 | use aios_core::RefU64;
+  |     ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::pdms_types::EleOperation`
+ --> src\bin\test_increment_eles.rs:9:5
+  |
+9 | use aios_core::pdms_types::EleOperation;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `EleOperationData` and `EleOperationDetail`
+  --> src\bin\test_increment_eles.rs:11:19
+   |
+11 | use pdms_io::io::{EleOperationData, EleOperationDetail, PdmsIO};
+   |                   ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::SUL_DB`
+  --> src\bin\test_increment_eles.rs:15:5
+   |
+15 | use aios_core::SUL_DB; // 导入SurrealDB全局连接
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> src\bin\test_increment_eles.rs:17:5
+   |
+17 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> src\main.rs:44:9
+   |
+44 |     let mut bytes: Vec<u8> = ele_page.clone().try_into().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> src\main.rs:60:9
+   |
+60 |     let mut bytes: Vec<u8> = ele_page.try_into().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:74:9
+   |
+74 |     let mut watch_files: Vec<PathBuf> = Vec::new();
+   |         ----^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:81:9
+   |
+81 |     let mut watcher = PdmsWatcher::new(db_paths);
+   |         ----^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:83:9
+   |
+83 |     let mut time = Instant::now();
+   |         ----^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: unused variable: `watch_files`
+  --> src\main.rs:74:9
+   |
+74 |     let mut watch_files: Vec<PathBuf> = Vec::new();
+   |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_watch_files`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `elapsed`
+  --> src\bin\test_increment_eles.rs:73:9
+   |
+73 |     let elapsed = start_time.elapsed();
+   |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_elapsed`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pdms_io` (bin "test_page_types") generated 1 warning (run `cargo fix --bin "test_page_types" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "test_all_fixes") generated 1 warning (run `cargo fix --bin "test_all_fixes" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "test_sesno_timestamp") generated 1 warning (run `cargo fix --bin "test_sesno_timestamp" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "test_get_refno_status") generated 2 warnings (run `cargo fix --bin "test_get_refno_status" -p pdms_io` to apply 2 suggestions)
+warning: `pdms_io` (bin "benchmark_increment_eles") generated 1 warning (run `cargo fix --bin "benchmark_increment_eles" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "pdms_io") generated 10 warnings (run `cargo fix --bin "pdms_io" -p pdms_io` to apply 10 suggestions)
+warning: `pdms_io` (bin "test_increment_eles") generated 6 warnings (run `cargo fix --bin "test_increment_eles" -p pdms_io` to apply 6 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4m 36s
+     Running tests\diag_ams1112_full_parse.rs (target_diag_716_run2_20260218_181239\debug\deps\diag_ams1112_full_parse-c43c8280bd3550e8.exe)
+
+running 1 test
+开始剖析会话 716 ...
+剖析参数: max_refs=800, max_secs=180, run_increment=false
+collect_refno_locs 完成: sesno=716, ref_count=60577, unique_ref_count=55738, duplicate_count=4839, elapsed=11.8724268s
+注意: 本次只抽样前 800 个 refno（总数 60577）
+状态计算进度: 200/800 (add=186, modified=4, deleted=9, none=1, errors=0)
+状态计算进度: 400/800 (add=380, modified=4, deleted=9, none=7, errors=0)
+状态计算进度: 600/800 (add=580, modified=4, deleted=9, none=7, errors=0)
+状态计算进度: 800/800 (add=780, modified=4, deleted=9, none=7, errors=0)
+get_refno_operation_status 汇总: calls=800, elapsed=42.8361971s, add=780, modified=4, deleted=9, none=7, errors=0
+慢调用样本(>=200ms, 最多30条):
+  refno=9304_0 elapsed=265.0599ms
+已跳过 collect_increment_eles；设置 DIAG_RUN_INCREMENT=1 可启用
+test diag_ams1112_session716_profile ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 55.16s
+

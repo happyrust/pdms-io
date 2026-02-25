@@ -6,9 +6,9 @@
 //! - 属性值解析
 
 use aios_core::pdms_types::DbAttributeType;
-use nom::number::complete::{be_i32, be_u16};
 use nom::IResult;
 use nom::Parser;
+use nom::number::complete::{be_i32, be_u16};
 
 /// 显式属性类型映射
 ///
@@ -61,8 +61,7 @@ impl ExplicitAttrHeader {
 /// - bytes[4..6]: 属性类型码 (u16)
 /// - bytes[6..8]: 属性长度 (u16, word 数)
 pub fn parse_explicit_header(input: &[u8]) -> IResult<&[u8], ExplicitAttrHeader> {
-    let (input, (hash, type_code, length)) =
-        (be_i32, be_u16, be_u16).parse(input)?;
+    let (input, (hash, type_code, length)) = (be_i32, be_u16, be_u16).parse(input)?;
 
     Ok((
         input,
@@ -109,8 +108,13 @@ pub fn is_dimension_attr(hash: i32) -> bool {
 /// # 参数
 /// - `input`: 属性数据
 /// - `header`: 已解析的属性头部
-pub fn parse_explicit_number<'a>(input: &'a [u8], header: &ExplicitAttrHeader) -> IResult<&'a [u8], f64> {
-    use crate::parser::numeric::{parse_explicit_f64_40, parse_explicit_num_00, parse_explicit_num_ff};
+pub fn parse_explicit_number<'a>(
+    input: &'a [u8],
+    header: &ExplicitAttrHeader,
+) -> IResult<&'a [u8], f64> {
+    use crate::parser::numeric::{
+        parse_explicit_f64_40, parse_explicit_num_00, parse_explicit_num_ff,
+    };
 
     let data_len = header.data_len();
     if input.len() < data_len || data_len < 12 {
@@ -137,10 +141,15 @@ pub fn parse_explicit_number<'a>(input: &'a [u8], header: &ExplicitAttrHeader) -
 }
 
 /// 解析字符串类型的显式属性值
-pub fn parse_explicit_string<'a>(input: &'a [u8], header: &ExplicitAttrHeader) -> IResult<&'a [u8], String> {
+pub fn parse_explicit_string<'a>(
+    input: &'a [u8],
+    header: &ExplicitAttrHeader,
+) -> IResult<&'a [u8], String> {
     let data_len = header.data_len();
     if input.len() < data_len {
-        return Err(nom::Err::Incomplete(nom::Needed::new(data_len - input.len())));
+        return Err(nom::Err::Incomplete(nom::Needed::new(
+            data_len - input.len(),
+        )));
     }
 
     let data = &input[..data_len];
@@ -162,7 +171,10 @@ pub fn parse_explicit_string<'a>(input: &'a [u8], header: &ExplicitAttrHeader) -
         })
         .collect();
 
-    Ok((&input[data_len..], string.trim_end_matches('\0').to_string()))
+    Ok((
+        &input[data_len..],
+        string.trim_end_matches('\0').to_string(),
+    ))
 }
 
 #[cfg(test)]

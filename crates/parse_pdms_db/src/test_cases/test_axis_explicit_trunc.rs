@@ -32,4 +32,3 @@ fn test_convert_to_explicit_axis_string_truncated_default_branch_does_not_panic(
 
     let _ = convert_to_explicit_axis_string(&input, RefU64(0)).unwrap();
 }
-

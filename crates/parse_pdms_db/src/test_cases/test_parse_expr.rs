@@ -39,7 +39,10 @@ FF FF FF CB 00 00 11 94 00 01 00 53 00 00 33 BC
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
     let map = &ele_data.whole_attmap.attmap;
     // dbg!(map.get_as_string("PTDI"));
-    assert_eq!(map.get_as_string("PTDI"), Some("( ATTRIB DESP[1 ] / ( 2 * COS( 45 ) ) )".to_string()));
+    assert_eq!(
+        map.get_as_string("PTDI"),
+        Some("( ATTRIB DESP[1 ] / ( 2 * COS( 45 ) ) )".to_string())
+    );
 }
 
 //15194/10446
@@ -286,8 +289,10 @@ async fn test_parse_expression_pbof() {
     let map = &ele_data.whole_attmap.attmap;
     dbg!(map.get_as_string("PBOF"));
 
-    assert_eq!(map.get_as_string("PBOF").unwrap(),
-               "( ( ( ATTRIB DESP[10 ] * SIN( ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) + ( ( ( ( ( ATTRIB DESP[6 ] - ATTRIB DESP[15 ] ) - ATTRIB DESP[17 ] ) - ( ATTRIB DESP[46 ] / 2 ) ) - ( ( ATTRIB DESP[4 ] / 2 ) * TAN( ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) ) * COS( ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) ) * TAN( ( ATAN( ( ATTRIB DESP[10 ] / ( ( ( ( ATTRIB DESP[6 ] - ATTRIB DESP[15 ] ) - ATTRIB DESP[17 ] ) - ( ATTRIB DESP[46 ] / 2 ) ) - ( ( ATTRIB DESP[4 ] / 2 ) * TAN( ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) ) ) ) - ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) )");
+    assert_eq!(
+        map.get_as_string("PBOF").unwrap(),
+        "( ( ( ATTRIB DESP[10 ] * SIN( ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) + ( ( ( ( ( ATTRIB DESP[6 ] - ATTRIB DESP[15 ] ) - ATTRIB DESP[17 ] ) - ( ATTRIB DESP[46 ] / 2 ) ) - ( ( ATTRIB DESP[4 ] / 2 ) * TAN( ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) ) * COS( ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) ) * TAN( ( ATAN( ( ATTRIB DESP[10 ] / ( ( ( ( ATTRIB DESP[6 ] - ATTRIB DESP[15 ] ) - ATTRIB DESP[17 ] ) - ( ATTRIB DESP[46 ] / 2 ) ) - ( ( ATTRIB DESP[4 ] / 2 ) * TAN( ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) ) ) ) - ATAN( ( ATTRIB DESP[46 ] / ATTRIB DESP[2 ] ) ) ) ) )"
+    );
 }
 
 #[tokio::test]
@@ -334,7 +339,6 @@ FF FF FF FF 00 00 00 00 00 00 06 41 00 00 06 A5
     let data = convert_str_to_bytes(data_str);
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
     let _map = &ele_data.whole_attmap.attmap;
-    
 }
 
 #[tokio::test]
@@ -419,7 +423,7 @@ async fn test_has_float() {
     let data = convert_str_to_bytes(data_str);
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
     let map = &ele_data.whole_attmap.attmap;
-    
+
     assert_eq!(
         map.get_foreign_refno("CATR").unwrap().to_string(),
         "15193_27716"
@@ -482,5 +486,3 @@ FF FF FB 9B 00 00 00 00 00 01 00 4A 00 00 5A 9E
     // assert_eq!(map.get_f32_or_default("HEIG"), 1177.8);
     dbg!(map);
 }
-
-

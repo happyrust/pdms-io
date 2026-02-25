@@ -3,8 +3,8 @@
 //! 提供 PDMS 数据库文件头的解析功能
 
 use aios_core::tool::db_tool::db1_dehash;
-use nom::number::complete::{be_i32, be_u32};
 use nom::IResult;
+use nom::number::complete::{be_i32, be_u32};
 
 /// 数据库类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -93,7 +93,7 @@ impl DbHeader {
 }
 
 /// 文件头偏移常量
-/// 
+///
 /// PDMS 数据库文件头格式:
 /// - bytes[0..4]: 保留字段 (通常为 0)
 /// - bytes[4..8]: 字段编号 (field_no)
@@ -166,7 +166,7 @@ pub fn extract_db_type(input: &[u8]) -> Option<DbType> {
 }
 
 /// 快速提取数据库编号
-/// 
+///
 /// PDMS 文件头格式:
 /// - bytes[0..4]: 保留字段 (通常为 0)
 /// - bytes[4..8]: 字段编号

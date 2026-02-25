@@ -31,7 +31,7 @@ async fn test_amssys_db_styp_parsing() -> anyhow::Result<()> {
     // 打印每个 DB 元素的 STYP 信息
     for (refno, attr_map) in &db_elements {
         println!("--- DB 元素 Refno: {} ---", refno);
-        
+
         // 打印关键属性
         if let Some(name) = attr_map.get_as_string("NAME") {
             println!("  NAME: {}", name);
@@ -42,15 +42,18 @@ async fn test_amssys_db_styp_parsing() -> anyhow::Result<()> {
         if let Some(desc) = attr_map.get_as_string("DESC") {
             println!("  DESC: {}", desc);
         }
-        
+
         // 重点检查 STYP
         if let Some(styp) = attr_map.get_val("STYP") {
             println!("  STYP (raw): {:?}", styp);
-            println!("  STYP (string): '{}'", attr_map.get_as_string("STYP").unwrap_or_default());
+            println!(
+                "  STYP (string): '{}'",
+                attr_map.get_as_string("STYP").unwrap_or_default()
+            );
         } else {
             println!("  STYP: 不存在！");
         }
-        
+
         // 打印 AREA, CRCY, PROJ 等相邻属性以便对比
         if let Some(area) = attr_map.get_val("AREA") {
             println!("  AREA: {:?}", area);
@@ -81,22 +84,25 @@ async fn test_amssys_specific_db_element() -> anyhow::Result<()> {
 
     // 用户提供的数据: db:⟨24575_2195⟩
     let target_refno = RefU64::from_two_nums(24575, 2195);
-    
+
     println!("\n=== 检查特定 DB 元素 {} ===", target_refno);
-    
+
     if let Some(attr_map) = pdms.total_attr_map.get(&target_refno) {
         println!("\n找到元素 {}，属性列表：", target_refno);
-        
+
         for (key, value) in attr_map.iter() {
             println!("  {} = {:?}", key, value);
         }
-        
+
         // 详细检查 STYP
         println!("\n=== STYP 详细分析 ===");
         match attr_map.get_val("STYP") {
             Some(val) => {
                 println!("STYP 原始值: {:?}", val);
-                println!("STYP 字符串值: '{}'", attr_map.get_as_string("STYP").unwrap_or_default());
+                println!(
+                    "STYP 字符串值: '{}'",
+                    attr_map.get_as_string("STYP").unwrap_or_default()
+                );
             }
             None => {
                 println!("STYP 属性在 attr_map 中不存在！");
@@ -108,7 +114,7 @@ async fn test_amssys_specific_db_element() -> anyhow::Result<()> {
         }
     } else {
         println!("未找到 refno {} 的元素", target_refno);
-        
+
         // 尝试查找所有 DBNO=1112 的 DB 元素
         println!("\n尝试查找 DBNO=1112 的 DB 元素...");
         for entry in pdms.total_attr_map.iter() {
@@ -137,16 +143,16 @@ async fn test_amssys_specific_db_element() -> anyhow::Result<()> {
 async fn test_amssys_db_implicit_data_debug() -> anyhow::Result<()> {
     use std::fs::File;
     use std::io::Read;
-    
+
     let path = PathBuf::from("test-files/amssys");
-    
+
     let mut file = File::open(&path)?;
     let mut buf = Vec::new();
     file.read_to_end(&mut buf)?;
-    
+
     println!("\n=== amssys 文件基本信息 ===");
     println!("文件大小: {} bytes", buf.len());
-    
+
     // 检查文件头
     if buf.len() >= 60 {
         let db_basic_info = crate::parse::parse_file_basic_info(&buf[..60]);
@@ -154,7 +160,7 @@ async fn test_amssys_db_implicit_data_debug() -> anyhow::Result<()> {
         println!("数据库编号: {}", db_basic_info.dbnum);
         println!("SES PGNO: {}", db_basic_info.ses_pgno);
     }
-    
+
     Ok(())
 }
 
@@ -171,73 +177,83 @@ async fn test_amssys_db_implicit_data_debug() -> anyhow::Result<()> {
 /// 14 => "SCHE" (示意图数据库)
 #[tokio::test]
 async fn test_amssys_db_hex_dump() -> anyhow::Result<()> {
-    use std::fs::File;
-    use std::io::Read;
     use aios_core::helper::parse_to_i32;
     use aios_core::tool::db_tool::db1_dehash;
-    
+    use std::fs::File;
+    use std::io::Read;
+
     let path = PathBuf::from("test-files/amssys");
-    
+
     let mut file = File::open(&path)?;
     let mut buf = Vec::new();
     file.read_to_end(&mut buf)?;
-    
+
     // 解析基本数据获取 refno 位置表
     let (refno_table_map, _) = crate::parse::gen_ref_type_pos_table(&buf);
-    
+
     // 目标 DB 元素
     let target_refno = RefU64::from_two_nums(24575, 2195);
-    
+
     println!("\n=== DB 元素 {} 十六进制分析 ===", target_refno);
-    
+
     if let Some(pos_info) = refno_table_map.get(&target_refno) {
         let pos = pos_info.pos;
         println!("元素数据位置: 0x{:X} ({})", pos, pos);
-        
+
         // 元素数据从 pos-4 开始（包含 impl_len）
         let data_start = pos - 4;
         if data_start + 100 <= buf.len() {
             let data = &buf[data_start..data_start + 100];
-            
+
             // 打印前 100 字节的十六进制
             println!("\n元素原始数据 (前 100 字节):");
             for (i, chunk) in data.chunks(16).enumerate() {
-                let hex: String = chunk.iter()
+                let hex: String = chunk
+                    .iter()
                     .map(|b| format!("{:02X}", b))
                     .collect::<Vec<_>>()
                     .join(" ");
                 let offset = i * 16;
                 println!("  [{:3}] ({:2}w) {}", offset, offset / 4, hex);
             }
-            
+
             // 解析关键位置
             println!("\n=== 属性偏移分析 ===");
-            
+
             // impl_len at word 0
             let impl_len = parse_to_i32(&data[0..4]);
             println!("Word  0: impl_len = {} (0x{:08X})", impl_len, impl_len);
-            
+
             // refno at word 1-2 (offset 4..12)
             let ref0 = parse_to_i32(&data[4..8]);
             let ref1 = parse_to_i32(&data[8..12]);
-            println!("Word 1-2: refno = {}_{} (0x{:08X} 0x{:08X})", ref0, ref1, ref0, ref1);
-            
+            println!(
+                "Word 1-2: refno = {}_{} (0x{:08X} 0x{:08X})",
+                ref0, ref1, ref0, ref1
+            );
+
             // type_hash at word 3 (offset 12..16)
             let type_hash = parse_to_i32(&data[12..16]);
             let type_name = db1_dehash(type_hash as u32);
-            println!("Word  3: type_hash = {} => '{}' (0x{:08X})", type_hash, type_name, type_hash);
-            
+            println!(
+                "Word  3: type_hash = {} => '{}' (0x{:08X})",
+                type_hash, type_name, type_hash
+            );
+
             // owner at word 4-5 (offset 16..24)
             let own0 = parse_to_i32(&data[16..20]);
             let own1 = parse_to_i32(&data[20..24]);
-            println!("Word 4-5: owner = {}_{} (0x{:08X} 0x{:08X})", own0, own1, own0, own1);
-            
+            println!(
+                "Word 4-5: owner = {}_{} (0x{:08X} 0x{:08X})",
+                own0, own1, own0, own1
+            );
+
             // DBNO at offset 11 (word 11 = byte 44..48)
             if data.len() >= 48 {
                 let dbnum = parse_to_i32(&data[44..48]);
                 println!("Word 11: DBNO = {} (0x{:08X})", dbnum, dbnum);
             }
-            
+
             // STYP at offset 12 (word 12 = byte 48..52) - 应该是 WORD 类型!
             if data.len() >= 52 {
                 let styp_raw = parse_to_i32(&data[48..52]);
@@ -258,27 +274,30 @@ async fn test_amssys_db_hex_dump() -> anyhow::Result<()> {
                         _ => format!("UNKNOWN({})", styp_raw),
                     }
                 };
-                println!("Word 12: STYP = {} => '{}' (0x{:08X})", styp_raw, styp_word, styp_raw);
+                println!(
+                    "Word 12: STYP = {} => '{}' (0x{:08X})",
+                    styp_raw, styp_word, styp_raw
+                );
             }
-            
+
             // FINO at offset 13 (word 13 = byte 52..56)
             if data.len() >= 56 {
                 let fino = parse_to_i32(&data[52..56]);
                 println!("Word 13: FINO = {} (0x{:08X})", fino, fino);
             }
-            
+
             // AREA at offset 14 (word 14 = byte 56..60)
             if data.len() >= 60 {
                 let area = parse_to_i32(&data[56..60]);
                 println!("Word 14: AREA = {} (0x{:08X})", area, area);
             }
-            
+
             // CRCY at offset 15 (word 15 = byte 60..64)
             if data.len() >= 64 {
                 let crcy = parse_to_i32(&data[60..64]);
                 println!("Word 15: CRCY = {} (0x{:08X})", crcy, crcy);
             }
-            
+
             // PROJ at offset 16 (word 16 = byte 64..68)
             if data.len() >= 68 {
                 let proj = parse_to_i32(&data[64..68]);
@@ -288,7 +307,6 @@ async fn test_amssys_db_hex_dump() -> anyhow::Result<()> {
     } else {
         println!("未找到 refno {} 的位置信息", target_refno);
     }
-    
+
     Ok(())
 }
-

@@ -1,30 +1,28 @@
-use crate::parse::{convert_to_explicit_axis_string, match_axis};
 use crate::BHashMap;
+use crate::parse::{convert_to_explicit_axis_string, match_axis};
+#[cfg(test)]
+use aios_core::bin_data::convert_str_to_bytes;
 use aios_core::helper::{parse_to_i16, parse_to_i32, parse_to_u32};
 use aios_core::tool::db_tool::{convert_to_hash, db1_dehash, is_uda};
 use aios_core::tool::float_tool::f64_round_3;
 use aios_core::{AttrVal::*, RefU64};
 use dynfmt::Format;
-#[cfg(test)]
-use aios_core::bin_data::convert_str_to_bytes;
 use log::error;
+use nom::IResult;
+use nom::Parser;
 use nom::multi::count;
 use nom::number::complete::{be_i32, be_u16, be_u32};
 use nom::sequence::tuple;
-use nom::IResult;
-use nom::Parser;
 // 使用新的 parser::numeric 模块
 use crate::parser::numeric::{
-    parse_explicit_num_00 as parser_parse_explicit_num_00,
     parse_explicit_f64_40 as parser_parse_explicit_f64_40,
-    parse_explicit_num_ff as parser_parse_explicit_num_ff,
-    times_keep_f32_two_decimal,
+    parse_explicit_num_00 as parser_parse_explicit_num_00,
+    parse_explicit_num_ff as parser_parse_explicit_num_ff, times_keep_f32_two_decimal,
 };
 // 使用新的 parser::attribute::expression 模块
 use crate::parser::attribute::expression::{
+    apply_operator, get_expression_of_func as parser_get_expression_of_func,
     parse_expression_const as parser_parse_expression_const,
-    get_expression_of_func as parser_get_expression_of_func,
-    apply_operator,
 };
 
 // 以下常量已移除（未使用）：ATT_PX, ATT_PY, ATT_PZ, ATT_PDIA, ATT_PHEI, ATT_PDIS, ATT_PCON, ATT_PBOR, ATT_PPRO, ATT_DPRO, ATT_BTHK, ATT_PTCDI
@@ -81,23 +79,26 @@ s.insert(0x582, "STR( {} )");
 /// input[4..8]: 00 00 00 02 => 正负轴的表达式类型
 /// input[8..12]: 00 00 00 01 => 正负标志（1为正，2为负）
 /// input[12..16]: 00 00 00 02 => 轴索引（1=X, 2=Y, 3=Z）
-pub fn parse_axis_expression(input: &[u8], expression_type: String) -> IResult<&[u8], (String, String)> {
+pub fn parse_axis_expression(
+    input: &[u8],
+    expression_type: String,
+) -> IResult<&[u8], (String, String)> {
     if input.len() < 16 {
         return Err(nom::Err::Incomplete(nom::Needed::Unknown));
     }
-    
+
     // 解析正负标志 (input[8..12])
     let positive_flag = parse_to_i32(&input[8..12]);
     // 解析轴索引 (input[12..16])
     let axis_index = parse_to_i32(&input[12..16]);
-    
+
     let axis = match axis_index {
         1 => "X",
-        2 => "Y", 
+        2 => "Y",
         3 => "Z",
         _ => "UNKNOWN",
     };
-    
+
     let axis_result = if positive_flag == 1 {
         axis.to_string()
     } else if positive_flag == 2 {
@@ -105,13 +106,17 @@ pub fn parse_axis_expression(input: &[u8], expression_type: String) -> IResult<&
     } else {
         axis.to_string()
     };
-    
+
     let remaining = &input[16..];
     Ok((remaining, (expression_type, axis_result)))
 }
 
 /// 解析其他类型的表达式（原有逻辑）
-pub fn parse_other_expression(input: &[u8], expression_type: String, refno: RefU64) -> IResult<&[u8], (String, String)> {
+pub fn parse_other_expression(
+    input: &[u8],
+    expression_type: String,
+    refno: RefU64,
+) -> IResult<&[u8], (String, String)> {
     //临时处理，后面需要总结规律
     if input.len() <= 4 * 5 {
         return Err(nom::Err::Incomplete(nom::Needed::Unknown));
@@ -123,7 +128,10 @@ pub fn parse_other_expression(input: &[u8], expression_type: String, refno: RefU
     if flag == 0x66 {
         let (_, str_len) = be_i32(&input[4 * 5..4 * 6])?;
         let (input, chars) = count(be_i32, str_len as usize).parse(&input[4 * 6..])?;
-        let string = format!("'{}'", chars.iter().map(|c| *c as u8 as char).collect::<String>());
+        let string = format!(
+            "'{}'",
+            chars.iter().map(|c| *c as u8 as char).collect::<String>()
+        );
         return Ok((input, (expression_type, string)));
     }
 
@@ -135,7 +143,10 @@ pub fn parse_other_expression(input: &[u8], expression_type: String, refno: RefU
 
         //暂时跳过这个问题，长度问题
         if end > input.len() {
-            error!("{refno}: parse_expression_attr PTCDI or PTCD {end} > {} input.len()",  input.len());
+            error!(
+                "{refno}: parse_expression_attr PTCDI or PTCD {end} > {} input.len()",
+                input.len()
+            );
             error!("{:#4X?}", input);
             return Err(nom::Err::Incomplete(nom::Needed::Unknown));
         }
@@ -197,7 +208,7 @@ fn is_axis_expression(input: &[u8]) -> bool {
     if input.len() < 16 {
         return false;
     }
-    
+
     // 检查轴向表达式的特征
     // 根据注释，轴向表达式有特定的格式
     // input[0..4]: 1C 00 00 03 标识轴向表达式
@@ -205,7 +216,7 @@ fn is_axis_expression(input: &[u8]) -> bool {
     if identifier != 0x1C000003u32 as i32 {
         return false;
     }
-    
+
     // 检查轴索引是否有效 (input[12..16])
     let axis_index = parse_to_i32(&input[12..16]);
     axis_index >= 1 && axis_index <= 3
@@ -216,7 +227,7 @@ pub fn parse_expression_attr(input: &[u8], refno: RefU64) -> IResult<&[u8], (Str
     let hash_val = &input[..4];
     let expression_type = db1_dehash(convert_to_hash(hash_val).abs() as _);
     let input = &input[4..];
-    
+
     // 根据表达式类型和数据特征分发到不同的处理函数
     if is_axis_expression(input) {
         parse_axis_expression(input, expression_type)
@@ -261,9 +272,9 @@ fn parse_value_expression_number(input: &[u8]) -> IResult<&[u8], f64> {
         )));
     }
     let count_usize = count as usize;
-    let total_bytes = count_usize
-        .checked_mul(4)
-        .ok_or_else(|| nom::Err::Error(nom::error::make_error(input, nom::error::ErrorKind::Verify)))?;
+    let total_bytes = count_usize.checked_mul(4).ok_or_else(|| {
+        nom::Err::Error(nom::error::make_error(input, nom::error::ErrorKind::Verify))
+    })?;
     if rest.len() < total_bytes {
         return Err(nom::Err::Incomplete(nom::Needed::new(
             total_bytes - rest.len(),
@@ -300,11 +311,11 @@ pub fn parse_expression_func(input: &[u8], refno: RefU64) -> IResult<&[u8], Stri
     // 0x76 就是以字符串的标志
     while expression_data.len() >= 8
         && (number_flag
-        || check_val1 == 0x6A
-        || check_val2 == 3
-        || &expression_data[..3] == &[0x0, 0x0, 0x3]
-        || check_val2 == 0x65
-        || check_val1 == 0x76)
+            || check_val1 == 0x6A
+            || check_val2 == 3
+            || &expression_data[..3] == &[0x0, 0x0, 0x3]
+            || check_val2 == 0x65
+            || check_val1 == 0x76)
     {
         let expression_const = parse_expression_const(&expression_data[..4]);
         if expression_const != "" {
@@ -449,7 +460,7 @@ pub fn parse_expression_func(input: &[u8], refno: RefU64) -> IResult<&[u8], Stri
         {
             let mut symbol = String::new();
             let op_key = parse_to_i32(&expression_data[..4]);
-            
+
             // 优先使用 opcode 枚举处理（算术/三角函数/实数函数）
             if let Some(result) = apply_operator(op_key, &mut result_stack) {
                 symbol = result;
@@ -584,10 +595,7 @@ pub fn parse_xyz_data(input: &[u8], refno: RefU64, convert: bool) -> IResult<&[u
     } else {
         format!("{} ( {} ) ", axis, data)
     };
-    Ok((
-        &input[data_len * 4 + 4..],
-        result
-    ))
+    Ok((&input[data_len * 4 + 4..], result))
 }
 
 /// 返回PARA类的函数名
@@ -601,14 +609,14 @@ pub fn get_expression_func_name(input: &[u8]) -> IResult<&[u8], String> {
 }
 
 /// 解析axis显式属性的值，分为00 40 FF三种
-/// 
+///
 /// 已迁移到 crate::parser::numeric::parse_explicit_num_00
 pub fn parse_explicit_num_00(data: &[u8]) -> IResult<&[u8], f64> {
     parser_parse_explicit_num_00(data)
 }
 
 /// 解析axis显式属性的值，分为00 40 FF三种
-/// 
+///
 /// 已迁移到 crate::parser::numeric::parse_explicit_f64_40
 pub fn parse_explicit_f64_40(data: &[u8]) -> IResult<&[u8], f64> {
     parser_parse_explicit_f64_40(data)
@@ -623,7 +631,7 @@ fn parse_axis_f32() {
 }
 
 /// 解析表达式常量
-/// 
+///
 /// 已迁移到 crate::parser::attribute::expression::parse_expression_const
 pub fn parse_expression_const(input: &[u8]) -> String {
     parser_parse_expression_const(input).to_string()
@@ -638,14 +646,14 @@ fn test_parse_explicit_num_40() {
 }
 
 /// 解析axis显式属性的值，分为00 40 FF三种
-/// 
+///
 /// 已迁移到 crate::parser::numeric::parse_explicit_num_ff
 pub fn parse_explicit_num_ff(data: &[u8]) -> IResult<&[u8], f64> {
     parser_parse_explicit_num_ff(data)
 }
 
 /// 特殊函数表达式
-/// 
+///
 /// 已迁移到 crate::parser::attribute::expression::get_expression_of_func  
 #[inline]
 pub fn get_expression_of_func(input: &[u8]) -> String {
@@ -694,6 +702,3 @@ fn pow_test() {
     let value = (0x4E00 / 0x400) as f64 / times;
     println!("value={}", value);
 }
-
-
-

@@ -1,6 +1,6 @@
+use crate::defines::PAGE_SIZE_2K;
 use crate::io::PdmsIO;
 use crate::test::resolve_test_db_path;
-use crate::defines::PAGE_SIZE_2K;
 
 #[test]
 fn test_open_smoke() -> anyhow::Result<()> {

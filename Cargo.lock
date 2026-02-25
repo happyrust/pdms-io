@@ -2075,7 +2075,6 @@ version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f3901269ec6d4f6068d3f09e5f02f995bd076398dcd1dfec407cd230b02d11b"
 dependencies = [
- "earcutr",
  "float_next_after",
  "geo-types",
  "geographiclib-rs",
@@ -2087,7 +2086,6 @@ dependencies = [
  "rstar 0.12.2",
  "serde",
  "sif-itree",
- "spade",
 ]
 
 [[package]]
@@ -6068,7 +6066,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "surrealdb"
 version = "3.0.0-beta"
-source = "git+https://github.com/happyrust/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
+source = "git+https://gitee.com/happydpc/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
 dependencies = [
  "async-channel",
  "boxcar",
@@ -6102,7 +6100,7 @@ dependencies = [
 [[package]]
 name = "surrealdb-core"
 version = "3.0.0-beta"
-source = "git+https://github.com/happyrust/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
+source = "git+https://gitee.com/happydpc/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
 dependencies = [
  "addr",
  "affinitypool",
@@ -6191,7 +6189,7 @@ dependencies = [
 [[package]]
 name = "surrealdb-protocol"
 version = "0.7.0"
-source = "git+https://github.com/happyrust/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
+source = "git+https://gitee.com/happydpc/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6199,7 +6197,7 @@ dependencies = [
  "chrono",
  "flatbuffers",
  "futures",
- "geo 0.32.0",
+ "geo 0.31.0",
  "http-body-util",
  "prost 0.14.3",
  "prost-types 0.14.3",
@@ -6215,7 +6213,7 @@ dependencies = [
 [[package]]
 name = "surrealdb-types"
 version = "3.0.0-beta"
-source = "git+https://github.com/happyrust/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
+source = "git+https://gitee.com/happydpc/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
 dependencies = [
  "anyhow",
  "bytes",
@@ -6240,7 +6238,7 @@ dependencies = [
 [[package]]
 name = "surrealdb-types-derive"
 version = "3.0.0-beta"
-source = "git+https://github.com/happyrust/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
+source = "git+https://gitee.com/happydpc/surrealdb?branch=updated#5e96aea2bc76b7cbdf67a22db3a7d35c229f56df"
 dependencies = [
  "proc-macro2",
  "quote",

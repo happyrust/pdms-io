@@ -1,5 +1,6 @@
-use aios_core::tool::db_tool::decode_chars_data;
 use aios_core::RefU64;
+use aios_core::pdms_types::EleOperation;
+use aios_core::tool::db_tool::decode_chars_data;
 use chrono::{DateTime, Local, MappedLocalTime, TimeZone, Utc};
 use deku::bitvec::*;
 use deku::ctx::Endian;
@@ -7,23 +8,22 @@ use deku::prelude::*;
 use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 use std::convert::{TryFrom, TryInto};
-use aios_core::pdms_types::EleOperation;
 use std::str::FromStr;
 
 // 页面大小定义
 // 注意: 默认使用 2048 字节页面，但优先采用头部声明值
-pub const PAGE_SIZE: usize = 0x800;       // 2048 字节 (当前固定)
-pub const PAGE_SIZE_512: usize = 0x200;   // 512 字节 (旧版 PDMS)
-pub const PAGE_SIZE_2K: usize = 0x800;    // 2048 字节 (E3D/新版)
-pub const PAGE_SIZE_4K: usize = 0x1000;   // 4096 字节 (部分 E3D/PDMS)
+pub const PAGE_SIZE: usize = 0x800; // 2048 字节 (当前固定)
+pub const PAGE_SIZE_512: usize = 0x200; // 512 字节 (旧版 PDMS)
+pub const PAGE_SIZE_2K: usize = 0x800; // 2048 字节 (E3D/新版)
+pub const PAGE_SIZE_4K: usize = 0x1000; // 4096 字节 (部分 E3D/PDMS)
 
 /// 根据文件头部信息检测页面大小
-/// 
+///
 /// 优先使用头部声明值；当头部无效时回退到 2048 字节
-/// 
+///
 /// # 参数
 /// * `header` - PDMS 文件头部数据
-/// 
+///
 /// # 返回值
 /// * `usize` - 页面大小
 #[inline]
@@ -62,7 +62,7 @@ pub struct PdmsHeader {
     pub latest_ses_pgno: u32,
     // 偏移 0x2C - 0x2F: 未知值（值 = 1）
     pub ext_no: u32,
-    
+
     // 新增字段 ✅
     // 偏移 0x30 - 0x33: 会话页面号（值 = 3）
     pub session_page_no: u32,
@@ -73,7 +73,6 @@ pub struct PdmsHeader {
     // 偏移 0x3C - 0x3F: 未知值（值 = 2）
     pub unknown_3: u32,
 }
-
 
 /// 数据库页面基本信息
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -157,20 +156,19 @@ pub struct SessionPageData {
 }
 
 impl SessionPageData {
-
     #[inline]
     pub fn get_id(&self, dbnum: i32) -> [i32; 2] {
         [dbnum, self.sesno]
     }
 
     /// 获取指定参考号在当前会话中的操作状态
-    /// 
+    ///
     /// 判断参考号在当前会话中的状态是增加、删除还是修改
     pub fn get_refno_status(&self, _refno: RefU64) -> EleOperation {
         // 默认情况下，如果参考号存在于当前会话，我们认为它是被添加的
         // 具体的状态判断需要比较前后会话的数据变化
         // 在实际情况中，我们需要查看这个会话的所有操作来确定
-        
+
         // 这个方法保留在SessionPageData中，但实际上不会被调用
         // 实际的状态判断逻辑已经转移到了PdmsIO::get_refno_status方法中
         EleOperation::Add
@@ -202,19 +200,20 @@ impl SessionPageData {
         let hours = self.hours % 24;
         let minutes = self.seconds / 60;
         let seconds = self.seconds % 60;
-        Local.with_ymd_and_hms(
-            year as i32,
-            month as u32,
-            days,
-            hours as u32,
-            minutes,
-            seconds,
-        )
-        .unwrap()
-        .into()
+        Local
+            .with_ymd_and_hms(
+                year as i32,
+                month as u32,
+                days,
+                hours as u32,
+                minutes,
+                seconds,
+            )
+            .unwrap()
+            .into()
     }
 
-    #[inline] 
+    #[inline]
     pub fn get_utc_dt(&self) -> DateTime<Utc> {
         self.get_dt()
     }
@@ -257,22 +256,13 @@ impl SessionPageData {
     pub fn validate_basic(&self) -> Vec<String> {
         let mut issues = Vec::new();
         if self.page_type != 3 {
-            issues.push(format!(
-                "page_type 非会话页: {}",
-                self.page_type
-            ));
+            issues.push(format!("page_type 非会话页: {}", self.page_type));
         }
         if self.unknown_0 != -1 {
-            issues.push(format!(
-                "unknown_0 非 -1: {}",
-                self.unknown_0
-            ));
+            issues.push(format!("unknown_0 非 -1: {}", self.unknown_0));
         }
         if self.name_words_len > 9 {
-            issues.push(format!(
-                "name_words_len 超出 9: {}",
-                self.name_words_len
-            ));
+            issues.push(format!("name_words_len 超出 9: {}", self.name_words_len));
         }
         if self.comments_words_len > 1024 {
             issues.push(format!(
@@ -342,14 +332,14 @@ pub struct RootIndexPage {
 
 ///Index 里的数据条目
 /// 参考号数据位置结构体
-/// 
+///
 /// 用于存储PDMS数据库中元素的参考号和其对应的物理存储位置信息
 #[derive(Debug, PartialEq, DekuRead, DekuWrite, Clone)]
 #[deku(endian = "big")]
 pub struct RefnoDataLoc {
     /// 参考号的高32位
     pub refno_0: u32,
-    /// 参考号的低32位 
+    /// 参考号的低32位
     pub refno_1: u32,
     /// 页号
     pub pgno: u32,
@@ -362,7 +352,6 @@ pub struct RefnoDataLoc {
 }
 
 impl RefnoDataLoc {
-
     /// 是否是起始页
     #[inline]
     pub fn is_start_page(&self) -> bool {
@@ -370,7 +359,7 @@ impl RefnoDataLoc {
     }
 
     /// 获取完整的参考号
-    /// 
+    ///
     /// 将高32位和低32位组合成完整的参考号
     #[inline]
     pub fn get_refno(&self) -> RefU64 {
@@ -378,7 +367,7 @@ impl RefnoDataLoc {
     }
 
     /// 获取属性数据的实际偏移量
-    /// 
+    ///
     /// 根据页号和页内偏移量计算出实际的字节偏移量
     /// 注意: 此方法使用默认的 PAGE_SIZE (当前固定 2048 字节)
     #[inline]
@@ -387,10 +376,10 @@ impl RefnoDataLoc {
     }
 
     /// 获取属性数据的实际偏移量 (支持动态页面大小)
-    /// 
+    ///
     /// # 参数
     /// * `page_size` - 页面大小 (512 或 2048)
-    /// 
+    ///
     /// # 返回值
     /// * `u64` - 实际的字节偏移量
     #[inline]
@@ -400,7 +389,7 @@ impl RefnoDataLoc {
 }
 
 /// PDMS数据库中的参考号索引页结构
-/// 
+///
 /// 用于存储参考号索引的页面数据结构
 #[derive(Debug, PartialEq, DekuRead, DekuWrite)]
 pub struct RefnoIndexPage {
@@ -430,7 +419,7 @@ pub struct RefnoIndexPage {
 
 //DekuWrite
 /// PDMS数据库中的索引页数据结构
-/// 
+///
 /// 用于存储参考号和其位置信息的索引页数据
 #[derive(Derivative, PartialEq, DekuRead)]
 #[derivative(Debug)]
@@ -466,22 +455,23 @@ pub struct IndexPageData {
 }
 
 impl IndexPageData {
-
     /// 获取起始页
-    /// 
+    ///
     /// 返回索引页中的起始页位置信息（如果存在）
-    /// 
+    ///
     /// # 返回值
     /// * `Option<&RefnoDataLoc>` - 如果找到起始页则返回Some,否则返回None
-    #[inline] 
+    #[inline]
     pub fn get_start_page(&self) -> Option<&RefnoDataLoc> {
-        self.refno_locs.first().filter(|first| first.is_start_page())
+        self.refno_locs
+            .first()
+            .filter(|first| first.is_start_page())
     }
 
     /// 获取最大页号
-    /// 
+    ///
     /// 遍历所有参考号位置信息,返回最大的页号值
-    /// 
+    ///
     /// # 返回值
     /// * `u32` - 最大页号,如果列表为空则返回0
     #[inline]
@@ -620,7 +610,6 @@ fn read_eles(
     Ok((rest, vec))
 }
 
-
 // ==================================================================================
 // 页面类型枚举和相关功能
 // ==================================================================================
@@ -652,7 +641,7 @@ impl PageType {
             _ => None,
         }
     }
-    
+
     /// 获取页面类型名称
     pub fn name(&self) -> &'static str {
         match self {
@@ -663,7 +652,7 @@ impl PageType {
             PageType::Index => "索引页面",
         }
     }
-    
+
     /// 获取页面类型的值
     pub fn value(&self) -> u32 {
         *self as u32
@@ -679,7 +668,7 @@ impl std::fmt::Display for PageType {
 // ==================================================================================
 
 /// E3D 数据库数据页面子类型
-/// 
+///
 /// 基于 IDA Pro 逆向分析 db1-db5 模块识别的页面子类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DataPageSubtype {
@@ -720,7 +709,7 @@ impl DataPageSubtype {
             _ => None,
         }
     }
-    
+
     /// 获取数据页面子类型名称
     pub fn name(&self) -> &'static str {
         match self {
@@ -734,29 +723,29 @@ impl DataPageSubtype {
             DataPageSubtype::Element => "元素数据页面",
         }
     }
-    
+
     /// 获取桶ID
-    /// 
+    ///
     /// 桶ID编码在类型标识的第13-25位
     pub fn get_bucket_id(&self) -> u32 {
         (*self as u32 >> 13) & 0x1FFF
     }
-    
+
     /// 获取数据页面子类型的值
     pub fn value(&self) -> u32 {
         *self as u32
     }
-    
+
     /// 判断是否为主要数据类型
     pub fn is_main_data(&self) -> bool {
         matches!(self, DataPageSubtype::Main | DataPageSubtype::MainVariant)
     }
-    
+
     /// 判断是否为辅助数据类型
     pub fn is_aux_data(&self) -> bool {
         matches!(self, DataPageSubtype::Aux | DataPageSubtype::AuxIndex)
     }
-    
+
     /// 判断是否为索引类型
     pub fn is_index(&self) -> bool {
         matches!(self, DataPageSubtype::Index | DataPageSubtype::AuxIndex)
@@ -797,10 +786,10 @@ impl std::error::Error for PageTypeError {}
 // ==================================================================================
 
 /// 验证页面类型
-/// 
+///
 /// # 参数
 /// * `data` - 页面数据的前 4 字节
-/// 
+///
 /// # 返回值
 /// * `Ok(PageType)` - 页面类型
 /// * `Err(PageTypeError)` - 页面类型错误
@@ -808,9 +797,9 @@ pub fn verify_page_type(data: &[u8]) -> Result<PageType, PageTypeError> {
     if data.len() < 4 {
         return Err(PageTypeError::IncompleteData);
     }
-    
+
     let page_type_value = u32::from_be_bytes([data[0], data[1], data[2], data[3]]);
-    
+
     match PageType::from_u32(page_type_value) {
         Some(page_type) => Ok(page_type),
         None => Err(PageTypeError::UnknownType(page_type_value)),
@@ -818,10 +807,10 @@ pub fn verify_page_type(data: &[u8]) -> Result<PageType, PageTypeError> {
 }
 
 /// 验证数据页面子类型
-/// 
+///
 /// # 参数
 /// * `data` - 页面数据（包含类型标识符）
-/// 
+///
 /// # 返回值
 /// * `Ok(DataPageSubtype)` - 数据页面子类型
 /// * `Err(PageTypeError)` - 数据页面子类型错误
@@ -830,9 +819,9 @@ pub fn verify_data_page_subtype(data: &[u8]) -> Result<DataPageSubtype, PageType
     if data.len() < 4 {
         return Err(PageTypeError::IncompleteData);
     }
-    
+
     let subtype_value = u32::from_be_bytes([data[0], data[1], data[2], data[3]]);
-    
+
     match DataPageSubtype::from_u32(subtype_value) {
         Some(subtype) => Ok(subtype),
         None => Err(PageTypeError::UnknownType(subtype_value)),

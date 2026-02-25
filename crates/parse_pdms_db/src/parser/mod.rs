@@ -11,8 +11,8 @@
 //! - `element` - 元素解析器（头部、子元素等）
 //! - `database` - 数据库解析器（文件头、索引区等）
 
-pub mod attribute;
 pub mod attlib;
+pub mod attribute;
 pub mod combinator;
 pub mod database;
 pub mod element;

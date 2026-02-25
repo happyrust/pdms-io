@@ -2,9 +2,9 @@ use crate::defines::{DbPageBasicInfo, PdmsHeader};
 use crate::io::PdmsIO;
 use dashmap::DashMap;
 use futures::{
-    channel::mpsc::{channel, Receiver},
-    future::ok,
     SinkExt, StreamExt,
+    channel::mpsc::{Receiver, channel},
+    future::ok,
 };
 use indexmap::IndexMap;
 use log::warn;
@@ -126,7 +126,11 @@ impl PdmsWatcher {
                         self.headers.insert(path.to_path_buf(), basic_info);
                     }
                     Err(err) => {
-                        warn!("skip {}: read page basic info failed: {}", path.display(), err);
+                        warn!(
+                            "skip {}: read page basic info failed: {}",
+                            path.display(),
+                            err
+                        );
                         continue;
                     }
                 };
