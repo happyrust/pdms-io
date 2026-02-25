@@ -165,6 +165,7 @@ impl ElementRecordReader {
         actual
     }
 
+    #[allow(dead_code)]
     fn has_next_block_header(data: &[u8], pos: usize) -> bool {
         if pos + 2 > data.len() {
             return false;
