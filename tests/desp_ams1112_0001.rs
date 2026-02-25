@@ -46,7 +46,11 @@ async fn test_ams1112_0001_desp_not_empty() -> anyhow::Result<()> {
                 }
             }
         }
-        println!("[RAW-BYTES] record.len()={}, DESP hash hit={}", record.len(), hit);
+        println!(
+            "[RAW-BYTES] record.len()={}, DESP hash hit={}",
+            record.len(),
+            hit
+        );
 
         let mut input = record.as_slice();
         let mut prefix = 0usize;
@@ -75,9 +79,12 @@ async fn test_ams1112_0001_desp_not_empty() -> anyhow::Result<()> {
                     && &membs_data[0..2] == [0x00, 0x02].as_slice()
                     && RefU64::from(&membs_data[4..12]) == refno
                 {
-                    let len_words = u16::from_be_bytes(membs_data[2..4].try_into().unwrap()) as usize;
+                    let len_words =
+                        u16::from_be_bytes(membs_data[2..4].try_into().unwrap()) as usize;
                     let declared_bytes = len_words * 4;
-                    if let Ok((rest, _payload)) = collect_segmented_payload(membs_data, declared_bytes, 0x02) {
+                    if let Ok((rest, _payload)) =
+                        collect_segmented_payload(membs_data, declared_bytes, 0x02)
+                    {
                         memb_bytes_len = membs_data.len().saturating_sub(rest.len());
                     }
                 }
@@ -102,14 +109,17 @@ async fn test_ams1112_0001_desp_not_empty() -> anyhow::Result<()> {
                 desp_in_collected
             );
 
-            if let Some(pos_in_record) = record
-                .windows(4)
-                .position(|w| w == desp_bytes.as_slice())
+            if let Some(pos_in_record) = record.windows(4).position(|w| w == desp_bytes.as_slice())
             {
                 let pos_in_input = pos_in_record.saturating_sub(prefix);
                 println!(
                     "[RAW-BYTES] prefix=0x{:X}, actual_impl_len=0x{:X}, memb_bytes_len=0x{:X}, explicit_start=0x{:X}, DESP@record+0x{:X} => input+0x{:X}",
-                    prefix, actual_impl_len, memb_bytes_len, explicit_start, pos_in_record, pos_in_input
+                    prefix,
+                    actual_impl_len,
+                    memb_bytes_len,
+                    explicit_start,
+                    pos_in_record,
+                    pos_in_input
                 );
             }
         }
@@ -123,10 +133,7 @@ async fn test_ams1112_0001_desp_not_empty() -> anyhow::Result<()> {
                     println!("[RAW] DESP vec len={}", desp.len());
                     let head = desp.iter().take(20).cloned().collect::<Vec<_>>();
                     println!("[RAW] DESP head(<=20)={:?}", head);
-                    assert!(
-                        !desp.is_empty(),
-                        "期望 DESP 向量不为空，但解析结果为空 vec"
-                    );
+                    assert!(!desp.is_empty(), "期望 DESP 向量不为空，但解析结果为空 vec");
                 } else {
                     let keys: Vec<String> = merged.map.keys().cloned().collect();
                     println!("[RAW] 未找到 DESP（显式/合并后属性）；keys={:?}", keys);

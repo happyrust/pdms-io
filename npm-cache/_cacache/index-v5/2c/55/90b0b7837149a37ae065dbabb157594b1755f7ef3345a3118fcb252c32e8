@@ -1,0 +1,2 @@
+
+6d17c04a9ab9590c3c0a1c3f851aa3f90b2f26ac	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-geo","integrity":null,"time":1770949337756,"size":"262","metadata":{"time":1770949337756,"url":"http://registry.npmmirror.com/d3-geo","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-geo"},"options":{"compress":true},"status":301}}

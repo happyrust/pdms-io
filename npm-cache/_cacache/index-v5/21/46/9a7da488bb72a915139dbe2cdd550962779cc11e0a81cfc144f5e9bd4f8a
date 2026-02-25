@@ -1,0 +1,2 @@
+
+285300f26823f2004dd028837ffcc629e80413bc	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/quick-format-unescaped","integrity":null,"time":1770949336552,"size":"262","metadata":{"time":1770949336552,"url":"http://registry.npmmirror.com/quick-format-unescaped","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/quick-format-unescaped"},"options":{"compress":true},"status":301}}

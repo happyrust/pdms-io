@@ -1,0 +1,2 @@
+
+5375cc8cf24048165f2fc9b8b7434d1fc313b5d4	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-dsv","integrity":null,"time":1770949337748,"size":"262","metadata":{"time":1770949337748,"url":"http://registry.npmmirror.com/d3-dsv","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-dsv"},"options":{"compress":true},"status":301}}

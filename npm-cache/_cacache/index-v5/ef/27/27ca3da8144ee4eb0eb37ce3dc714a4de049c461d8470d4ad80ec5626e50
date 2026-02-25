@@ -1,0 +1,2 @@
+
+b8718e4b66f5c80812de7630747bc52a50288a2c	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/degenerator","integrity":null,"time":1770949339016,"size":"262","metadata":{"time":1770949339016,"url":"http://registry.npmmirror.com/degenerator","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/degenerator"},"options":{"compress":true},"status":301}}

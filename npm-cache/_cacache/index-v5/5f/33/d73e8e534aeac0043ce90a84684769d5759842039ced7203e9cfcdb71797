@@ -1,0 +1,2 @@
+
+1d00d9e74aec3a0ad49602f7e311621603377804	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@nodelib%2ffs.scandir","integrity":null,"time":1770949339586,"size":"262","metadata":{"time":1770949339586,"url":"http://registry.npmmirror.com/@nodelib%2ffs.scandir","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/@nodelib%2ffs.scandir"},"options":{"compress":true},"status":301}}

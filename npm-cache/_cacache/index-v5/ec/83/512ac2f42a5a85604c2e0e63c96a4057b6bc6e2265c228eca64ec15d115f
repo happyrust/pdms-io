@@ -1,0 +1,2 @@
+
+75d21fa4146141df5a6c23579e3d381ec9b3f3ee	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/error-ex","integrity":null,"time":1770949338673,"size":"262","metadata":{"time":1770949338673,"url":"http://registry.npmmirror.com/error-ex","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/error-ex"},"options":{"compress":true},"status":301}}

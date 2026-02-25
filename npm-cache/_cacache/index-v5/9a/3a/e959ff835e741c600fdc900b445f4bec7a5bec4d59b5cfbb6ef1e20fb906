@@ -1,0 +1,2 @@
+
+195d155d04e5023c6e4b6dcd8ba60389791e2ec6	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/picomatch","integrity":null,"time":1770949339457,"size":"262","metadata":{"time":1770949339457,"url":"http://registry.npmmirror.com/picomatch","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/picomatch"},"options":{"compress":true},"status":301}}

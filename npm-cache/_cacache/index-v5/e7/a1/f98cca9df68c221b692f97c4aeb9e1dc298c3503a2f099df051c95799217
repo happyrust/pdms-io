@@ -1,0 +1,2 @@
+
+05d454adfea4c17fa2e13e318285ae25fcdff9fd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/pac-resolver","integrity":null,"time":1770949338938,"size":"262","metadata":{"time":1770949338938,"url":"http://registry.npmmirror.com/pac-resolver","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/pac-resolver"},"options":{"compress":true},"status":301}}

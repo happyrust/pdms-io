@@ -1,0 +1,2 @@
+
+10a0b7cd6962b180d4e9ab0bec02357dd67695a5	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/cliui","integrity":null,"time":1770949338593,"size":"262","metadata":{"time":1770949338593,"url":"http://registry.npmmirror.com/cliui","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/cliui"},"options":{"compress":true},"status":301}}

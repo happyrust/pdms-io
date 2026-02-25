@@ -1,0 +1,2 @@
+
+7f058202ea2a08518a3f3f4f6611546af38bcfe5	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/langium","integrity":null,"time":1770949337651,"size":"262","metadata":{"time":1770949337651,"url":"http://registry.npmmirror.com/langium","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/langium"},"options":{"compress":true},"status":301}}

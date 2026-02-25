@@ -1,0 +1,2 @@
+
+f36665e13aa0189fbc980ce0af7a9c3fa6a63095	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/import-fresh","integrity":null,"time":1770949338479,"size":"262","metadata":{"time":1770949338479,"url":"http://registry.npmmirror.com/import-fresh","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/import-fresh"},"options":{"compress":true},"status":301}}

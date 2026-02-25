@@ -1,0 +1,2 @@
+
+773335cf1f737f53fa6398d43fb372930e402e17	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-delaunay","integrity":null,"time":1770949337738,"size":"262","metadata":{"time":1770949337738,"url":"http://registry.npmmirror.com/d3-delaunay","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-delaunay"},"options":{"compress":true},"status":301}}

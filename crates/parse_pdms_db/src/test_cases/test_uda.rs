@@ -143,6 +143,3 @@ async fn test_13292_185_udna() {
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
     dbg!(&ele_data.whole_attmap.explicit_attmap);
 }
-
-
-

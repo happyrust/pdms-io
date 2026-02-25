@@ -1,0 +1,2 @@
+
+0a311e198a94d23da532f53f1fb03746b47cf871	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ts-dedent","integrity":null,"time":1770949335679,"size":"262","metadata":{"time":1770949335679,"url":"http://registry.npmmirror.com/ts-dedent","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/ts-dedent"},"options":{"compress":true},"status":301}}

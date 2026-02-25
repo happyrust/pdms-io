@@ -1,0 +1,2 @@
+
+1b69c65b11b8614c976fab53cb91d6a354237d57	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/safe-stable-stringify","integrity":null,"time":1770949336567,"size":"262","metadata":{"time":1770949336567,"url":"http://registry.npmmirror.com/safe-stable-stringify","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/safe-stable-stringify"},"options":{"compress":true},"status":301}}

@@ -1,5 +1,5 @@
-use std::fs;
 use pdms_io::dblist::parse_dblist_file;
+use std::fs;
 
 const SAMPLE_TXT: &str = "tests/data/-CCV-S-2-H-1105_7997.txt";
 const SNAPSHOT_JSON: &str = "tests/data/-CCV-S-2-H-1105_7997.json";
@@ -7,11 +7,7 @@ const SNAPSHOT_JSON: &str = "tests/data/-CCV-S-2-H-1105_7997.json";
 #[test]
 fn dblist_snapshot_regression() {
     let doc = parse_dblist_file(SAMPLE_TXT).expect("解析 DBLIST 失败");
-    assert!(
-        doc.warnings.is_empty(),
-        "解析产生警告: {:?}",
-        doc.warnings
-    );
+    assert!(doc.warnings.is_empty(), "解析产生警告: {:?}", doc.warnings);
 
     let actual = serde_json::to_value(&doc).expect("序列化失败");
 

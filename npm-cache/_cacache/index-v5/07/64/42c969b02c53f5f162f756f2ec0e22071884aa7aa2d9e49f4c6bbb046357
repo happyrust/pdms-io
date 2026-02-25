@@ -1,0 +1,2 @@
+
+d390753fbc3e125f5c9102917e2cbf7d833c63f1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/vscode-languageserver","integrity":null,"time":1770949337979,"size":"262","metadata":{"time":1770949337979,"url":"http://registry.npmmirror.com/vscode-languageserver","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/vscode-languageserver"},"options":{"compress":true},"status":301}}

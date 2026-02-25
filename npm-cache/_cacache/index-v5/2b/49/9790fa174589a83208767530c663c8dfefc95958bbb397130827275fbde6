@@ -1,0 +1,2 @@
+
+7761d52c26aa136ef4cc0c7c53217f7364ad8641	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/cytoscape-cose-bilkent","integrity":null,"time":1770949335673,"size":"262","metadata":{"time":1770949335673,"url":"http://registry.npmmirror.com/cytoscape-cose-bilkent","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/cytoscape-cose-bilkent"},"options":{"compress":true},"status":301}}

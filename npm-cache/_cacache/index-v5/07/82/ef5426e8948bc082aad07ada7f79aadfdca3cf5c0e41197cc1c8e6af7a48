@@ -1,0 +1,2 @@
+
+78d685f1949875d468b8c6f1475a71852317de46	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/jose","integrity":null,"time":1770949335369,"size":"262","metadata":{"time":1770949335369,"url":"http://registry.npmmirror.com/jose","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/jose"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+ae51a13c8bf975412c7d93b3081cc5c8ea1c09f8	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/split2","integrity":null,"time":1770949338271,"size":"262","metadata":{"time":1770949338271,"url":"http://registry.npmmirror.com/split2","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/split2"},"options":{"compress":true},"status":301}}

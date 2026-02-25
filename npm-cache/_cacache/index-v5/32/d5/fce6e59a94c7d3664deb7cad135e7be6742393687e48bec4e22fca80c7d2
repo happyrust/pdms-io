@@ -1,0 +1,2 @@
+
+d37b19d090bd849868b7e658cb5a3bb2468a30e8	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ansi-styles","integrity":null,"time":1770949340170,"size":"262","metadata":{"time":1770949340170,"url":"http://registry.npmmirror.com/ansi-styles","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:19 GMT","location":"https://registry.npmmirror.com/ansi-styles"},"options":{"compress":true},"status":301}}

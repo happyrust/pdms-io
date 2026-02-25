@@ -1,0 +1,2 @@
+
+8d4fbbe94bd1fce98fe99120c1a7a2d19af2336f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/through","integrity":null,"time":1770949338593,"size":"262","metadata":{"time":1770949338593,"url":"http://registry.npmmirror.com/through","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/through"},"options":{"compress":true},"status":301}}

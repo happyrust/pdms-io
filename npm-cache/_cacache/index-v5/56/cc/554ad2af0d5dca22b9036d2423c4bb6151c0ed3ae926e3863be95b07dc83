@@ -1,0 +1,2 @@
+
+5b365cfec07b338190b108872c590125458637b7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bundle-name","integrity":null,"time":1770949349143,"size":"262","metadata":{"time":1770949349143,"url":"http://registry.npmmirror.com/bundle-name","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:28 GMT","location":"https://registry.npmmirror.com/bundle-name"},"options":{"compress":true},"status":301}}

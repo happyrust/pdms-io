@@ -1,0 +1,2 @@
+
+d0ec0ecdba706a7135684ab5af784be60f655aeb	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@chevrotain%2fgast","integrity":null,"time":1770949338148,"size":"262","metadata":{"time":1770949338148,"url":"http://registry.npmmirror.com/@chevrotain%2fgast","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/@chevrotain%2fgast"},"options":{"compress":true},"status":301}}

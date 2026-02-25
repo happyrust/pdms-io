@@ -1,0 +1,2 @@
+
+f6ff2d09fd9f143466b1426cd3bf0151e49c2106	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/import-meta-resolve","integrity":null,"time":1770949335357,"size":"262","metadata":{"time":1770949335357,"url":"http://registry.npmmirror.com/import-meta-resolve","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/import-meta-resolve"},"options":{"compress":true},"status":301}}

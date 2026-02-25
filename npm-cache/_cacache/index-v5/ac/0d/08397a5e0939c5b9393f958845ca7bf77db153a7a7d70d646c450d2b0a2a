@@ -1,0 +1,2 @@
+
+27df4b6617b658193feae7ced50b2027a1c870bb	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/emoji-regex","integrity":null,"time":1770949340129,"size":"262","metadata":{"time":1770949340129,"url":"http://registry.npmmirror.com/emoji-regex","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:19 GMT","location":"https://registry.npmmirror.com/emoji-regex"},"options":{"compress":true},"status":301}}

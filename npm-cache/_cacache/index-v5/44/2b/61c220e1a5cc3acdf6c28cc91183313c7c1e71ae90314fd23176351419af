@@ -1,0 +1,2 @@
+
+f064d0f2fd76959e5bc4db4670d50f084a2b1849	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@types%2fd3-quadtree","integrity":null,"time":1770949337660,"size":"262","metadata":{"time":1770949337660,"url":"http://registry.npmmirror.com/@types%2fd3-quadtree","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/@types%2fd3-quadtree"},"options":{"compress":true},"status":301}}

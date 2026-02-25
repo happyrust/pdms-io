@@ -1,0 +1,2 @@
+
+fa13eeb8b0662e706e9cd32f9f132a4f1c67cc65	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/esutils","integrity":null,"time":1770949339186,"size":"262","metadata":{"time":1770949339186,"url":"http://registry.npmmirror.com/esutils","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/esutils"},"options":{"compress":true},"status":301}}

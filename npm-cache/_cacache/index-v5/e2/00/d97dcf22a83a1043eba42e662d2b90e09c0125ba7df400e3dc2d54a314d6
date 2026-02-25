@@ -1,0 +1,2 @@
+
+d3fb87aba995ad0cbbd267e83dbb9c0c92f9adfd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/escodegen","integrity":null,"time":1770949339070,"size":"262","metadata":{"time":1770949339070,"url":"http://registry.npmmirror.com/escodegen","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/escodegen"},"options":{"compress":true},"status":301}}

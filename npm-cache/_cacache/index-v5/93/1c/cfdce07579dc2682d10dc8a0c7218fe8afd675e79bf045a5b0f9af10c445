@@ -1,0 +1,2 @@
+
+0b01e343948f921ae7fcf548100ae2c4d71818e1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mlly","integrity":null,"time":1770949337649,"size":"262","metadata":{"time":1770949337649,"url":"http://registry.npmmirror.com/mlly","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/mlly"},"options":{"compress":true},"status":301}}

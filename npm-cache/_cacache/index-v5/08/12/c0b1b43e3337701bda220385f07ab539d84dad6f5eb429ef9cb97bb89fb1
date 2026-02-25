@@ -1,0 +1,2 @@
+
+e064bb99331c21ed62318fb1e5dea98004f07a1a	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ts-interface-checker","integrity":null,"time":1770949339469,"size":"262","metadata":{"time":1770949339468,"url":"http://registry.npmmirror.com/ts-interface-checker","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/ts-interface-checker"},"options":{"compress":true},"status":301}}

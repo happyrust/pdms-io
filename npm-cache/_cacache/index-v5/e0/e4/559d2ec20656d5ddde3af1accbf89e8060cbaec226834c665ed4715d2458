@@ -1,0 +1,2 @@
+
+c5ee80201913c4555bbb3c202d84c64e95e0b0a7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/end-of-stream","integrity":null,"time":1770949338869,"size":"262","metadata":{"time":1770949338869,"url":"http://registry.npmmirror.com/end-of-stream","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/end-of-stream"},"options":{"compress":true},"status":301}}

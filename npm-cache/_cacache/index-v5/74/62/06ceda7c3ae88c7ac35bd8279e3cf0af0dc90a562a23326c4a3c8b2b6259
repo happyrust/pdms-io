@@ -1,0 +1,2 @@
+
+2bd75c45f9c3b674d10a89480355b448c22bea1f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-scale-chromatic","integrity":null,"time":1770949337764,"size":"262","metadata":{"time":1770949337764,"url":"http://registry.npmmirror.com/d3-scale-chromatic","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-scale-chromatic"},"options":{"compress":true},"status":301}}

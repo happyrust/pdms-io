@@ -1,0 +1,2 @@
+
+2f14c71224a0565a08851a4e4fa7e2e0a12996ba	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/run-parallel","integrity":null,"time":1770949339611,"size":"262","metadata":{"time":1770949339611,"url":"http://registry.npmmirror.com/run-parallel","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/run-parallel"},"options":{"compress":true},"status":301}}

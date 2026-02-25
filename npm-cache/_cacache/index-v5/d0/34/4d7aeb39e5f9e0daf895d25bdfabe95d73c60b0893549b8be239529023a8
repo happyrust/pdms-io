@@ -1,0 +1,2 @@
+
+b924f12a33f2e02014e1b4c38934a9a3ca130db2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/require-directory","integrity":null,"time":1770949338596,"size":"262","metadata":{"time":1770949338595,"url":"http://registry.npmmirror.com/require-directory","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/require-directory"},"options":{"compress":true},"status":301}}

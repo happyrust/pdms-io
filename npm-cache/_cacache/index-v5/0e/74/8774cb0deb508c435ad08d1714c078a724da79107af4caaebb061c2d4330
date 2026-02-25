@@ -1,0 +1,2 @@
+
+d3ef1869af356ed1e788cb89ce6cecb6936c5f57	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/abort-controller","integrity":null,"time":1770949338295,"size":"262","metadata":{"time":1770949338295,"url":"http://registry.npmmirror.com/abort-controller","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/abort-controller"},"options":{"compress":true},"status":301}}

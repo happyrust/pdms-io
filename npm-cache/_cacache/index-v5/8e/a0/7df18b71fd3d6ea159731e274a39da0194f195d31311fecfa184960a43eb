@@ -1,0 +1,2 @@
+
+d37cd11bddb866c4fbc46a12b636f7013db8c178	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/antlr4","integrity":null,"time":1770949335841,"size":"262","metadata":{"time":1770949335841,"url":"http://registry.npmmirror.com/antlr4","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/antlr4"},"options":{"compress":true},"status":301}}

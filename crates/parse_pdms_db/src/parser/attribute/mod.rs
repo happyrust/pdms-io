@@ -7,16 +7,16 @@
 //! - `opcode` - 操作码定义与分发
 
 pub mod axis;
+pub mod explicit;
 pub mod expression;
 pub mod expression_payload;
-pub mod explicit;
 pub mod implicit;
 pub mod opcode;
 
 // 重新导出常用类型和函数
 pub use axis::*;
+pub use explicit::*;
 pub use expression::*;
 pub use expression_payload::*;
-pub use explicit::*;
 pub use implicit::*;
 pub use opcode::*;

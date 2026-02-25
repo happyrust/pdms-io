@@ -30,9 +30,15 @@ fn main() -> anyhow::Result<()> {
         println!();
         println!("  2. 直接指定完整路径：");
         println!("     {} <完整数据库路径> [会话号]", args[0]);
-        println!("     示例: {} \"/Volumes/DPC/work/e3d_models/ams000/ams1112_0001\" 1112", args[0]);
+        println!(
+            "     示例: {} \"/Volumes/DPC/work/e3d_models/ams000/ams1112_0001\" 1112",
+            args[0]
+        );
         println!();
-        println!("当前环境变量 PDMS_TEST_PATH: {:?}", env::var("PDMS_TEST_PATH").ok());
+        println!(
+            "当前环境变量 PDMS_TEST_PATH: {:?}",
+            env::var("PDMS_TEST_PATH").ok()
+        );
         return Ok(());
     }
 
@@ -44,28 +50,28 @@ fn main() -> anyhow::Result<()> {
         eprintln!("错误：数据库文件不存在 {}", db_path);
         return Ok(());
     }
-    
+
     println!("🔧 初始化 PDMS 数据库连接...");
     println!("   数据库路径: {}", db_path);
     let mut io = PdmsIO::new("ams", &db_path, true);
     io.open()?;
     io.init_ses_range_map()?;
-    
+
     println!("✅ 数据库连接成功");
-    
+
     // 获取最新的会话号
     let latest_sesno = io.get_latest_sesno()?;
     println!("📈 最新会话号: {}", latest_sesno);
-    
+
     // 确定要测试的会话号
     let test_sesno = if args.len() >= 3 {
         args[2].parse::<u32>().unwrap_or(latest_sesno)
     } else {
         latest_sesno
     };
-    
+
     println!("\n🕒 测试会话号 {} 的时间查询功能:", test_sesno);
-    
+
     // 测试获取 DateTime<Utc>
     match io.get_sesno_datetime(test_sesno) {
         Ok(datetime) => {
@@ -78,13 +84,13 @@ fn main() -> anyhow::Result<()> {
             return Ok(());
         }
     }
-    
+
     // 测试获取 Unix 时间戳
     match io.get_sesno_timestamp(test_sesno) {
         Ok(timestamp) => {
             println!("   ✅ 获取 Unix 时间戳成功:");
             println!("      时间戳: {}", timestamp);
-            
+
             // 将时间戳转换回 DateTime 进行验证
             use chrono::{DateTime, Utc};
             if let Some(dt_from_timestamp) = DateTime::from_timestamp(timestamp, 0) {
@@ -96,9 +102,12 @@ fn main() -> anyhow::Result<()> {
             return Ok(());
         }
     }
-    
+
     // 验证两种方法的一致性
-    if let (Ok(datetime), Ok(timestamp)) = (io.get_sesno_datetime(test_sesno), io.get_sesno_timestamp(test_sesno)) {
+    if let (Ok(datetime), Ok(timestamp)) = (
+        io.get_sesno_datetime(test_sesno),
+        io.get_sesno_timestamp(test_sesno),
+    ) {
         if datetime.timestamp() == timestamp {
             println!("   ✅ 两种方法返回的时间一致");
         } else {
@@ -107,17 +116,20 @@ fn main() -> anyhow::Result<()> {
             println!("      get_sesno_timestamp(): {}", timestamp);
         }
     }
-    
+
     // 如果有多个会话，测试时间顺序
     if latest_sesno > 1 && test_sesno == latest_sesno {
         println!("\n🔍 测试时间顺序（比较最新会话和前一个会话）:");
         let previous_sesno = latest_sesno - 1;
-        
-        match (io.get_sesno_timestamp(previous_sesno), io.get_sesno_timestamp(latest_sesno)) {
+
+        match (
+            io.get_sesno_timestamp(previous_sesno),
+            io.get_sesno_timestamp(latest_sesno),
+        ) {
             (Ok(prev_timestamp), Ok(latest_timestamp)) => {
                 println!("   会话 {} 时间戳: {}", previous_sesno, prev_timestamp);
                 println!("   会话 {} 时间戳: {}", latest_sesno, latest_timestamp);
-                
+
                 if prev_timestamp <= latest_timestamp {
                     println!("   ✅ 时间顺序正确（较早的会话时间 <= 较新的会话时间）");
                 } else {
@@ -128,7 +140,7 @@ fn main() -> anyhow::Result<()> {
             (_, Err(e)) => println!("   ❌ 获取最新会话时间失败: {}", e),
         }
     }
-    
+
     // 显示会话范围信息
     println!("\n📊 会话范围信息:");
     println!("   总会话数: {}", io.ses_range_map.len());
@@ -137,7 +149,7 @@ fn main() -> anyhow::Result<()> {
             println!("   会话号范围: {} - {}", min_sesno, max_sesno);
         }
     }
-    
+
     println!("\n🎉 测试完成！");
 
     Ok(())
@@ -163,8 +175,8 @@ fn get_database_path(input_path: &str) -> anyhow::Result<String> {
     }
 
     // 如果是相对路径，尝试与环境变量组合
-    let base_path = env::var("PDMS_TEST_PATH")
-        .unwrap_or_else(|_| "/Volumes/DPC/work/e3d_models".to_string());
+    let base_path =
+        env::var("PDMS_TEST_PATH").unwrap_or_else(|_| "/Volumes/DPC/work/e3d_models".to_string());
 
     let full_path = PathBuf::from(base_path).join(input_path);
 

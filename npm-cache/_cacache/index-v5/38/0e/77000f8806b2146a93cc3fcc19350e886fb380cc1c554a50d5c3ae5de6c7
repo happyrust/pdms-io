@@ -1,0 +1,2 @@
+
+2bc46aca4573d702063af267a0cfc8aad27acab7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-scale","integrity":null,"time":1770949337764,"size":"262","metadata":{"time":1770949337764,"url":"http://registry.npmmirror.com/d3-scale","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-scale"},"options":{"compress":true},"status":301}}

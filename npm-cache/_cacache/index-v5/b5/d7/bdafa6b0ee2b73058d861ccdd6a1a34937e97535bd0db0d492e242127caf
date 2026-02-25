@@ -1,0 +1,2 @@
+
+18a5325677c7c1fb31209889beb24a642497f37c	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@babel%2ftemplate","integrity":null,"time":1770949336363,"size":"262","metadata":{"time":1770949336363,"url":"http://registry.npmmirror.com/@babel%2ftemplate","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/@babel%2ftemplate"},"options":{"compress":true},"status":301}}

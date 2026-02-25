@@ -1,0 +1,2 @@
+
+9c003d18c90b66fa52e65f53ca26b70fdea810b4	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@floating-ui%2freact","integrity":null,"time":1770949335840,"size":"262","metadata":{"time":1770949335840,"url":"http://registry.npmmirror.com/@floating-ui%2freact","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/@floating-ui%2freact"},"options":{"compress":true},"status":301}}

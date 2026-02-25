@@ -1,0 +1,2 @@
+
+343404d25e5f39cc21150f336617632b90efc169	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/atomic-sleep","integrity":null,"time":1770949336533,"size":"262","metadata":{"time":1770949336533,"url":"http://registry.npmmirror.com/atomic-sleep","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/atomic-sleep"},"options":{"compress":true},"status":301}}

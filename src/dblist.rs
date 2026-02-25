@@ -32,8 +32,7 @@ enum ParseState {
 
 pub fn parse_dblist_file<P: AsRef<Path>>(path: P) -> Result<DblistDocument, String> {
     let path = path.as_ref();
-    let content =
-        fs::read_to_string(path).map_err(|e| format!("读取 DBLIST 失败: {}", e))?;
+    let content = fs::read_to_string(path).map_err(|e| format!("读取 DBLIST 失败: {}", e))?;
     let source = path
         .file_name()
         .map(|s| s.to_string_lossy().to_string())

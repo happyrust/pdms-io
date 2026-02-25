@@ -1,4 +1,4 @@
-use crate::defines::{PdmsHeader, PageType, PAGE_SIZE_2K, PAGE_SIZE_512};
+use crate::defines::{PAGE_SIZE_2K, PAGE_SIZE_512, PageType, PdmsHeader};
 use crate::io::PdmsIO;
 use std::fs;
 use std::mem::size_of;

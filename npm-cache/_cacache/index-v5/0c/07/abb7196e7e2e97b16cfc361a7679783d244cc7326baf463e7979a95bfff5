@@ -1,0 +1,2 @@
+
+460d079fe3920e1d2349fefb5ea418c76601e4bb	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bare-buffer","integrity":null,"time":1770949339771,"size":"262","metadata":{"time":1770949339771,"url":"http://registry.npmmirror.com/bare-buffer","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/bare-buffer"},"options":{"compress":true},"status":301}}

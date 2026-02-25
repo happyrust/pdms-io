@@ -1,0 +1,2 @@
+
+e5d51310944afc1fddd92403ce0cb65f1545c992	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/queue-microtask","integrity":null,"time":1770949339630,"size":"262","metadata":{"time":1770949339630,"url":"http://registry.npmmirror.com/queue-microtask","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/queue-microtask"},"options":{"compress":true},"status":301}}

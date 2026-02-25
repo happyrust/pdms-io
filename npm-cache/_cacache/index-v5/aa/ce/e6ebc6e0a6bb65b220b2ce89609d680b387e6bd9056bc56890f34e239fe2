@@ -1,0 +1,2 @@
+
+ee726bff6a682d2248ce6ce8d15336e1d5de0ebb	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bare-stream","integrity":null,"time":1770949339791,"size":"262","metadata":{"time":1770949339791,"url":"http://registry.npmmirror.com/bare-stream","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/bare-stream"},"options":{"compress":true},"status":301}}

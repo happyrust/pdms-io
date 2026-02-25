@@ -6,15 +6,15 @@
 //! - 属性引用表达式
 //! - 常量表达式
 
-use crate::parser::numeric::{parse_explicit_f64_40, parse_explicit_num_00, parse_explicit_num_ff};
 use crate::parse::convert_to_explicit_axis_string;
-use aios_core::types::RefU64;
+use crate::parser::numeric::{parse_explicit_f64_40, parse_explicit_num_00, parse_explicit_num_ff};
 use aios_core::helper::parse_to_i16;
 use aios_core::tool::db_tool::{convert_to_hash, db1_dehash};
-use nom::bytes::complete::take;
-use nom::number::complete::be_i32;
+use aios_core::types::RefU64;
 use nom::IResult;
 use nom::Parser;
+use nom::bytes::complete::take;
+use nom::number::complete::be_i32;
 use std::collections::HashMap;
 
 use super::axis::{is_axis_expression, parse_axis_expression_str};
@@ -126,7 +126,10 @@ pub fn get_math_operators() -> HashMap<i32, &'static str> {
 // 基于 opcode 枚举的运算符处理函数
 // ============================================================================
 
-use super::opcode::{ArithmeticOpcode, TrigonometricOpcode, RealFunctionOpcode, StringFunctionOpcode, GeneralFunctionOpcode, BooleanOpcode, ComparisonOpcode, OpcodeCategory};
+use super::opcode::{
+    ArithmeticOpcode, BooleanOpcode, ComparisonOpcode, GeneralFunctionOpcode, OpcodeCategory,
+    RealFunctionOpcode, StringFunctionOpcode, TrigonometricOpcode,
+};
 
 /// 使用 opcode 枚举应用运算符到操作数栈
 ///
@@ -140,11 +143,15 @@ pub fn apply_operator(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
     // 按操作码类别分发
     match OpcodeCategory::from(opcode) {
         OpcodeCategory::Boolean => apply_boolean(opcode, stack),
-        OpcodeCategory::Equality | OpcodeCategory::NonEquality | OpcodeCategory::Comparison => apply_comparison(opcode, stack),
+        OpcodeCategory::Equality | OpcodeCategory::NonEquality | OpcodeCategory::Comparison => {
+            apply_comparison(opcode, stack)
+        }
         OpcodeCategory::Arithmetic => apply_arithmetic(opcode, stack),
         OpcodeCategory::Trigonometric => apply_trigonometric(opcode, stack),
         OpcodeCategory::RealFunctions => apply_real_function(opcode, stack),
-        OpcodeCategory::StringFunctions | OpcodeCategory::ConversionFunctions => apply_string_function(opcode, stack),
+        OpcodeCategory::StringFunctions | OpcodeCategory::ConversionFunctions => {
+            apply_string_function(opcode, stack)
+        }
         OpcodeCategory::GeneralFunctions => apply_general_function(opcode, stack),
         _ => None,
     }
@@ -153,7 +160,7 @@ pub fn apply_operator(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
 /// 应用布尔运算符（NOT, AND, OR）
 fn apply_boolean(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
     let op = BooleanOpcode::try_from(opcode).ok()?;
-    
+
     match op.operand_count() {
         1 => {
             let a = stack.pop()?;
@@ -171,7 +178,7 @@ fn apply_boolean(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
 /// 应用比较运算符（EQ, NEQ, GT, LT, GE, LE）
 fn apply_comparison(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
     let op = ComparisonOpcode::try_from(opcode).ok()?;
-    
+
     // 比较运算符都是双操作数
     let b = stack.pop()?;
     let a = stack.pop()?;
@@ -181,7 +188,7 @@ fn apply_comparison(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
 /// 应用算术运算符
 fn apply_arithmetic(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
     let op = ArithmeticOpcode::try_from(opcode).ok()?;
-    
+
     match op.operand_count() {
         1 => {
             let a = stack.pop()?;
@@ -199,7 +206,7 @@ fn apply_arithmetic(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
 /// 应用三角函数运算符
 fn apply_trigonometric(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
     let op = TrigonometricOpcode::try_from(opcode).ok()?;
-    
+
     match op.operand_count() {
         1 => {
             let a = stack.pop()?;
@@ -217,7 +224,7 @@ fn apply_trigonometric(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
 /// 应用实数函数运算符
 fn apply_real_function(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
     let op = RealFunctionOpcode::try_from(opcode).ok()?;
-    
+
     match op.operand_count() {
         1 => {
             let a = stack.pop()?;
@@ -235,7 +242,7 @@ fn apply_real_function(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
 /// 应用字符串函数运算符
 fn apply_string_function(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
     let op = StringFunctionOpcode::try_from(opcode).ok()?;
-    
+
     match op.operand_count() {
         1 => {
             let a = stack.pop()?;
@@ -259,7 +266,7 @@ fn apply_string_function(opcode: i32, stack: &mut Vec<String>) -> Option<String>
 /// 应用通用函数运算符（IFTRUE, DISTCONVERT, SET, UNSET 等）
 fn apply_general_function(opcode: i32, stack: &mut Vec<String>) -> Option<String> {
     let op = GeneralFunctionOpcode::try_from(opcode).ok()?;
-    
+
     match op.operand_count() {
         1 => {
             let a = stack.pop()?;
@@ -467,9 +474,17 @@ fn parse_string_expression(
 
     let total = 24usize
         .checked_add(str_len.checked_mul(4).ok_or_else(|| {
-            nom::Err::Error(nom::error::make_error(input, nom::error::ErrorKind::TooLarge))
+            nom::Err::Error(nom::error::make_error(
+                input,
+                nom::error::ErrorKind::TooLarge,
+            ))
         })?)
-        .ok_or_else(|| nom::Err::Error(nom::error::make_error(input, nom::error::ErrorKind::TooLarge)))?;
+        .ok_or_else(|| {
+            nom::Err::Error(nom::error::make_error(
+                input,
+                nom::error::ErrorKind::TooLarge,
+            ))
+        })?;
 
     if input.len() < total {
         return Err(nom::Err::Incomplete(nom::Needed::new(total - input.len())));
@@ -601,8 +616,7 @@ mod tests {
         input.extend_from_slice(&2u16.to_be_bytes()); // length_words=2 => end=12
         input.extend_from_slice(&[0u8; 8]); // expression_data
 
-        let err =
-            parse_explicit_axis_string_expression(&input, "ANY".to_string(), 0).unwrap_err();
+        let err = parse_explicit_axis_string_expression(&input, "ANY".to_string(), 0).unwrap_err();
         assert!(matches!(err, nom::Err::Error(_)));
     }
 
@@ -709,7 +723,7 @@ mod tests {
         let result = apply_operator(802, &mut stack);
         assert_eq!(result, Some("(a+b)".to_string()));
         assert!(stack.is_empty());
-        
+
         // 测试取负 (801 = 0x321)
         let mut stack = vec!["x".to_string()];
         let result = apply_operator(801, &mut stack);
@@ -722,7 +736,7 @@ mod tests {
         let mut stack = vec!["45".to_string()];
         let result = apply_operator(901, &mut stack);
         assert_eq!(result, Some("SIN(45)".to_string()));
-        
+
         // 测试 COS (902 = 0x386)
         let mut stack = vec!["90".to_string()];
         let result = apply_operator(902, &mut stack);
@@ -735,7 +749,7 @@ mod tests {
         let mut stack = vec!["a".to_string(), "b".to_string()];
         let result = apply_operator(1008, &mut stack);
         assert_eq!(result, Some("MAX(a,b)".to_string()));
-        
+
         // 测试 SQRT (1001 = 0x3E9)
         let mut stack = vec!["16".to_string()];
         let result = apply_operator(1001, &mut stack);
@@ -749,17 +763,17 @@ mod tests {
         let result = apply_operator(1301, &mut stack);
         assert_eq!(result, Some("LEN('hello')".to_string()));
         assert!(stack.is_empty());
-        
+
         // 测试一元函数 TRIM (1314 = 0x522)
         let mut stack = vec!["mystring".to_string()];
         let result = apply_operator(1314, &mut stack);
         assert_eq!(result, Some("TRIM(mystring)".to_string()));
-        
+
         // 测试二元函数 OCCURS (1321 = 0x529)
         let mut stack = vec!["text".to_string(), "pattern".to_string()];
         let result = apply_operator(1321, &mut stack);
         assert_eq!(result, Some("OCCURS(text,pattern)".to_string()));
-        
+
         // 测试三元函数 SUBSTRING (1309 = 0x51D)
         let mut stack = vec!["str".to_string(), "1".to_string(), "5".to_string()];
         let result = apply_operator(1309, &mut stack);
@@ -774,12 +788,12 @@ mod tests {
         let result = apply_operator(301, &mut stack);
         assert_eq!(result, Some("NOT(true)".to_string()));
         assert!(stack.is_empty());
-        
+
         // 测试 AND (302 = 0x12E)
         let mut stack = vec!["a".to_string(), "b".to_string()];
         let result = apply_operator(302, &mut stack);
         assert_eq!(result, Some("a AND b".to_string()));
-        
+
         // 测试 OR (303 = 0x12F)
         let mut stack = vec!["x".to_string(), "y".to_string()];
         let result = apply_operator(303, &mut stack);
@@ -792,12 +806,12 @@ mod tests {
         let mut stack = vec!["a".to_string(), "b".to_string()];
         let result = apply_operator(401, &mut stack);
         assert_eq!(result, Some("a EQ b".to_string()));
-        
+
         // 测试 LT (603 = 0x25B)
         let mut stack = vec!["x".to_string(), "5".to_string()];
         let result = apply_operator(603, &mut stack);
         assert_eq!(result, Some("x LT 5".to_string()));
-        
+
         // 测试 GE (605 = 0x25D)
         let mut stack = vec!["count".to_string(), "10".to_string()];
         let result = apply_operator(605, &mut stack);
@@ -807,16 +821,23 @@ mod tests {
     #[test]
     fn test_apply_operator_general_functions() {
         // 测试 IFTRUE (1822 = 0x071E)
-        let mut stack = vec!["condition".to_string(), "true_val".to_string(), "false_val".to_string()];
+        let mut stack = vec![
+            "condition".to_string(),
+            "true_val".to_string(),
+            "false_val".to_string(),
+        ];
         let result = apply_operator(1822, &mut stack);
-        assert_eq!(result, Some("IFTRUE(condition,true_val,false_val)".to_string()));
+        assert_eq!(
+            result,
+            Some("IFTRUE(condition,true_val,false_val)".to_string())
+        );
         assert!(stack.is_empty());
-        
+
         // 测试 UNSET (1826 = 0x0722)
         let mut stack = vec!["attr".to_string()];
         let result = apply_operator(1826, &mut stack);
         assert_eq!(result, Some("UNSET(attr)".to_string()));
-        
+
         // 测试 DISTCONVERT (1824 = 0x0720)
         let mut stack = vec!["100".to_string()];
         let result = apply_operator(1824, &mut stack);

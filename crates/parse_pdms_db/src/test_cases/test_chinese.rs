@@ -2,8 +2,6 @@ use crate::parse::parse_ele_data;
 use crate::test_cases::convert_str_to_bytes;
 use aios_core::get_default_pdms_db_info;
 
-
-
 //分支С隹诠档揽矶W11 & 乱码的情况处理
 #[tokio::test]
 async fn test_dtit() {
@@ -38,7 +36,6 @@ FF FF FF FF FF FF FF FF 00 00 00 00 00 00 06 41
         // assert_eq!(result, "综合技术廊道");
     }
 }
-
 
 #[tokio::test]
 async fn test_znp_17500_5192_description() {

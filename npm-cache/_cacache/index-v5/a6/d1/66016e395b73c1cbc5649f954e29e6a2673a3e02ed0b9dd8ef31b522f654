@@ -1,0 +1,2 @@
+
+b706b7e7505c8809bfc0ef56b4d83727983c6fb3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bare-events","integrity":null,"time":1770949339791,"size":"262","metadata":{"time":1770949339791,"url":"http://registry.npmmirror.com/bare-events","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/bare-events"},"options":{"compress":true},"status":301}}

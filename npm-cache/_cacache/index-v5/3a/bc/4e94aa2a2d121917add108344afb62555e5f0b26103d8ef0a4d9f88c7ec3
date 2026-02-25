@@ -1,0 +1,2 @@
+
+103921b95f3804da4cb13629809dc011613927c2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/pkce-challenge","integrity":null,"time":1770949335369,"size":"262","metadata":{"time":1770949335369,"url":"http://registry.npmmirror.com/pkce-challenge","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/pkce-challenge"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+f083c605c6dcd878281300a7642b725a4ecf5fd9	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@puppeteer%2fbrowsers","integrity":null,"time":1770949335364,"size":"262","metadata":{"time":1770949335364,"url":"http://registry.npmmirror.com/@puppeteer%2fbrowsers","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/@puppeteer%2fbrowsers"},"options":{"compress":true},"status":301}}

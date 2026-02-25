@@ -1,0 +1,2 @@
+
+9e934d1a6d23411625e7084f2ae43c634106e7c5	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/object-assign","integrity":null,"time":1770949336204,"size":"262","metadata":{"time":1770949336204,"url":"http://registry.npmmirror.com/object-assign","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/object-assign"},"options":{"compress":true},"status":301}}

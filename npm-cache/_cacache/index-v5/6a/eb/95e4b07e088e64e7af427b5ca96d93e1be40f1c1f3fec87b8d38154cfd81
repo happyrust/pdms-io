@@ -1,0 +1,2 @@
+
+90831835485f06a75265c7f3abafb8493eee4019	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/points-on-path","integrity":null,"time":1770949337851,"size":"262","metadata":{"time":1770949337851,"url":"http://registry.npmmirror.com/points-on-path","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/points-on-path"},"options":{"compress":true},"status":301}}

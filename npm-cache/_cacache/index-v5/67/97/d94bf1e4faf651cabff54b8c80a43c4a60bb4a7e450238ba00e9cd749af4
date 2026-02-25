@@ -1,0 +1,2 @@
+
+0f7103e50df2e272c4ee2d85ed4e7e62d3391dbf	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/proxy-from-env","integrity":null,"time":1770949338592,"size":"262","metadata":{"time":1770949338592,"url":"http://registry.npmmirror.com/proxy-from-env","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/proxy-from-env"},"options":{"compress":true},"status":301}}

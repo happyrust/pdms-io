@@ -1,0 +1,2 @@
+
+1e4cba101b25e44382ec11f28aa5ad055b45b474	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/is-number","integrity":null,"time":1770949339650,"size":"262","metadata":{"time":1770949339650,"url":"http://registry.npmmirror.com/is-number","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/is-number"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+2e5e953f8f2957d141375a7ae62f5784f43b6ab2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/binary-extensions","integrity":null,"time":1770949339538,"size":"262","metadata":{"time":1770949339538,"url":"http://registry.npmmirror.com/binary-extensions","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/binary-extensions"},"options":{"compress":true},"status":301}}

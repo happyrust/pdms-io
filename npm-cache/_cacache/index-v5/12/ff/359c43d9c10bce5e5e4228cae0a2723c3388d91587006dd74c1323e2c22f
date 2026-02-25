@@ -1,0 +1,2 @@
+
+b6179d074bd305176faf193cc72ae48d1990a11c	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/estraverse","integrity":null,"time":1770949339186,"size":"262","metadata":{"time":1770949339186,"url":"http://registry.npmmirror.com/estraverse","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/estraverse"},"options":{"compress":true},"status":301}}

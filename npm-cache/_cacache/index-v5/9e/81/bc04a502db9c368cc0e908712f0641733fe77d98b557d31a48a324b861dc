@@ -1,0 +1,2 @@
+
+c8c60d101ff6b89141e09437a16b4a6212384330	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/process-warning","integrity":null,"time":1770949336548,"size":"262","metadata":{"time":1770949336548,"url":"http://registry.npmmirror.com/process-warning","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/process-warning"},"options":{"compress":true},"status":301}}

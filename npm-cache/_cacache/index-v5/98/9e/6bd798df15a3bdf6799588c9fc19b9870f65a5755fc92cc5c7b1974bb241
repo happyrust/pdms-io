@@ -1,0 +1,2 @@
+
+2fc5e9d2de385b43038ec1e1f52fc6abca24c254	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/callsites","integrity":null,"time":1770949338885,"size":"262","metadata":{"time":1770949338885,"url":"http://registry.npmmirror.com/callsites","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/callsites"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+6ea06d0cd17c0b5c4e1cdfe39adacacfead6deea	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/points-on-curve","integrity":null,"time":1770949337851,"size":"262","metadata":{"time":1770949337851,"url":"http://registry.npmmirror.com/points-on-curve","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/points-on-curve"},"options":{"compress":true},"status":301}}

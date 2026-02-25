@@ -1,0 +1,2 @@
+
+805bf520c0a2b2d04e89e565dc4ac3fed86f365a	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/playwright-core","integrity":null,"time":1771298072515,"size":"262","metadata":{"time":1771298072515,"url":"http://registry.npmmirror.com/playwright-core","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Tue, 17 Feb 2026 03:14:31 GMT","location":"https://registry.npmmirror.com/playwright-core"},"options":{"compress":true},"status":301}}

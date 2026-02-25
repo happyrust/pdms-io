@@ -65,12 +65,12 @@ fn rkyv_to_bytes<T>(value: &T) -> anyhow::Result<Vec<u8>>
 where
     T: rkyv::Archive,
     for<'a> T: rkyv::Serialize<
-        rkyv::api::high::HighSerializer<
-            rkyv::util::AlignedVec,
-            rkyv::ser::allocator::ArenaHandle<'a>,
-            rkyv::rancor::Error,
+            rkyv::api::high::HighSerializer<
+                rkyv::util::AlignedVec,
+                rkyv::ser::allocator::ArenaHandle<'a>,
+                rkyv::rancor::Error,
+            >,
         >,
-    >,
 {
     let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(value)
         .map_err(|e| anyhow!("rkyv 序列化失败: {:?}", e))?;
@@ -83,7 +83,8 @@ where
     <T as rkyv::Archive>::Archived:
         rkyv::Deserialize<T, rkyv::rancor::Strategy<rkyv::de::Pool, rkyv::rancor::Error>>,
 {
-    let mut aligned: rkyv::util::AlignedVec<16> = rkyv::util::AlignedVec::with_capacity(bytes.len());
+    let mut aligned: rkyv::util::AlignedVec<16> =
+        rkyv::util::AlignedVec::with_capacity(bytes.len());
     aligned.extend_from_slice(bytes);
     // SAFETY: 数据来自完整字节拷贝，且 AlignedVec 保证反序列化对齐要求。
     unsafe { rkyv::from_bytes_unchecked::<T, rkyv::rancor::Error>(&aligned) }

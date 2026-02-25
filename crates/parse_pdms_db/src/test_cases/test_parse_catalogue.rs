@@ -29,11 +29,7 @@ async fn test_parse_aveva_catalogue_acp7000_0001_smoke() {
     std::env::set_current_dir(&workspace_root).expect("chdir workspace root");
 
     let path = PathBuf::from("D:/AVEVA/Projects/E3D2.1/AvevaCatalogue/acp000/acp7000_0001");
-    assert!(
-        path.exists(),
-        "数据库文件不存在：{}",
-        path.display()
-    );
+    assert!(path.exists(), "数据库文件不存在：{}", path.display());
 
     // 项目名前缀用于 file_name 前缀解析 field_no
     let project = "acp7000";
@@ -42,10 +38,7 @@ async fn test_parse_aveva_catalogue_acp7000_0001_smoke() {
     let result = parse_file(&path, &None, file_name, project).await;
     match result {
         Ok(db) => {
-            assert!(
-                !db.total_attr_map.is_empty(),
-                "解析成功但未得到任何属性"
-            );
+            assert!(!db.total_attr_map.is_empty(), "解析成功但未得到任何属性");
         }
         Err(e) => panic!("解析 {} 失败: {e:?}", path.display()),
     }

@@ -106,4 +106,3 @@ fn test_index_map_cache_rejects_unknown_version() -> anyhow::Result<()> {
     assert!(msg.contains("不支持"), "err={}", msg);
     Ok(())
 }
-

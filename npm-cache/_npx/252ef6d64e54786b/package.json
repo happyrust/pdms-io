@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "claude-mermaid": "^1.4.0"
+  },
+  "_npx": {
+    "packages": [
+      "claude-mermaid"
+    ]
+  }
+}

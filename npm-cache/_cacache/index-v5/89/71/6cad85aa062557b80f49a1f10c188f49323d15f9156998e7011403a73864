@@ -1,0 +1,2 @@
+
+b9440a57f14745b9706f2bfaa459e901427eb294	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bare-path","integrity":null,"time":1770949338592,"size":"262","metadata":{"time":1770949338592,"url":"http://registry.npmmirror.com/bare-path","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/bare-path"},"options":{"compress":true},"status":301}}

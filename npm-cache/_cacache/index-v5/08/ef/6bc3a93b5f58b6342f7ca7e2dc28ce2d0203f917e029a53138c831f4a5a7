@@ -1,0 +1,2 @@
+
+ba2957f88dea329fd93b9b42650186750dd27c0b	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/wsl-utils","integrity":null,"time":1770949348941,"size":"262","metadata":{"time":1770949348941,"url":"http://registry.npmmirror.com/wsl-utils","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:27 GMT","location":"https://registry.npmmirror.com/wsl-utils"},"options":{"compress":true},"status":301}}

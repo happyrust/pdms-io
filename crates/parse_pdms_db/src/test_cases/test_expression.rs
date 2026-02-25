@@ -1,4 +1,5 @@
 use crate::parse::parse_ele_data;
+use crate::parse_explict_tools::parse_expression_attr;
 use crate::test_cases::convert_str_to_bytes;
 use aios_core::get_default_pdms_db_info;
 use aios_core::pdms_types::PdmsDatabaseInfo;
@@ -7,7 +8,6 @@ use dashmap::DashMap;
 use std::fs::File;
 use std::io::Write;
 use std::str::FromStr;
-use crate::parse_explict_tools::parse_expression_attr;
 
 #[tokio::test]
 async fn test_gdp_15194_134() {
@@ -1350,7 +1350,7 @@ async fn take_off_uda() {
             .unwrap_or_default()
             .as_bytes(),
     )
-        .unwrap();
+    .unwrap();
 }
 
 #[tokio::test]
@@ -1661,11 +1661,17 @@ FF FF FF FF FF FF FF FF 00 00 00 00 00 00 06 41
     println!("map={:?}", ele_data.whole_attmap.attmap);
     if let Some(val) = ele_data.whole_attmap.attmap.get_val("PX") {
         let result = val.string_value();
-        assert_eq!(result, "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))+(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))");
+        assert_eq!(
+            result,
+            "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))+(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))"
+        );
     }
     if let Some(val) = ele_data.whole_attmap.attmap.get_val("PY") {
         let result = val.string_value();
-        assert_eq!(result, "((((-((-(0.5*PARA[1]))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*SIN(ANGL))))/2)+((-(((PARA[1]/2)+PARA[9])-(PARA[9]*SIN((90-ANGL)))))/2))+(RPRO OUTB*(((-((-(0.5*PARA[1]))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*SIN(ANGL))))/2)-((-(((PARA[1]/2)+PARA[9])-(PARA[9]*SIN((90-ANGL)))))/2))))");
+        assert_eq!(
+            result,
+            "((((-((-(0.5*PARA[1]))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*SIN(ANGL))))/2)+((-(((PARA[1]/2)+PARA[9])-(PARA[9]*SIN((90-ANGL)))))/2))+(RPRO OUTB*(((-((-(0.5*PARA[1]))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*SIN(ANGL))))/2)-((-(((PARA[1]/2)+PARA[9])-(PARA[9]*SIN((90-ANGL)))))/2))))"
+        );
     }
 }
 
@@ -1909,11 +1915,17 @@ FF FF FF FF 00 00 00 00 00 00 06 41 00 00 06 A5
     println!("map={:?}", ele_data.whole_attmap.attmap);
     if let Some(val) = ele_data.whole_attmap.attmap.get_val("PX") {
         let result = val.string_value();
-        assert_eq!(result, "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))+(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))");
+        assert_eq!(
+            result,
+            "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))+(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))"
+        );
     }
     if let Some(val) = ele_data.whole_attmap.attmap.get_val("PY") {
         let result = val.string_value();
-        assert_eq!(result, "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))+(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))");
+        assert_eq!(
+            result,
+            "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))+(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))"
+        );
     }
 }
 
@@ -2325,7 +2337,10 @@ FF FF FF FF FF FF FF FF 00 00 00 00 00 00 06 41
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
     if let Some(val) = ele_data.whole_attmap.attmap.get_val("PX") {
         let result = val.string_value();
-        assert_eq!(result, "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))-(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))");
+        assert_eq!(
+            result,
+            "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))-(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))"
+        );
     }
 }
 
@@ -2563,7 +2578,10 @@ FF FF FF FF 00 00 00 00 00 00 06 41 00 00 06 A5
     if let Some(val) = ele_data.whole_attmap.attmap.get_val("PX") {
         let result = val.string_value();
         // println!("{:?}", &result);
-        assert_eq!(&result, "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))+(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))")
+        assert_eq!(
+            &result,
+            "((((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)+(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))+(RPRO OUTB*(((((0.5*PARA[1])*TAN((ANGL/2)))+(((PARA[1]+PARA[9])*TAN((ANGL/2)))*COS(ANGL)))/2)-(((-(((PARA[1]/2)+PARA[9])*TAN((ANGL/2))))+(PARA[9]*COS((90-ANGL))))/2))))"
+        )
     }
 }
 
@@ -2905,7 +2923,6 @@ async fn test_hxysize_15194_277() {
     dbg!(&ele_data.whole_attmap.attmap);
 }
 
-
 #[tokio::test]
 async fn test_parse_paxi() {
     let data_str = "
@@ -2957,7 +2974,15 @@ FF FF FF FF 00 00 00 00 00 00 06 41 00 00 06 A5
     let _pdms_database_info = get_default_pdms_db_info();
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
     // dbg!(&ele_data.whole_attmap.attmap);
-    assert_eq!(ele_data.whole_attmap.attmap.get_val("PAXI").unwrap().string_value(), "-P4");
+    assert_eq!(
+        ele_data
+            .whole_attmap
+            .attmap
+            .get_val("PAXI")
+            .unwrap()
+            .string_value(),
+        "-P4"
+    );
 }
 
 #[tokio::test]
@@ -3020,7 +3045,10 @@ FF FF FF FF FF FF FF FF 00 00 00 00 00 00 06 41
     let refno = RefU64::from_str("15192/254675").unwrap();
     let (_, ele_data) = parse_expression_attr(data.as_slice(), refno).unwrap();
     // ( IFTRUE ( ATTRIB DESP[7 ] LT 0 , ATTRIB DESP[28 ] / 2 , -1 * ATTRIB DESP[28 ] / 2 ) )
-    assert_eq!(ele_data.1, "IFTRUE ( DESP[7] LT 0 , (DESP[28]/2) , ((-1*DESP[28])/2) )".to_string());
+    assert_eq!(
+        ele_data.1,
+        "IFTRUE ( DESP[7] LT 0 , (DESP[28]/2) , ((-1*DESP[28])/2) )".to_string()
+    );
 }
 
 #[tokio::test]
@@ -3046,7 +3074,10 @@ FF FF FF FF 00 00 00 00 00 00 06 41 00 00 06 A5
     let data = convert_str_to_bytes(data_str);
     let refno = RefU64::from_str("15192/254675").unwrap();
     let (_, ele_data) = parse_expression_attr(data.as_slice(), refno).unwrap();
-    assert_eq!(ele_data.1, "( DESP[2] + 20 ) * MAT( TRIM( STR( DESP[15] GT  50 * 1  ) ), 'true' )".to_string());
+    assert_eq!(
+        ele_data.1,
+        "( DESP[2] + 20 ) * MAT( TRIM( STR( DESP[15] GT  50 * 1  ) ), 'true' )".to_string()
+    );
     // dbg!(&ele_data.1);
 }
 
@@ -3071,7 +3102,10 @@ FF FF FF FF 00 00 00 00 00 00 06 41 00 00 06 A5
     let refno = RefU64::from_str("15192/254675").unwrap();
     let (_, ele_data) = parse_expression_attr(data.as_slice(), refno).unwrap();
     // ( ( ATTRIB DESP[2 ] + 20 ) * MAT ( STR ( ATTRIB DESP[15 ] ) , 'truefdsa' ) )
-    assert_eq!(ele_data.1, "( DESP[2] + 20 ) * MAT( DESP[15], 'truefdsa' )".to_string());
+    assert_eq!(
+        ele_data.1,
+        "( DESP[2] + 20 ) * MAT( DESP[15], 'truefdsa' )".to_string()
+    );
     // dbg!(&ele_data.1);
 }
 
@@ -3111,7 +3145,6 @@ async fn test_parse_15192_254676_real() {
     assert_eq!(ele_data.1, "REAL('156')".to_string());
     // dbg!(&ele_data.1);
 }
-
 
 // 00 02 00 07 00 00 3B 5A 00 00 12 90 00 00 00 00
 // 00 00 00 00 00 00 3B 5A 00 00 12 91 00 00 00 00
@@ -3283,7 +3316,11 @@ FF FF FF FF FF FF FF FF 00 00 00 00 00 00 06 41
     let data = convert_str_to_bytes(data_str);
     let refno = RefU64::from_str("15192/254675").unwrap();
     let (_, ele_data) = parse_expression_attr(data.as_slice(), refno).unwrap();
-    assert_eq!(ele_data.1, " ( IFTRUE ( ATTRIB DESP[76 ] LT 0 , ATTRIB DESP[28 ] / 2 , -1 * ATTRIB DESP[28 ] / 2 ) )".to_string());
+    assert_eq!(
+        ele_data.1,
+        " ( IFTRUE ( ATTRIB DESP[76 ] LT 0 , ATTRIB DESP[28 ] / 2 , -1 * ATTRIB DESP[28 ] / 2 ) )"
+            .to_string()
+    );
 }
 
 #[tokio::test]
@@ -3305,6 +3342,9 @@ FF FF FF FF 00 00 00 00 00 00 06 41 00 00 06 A5
     let refno = RefU64::from_str("15192/254675").unwrap();
     let (_, ele_data) = parse_expression_attr(data.as_slice(), refno).unwrap();
     // ( ( ATTRIB DESP[2 ] + 20 ) * MAT ( STR ( ATTRIB DESP[15 ] ) , 'truefdsa' ) )
-    assert_eq!(ele_data.1, "( ( DESP[41] + DESP[27] ) + DESP[27] )".to_string());
+    assert_eq!(
+        ele_data.1,
+        "( ( DESP[41] + DESP[27] ) + DESP[27] )".to_string()
+    );
     // dbg!(&ele_data.1);
 }

@@ -1,0 +1,2 @@
+
+46c3406ab943d88461ee09fe35a4c162c410de1a	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/sucrase","integrity":null,"time":1770949336464,"size":"262","metadata":{"time":1770949336464,"url":"http://registry.npmmirror.com/sucrase","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/sucrase"},"options":{"compress":true},"status":301}}

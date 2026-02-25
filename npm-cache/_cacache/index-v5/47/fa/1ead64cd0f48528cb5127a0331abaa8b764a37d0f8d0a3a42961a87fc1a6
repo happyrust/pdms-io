@@ -1,0 +1,2 @@
+
+f374c39f10ed7efccc5af78134442f2cdd1feb16	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/buffer-crc32","integrity":null,"time":1770949338707,"size":"262","metadata":{"time":1770949338707,"url":"http://registry.npmmirror.com/buffer-crc32","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/buffer-crc32"},"options":{"compress":true},"status":301}}

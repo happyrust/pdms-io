@@ -1,0 +1,2 @@
+
+ef71d424a54430285d9ab939f79be03215a817a8	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/basic-ftp","integrity":null,"time":1770949339016,"size":"262","metadata":{"time":1770949339016,"url":"http://registry.npmmirror.com/basic-ftp","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/basic-ftp"},"options":{"compress":true},"status":301}}

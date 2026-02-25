@@ -1,10 +1,10 @@
-use aios_core::{init_test_surreal, RefU64};
-use aios_core::tool::db_tool::db1_dehash;
 use crate::io::PdmsIO;
 use crate::test::resolve_test_db_path;
+use aios_core::tool::db_tool::db1_dehash;
+use aios_core::{RefU64, init_test_surreal};
 
 #[tokio::test]
-async fn test_parse_ele(){
+async fn test_parse_ele() {
     let refno: RefU64 = "17496/269393".into();
     //首先要根据参考号的索引结构找到这个数据
     // let refno_loc =
@@ -20,9 +20,8 @@ async fn test_parse_ele(){
     dbg!(att);
 }
 
-
 #[tokio::test]
-async fn test_read_all_sessions() -> anyhow::Result<()>{
+async fn test_read_all_sessions() -> anyhow::Result<()> {
     init_test_surreal().await;
     let db_path = match resolve_test_db_path("ams1112_0001") {
         Some(path) => path,
@@ -31,7 +30,9 @@ async fn test_read_all_sessions() -> anyhow::Result<()>{
             return Ok(());
         }
     };
-    crate::io::sync_all_history_data(db_path.to_string_lossy().as_ref()).await.unwrap();
+    crate::io::sync_all_history_data(db_path.to_string_lossy().as_ref())
+        .await
+        .unwrap();
 
     Ok(())
 }

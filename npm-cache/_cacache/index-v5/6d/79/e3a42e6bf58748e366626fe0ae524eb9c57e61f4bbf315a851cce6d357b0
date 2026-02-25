@@ -1,0 +1,2 @@
+
+07b89a07c84b782219bf9a0339d81a624d604983	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-zoom","integrity":null,"time":1770949337835,"size":"262","metadata":{"time":1770949337835,"url":"http://registry.npmmirror.com/d3-zoom","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-zoom"},"options":{"compress":true},"status":301}}

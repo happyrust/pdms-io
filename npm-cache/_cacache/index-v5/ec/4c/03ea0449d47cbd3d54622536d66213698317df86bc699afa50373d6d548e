@@ -1,0 +1,2 @@
+
+8219123e43183b2176b3ca84b1223fe5f3803c8e	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/normalize-path","integrity":null,"time":1770949336461,"size":"262","metadata":{"time":1770949336461,"url":"http://registry.npmmirror.com/normalize-path","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/normalize-path"},"options":{"compress":true},"status":301}}

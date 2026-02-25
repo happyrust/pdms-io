@@ -1,0 +1,2 @@
+
+7ef82b425a039462bb42c99329d7ac26678c990d	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/yargs-parser","integrity":null,"time":1770949338600,"size":"262","metadata":{"time":1770949338600,"url":"http://registry.npmmirror.com/yargs-parser","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/yargs-parser"},"options":{"compress":true},"status":301}}

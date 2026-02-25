@@ -1,0 +1,2 @@
+
+b47a2fbdd7e821528a9004cbece95bc3efbe7437	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/json-parse-even-better-errors","integrity":null,"time":1770949338674,"size":"262","metadata":{"time":1770949338674,"url":"http://registry.npmmirror.com/json-parse-even-better-errors","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/json-parse-even-better-errors"},"options":{"compress":true},"status":301}}

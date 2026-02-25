@@ -1,0 +1,2 @@
+
+3745ba8aea90eafd74a121f29df078372a7b4a09	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/devtools-protocol","integrity":null,"time":1770949335368,"size":"262","metadata":{"time":1770949335368,"url":"http://registry.npmmirror.com/devtools-protocol","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/devtools-protocol"},"options":{"compress":true},"status":301}}

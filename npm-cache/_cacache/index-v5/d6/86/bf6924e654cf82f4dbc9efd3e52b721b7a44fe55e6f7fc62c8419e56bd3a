@@ -1,0 +1,2 @@
+
+f150302e859608247821b4dad3c703ac23dff3fe	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/uuid","integrity":null,"time":1770949335679,"size":"262","metadata":{"time":1770949335679,"url":"http://registry.npmmirror.com/uuid","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/uuid"},"options":{"compress":true},"status":301}}

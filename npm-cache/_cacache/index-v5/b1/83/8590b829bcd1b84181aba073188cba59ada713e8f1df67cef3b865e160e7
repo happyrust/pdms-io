@@ -1,0 +1,2 @@
+
+82fa2d41b9d91f5b911f043a3dfa1725b678e1a6	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/fast-glob","integrity":null,"time":1770949336459,"size":"262","metadata":{"time":1770949336459,"url":"http://registry.npmmirror.com/fast-glob","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/fast-glob"},"options":{"compress":true},"status":301}}

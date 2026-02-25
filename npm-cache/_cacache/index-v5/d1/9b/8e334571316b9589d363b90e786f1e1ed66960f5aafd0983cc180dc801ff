@@ -1,0 +1,2 @@
+
+bc5184279fb945d4c12f09317fee8e3d791ec159	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/playwright","integrity":null,"time":1771298072501,"size":"262","metadata":{"time":1771298072500,"url":"http://registry.npmmirror.com/playwright","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Tue, 17 Feb 2026 03:14:31 GMT","location":"https://registry.npmmirror.com/playwright"},"options":{"compress":true},"status":301}}

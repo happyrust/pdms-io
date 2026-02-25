@@ -1,0 +1,2 @@
+
+0446abb327e02a56e5e2bfc26854048b8ac8028d	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mermaid","integrity":null,"time":1770949335363,"size":"262","metadata":{"time":1770949335363,"url":"http://registry.npmmirror.com/mermaid","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/mermaid"},"options":{"compress":true},"status":301}}

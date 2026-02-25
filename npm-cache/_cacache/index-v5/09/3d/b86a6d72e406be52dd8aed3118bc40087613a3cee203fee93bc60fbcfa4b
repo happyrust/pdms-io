@@ -1,0 +1,2 @@
+
+93522f8e78da52bdc53e5a73d7fd2f742dd779f1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/supports-preserve-symlinks-flag","integrity":null,"time":1770949339459,"size":"262","metadata":{"time":1770949339459,"url":"http://registry.npmmirror.com/supports-preserve-symlinks-flag","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/supports-preserve-symlinks-flag"},"options":{"compress":true},"status":301}}

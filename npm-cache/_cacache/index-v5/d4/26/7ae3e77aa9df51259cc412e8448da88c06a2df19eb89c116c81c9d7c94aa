@@ -1,0 +1,2 @@
+
+40aec6301c69a26af596798dd5888a254713c165	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/socks-proxy-agent","integrity":null,"time":1770949338592,"size":"262","metadata":{"time":1770949338592,"url":"http://registry.npmmirror.com/socks-proxy-agent","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/socks-proxy-agent"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+a0d2356689ea4a5e401204b54578b5d4d863a1f7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/wrap-ansi","integrity":null,"time":1770949340129,"size":"262","metadata":{"time":1770949340129,"url":"http://registry.npmmirror.com/wrap-ansi","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:19 GMT","location":"https://registry.npmmirror.com/wrap-ansi"},"options":{"compress":true},"status":301}}

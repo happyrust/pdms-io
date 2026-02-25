@@ -1,0 +1,2 @@
+
+6dc625a81ff7642194bdd8852f1cdf93939a2f89	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/chromium-bidi","integrity":null,"time":1770949335363,"size":"262","metadata":{"time":1770949335363,"url":"http://registry.npmmirror.com/chromium-bidi","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/chromium-bidi"},"options":{"compress":true},"status":301}}

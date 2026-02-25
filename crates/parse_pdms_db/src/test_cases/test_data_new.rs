@@ -1,9 +1,7 @@
 use crate::parse::parse_ele_data;
 use crate::test_cases::convert_str_to_bytes;
-use aios_core::tool::db_tool::{
-    db1_dehash, db1_hash,
-};
-use aios_core::{get_default_pdms_db_info, PdmsDatabaseInfo};
+use aios_core::tool::db_tool::{db1_dehash, db1_hash};
+use aios_core::{PdmsDatabaseInfo, get_default_pdms_db_info};
 
 #[tokio::test]
 async fn test_sample_2013286748_1428() {
@@ -283,7 +281,7 @@ async fn test_uda() {
     let _pdms_database_info = get_default_pdms_db_info();
     dbg!(&db1_dehash(641779));
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
-    
+
     dbg!(&ele_data.whole_attmap.explicit_attmap);
 }
 
@@ -303,7 +301,7 @@ async fn test_detr_15192_232504() {
     let data = convert_str_to_bytes(data_str);
     let _pdms_database_info = get_default_pdms_db_info();
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
-    
+
     dbg!(&ele_data.whole_attmap.explicit_attmap);
 }
 
@@ -323,7 +321,7 @@ async fn test_skey_15192_762() {
     let data = convert_str_to_bytes(data_str);
     let _pdms_database_info = get_default_pdms_db_info();
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
-    
+
     dbg!(&ele_data.whole_attmap.explicit_attmap);
 }
 
@@ -343,7 +341,7 @@ async fn test_skey_15192_464() {
     let data = convert_str_to_bytes(data_str);
     let _pdms_database_info = get_default_pdms_db_info();
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
-    
+
     dbg!(&ele_data.whole_attmap.explicit_attmap);
 }
 
@@ -383,7 +381,14 @@ C0 C8 18 00 00 00 00 00 C0 94 50 00 00 00 00 03
     let data = convert_str_to_bytes(data_str);
     let _pdms_database_info = get_default_pdms_db_info();
     let ele_data = parse_ele_data(data.as_slice()).await.unwrap();
-    
+
     dbg!(&ele_data.whole_attmap.explicit_attmap);
-    assert_eq!(ele_data.whole_attmap.explicit_attmap.get_as_string("STEX").unwrap(), "6KA02-MSUP-E0045");
+    assert_eq!(
+        ele_data
+            .whole_attmap
+            .explicit_attmap
+            .get_as_string("STEX")
+            .unwrap(),
+        "6KA02-MSUP-E0045"
+    );
 }

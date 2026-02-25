@@ -1,0 +1,2 @@
+
+5968ce8ad080c771a611dedd69f617eb292be3ef	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/shebang-command","integrity":null,"time":1770949336207,"size":"262","metadata":{"time":1770949336207,"url":"http://registry.npmmirror.com/shebang-command","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/shebang-command"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+e893ee3a3543fda359a49e616c5591ce35dee7e1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/is-docker","integrity":null,"time":1770949349143,"size":"262","metadata":{"time":1770949349143,"url":"http://registry.npmmirror.com/is-docker","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:28 GMT","location":"https://registry.npmmirror.com/is-docker"},"options":{"compress":true},"status":301}}

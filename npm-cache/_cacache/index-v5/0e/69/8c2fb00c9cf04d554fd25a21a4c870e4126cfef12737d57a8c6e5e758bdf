@@ -1,0 +1,2 @@
+
+6e7662773a9e076f9ac5d8fd397b1f5ffdcde674	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/cross-spawn","integrity":null,"time":1770949335365,"size":"262","metadata":{"time":1770949335365,"url":"http://registry.npmmirror.com/cross-spawn","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/cross-spawn"},"options":{"compress":true},"status":301}}

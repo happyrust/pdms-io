@@ -1,0 +1,2 @@
+
+05efcd0feefb32b5bf1d2406dd9f629dd23f44b3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-drag","integrity":null,"time":1770949337743,"size":"262","metadata":{"time":1770949337743,"url":"http://registry.npmmirror.com/d3-drag","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-drag"},"options":{"compress":true},"status":301}}

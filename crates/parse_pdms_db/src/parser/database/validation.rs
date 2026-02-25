@@ -2,7 +2,7 @@
 //!
 //! 提供 PDMS 数据库文件的验证功能
 
-use super::header::{extract_db_type, DbType};
+use super::header::{DbType, extract_db_type};
 use std::path::Path;
 
 /// 已知的数据库类型名称

@@ -1,0 +1,2 @@
+
+0b64c810b2cb39d75ef36d58e7dc346d1c1ea6fe	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-color","integrity":null,"time":1770949337733,"size":"262","metadata":{"time":1770949337733,"url":"http://registry.npmmirror.com/d3-color","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-color"},"options":{"compress":true},"status":301}}

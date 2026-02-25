@@ -1,0 +1,2 @@
+
+f4adb762fc18b9895cee50036e254fef693db730	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ansi-regex","integrity":null,"time":1770949340171,"size":"262","metadata":{"time":1770949340171,"url":"http://registry.npmmirror.com/ansi-regex","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:19 GMT","location":"https://registry.npmmirror.com/ansi-regex"},"options":{"compress":true},"status":301}}

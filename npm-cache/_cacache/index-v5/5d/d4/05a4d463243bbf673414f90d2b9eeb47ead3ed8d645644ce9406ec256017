@@ -1,0 +1,2 @@
+
+1c0883cae075172abd514732203f63b03442a577	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/khroma","integrity":null,"time":1770949335675,"size":"262","metadata":{"time":1770949335675,"url":"http://registry.npmmirror.com/khroma","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/khroma"},"options":{"compress":true},"status":301}}

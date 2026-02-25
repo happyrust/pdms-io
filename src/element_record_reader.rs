@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 
 use crate::page_manager::PageManager;
 use crate::paged_reader::PagedReader;
@@ -232,7 +232,15 @@ mod tests {
 
         file.seek(SeekFrom::Start(0)).unwrap();
         let mut pm = PageManager::new(16, page_size);
-        let out = PagedReader::read(&mut file, &mut pm, 0, page_size, (page_size - 10) as u64, 20).unwrap();
+        let out = PagedReader::read(
+            &mut file,
+            &mut pm,
+            0,
+            page_size,
+            (page_size - 10) as u64,
+            20,
+        )
+        .unwrap();
 
         assert_eq!(&out[..10], vec![b'A'; 10]);
         assert_eq!(&out[10..], vec![b'B'; 10]);
@@ -277,7 +285,14 @@ mod tests {
 
         let end_marker = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07];
 
-        let record = [padding.as_slice(), implicit.as_slice(), members.as_slice(), seg.as_slice(), end_marker.as_slice()].concat();
+        let record = [
+            padding.as_slice(),
+            implicit.as_slice(),
+            members.as_slice(),
+            seg.as_slice(),
+            end_marker.as_slice(),
+        ]
+        .concat();
         write_at(&mut buf, start_offset as usize, &record);
 
         file.write_all(&buf).unwrap();
@@ -285,7 +300,8 @@ mod tests {
         file.seek(SeekFrom::Start(0)).unwrap();
 
         let mut pm = PageManager::new(128, page_size);
-        let out = ElementRecordReader::read(&mut file, &mut pm, 0, page_size, start_offset).unwrap();
+        let out =
+            ElementRecordReader::read(&mut file, &mut pm, 0, page_size, start_offset).unwrap();
         assert_eq!(out, record);
 
         let _ = std::fs::remove_file(&temp_file);
@@ -323,7 +339,13 @@ mod tests {
 
         let end_marker = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07];
 
-        let record = [padding.as_slice(), implicit.as_slice(), members.as_slice(), end_marker.as_slice()].concat();
+        let record = [
+            padding.as_slice(),
+            implicit.as_slice(),
+            members.as_slice(),
+            end_marker.as_slice(),
+        ]
+        .concat();
         write_at(&mut buf, start_offset as usize, &record);
 
         file.write_all(&buf).unwrap();
@@ -331,7 +353,8 @@ mod tests {
         file.seek(SeekFrom::Start(0)).unwrap();
 
         let mut pm = PageManager::new(128, page_size);
-        let out = ElementRecordReader::read(&mut file, &mut pm, 0, page_size, start_offset).unwrap();
+        let out =
+            ElementRecordReader::read(&mut file, &mut pm, 0, page_size, start_offset).unwrap();
         assert_eq!(out, record);
 
         let _ = std::fs::remove_file(&temp_file);

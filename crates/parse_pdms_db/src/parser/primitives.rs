@@ -8,12 +8,12 @@
 
 use aios_core::pdms_types::RefI32Tuple;
 use aios_core::types::RefU64;
+use nom::IResult;
+use nom::Parser;
 use nom::combinator::map;
 use nom::error::{ErrorKind, make_error};
 use nom::multi::count;
 use nom::number::complete::{be_i32, be_u16, be_u32, be_u64};
-use nom::IResult;
-use nom::Parser;
 
 /// 解析 RefU64（两个 u32 组成的参考号）
 ///
@@ -29,10 +29,9 @@ use nom::Parser;
 /// ```
 #[inline]
 pub fn parse_refno(input: &[u8]) -> IResult<&[u8], RefU64> {
-    map(
-        (be_u32, be_u32),
-        |(high, low)| RefU64::from_two_nums(high, low),
-    )
+    map((be_u32, be_u32), |(high, low)| {
+        RefU64::from_two_nums(high, low)
+    })
     .parse(input)
 }
 
@@ -44,11 +43,7 @@ pub fn parse_refno(input: &[u8]) -> IResult<&[u8], RefU64> {
 /// - 后 4 字节: 第二个 i32
 #[inline]
 pub fn parse_ref_tuple(input: &[u8]) -> IResult<&[u8], RefI32Tuple> {
-    map(
-        (be_i32, be_i32),
-        |(a, b)| RefI32Tuple::new(a, b),
-    )
-    .parse(input)
+    map((be_i32, be_i32), |(a, b)| RefI32Tuple::new(a, b)).parse(input)
 }
 
 /// 解析 4 字节哈希值
@@ -171,8 +166,8 @@ mod tests {
     #[test]
     fn test_parse_members() {
         let input = [
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x02,
         ];
         let (rest, members) = parse_members(&input).unwrap();
         assert!(rest.is_empty());

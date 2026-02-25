@@ -1,0 +1,2 @@
+
+c10c1ebc20cae10a7905ad96d765a059c43d5128	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@mermaid-js%2fparser","integrity":null,"time":1770949335678,"size":"262","metadata":{"time":1770949335678,"url":"http://registry.npmmirror.com/@mermaid-js%2fparser","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/@mermaid-js%2fparser"},"options":{"compress":true},"status":301}}

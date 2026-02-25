@@ -1,0 +1,2 @@
+
+eab82d808da524b565a3135af308bf1f4eca78e1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/is-arrayish","integrity":null,"time":1770949338908,"size":"262","metadata":{"time":1770949338908,"url":"http://registry.npmmirror.com/is-arrayish","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/is-arrayish"},"options":{"compress":true},"status":301}}

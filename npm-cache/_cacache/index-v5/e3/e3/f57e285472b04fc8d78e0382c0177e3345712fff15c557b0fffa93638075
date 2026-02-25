@@ -1,0 +1,2 @@
+
+3c97ead358eb061d19f2f46b211f06f86753929e	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/esprima","integrity":null,"time":1770949339073,"size":"262","metadata":{"time":1770949339073,"url":"http://registry.npmmirror.com/esprima","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/esprima"},"options":{"compress":true},"status":301}}

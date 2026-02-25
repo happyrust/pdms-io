@@ -1,0 +1,1741 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.44
+   Compiling unicode-ident v1.0.23
+   Compiling memchr v2.8.0
+   Compiling libm v0.2.16
+   Compiling itoa v1.0.17
+   Compiling foldhash v0.2.0
+   Compiling zerocopy v0.8.39
+   Compiling find-msvc-tools v0.1.9
+   Compiling slab v0.4.12
+   Compiling getrandom v0.2.17
+   Compiling siphasher v1.0.2
+   Compiling tracing-core v0.1.36
+   Compiling anyhow v1.0.101
+   Compiling indexmap v2.13.0
+   Compiling thiserror v2.0.18
+   Compiling libc v0.2.182
+   Compiling jobserver v0.1.34
+   Compiling zmij v1.0.21
+   Compiling bitflags v2.10.0
+   Compiling serde_json v1.0.149
+   Compiling socket2 v0.6.2
+   Compiling regex-syntax v0.8.9
+   Compiling bytemuck v1.25.0
+   Compiling windows-link v0.1.3
+   Compiling getrandom v0.4.1
+   Compiling toml_parser v1.0.8+spec-1.1.0
+   Compiling rand_core v0.9.5
+   Compiling dunce v1.0.5
+   Compiling fs_extra v1.3.0
+   Compiling time-core v0.1.8
+   Compiling unicase v2.9.0
+   Compiling hashbrown v0.16.1
+   Compiling phf_shared v0.11.3
+   Compiling rand_core v0.6.4
+   Compiling windows-result v0.3.4
+   Compiling windows-strings v0.4.2
+   Compiling rust_decimal v1.40.0
+   Compiling num-conv v0.2.0
+   Compiling deranged v0.5.6
+   Compiling rstest_macros v0.26.1
+   Compiling uuid v1.20.0
+   Compiling itertools v0.12.1
+   Compiling zlib-rs v0.6.0
+   Compiling phf_generator v0.11.3
+   Compiling base64ct v1.8.3
+   Compiling safe_arch v0.7.4
+   Compiling cc v1.2.56
+   Compiling time-macros v0.2.27
+   Compiling const-random-macro v0.1.16
+   Compiling phf_codegen v0.11.3
+   Compiling aho-corasick v1.1.4
+   Compiling password-hash v0.5.0
+   Compiling pest v2.8.6
+   Compiling phf_shared v0.13.1
+   Compiling windows-threading v0.1.0
+   Compiling aws-lc-rs v1.15.4
+   Compiling toml_edit v0.23.10+spec-1.0.0
+   Compiling ntapi v0.4.3
+   Compiling dtoa v1.0.11
+   Compiling wide v0.7.33
+   Compiling phf_generator v0.13.1
+   Compiling bytes v1.11.1
+   Compiling dtoa-short v0.3.5
+   Compiling fastnum v0.7.4
+   Compiling ryu v1.0.23
+   Compiling untrusted v0.7.1
+   Compiling toml_edit v0.19.15
+   Compiling pbkdf2 v0.12.2
+   Compiling arc-swap v1.8.1
+   Compiling signature v2.2.0
+   Compiling tempfile v3.25.0
+   Compiling zune-core v0.5.1
+   Compiling data-encoding v2.10.0
+   Compiling surrealdb-core v3.0.0-beta (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling endian-type v0.2.0
+   Compiling cmake v0.1.57
+   Compiling proc-macro-crate v3.4.0
+   Compiling seize v0.5.1
+   Compiling constant_time_eq v0.4.2
+   Compiling zune-jpeg v0.5.12
+   Compiling petgraph v0.6.5
+   Compiling scrypt v0.11.0
+   Compiling bcrypt v0.18.0
+   Compiling argon2 v0.5.3
+   Compiling ena v0.14.4
+   Compiling papaya v0.2.3
+   Compiling clap_lex v1.0.0
+   Compiling debug_unsafe v0.1.4
+   Compiling syn v2.0.115
+   Compiling string_cache_codegen v0.5.4
+   Compiling syn v1.0.109
+   Compiling surrealdb v3.0.0-beta (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling clap_builder v4.5.58
+   Compiling atoi_simd v0.16.1
+   Compiling nom v7.1.3
+   Compiling quick-xml v0.37.5
+   Compiling fixedbitset v0.5.7
+   Compiling num-traits v0.2.19
+   Compiling regex-automata v0.4.14
+   Compiling i_float v1.15.0
+   Compiling geographiclib-rs v0.2.6
+   Compiling pest_meta v2.8.6
+   Compiling winreg v0.50.0
+   Compiling i_shape v1.14.0
+   Compiling jsonxf v1.1.1
+   Compiling nom v8.0.0
+   Compiling ring v0.17.14
+   Compiling aws-lc-sys v0.37.1
+   Compiling lz4-sys v1.11.1+lz4-1.10.0
+   Compiling time v0.3.47
+   Compiling web_atoms v0.1.3
+   Compiling blake3 v1.8.3
+   Compiling proc-macro-crate v1.3.1
+   Compiling const-random v0.1.18
+   Compiling smol_str v0.3.5
+   Compiling parse_pdms_db v3.0.0 (D:\work\plant-code\pdms-io-fork\crates\parse_pdms_db)
+   Compiling dlv-list v0.5.2
+   Compiling notify-types v2.1.0
+   Compiling i_overlay v4.0.7
+   Compiling nanorand v0.7.0
+   Compiling flate2 v1.1.9
+   Compiling approx v0.5.1
+   Compiling num-integer v0.1.46
+   Compiling earcutr v0.4.3
+   Compiling rmp v0.8.15
+   Compiling pxfm v0.1.27
+   Compiling noisy_float v0.2.1
+   Compiling ordered-float v5.1.0
+   Compiling static_aabb2d_index v2.0.0
+   Compiling pdms_io v0.1.0 (D:\work\plant-code\pdms-io-fork)
+warning: unused import: `std::fs`
+ --> build.rs:1:5
+  |
+1 | use std::fs;
+  |     ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::process::Command`
+ --> build.rs:3:5
+  |
+3 | use std::process::Command;
+  |     ^^^^^^^^^^^^^^^^^^^^^
+
+   Compiling flume v0.11.1
+   Compiling notify v8.2.0
+   Compiling num-bigint v0.4.6
+   Compiling num-rational v0.4.2
+   Compiling png v0.18.0
+   Compiling zip v4.6.1
+   Compiling i_triangle v0.37.2
+   Compiling simplelog v0.12.2
+   Compiling regex v1.12.3
+warning: `pdms_io` (build script) generated 2 warnings
+   Compiling darling_core v0.14.4
+   Compiling synstructure v0.13.2
+   Compiling darling_core v0.20.11
+   Compiling darling_core v0.21.3
+   Compiling pest_generator v2.8.6
+   Compiling prettyplease v0.2.37
+   Compiling moxcms v0.7.11
+   Compiling derivative v2.2.0
+   Compiling hash32-derive v0.1.1
+   Compiling serde_derive v1.0.228
+   Compiling zerocopy-derive v0.8.39
+   Compiling tokio-macros v2.6.0
+   Compiling zerofrom-derive v0.1.6
+   Compiling futures-macro v0.3.31
+   Compiling yoke-derive v0.8.1
+   Compiling tracing-attributes v0.1.31
+   Compiling zerovec-derive v0.11.2
+   Compiling displaydoc v0.2.5
+   Compiling thiserror-impl v2.0.18
+   Compiling ptr_meta_derive v0.3.1
+   Compiling async-trait v0.1.89
+   Compiling bytecheck_derive v0.8.2
+   Compiling windows-implement v0.60.2
+   Compiling windows-interface v0.59.3
+   Compiling munge_macro v0.4.7
+   Compiling phf_macros v0.11.3
+   Compiling pin-project-internal v1.1.10
+   Compiling prost-derive v0.14.3
+   Compiling rkyv_derive v0.8.15
+   Compiling prost-derive v0.12.6
+   Compiling ptr_meta v0.3.1
+   Compiling darling_macro v0.20.11
+   Compiling cssparser-macros v0.6.1
+   Compiling match_token v0.35.0
+   Compiling darling_macro v0.14.4
+   Compiling pin-project v1.1.10
+   Compiling phf v0.11.3
+   Compiling nalgebra-macros v0.3.0
+   Compiling windows-core v0.61.2
+   Compiling revision-derive v0.17.0
+   Compiling futures-util v0.3.31
+   Compiling zerofrom v0.1.6
+   Compiling tracing v0.1.44
+   Compiling rancor v0.1.1
+   Compiling munge v0.4.7
+   Compiling strum_macros v0.27.2
+   Compiling thiserror-impl v1.0.69
+   Compiling surrealdb-types-derive v3.0.0-beta (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling phf_macros v0.13.1
+   Compiling yoke v0.8.1
+   Compiling bytecheck v0.8.2
+   Compiling darling_macro v0.21.3
+   Compiling simple_asn1 v0.6.4
+   Compiling storekey-derive v0.11.0
+   Compiling lz4 v1.28.1
+   Compiling pest_derive v2.8.6
+   Compiling num-derive v0.4.2
+   Compiling gltf-derive v1.4.1
+   Compiling zerovec v0.11.5
+   Compiling zerotrie v0.2.3
+   Compiling rend v0.5.3
+   Compiling windows-collections v0.2.0
+   Compiling windows-future v0.2.1
+   Compiling windows-numerics v0.2.0
+   Compiling image v0.25.9
+   Compiling num_enum_derive v0.7.5
+   Compiling windows v0.61.3
+   Compiling tinystr v0.8.2
+   Compiling potential_utf v0.1.4
+   Compiling derive_more-impl v1.0.0
+   Compiling darling v0.20.11
+   Compiling clap_derive v4.5.55
+   Compiling icu_locale_core v2.1.1
+   Compiling icu_collections v2.1.1
+   Compiling darling v0.21.3
+   Compiling rustls v0.21.12
+   Compiling serde_with_macros v3.16.1
+   Compiling cached_proc_macro v0.25.0
+   Compiling phf v0.13.1
+   Compiling cached_proc_macro v0.23.0
+   Compiling serde_repr v0.1.20
+   Compiling async-recursion v1.1.1
+   Compiling darling v0.14.4
+   Compiling serde v1.0.228
+   Compiling icu_provider v2.1.1
+   Compiling deku_derive v0.16.0
+   Compiling icu_properties v2.1.2
+   Compiling futures-executor v0.3.31
+   Compiling prost v0.12.6
+   Compiling thiserror v1.0.69
+   Compiling futures v0.3.31
+   Compiling smallvec v1.15.1
+   Compiling arrayvec v0.7.6
+   Compiling num-complex v0.4.6
+   Compiling chrono v0.4.43
+   Compiling parking_lot_core v0.9.12
+   Compiling icu_normalizer v2.1.1
+   Compiling spade v2.15.0
+   Compiling rstar v0.12.2
+   Compiling parking_lot v0.12.5
+   Compiling http v1.4.0
+   Compiling prost v0.14.3
+   Compiling http v0.2.12
+   Compiling flatbuffers v25.12.19
+   Compiling simba v0.9.1
+   Compiling ndarray v0.17.2
+   Compiling sct v0.7.1
+   Compiling rkyv v0.8.15
+   Compiling rstest v0.26.1
+   Compiling rustls-webpki v0.101.7
+   Compiling cssparser v0.35.0
+   Compiling ppv-lite86 v0.2.21
+   Compiling ahash v0.8.12
+   Compiling half v2.7.1
+   Compiling nibble_vec v0.1.0
+   Compiling tokio v1.49.0
+   Compiling string_cache v0.8.9
+   Compiling idna_adapter v1.2.1
+   Compiling geo-types v0.7.18
+   Compiling hashbrown v0.14.5
+   Compiling idna v1.1.0
+   Compiling rand_chacha v0.3.1
+   Compiling rand_chacha v0.9.0
+   Compiling prost-types v0.14.3
+   Compiling ciborium-ll v0.2.2
+   Compiling toml_datetime v0.6.11
+   Compiling rmp-serde v1.3.1
+   Compiling http-body v1.0.1
+   Compiling rand v0.8.5
+   Compiling rand v0.9.2
+   Compiling http-body-util v0.1.3
+   Compiling url v2.5.8
+   Compiling headers-core v0.3.0
+   Compiling roaring v0.11.3
+   Compiling bincode v2.0.1
+   Compiling axum-core v0.5.6
+   Compiling serde_spanned v0.6.9
+   Compiling headers v0.4.1
+   Compiling ext-sort v0.1.5
+   Compiling hashlink v0.8.4
+   Compiling ordered-multimap v0.7.3
+   Compiling dashmap v6.1.0
+   Compiling ciborium v0.2.2
+   Compiling http-body v0.4.6
+   Compiling toml_edit v0.22.27
+   Compiling quick_cache v0.6.18
+   Compiling radix_trie v0.3.0
+   Compiling strum v0.27.2
+   Compiling geo v0.32.0
+   Compiling markup5ever v0.35.0
+   Compiling geo v0.31.0
+   Compiling nanoid v0.4.0
+   Compiling storekey v0.11.0
+   Compiling ulid v1.2.1
+   Compiling tungstenite v0.28.0
+   Compiling html5ever v0.35.0
+   Compiling prost-types v0.12.6
+   Compiling rust-stemmers v1.2.0
+   Compiling surrealmx v0.16.0
+   Compiling serde_arrays v0.2.0
+   Compiling snowflake v1.3.0
+   Compiling indextree-macros v0.1.3 (https://github.com/happyrust/indextree?branch=main#2416dca0)
+   Compiling yaml-rust2 v0.8.1
+   Compiling rust-ini v0.20.0
+   Compiling json5 v0.4.1
+   Compiling ron v0.8.1
+   Compiling gltf-json v1.4.1
+   Compiling id_tree v1.8.0 (https://github.com/happyrust/id_tree#483f2ec0)
+   Compiling derive_more v1.0.0
+   Compiling serde_with v3.16.1
+   Compiling num_enum v0.7.5
+   Compiling dashmap v7.0.0-rc2
+   Compiling rstar v0.11.0 (https://github.com/happyrust/rstar#13be3c25)
+   Compiling calamine v0.26.1 (https://github.com/happyrust/calamine#f35ae176)
+   Compiling serde_urlencoded v0.7.1
+   Compiling clap v4.5.58
+   Compiling glam v0.30.10
+   Compiling ammonia v4.1.2
+   Compiling prost-build v0.12.6
+   Compiling deku v0.16.0
+   Compiling cavalier_contours v0.4.0 (https://github.com/happyrust/cavalier_contours#d2d0db13)
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling erased-serde v0.3.31
+   Compiling bincode v1.3.3
+   Compiling petgraph v0.8.3
+   Compiling id_tree v1.8.0
+   Compiling ndarray-stats v0.7.0
+   Compiling cached v0.54.0
+   Compiling toml v0.8.23
+   Compiling dynfmt v0.1.5
+   Compiling gltf v1.4.1
+   Compiling revision v0.17.0
+   Compiling config v0.14.1
+   Compiling dpcsync v0.1.0 (https://github.com/happyrust/dpc-sync#1432df6b)
+   Compiling indextree v4.7.4 (https://github.com/happyrust/indextree?branch=main#2416dca0)
+   Compiling tokio-util v0.7.18
+   Compiling tokio-stream v0.1.18
+   Compiling affinitypool v0.4.0
+   Compiling object_store v0.13.1
+   Compiling tokio-tungstenite v0.28.0
+   Compiling tokio-rustls v0.24.1
+   Compiling cached v0.56.0
+   Compiling h2 v0.4.13
+   Compiling tower v0.5.3
+   Compiling h2 v0.3.27
+   Compiling axum v0.8.8
+   Compiling hyper v1.8.1
+   Compiling hyper v0.14.32
+   Compiling hyper-util v0.1.20
+   Compiling nalgebra v0.34.1
+   Compiling ploop-rs v0.1.0 (https://github.com/happyrust/rust-ploop-processor?branch=1.0#33985df4)
+   Compiling hyper-rustls v0.24.2
+   Compiling reqwest v0.11.27
+   Compiling hyper-timeout v0.5.2
+   Compiling tonic v0.14.3
+   Compiling tonic-prost v0.14.3
+   Compiling surrealdb-protocol v0.7.0 (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling surrealdb-types v3.0.0-beta (https://github.com/happyrust/surrealdb?branch=updated#5e96aea2)
+   Compiling parry2d v0.25.3
+   Compiling parry3d v0.25.3
+   Compiling jsonwebtoken v10.3.0
+   Compiling sysinfo v0.37.2
+   Compiling aios_core v0.2.3 (https://github.com/happyrust/rs-core?branch=dev-3.1#d851000d)
+warning: unused `#[macro_use]` import
+ --> crates\parse_pdms_db\src\lib.rs:8:1
+  |
+8 | #[macro_use]
+  | ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unexpected `cfg` condition name: `debug_parse_expr`
+    --> crates\parse_pdms_db\src\parse.rs:2647:11
+     |
+2647 |     #[cfg(debug_parse_expr)]
+     |           ^^^^^^^^^^^^^^^^
+     |
+     = help: expected names are: `docsrs`, `feature`, and `test` and 31 more
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(debug_parse_expr)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(debug_parse_expr)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+  --> crates\parse_pdms_db\src\parse.rs:44:20
+   |
+44 | use nom::sequence::tuple;
+   |                    ^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1512:47
+     |
+1512 |                     let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(bytes)?;
+     |                                               ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1921:55
+     |
+1921 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1938:55
+     |
+1938 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1995:59
+     |
+1995 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2563:45
+     |
+2563 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2576:45
+     |
+2576 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2596:45
+     |
+2596 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2608:45
+     |
+2608 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2655:13
+     |
+2655 |             tuple((be_u32, be_u32, be_u32, be_u32, be_u32))(input)?;
+     |             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2678:41
+     |
+2678 |                 let (_, (a, b, c, d)) = tuple((be_u32, be_u32, be_u32, be_u32))(tmp_input)?;
+     |                                         ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:3099:35
+     |
+3099 |         let (_, (_len, _refno)) = tuple::<_, _, nom::error::Error<&[u8]>, _>((
+     |                                   ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+  --> crates\parse_pdms_db\src\parse_explict_tools.rs:15:20
+   |
+15 | use nom::sequence::tuple;
+   |                    ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+   --> crates\parse_pdms_db\src\parse_explict_tools.rs:427:25
+    |
+427 |                         tuple((be_i32, be_i32))(&expression_input[..])?;
+    |                         ^^^^^
+
+warning: unused import: `tokio::io::AsyncReadExt`
+  --> crates\parse_pdms_db\src\parse.rs:58:5
+   |
+58 | use tokio::io::AsyncReadExt;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `itertools::Itertools`
+  --> crates\parse_pdms_db\src\parse.rs:33:5
+   |
+33 | use itertools::Itertools;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `core::slice::SlicePattern`
+  --> crates\parse_pdms_db\src\parse.rs:31:5
+   |
+31 | use core::slice::SlicePattern;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: value assigned to `memb_bytes_len` is never read
+   --> crates\parse_pdms_db\src\parse.rs:444:13
+    |
+444 |             memb_bytes_len = declared_bytes;
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `step_w` is never read
+   --> crates\parse_pdms_db\src\parse.rs:489:26
+    |
+489 |         let mut step_w = 0;
+    |                          ^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: unused variable: `e`
+   --> crates\parse_pdms_db\src\parser\attribute\expression.rs:347:17
+    |
+347 |             Err(e) => {
+    |                 ^ help: if this is intentional, prefix it with an underscore: `_e`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `e`
+   --> crates\parse_pdms_db\src\parser\attribute\expression.rs:409:13
+    |
+409 |         Err(e) => {
+    |             ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:199:19
+    |
+199 |             801 | 0x321 => Ok(ArithmeticOpcode::Negate),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+    |
+    = note: `#[warn(unreachable_patterns)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:200:19
+    |
+200 |             802 | 0x322 => Ok(ArithmeticOpcode::Plus),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:201:19
+    |
+201 |             803 | 0x323 => Ok(ArithmeticOpcode::Sub),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:202:19
+    |
+202 |             804 | 0x324 => Ok(ArithmeticOpcode::Mul),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:203:19
+    |
+203 |             805 | 0x325 => Ok(ArithmeticOpcode::Div),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:260:19
+    |
+260 |             901 | 0x385 => Ok(TrigonometricOpcode::Sin),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:261:19
+    |
+261 |             902 | 0x386 => Ok(TrigonometricOpcode::Cos),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:262:19
+    |
+262 |             903 | 0x387 => Ok(TrigonometricOpcode::Tan),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:263:19
+    |
+263 |             904 | 0x388 => Ok(TrigonometricOpcode::Asin),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:264:19
+    |
+264 |             905 | 0x389 => Ok(TrigonometricOpcode::Acos),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:265:19
+    |
+265 |             906 | 0x38A => Ok(TrigonometricOpcode::Atan),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:266:19
+    |
+266 |             907 | 0x38B => Ok(TrigonometricOpcode::Atan2),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:329:20
+    |
+329 |             1001 | 0x3E9 => Ok(RealFunctionOpcode::Sqrt),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:330:20
+    |
+330 |             1002 | 0x3EA => Ok(RealFunctionOpcode::Pow),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:331:20
+    |
+331 |             1003 | 0x3EB => Ok(RealFunctionOpcode::Log),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:332:20
+    |
+332 |             1004 | 0x3EC => Ok(RealFunctionOpcode::Alog),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:333:20
+    |
+333 |             1005 | 0x3ED => Ok(RealFunctionOpcode::Int),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:334:20
+    |
+334 |             1006 | 0x3EE => Ok(RealFunctionOpcode::Nint),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:335:20
+    |
+335 |             1007 | 0x3EF => Ok(RealFunctionOpcode::Abs),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:336:20
+    |
+336 |             1008 | 0x3F0 => Ok(RealFunctionOpcode::Max),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:337:20
+    |
+337 |             1009 | 0x3F1 => Ok(RealFunctionOpcode::Min),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:466:20
+    |
+466 |             1301 | 0x515 => Ok(StringFunctionOpcode::Length),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:467:20
+    |
+467 |             1302 | 0x516 => Ok(StringFunctionOpcode::Real),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:468:20
+    |
+468 |             1303 | 0x517 => Ok(StringFunctionOpcode::Match),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:469:20
+    |
+469 |             1304 | 0x518 => Ok(StringFunctionOpcode::After),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:470:20
+    |
+470 |             1305 | 0x519 => Ok(StringFunctionOpcode::Before),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:471:20
+    |
+471 |             1306 | 0x51A => Ok(StringFunctionOpcode::String),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:472:20
+    |
+472 |             1307 | 0x51B => Ok(StringFunctionOpcode::Upcase),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:473:20
+    |
+473 |             1308 | 0x51C => Ok(StringFunctionOpcode::Lowcase),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:474:20
+    |
+474 |             1309 | 0x51D => Ok(StringFunctionOpcode::Substring),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:475:20
+    |
+475 |             1311 | 0x51F => Ok(StringFunctionOpcode::Defined),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:476:20
+    |
+476 |             1312 | 0x520 => Ok(StringFunctionOpcode::Undefined),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:477:20
+    |
+477 |             1313 | 0x521 => Ok(StringFunctionOpcode::Size),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:478:20
+    |
+478 |             1314 | 0x522 => Ok(StringFunctionOpcode::Trim),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:479:20
+    |
+479 |             1315 | 0x523 => Ok(StringFunctionOpcode::Matchwild),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:480:20
+    |
+480 |             1316 | 0x524 => Ok(StringFunctionOpcode::Width),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:481:20
+    |
+481 |             1317 | 0x525 => Ok(StringFunctionOpcode::Part),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:482:20
+    |
+482 |             1321 | 0x529 => Ok(StringFunctionOpcode::Occurs),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:483:20
+    |
+483 |             1322 | 0x52A => Ok(StringFunctionOpcode::Replace),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:484:20
+    |
+484 |             1369 | 0x559 => Ok(StringFunctionOpcode::Vtext),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:485:20
+    |
+485 |             1370 | 0x55A => Ok(StringFunctionOpcode::Vvalue),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:486:20
+    |
+486 |             1401 | 0x579 => Ok(StringFunctionOpcode::RealAlt),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:487:20
+    |
+487 |             1410 | 0x582 => Ok(StringFunctionOpcode::Str),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:532:19
+    |
+532 |             301 | 0x12D => Ok(BooleanOpcode::Not),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:533:19
+    |
+533 |             302 | 0x12E => Ok(BooleanOpcode::And),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:534:19
+    |
+534 |             303 | 0x12F => Ok(BooleanOpcode::Or),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:580:19
+    |
+580 |             401 | 0x191 => Ok(ComparisonOpcode::Eq),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:581:19
+    |
+581 |             501 | 0x1F5 => Ok(ComparisonOpcode::Neq),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:583:19
+    |
+583 |             601 | 0x259 | 602 => Ok(ComparisonOpcode::Gt),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: function `gen_resolve_error` is never used
+  --> crates\parse_pdms_db\src\error_types.rs:57:4
+   |
+57 | fn gen_resolve_error() -> anyhow::Result<u32> {
+   |    ^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `get_uda_short_name` is never used
+    --> crates\parse_pdms_db\src\parse.rs:1588:4
+     |
+1588 | fn get_uda_short_name(hash: i32) -> Option<String> {
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `convert_int_to_axis_str` is never used
+    --> crates\parse_pdms_db\src\parse.rs:2151:4
+     |
+2151 | fn convert_int_to_axis_str(n: i32) -> &'static str {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `anyhow::anyhow`
+ --> src\common.rs:1:5
+  |
+1 | use anyhow::anyhow;
+  |     ^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `deku::prelude::*`
+ --> src\common.rs:2:5
+  |
+2 | use deku::prelude::*;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused imports: `TryFrom` and `TryInto`
+ --> src\common.rs:3:20
+  |
+3 | use std::convert::{TryFrom, TryInto};
+  |                    ^^^^^^^  ^^^^^^^
+
+warning: unused import: `std::fmt::Debug`
+ --> src\common.rs:4:5
+  |
+4 | use std::fmt::Debug;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `std::fs::File`
+ --> src\common.rs:5:5
+  |
+5 | use std::fs::File;
+  |     ^^^^^^^^^^^^^
+
+warning: unused imports: `Read`, `SeekFrom`, and `Seek`
+ --> src\common.rs:6:15
+  |
+6 | use std::io::{Read, Seek, SeekFrom};
+  |               ^^^^  ^^^^  ^^^^^^^^
+
+warning: unused import: `std::mem::size_of`
+ --> src\common.rs:7:5
+  |
+7 | use std::mem::size_of;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `MappedLocalTime`
+ --> src\defines.rs:4:31
+  |
+4 | use chrono::{DateTime, Local, MappedLocalTime, TimeZone, Utc};
+  |                               ^^^^^^^^^^^^^^^
+
+warning: unused import: `TryInto`
+  --> src\defines.rs:10:29
+   |
+10 | use std::convert::{TryFrom, TryInto};
+   |                             ^^^^^^^
+
+warning: unused import: `std::str::FromStr`
+  --> src\defines.rs:11:5
+   |
+11 | use std::str::FromStr;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> src\element_serializer.rs:24:5
+   |
+24 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PageKey`
+  --> src\writer.rs:14:27
+   |
+14 | use crate::page_manager::{PageKey, PageManager};
+   |                           ^^^^^^^
+
+warning: unused import: `tokio::fs::File`
+ --> src\sync\sync.rs:5:5
+  |
+5 | use tokio::fs::File;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `log::*`
+ --> src\sync\compress.rs:4:5
+  |
+4 | use log::*;
+  |     ^^^^^^
+
+warning: unused import: `std::fs::create_dir_all`
+ --> src\sync\compress.rs:5:5
+  |
+5 | use std::fs::create_dir_all;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `human_size`
+  --> src\sync\compress.rs:14:13
+   |
+14 | use crate::{human_size /*info_cmd*/};
+   |             ^^^^^^^^^^
+
+warning: unused import: `archive_reader::IoReader`
+  --> src\sync\compress.rs:16:24
+   |
+16 | use dpcsync::{HashSum, archive_reader::IoReader, chunk_dictionary as dict};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PdmsHeader`
+ --> src\watch.rs:1:39
+  |
+1 | use crate::defines::{DbPageBasicInfo, PdmsHeader};
+  |                                       ^^^^^^^^^^
+
+warning: unused import: `future::ok`
+ --> src\watch.rs:7:5
+  |
+7 |     future::ok,
+  |     ^^^^^^^^^^
+
+warning: unused import: `RecursiveMode`
+  --> src\watch.rs:11:49
+   |
+11 | use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+   |                                                 ^^^^^^^^^^^^^
+
+warning: unused import: `Read`
+  --> src\watch.rs:13:15
+   |
+13 | use std::io::{Read, Write};
+   |               ^^^^
+
+warning: unreachable expression
+  --> src\sync\sync.rs:37:5
+   |
+35 |     anyhow::bail!("compress_archive is not available: dpcsync dependency is commented out");
+   |     --------------------------------------------------------------------------------------- any code following this expression is unreachable
+36 |
+37 |     Ok(())
+   |     ^^^^^^ unreachable expression
+   |
+   = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `parse_pdms_db` (lib) generated 75 warnings (run `cargo fix --lib -p parse_pdms_db` to apply 2 suggestions)
+warning: unused import: `TryFrom`
+  --> src\defines.rs:10:20
+   |
+10 | use std::convert::{TryFrom, TryInto};
+   |                    ^^^^^^^
+
+warning: unused import: `StreamExt`
+ --> src\watch.rs:5:14
+  |
+5 |     SinkExt, StreamExt,
+  |              ^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src\defines.rs:497:25
+    |
+497 |         let (next_rest, mut d) = RefnoDataLoc::read(rest, ())?;
+    |                         ----^
+    |                         |
+    |                         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `written`
+   --> src\writer.rs:835:13
+    |
+835 |         let written = self.element_writer.flush(file)?;
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_written`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `index`
+  --> src\sync\compress.rs:93:18
+   |
+93 |             let (index, offset, verified, compressed) = result.context("Error compressing")?;
+   |                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_index`
+
+warning: unused variable: `offset`
+  --> src\sync\compress.rs:93:25
+   |
+93 |             let (index, offset, verified, compressed) = result.context("Error compressing")?;
+   |                         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_offset`
+
+warning: unused variable: `input`
+   --> src\watch.rs:139:21
+    |
+139 |                 let input = path.to_path_buf();
+    |                     ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+
+warning: unused variable: `output`
+   --> src\watch.rs:140:21
+    |
+140 |                 let output: PathBuf =
+    |                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_output`
+
+warning: unused variable: `tmp_path`
+   --> src\watch.rs:142:21
+    |
+142 |                 let tmp_path = cbas_dir_path.clone();
+    |                     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_tmp_path`
+
+warning: unused variable: `rotate_size`
+  --> src\io_log.rs:44:5
+   |
+44 |     rotate_size: u64,
+   |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rotate_size`
+
+warning: unused variable: `max_files`
+  --> src\io_log.rs:45:5
+   |
+45 |     max_files: usize,
+   |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_max_files`
+
+warning: associated function `has_next_block_header` is never used
+   --> src\element_record_reader.rs:168:8
+    |
+ 10 | impl ElementRecordReader {
+    | ------------------------ associated function in this implementation
+...
+168 |     fn has_next_block_header(data: &[u8], pos: usize) -> bool {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pdms_io` (lib) generated 34 warnings (run `cargo fix --lib -p pdms_io` to apply 30 suggestions)
+warning: unused import: `std::env`
+ --> src\bin\benchmark_increment_eles.rs:3:5
+  |
+3 | use std::env;
+  |     ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Utc`
+  --> src\bin\test_sesno_timestamp.rs:95:36
+   |
+95 |             use chrono::{DateTime, Utc};
+   |                                    ^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `PageTypeError`
+ --> src\bin\test_page_types.rs:2:32
+  |
+2 |     DataPageSubtype, PageType, PageTypeError, verify_data_page_subtype, verify_page_type,
+  |                                ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `PageTypeError`
+ --> src\bin\test_all_fixes.rs:2:43
+  |
+2 |     DataPageSubtype, PAGE_SIZE, PageType, PageTypeError, PdmsHeader, verify_data_page_subtype,
+  |                                           ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::RefU64`
+ --> src\bin\test_increment_eles.rs:7:5
+  |
+7 | use aios_core::RefU64;
+  |     ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::pdms_types::EleOperation`
+ --> src\bin\test_increment_eles.rs:9:5
+  |
+9 | use aios_core::pdms_types::EleOperation;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `EleOperationData` and `EleOperationDetail`
+  --> src\bin\test_increment_eles.rs:11:19
+   |
+11 | use pdms_io::io::{EleOperationData, EleOperationDetail, PdmsIO};
+   |                   ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::SUL_DB`
+  --> src\bin\test_increment_eles.rs:15:5
+   |
+15 | use aios_core::SUL_DB; // 导入SurrealDB全局连接
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> src\bin\test_increment_eles.rs:17:5
+   |
+17 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::pdms_types::RefU64`
+ --> src\main.rs:5:5
+  |
+5 | use aios_core::pdms_types::RefU64;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::NamedAttrValue`
+ --> src\bin\test_get_refno_status.rs:1:5
+  |
+1 | use aios_core::NamedAttrValue;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `EleRawData`
+ --> src\main.rs:7:37
+  |
+7 | use pdms_io::defines::{ElePageData, EleRawData, PAGE_SIZE};
+  |                                     ^^^^^^^^^^
+
+warning: unused import: `pdms_io::test::resolve_test_db_path`
+ --> src\main.rs:9:5
+  |
+9 | use pdms_io::test::resolve_test_db_path;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::mem::size_of`
+  --> src\main.rs:14:5
+   |
+14 | use std::mem::size_of;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `EleOperation`
+ --> src\bin\test_get_refno_status.rs:2:29
+  |
+2 | use aios_core::pdms_types::{EleOperation, RefU64};
+  |                             ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> src\main.rs:44:9
+   |
+44 |     let mut bytes: Vec<u8> = ele_page.clone().try_into().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> src\main.rs:60:9
+   |
+60 |     let mut bytes: Vec<u8> = ele_page.try_into().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: unused variable: `elapsed`
+  --> src\bin\test_increment_eles.rs:73:9
+   |
+73 |     let elapsed = start_time.elapsed();
+   |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_elapsed`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> src\main.rs:74:9
+   |
+74 |     let mut watch_files: Vec<PathBuf> = Vec::new();
+   |         ----^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:81:9
+   |
+81 |     let mut watcher = PdmsWatcher::new(db_paths);
+   |         ----^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:83:9
+   |
+83 |     let mut time = Instant::now();
+   |         ----^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: unused variable: `watch_files`
+  --> src\main.rs:74:9
+   |
+74 |     let mut watch_files: Vec<PathBuf> = Vec::new();
+   |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_watch_files`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary parentheses around function argument
+   --> src\page_manager.rs:523:55
+    |
+523 |             let mut page = CachedPage::new(i, 0, vec![(i as u8); 512]);
+    |                                                       ^       ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+523 -             let mut page = CachedPage::new(i, 0, vec![(i as u8); 512]);
+523 +             let mut page = CachedPage::new(i, 0, vec![i as u8; 512]);
+    |
+
+warning: unused import: `std::path::Path`
+  --> src\test\test_case_loader.rs:24:5
+   |
+24 | use std::path::Path;
+   |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `extract_test_refnos`
+  --> src\test\test_collect_latest_eles.rs:10:45
+   |
+10 | use crate::io::{EleOperationDetail, PdmsIO, extract_test_refnos};
+   |                                             ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::io::PdmsIO`
+ --> src\test\test_desp_attribute.rs:5:5
+  |
+5 | use crate::io::PdmsIO;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::test::resolve_test_db_path`
+ --> src\test\test_desp_attribute.rs:6:5
+  |
+6 | use crate::test::resolve_test_db_path;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::RefU64`
+ --> src\test\test_desp_attribute.rs:7:5
+  |
+7 | use aios_core::RefU64;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `parse_pdms_db::parse::parse_raw_ele_data`
+ --> src\test\test_desp_attribute.rs:8:5
+  |
+8 | use parse_pdms_db::parse::parse_raw_ele_data;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::path::Path`
+ --> src\test\test_desp_attribute.rs:9:5
+  |
+9 | use std::path::Path;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::io::PdmsIO`
+ --> src\test\test_history_data.rs:1:5
+  |
+1 | use crate::io::PdmsIO;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `RefU64` and `init_test_surreal`
+ --> src\test\test_history_data.rs:3:17
+  |
+3 | use aios_core::{RefU64, init_test_surreal};
+  |                 ^^^^^^  ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::tool::db_tool::db1_dehash`
+ --> src\test\test_parse_ele.rs:3:5
+  |
+3 | use aios_core::tool::db_tool::db1_dehash;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `EleOperationDetail` and `PdmsIO`
+ --> src\test\test_refno_status.rs:8:17
+  |
+8 | use crate::io::{EleOperationDetail, PdmsIO};
+  |                 ^^^^^^^^^^^^^^^^^^  ^^^^^^
+
+warning: unused import: `crate::test::resolve_test_db_path`
+ --> src\test\test_refno_status.rs:9:5
+  |
+9 | use crate::test::resolve_test_db_path;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `EleOperation` and `RefU64`
+  --> src\test\test_refno_status.rs:10:29
+   |
+10 | use aios_core::pdms_types::{EleOperation, RefU64};
+   |                             ^^^^^^^^^^^^  ^^^^^^
+
+warning: unused import: `std::time::Instant`
+  --> src\test\test_refno_status.rs:11:5
+   |
+11 | use std::time::Instant;
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::io::PdmsIO`
+ --> src\test\test_ses_validate.rs:1:5
+  |
+1 | use crate::io::PdmsIO;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::test::resolve_test_db_path`
+ --> src\test\test_ses_validate.rs:2:5
+  |
+2 | use crate::test::resolve_test_db_path;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `anyhow::Result`
+ --> src\test\test_ses_validate.rs:3:5
+  |
+3 | use anyhow::Result;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashSet`
+ --> src\test\test_ses_validate.rs:4:5
+  |
+4 | use std::collections::HashSet;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::path::Path`
+ --> src\test\test_ses_validate.rs:5:5
+  |
+5 | use std::path::Path;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::defines::*`
+ --> src\test\test_write_integration.rs:3:9
+  |
+3 |     use crate::defines::*;
+  |         ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::RefU64`
+ --> src\test\test_write_integration.rs:6:9
+  |
+6 |     use aios_core::RefU64;
+  |         ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::io::PdmsIO`
+ --> src\tests\refno_test.rs:1:5
+  |
+1 | use crate::io::PdmsIO;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `EleOperation` and `RefU64`
+ --> src\tests\refno_test.rs:2:29
+  |
+2 | use aios_core::pdms_types::{EleOperation, RefU64};
+  |                             ^^^^^^^^^^^^  ^^^^^^
+
+warning: unused import: `Path`
+ --> src\tests\refno_test.rs:4:17
+  |
+4 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `Instant`
+ --> src\tests\refno_test.rs:5:27
+  |
+5 | use std::time::{Duration, Instant};
+  |                           ^^^^^^^
+
+memory allocation of 8650768 bytes failed
+memory allocation of 1081360 bytes failed
+memory allocation of 1081360 bytes failed
+memory allocation of 1638416 bytes failed
+memory allocation of 2097152 bytes failed
+memory allocation of 2097152 bytes failed
+memory allocation of 2097152 bytes failed
+memory allocation of 2097152 bytes failed
+memory allocation of 2097152 bytes failed
+memory allocation of 8650768 bytes failed
+memory allocation of 3276816 bytes failed
+memory allocation of 1343504 bytes failed
+error: could not compile `pdms_io` (test "dblist_regression")
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name dblist_regression --edition=2024 'tests\dblist_regression.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --test --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=28eb15212b025cea -C extra-filename=-7bcff96bf508bfad --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+warning: build failed, waiting for other jobs to finish...
+warning: `pdms_io` (bin "test_all_fixes") generated 1 warning (run `cargo fix --bin "test_all_fixes" -p pdms_io` to apply 1 suggestion)
+error: could not compile `pdms_io` (bin "test_all_fixes"); 1 warning emitted
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name test_all_fixes --edition=2024 'src\bin\test_all_fixes.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=a0e18ddf758c7ed8 --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+error: could not compile `pdms_io` (test "debug_trim_lowcase")
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name debug_trim_lowcase --edition=2024 'tests\debug_trim_lowcase.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --test --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=f07b0302e12c60ce -C extra-filename=-c3daec5bc2732592 --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+warning: `pdms_io` (bin "benchmark_increment_eles") generated 1 warning (run `cargo fix --bin "benchmark_increment_eles" -p pdms_io` to apply 1 suggestion)
+error: could not compile `pdms_io` (bin "benchmark_increment_eles"); 1 warning emitted
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name benchmark_increment_eles --edition=2024 'src\bin\benchmark_increment_eles.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=6a8ca04bd8f4a1b2 --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+error: could not compile `pdms_io` (test "ptcd_surreal_sampling")
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name ptcd_surreal_sampling --edition=2024 'tests\ptcd_surreal_sampling.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --test --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=6884d77bb265387f -C extra-filename=-8bda540c1588e378 --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+error: could not compile `pdms_io` (bin "demo_latest_data_save")
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name demo_latest_data_save --edition=2024 'src\bin\demo_latest_data_save.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=87f03821c55eba2a --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+warning: `pdms_io` (bin "test_increment_eles") generated 6 warnings (run `cargo fix --bin "test_increment_eles" -p pdms_io` to apply 6 suggestions)
+error: could not compile `pdms_io` (bin "test_increment_eles"); 6 warnings emitted
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name test_increment_eles --edition=2024 'src\bin\test_increment_eles.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=5fdb474c66bd0d2c --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+error: could not compile `pdms_io` (bin "test_header_fix")
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name test_header_fix --edition=2024 'src\bin\test_header_fix.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=28bcc5783c701e8f --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+warning: `pdms_io` (bin "pdms_io") generated 10 warnings (run `cargo fix --bin "pdms_io" -p pdms_io` to apply 10 suggestions)
+error: could not compile `pdms_io` (bin "pdms_io"); 10 warnings emitted
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name pdms_io --edition=2024 'src\main.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=3e779cd6d6e68513 --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+error: could not compile `pdms_io` (test "desp_ams1112_0001")
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name desp_ams1112_0001 --edition=2024 'tests\desp_ams1112_0001.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --test --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=df8aefb05c4481cf -C extra-filename=-f7f360602cd0175a --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+warning: `pdms_io` (bin "test_get_refno_status") generated 2 warnings (run `cargo fix --bin "test_get_refno_status" -p pdms_io` to apply 2 suggestions)
+error: could not compile `pdms_io` (bin "test_get_refno_status"); 2 warnings emitted
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name test_get_refno_status --edition=2024 'src\bin\test_get_refno_status.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=114f0b00c5178a58 --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+warning: `pdms_io` (bin "test_sesno_timestamp") generated 1 warning (run `cargo fix --bin "test_sesno_timestamp" -p pdms_io` to apply 1 suggestion)
+error: could not compile `pdms_io` (bin "test_sesno_timestamp"); 1 warning emitted
+
+Caused by:
+  process didn't exit successfully: `D:\Rust\.rustup\toolchains\nightly-2025-11-07-x86_64-pc-windows-msvc\bin\rustc.exe --crate-name test_sesno_timestamp --edition=2024 'src\bin\test_sesno_timestamp.rs' --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C embed-bitcode=no -C debuginfo=2 --cfg 'feature="default"' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values("debug_btree_search", "debug_parse", "default", "meilisearch"))' -C metadata=6a82cc05425edf34 --out-dir 'D:\work\plant-code\pdms-io-fork\target\debug\deps' -C 'incremental=D:\work\plant-code\pdms-io-fork\target\debug\incremental' -L 'dependency=D:\work\plant-code\pdms-io-fork\target\debug\deps' --extern 'aios_core=D:\work\plant-code\pdms-io-fork\target\debug\deps\libaios_core-6b28c9793e98687a.rlib' --extern 'anyhow=D:\work\plant-code\pdms-io-fork\target\debug\deps\libanyhow-b5ee75eaa03cdb0f.rlib' --extern 'atty=D:\work\plant-code\pdms-io-fork\target\debug\deps\libatty-8748487c6842e533.rlib' --extern 'blake2=D:\work\plant-code\pdms-io-fork\target\debug\deps\libblake2-3c4c5948ff453518.rlib' --extern 'chrono=D:\work\plant-code\pdms-io-fork\target\debug\deps\libchrono-8de143fc5cf28b65.rlib' --extern 'dashmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdashmap-adb43d56633a3911.rlib' --extern 'deku=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdeku-869b20036429e00d.rlib' --extern 'derivative=D:\work\plant-code\pdms-io-fork\target\debug\deps\derivative-176b00d1315e34ae.dll' --extern 'dpcsync=D:\work\plant-code\pdms-io-fork\target\debug\deps\libdpcsync-0ff61ef8c2f041bc.rlib' --extern 'fern=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfern-f0d84a18372c330a.rlib' --extern 'flume=D:\work\plant-code\pdms-io-fork\target\debug\deps\libflume-50fb3763ba37fe7e.rlib' --extern 'futures=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures-e73d0cb19f569cf0.rlib' --extern 'futures_util=D:\work\plant-code\pdms-io-fork\target\debug\deps\libfutures_util-2fba577e339b390f.rlib' --extern 'glam=D:\work\plant-code\pdms-io-fork\target\debug\deps\libglam-e568dfdb268df650.rlib' --extern 'indexmap=D:\work\plant-code\pdms-io-fork\target\debug\deps\libindexmap-d86c2ca86c7de8c3.rlib' --extern 'iter_tools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libiter_tools-e64d6fded5a6cf2b.rlib' --extern 'itertools=D:\work\plant-code\pdms-io-fork\target\debug\deps\libitertools-70d366f21c66e261.rlib' --extern 'log=D:\work\plant-code\pdms-io-fork\target\debug\deps\liblog-c33e7e4609790e25.rlib' --extern 'memchr=D:\work\plant-code\pdms-io-fork\target\debug\deps\libmemchr-6b1d3f49a464b3e5.rlib' --extern 'nom=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnom-9c40ed80300ae5a4.rlib' --extern 'notify=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnotify-914a3d9c452ce623.rlib' --extern 'num_cpus=D:\work\plant-code\pdms-io-fork\target\debug\deps\libnum_cpus-1fe70a8bc64b3e0b.rlib' --extern 'parse_pdms_db=D:\work\plant-code\pdms-io-fork\target\debug\deps\libparse_pdms_db-100634ca8ae7a950.rlib' --extern 'pdms_io=D:\work\plant-code\pdms-io-fork\target\debug\deps\libpdms_io-ae5da0b3bcb8b4b1.rlib' --extern 'rand=D:\work\plant-code\pdms-io-fork\target\debug\deps\librand-8eef539497f0535e.rlib' --extern 'rayon=D:\work\plant-code\pdms-io-fork\target\debug\deps\librayon-4843950a16530934.rlib' --extern 'reqwest=D:\work\plant-code\pdms-io-fork\target\debug\deps\libreqwest-f84bd19525eb7bc2.rlib' --extern 'serde=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde-1d2ffdc9876849ac.rlib' --extern 'serde_json=D:\work\plant-code\pdms-io-fork\target\debug\deps\libserde_json-0083cbf1db8013c8.rlib' --extern 'surrealdb=D:\work\plant-code\pdms-io-fork\target\debug\deps\libsurrealdb-418e90303ff6b3c6.rlib' --extern 'tempfile=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtempfile-567e3deca86a2665.rlib' --extern 'tokio=D:\work\plant-code\pdms-io-fork\target\debug\deps\libtokio-dc4bd75fe37072cc.rlib' --extern 'url=D:\work\plant-code\pdms-io-fork\target\debug\deps\liburl-170db5e673690b47.rlib' --extern 'walkdir=D:\work\plant-code\pdms-io-fork\target\debug\deps\libwalkdir-0c807df6dd04b72f.rlib' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\blake3-c1f7ea570defe787\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\aws-lc-sys-12ffa2e17a75fa30\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\lz4-sys-6648291f8d778d1d\out' -L 'native=D:\work\plant-code\pdms-io-fork\target\debug\build\ring-07ec476745e8ffff\out' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.53.1\lib' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\atlmfc\lib\x64' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.52.6\lib' -L 'native=D:\Rust\.cargo\registry\src\mirrors.ustc.edu.cn-5857e57f01837ef8\windows_x86_64_msvc-0.48.5\lib'` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+warning: unused variable: `latest_sesno`
+   --> src\test\test_collect_latest_eles.rs:802:18
+    |
+802 |     if let Some((latest_sesno, latest_offset)) = latest {
+    |                  ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_latest_sesno`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src\test\test_collect_latest_eles.rs:1190:5
+     |
+1190 |     mut path: Vec<u32>,
+     |     ----^^^^
+     |     |
+     |     help: remove this `mut`
+
+warning: unused variable: `rest`
+  --> src\test\test_parse.rs:61:10
+   |
+61 |     let (rest, deku_test) = DekuTestEnum::from_bytes(rest).unwrap();
+   |          ^^^^ help: if this is intentional, prefix it with an underscore: `_rest`
+
+warning: unused variable: `written`
+   --> src\writer.rs:835:13
+    |
+835 |         let written = self.element_writer.flush(file)?;
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_written`
+
+warning: function `find_session_for_page` is never used
+    --> src\test\test_collect_latest_eles.rs:1151:4
+     |
+1151 | fn find_session_for_page(io: &mut PdmsIO, page_no: u32) -> Option<u32> {
+     |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `find_parent_index_path` is never used
+    --> src\test\test_collect_latest_eles.rs:1170:4
+     |
+1170 | fn find_parent_index_path(io: &mut PdmsIO, leaf_page_no: u32, sesno: u32) {
+     |    ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `find_path_to_leaf` is never used
+    --> src\test\test_collect_latest_eles.rs:1186:4
+     |
+1186 | fn find_path_to_leaf(
+     |    ^^^^^^^^^^^^^^^^^
+
+warning: function `find_leaf_in_index_tree` is never used
+    --> src\test\test_collect_latest_eles.rs:1229:4
+     |
+1229 | fn find_leaf_in_index_tree(io: &mut PdmsIO, target_leaf_page: u32, current_page: u32) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `analyze_missing_refno` is never used
+    --> src\test\test_collect_latest_eles.rs:1256:10
+     |
+1256 | async fn analyze_missing_refno(io: &mut PdmsIO, target_refno: RefU64) {
+     |          ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `search_page_in_level1_index` is never used
+    --> src\test\test_collect_latest_eles.rs:1436:4
+     |
+1436 | fn search_page_in_level1_index(io: &mut PdmsIO, target_page_no: u32) {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `analyze_correct_index_traversal` is never used
+    --> src\test\test_collect_latest_eles.rs:1559:10
+     |
+1559 | async fn analyze_correct_index_traversal(io: &mut PdmsIO, target_refno: RefU64) {
+     |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `analyze_level1_index_with_deduplication` is never used
+    --> src\test\test_collect_latest_eles.rs:1643:10
+     |
+1643 | async fn analyze_level1_index_with_deduplication(
+     |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `check_leaf_node_for_target` is never used
+    --> src\test\test_collect_latest_eles.rs:1701:10
+     |
+1701 | async fn check_leaf_node_for_target(io: &mut PdmsIO, page_no: u32, target_refno: RefU64) {
+     |          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `is_start_index_marker` is never used
+    --> src\test\test_collect_latest_eles.rs:1749:4
+     |
+1749 | fn is_start_index_marker(refno_0: u32, refno_1: u32) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `test_new_search_strategy` is never used
+    --> src\test\test_collect_latest_eles.rs:1755:10
+     |
+1755 | async fn test_new_search_strategy(io: &mut PdmsIO, target_refno: RefU64) {
+     |          ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `search_with_new_strategy` is never used
+    --> src\test\test_collect_latest_eles.rs:1862:10
+     |
+1862 | async fn search_with_new_strategy(io: &mut PdmsIO, page_no: u32, target_refno: RefU64, depth: u32) {
+     |          ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `search_refno_in_btree_traditional` is never used
+    --> src\test\test_collect_latest_eles.rs:2016:4
+     |
+2016 | fn search_refno_in_btree_traditional(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `search_btree_traditional_recursive` is never used
+    --> src\test\test_collect_latest_eles.rs:2035:4
+     |
+2035 | fn search_btree_traditional_recursive(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `search_refno_in_btree_optimized` is never used
+    --> src\test\test_collect_latest_eles.rs:2066:4
+     |
+2066 | fn search_refno_in_btree_optimized(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `search_btree_optimized_recursive` is never used
+    --> src\test\test_collect_latest_eles.rs:2090:4
+     |
+2090 | fn search_btree_optimized_recursive(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `backtrack_and_continue_search` is never used
+    --> src\test\test_collect_latest_eles.rs:2289:4
+     |
+2289 | fn backtrack_and_continue_search(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `DESP_HASH` is never used
+  --> src\test\test_desp_attribute.rs:12:7
+   |
+12 | const DESP_HASH: i32 = 0x000D20C7;
+   |       ^^^^^^^^^
+
+warning: function `get_test_db_path` is never used
+ --> src\tests\refno_test.rs:8:4
+  |
+8 | fn get_test_db_path() -> PathBuf {
+  |    ^^^^^^^^^^^^^^^^
+
+warning: function `format_duration` is never used
+  --> src\tests\refno_test.rs:19:4
+   |
+19 | fn format_duration(duration: Duration) -> String {
+   |    ^^^^^^^^^^^^^^^
+
+warning: unused `Result` that must be used
+  --> src\test\test_parse_ele.rs:20:5
+   |
+20 |     dbg!(att);
+   |     ^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+   = note: `#[warn(unused_must_use)]` (part of `#[warn(unused)]`) on by default
+help: use `let _ = ...` to ignore the resulting value
+   |
+20 |     let _ = dbg!(att);
+   |     +++++++
+
+warning: unused `Result` that must be used
+  --> src\test\test_parse_ele.rs:25:5
+   |
+25 |     init_test_surreal().await;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+help: use `let _ = ...` to ignore the resulting value
+   |
+25 |     let _ = init_test_surreal().await;
+   |     +++++++
+
+warning: `pdms_io` (bin "test_page_types") generated 1 warning (run `cargo fix --bin "test_page_types" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (lib test) generated 85 warnings (33 duplicates) (run `cargo fix --lib -p pdms_io --tests` to apply 30 suggestions)

@@ -1,0 +1,2 @@
+
+7df6ef992768f4f86f80bc5227fd9bd1afc70f27	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/strict-url-sanitise","integrity":null,"time":1770949348749,"size":"262","metadata":{"time":1770949348749,"url":"http://registry.npmmirror.com/strict-url-sanitise","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:27 GMT","location":"https://registry.npmmirror.com/strict-url-sanitise"},"options":{"compress":true},"status":301}}

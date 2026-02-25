@@ -136,17 +136,17 @@ impl EleSerializer {
     /// 格式: flag(2B) + len(2B) + refno(8B) + ...
     pub fn serialize_members_header(refno: u64, member_count: usize) -> Vec<u8> {
         let mut data = Vec::with_capacity(12);
-        
+
         // flag = 0x0002 表示成员列表
         data.extend_from_slice(&[0x00, 0x02]);
-        
+
         // 长度（以 4 字节为单位）: 头部(3 words) + 成员数据
         let len_words = 3 + member_count * 2; // 每个成员占 8 字节 = 2 words
         data.extend_from_slice(&(len_words as u16).to_be_bytes());
-        
+
         // refno
         data.extend_from_slice(&Self::serialize_refu64(refno));
-        
+
         data
     }
 
@@ -159,12 +159,12 @@ impl EleSerializer {
         }
 
         let mut data = Self::serialize_members_header(refno, members.len());
-        
+
         // 写入成员参考号
         for &member_refno in members {
             data.extend_from_slice(&Self::serialize_refu64(member_refno));
         }
-        
+
         data
     }
 
@@ -178,23 +178,23 @@ impl EleSerializer {
         data_len_words: u16,
     ) -> Vec<u8> {
         let mut header = Vec::with_capacity(20);
-        
+
         // flag = 0x0001 表示显式属性
         header.extend_from_slice(&[0x00, 0x01]);
-        
+
         // 总长度（以 4 字节为单位）
         let total_words = 5 + data_len_words; // header(5 words) + data
         header.extend_from_slice(&total_words.to_be_bytes());
-        
+
         // refno
         header.extend_from_slice(&Self::serialize_refu64(refno));
-        
+
         // 属性哈希
         header.extend_from_slice(&Self::serialize_i32(attr_hash));
-        
+
         // 属性类型
         header.extend_from_slice(&(attr_type as u32).to_be_bytes());
-        
+
         header
     }
 
@@ -204,15 +204,15 @@ impl EleSerializer {
     pub fn serialize_string(s: &str) -> Vec<u8> {
         let chars: Vec<char> = s.chars().collect();
         let mut data = Vec::with_capacity(4 + chars.len() * 4);
-        
+
         // 字符数量
         data.extend_from_slice(&Self::serialize_u32(chars.len() as u32));
-        
+
         // 每个字符以 4 字节存储（大端序）
         for c in chars {
             data.extend_from_slice(&(c as u32).to_be_bytes());
         }
-        
+
         data
     }
 
@@ -245,7 +245,7 @@ impl EleSerializer {
         } else {
             self.page_size - (current_size % self.page_size)
         };
-        
+
         let mut padding = Vec::with_capacity(remaining);
         // 使用 0x00000007 作为填充标记
         for _ in 0..(remaining / 4) {
@@ -255,7 +255,7 @@ impl EleSerializer {
         for _ in 0..(remaining % 4) {
             padding.push(0x00);
         }
-        
+
         padding
     }
 
@@ -269,19 +269,19 @@ impl EleSerializer {
         owner: u64,
     ) -> Vec<u8> {
         let mut header = Vec::with_capacity(24);
-        
+
         // 隐式属性长度（以 4 字节为单位）
         header.extend_from_slice(&Self::serialize_u32(impl_len_words));
-        
+
         // 参考号
         header.extend_from_slice(&Self::serialize_refu64(refno));
-        
+
         // 类型哈希
         header.extend_from_slice(&Self::serialize_u32(type_hash));
-        
+
         // 所有者参考号
         header.extend_from_slice(&Self::serialize_refu64(owner));
-        
+
         header
     }
 
@@ -344,7 +344,8 @@ impl EleSerializer {
     pub fn write_vec3_f64_at_offset(buffer: &mut [u8], offset: usize, x: f64, y: f64, z: f64) {
         let byte_offset = offset * 4;
         if byte_offset + 24 <= buffer.len() {
-            buffer[byte_offset..byte_offset + 24].copy_from_slice(&Self::serialize_vec3_f64(x, y, z));
+            buffer[byte_offset..byte_offset + 24]
+                .copy_from_slice(&Self::serialize_vec3_f64(x, y, z));
         }
     }
 
@@ -359,17 +360,18 @@ impl EleSerializer {
     ) -> Vec<u8> {
         // 计算数据长度（以 word 为单位，向上取整）
         let data_words = (data.len() + 3) / 4;
-        let header = Self::serialize_explicit_attr_header(refno, attr_hash, attr_type, data_words as u16);
-        
+        let header =
+            Self::serialize_explicit_attr_header(refno, attr_hash, attr_type, data_words as u16);
+
         let mut block = header;
         block.extend_from_slice(data);
-        
+
         // 填充到 4 字节对齐
         let padding_bytes = data_words * 4 - data.len();
         for _ in 0..padding_bytes {
             block.push(0x00);
         }
-        
+
         block
     }
 
@@ -404,21 +406,25 @@ mod tests {
         let s = "AB";
         let bytes = EleSerializer::serialize_string(s);
         // 长度(2) + 'A'(0x41) + 'B'(0x42)
-        assert_eq!(bytes, [
-            0x00, 0x00, 0x00, 0x02, // length = 2
-            0x00, 0x00, 0x00, 0x41, // 'A'
-            0x00, 0x00, 0x00, 0x42, // 'B'
-        ]);
+        assert_eq!(
+            bytes,
+            [
+                0x00, 0x00, 0x00, 0x02, // length = 2
+                0x00, 0x00, 0x00, 0x41, // 'A'
+                0x00, 0x00, 0x00, 0x42, // 'B'
+            ]
+        );
     }
 
     #[test]
     fn test_serialize_vec3_f64() {
         let bytes = EleSerializer::serialize_vec3_f64(1.0, 2.0, 3.0);
         assert_eq!(bytes.len(), 24);
-        
+
         // 验证 x = 1.0
-        let x = f64::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3], 
-                                     bytes[4], bytes[5], bytes[6], bytes[7]]);
+        let x = f64::from_be_bytes([
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+        ]);
         assert_eq!(x, 1.0);
     }
 
@@ -426,12 +432,12 @@ mod tests {
     fn test_serialize_members() {
         let refno: u64 = 0x0000001C_00000001;
         let members = vec![0x0000001C_00000002u64, 0x0000001C_00000003u64];
-        
+
         let bytes = EleSerializer::serialize_members(refno, &members);
-        
+
         // flag(2) + len(2) + refno(8) + 2 members(16) = 28 bytes
         assert_eq!(bytes.len(), 28);
-        
+
         // 验证 flag
         assert_eq!(&bytes[0..2], &[0x00, 0x02]);
     }
@@ -439,11 +445,11 @@ mod tests {
     #[test]
     fn test_serialize_padding() {
         let serializer = EleSerializer::new_512();
-        
+
         // 当前大小 100，需要填充到 512
         let padding = serializer.serialize_padding(100);
         assert_eq!(padding.len(), 412); // 512 - 100 = 412
-        
+
         // 验证填充内容
         assert_eq!(&padding[0..4], &[0x00, 0x00, 0x00, 0x07]);
     }
@@ -453,32 +459,37 @@ mod tests {
         let refno: u64 = 0x0000001C_00000001;
         let type_hash: u32 = 0x00C8AAEE;
         let owner: u64 = 0x0000001C_00000000;
-        
+
         let header = EleSerializer::serialize_element_header(10, refno, type_hash, owner);
-        
+
         // impl_len(4) + refno(8) + type_hash(4) + owner(8) = 24 bytes
         assert_eq!(header.len(), 24);
-        
+
         // 验证 impl_len = 10
         assert_eq!(&header[0..4], &[0x00, 0x00, 0x00, 0x0A]);
-        
+
         // 验证 refno
-        assert_eq!(&header[4..12], &[0x00, 0x00, 0x00, 0x1C, 0x00, 0x00, 0x00, 0x01]);
+        assert_eq!(
+            &header[4..12],
+            &[0x00, 0x00, 0x00, 0x1C, 0x00, 0x00, 0x00, 0x01]
+        );
     }
 
     #[test]
     fn test_write_at_offset() {
         let mut buffer = EleSerializer::create_implicit_buffer(10);
         assert_eq!(buffer.len(), 40);
-        
+
         // 在 offset 2 写入 i32
         EleSerializer::write_i32_at_offset(&mut buffer, 2, 0x12345678);
         assert_eq!(&buffer[8..12], &[0x12, 0x34, 0x56, 0x78]);
-        
+
         // 在 offset 4 写入 f64
         EleSerializer::write_f64_at_offset(&mut buffer, 4, 1.5);
-        let f = f64::from_be_bytes([buffer[16], buffer[17], buffer[18], buffer[19],
-                                     buffer[20], buffer[21], buffer[22], buffer[23]]);
+        let f = f64::from_be_bytes([
+            buffer[16], buffer[17], buffer[18], buffer[19], buffer[20], buffer[21], buffer[22],
+            buffer[23],
+        ]);
         assert_eq!(f, 1.5);
     }
 
@@ -487,12 +498,12 @@ mod tests {
         let refno: u64 = 0x0000001C_00000001;
         let attr_hash: i32 = 0x00ABCDEF;
         let data = vec![0x01, 0x02, 0x03, 0x04, 0x05]; // 5 bytes
-        
+
         let block = EleSerializer::serialize_explicit_attr_block(refno, attr_hash, 0x01, &data);
-        
+
         // header(20) + data(5 -> 8 with padding) = 28 bytes
         assert_eq!(block.len(), 28);
-        
+
         // 验证 flag
         assert_eq!(&block[0..2], &[0x00, 0x01]);
     }
@@ -504,4 +515,3 @@ mod tests {
         assert_eq!(marker, vec![0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07]);
     }
 }
-

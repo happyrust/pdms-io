@@ -1,0 +1,2 @@
+
+412a657cc554afed058a1931db27d04b6421fbc7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/class-variance-authority","integrity":null,"time":1770949335842,"size":"262","metadata":{"time":1770949335842,"url":"http://registry.npmmirror.com/class-variance-authority","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/class-variance-authority"},"options":{"compress":true},"status":301}}

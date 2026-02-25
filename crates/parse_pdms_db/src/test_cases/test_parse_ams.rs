@@ -13,10 +13,7 @@ async fn test_parse_ams7330_0001_smoke() {
     let result = parse_file(&path, &None, file_name, project).await;
     match result {
         Ok(db) => {
-            assert!(
-                !db.total_attr_map.is_empty(),
-                "解析成功但未得到任何属性"
-            );
+            assert!(!db.total_attr_map.is_empty(), "解析成功但未得到任何属性");
         }
         Err(e) => panic!("解析 ams7330_0001 失败: {e:?}"),
     }

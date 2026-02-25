@@ -1,0 +1,2 @@
+
+eb893b59c85d615efd565be77376ad6d29101cdb	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/highlight.js","integrity":null,"time":1770949335841,"size":"262","metadata":{"time":1770949335841,"url":"http://registry.npmmirror.com/highlight.js","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/highlight.js"},"options":{"compress":true},"status":301}}

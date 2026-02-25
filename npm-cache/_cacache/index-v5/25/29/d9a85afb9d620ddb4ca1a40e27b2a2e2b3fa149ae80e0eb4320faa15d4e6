@@ -1,0 +1,2 @@
+
+9580b2e2369b49fc88ef9287407507912e92a010	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/tar-fs","integrity":null,"time":1770949338479,"size":"262","metadata":{"time":1770949338479,"url":"http://registry.npmmirror.com/tar-fs","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/tar-fs"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+53900ee3827de99945d5710eaef3211b3a31b958	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/robust-predicates","integrity":null,"time":1770949338119,"size":"262","metadata":{"time":1770949338119,"url":"http://registry.npmmirror.com/robust-predicates","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/robust-predicates"},"options":{"compress":true},"status":301}}

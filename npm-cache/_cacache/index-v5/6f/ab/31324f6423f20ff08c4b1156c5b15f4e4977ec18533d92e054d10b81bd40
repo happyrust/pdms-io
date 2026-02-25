@@ -1,0 +1,2 @@
+
+0f260c3165b611c6c7744540eccf53d928e3908f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-timer","integrity":null,"time":1770949337832,"size":"262","metadata":{"time":1770949337832,"url":"http://registry.npmmirror.com/d3-timer","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-timer"},"options":{"compress":true},"status":301}}

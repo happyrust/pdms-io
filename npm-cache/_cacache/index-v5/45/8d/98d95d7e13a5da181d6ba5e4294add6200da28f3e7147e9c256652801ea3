@@ -1,0 +1,2 @@
+
+265df9d1b164d2b94089ed8af1222c732649fee1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/puppeteer-core","integrity":null,"time":1770949335366,"size":"262","metadata":{"time":1770949335366,"url":"http://registry.npmmirror.com/puppeteer-core","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/puppeteer-core"},"options":{"compress":true},"status":301}}

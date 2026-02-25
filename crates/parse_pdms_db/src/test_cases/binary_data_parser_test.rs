@@ -1,6 +1,6 @@
-use aios_core::{get_default_pdms_db_info, NamedAttrValue};
 use crate::parse::{parse_ele_data, parse_raw_ele_data};
 use crate::test_cases::convert_str_to_bytes;
+use aios_core::{NamedAttrValue, get_default_pdms_db_info};
 
 #[tokio::test]
 async fn test_parse_binary_data_a5_35_30_hex_data() {
@@ -58,7 +58,7 @@ async fn test_parse_binary_data_a5_35_30_hex_data() {
             let pattern = [0x44, 0xAA];
             let mut positions = Vec::new();
             for i in 0..data.len().saturating_sub(1) {
-                if data[i..i+2] == pattern {
+                if data[i..i + 2] == pattern {
                     positions.push(i);
                 }
             }
@@ -78,19 +78,25 @@ fn test_parse_specific_segments(data: &[u8]) {
 
     for &pos in &test_positions {
         if pos < data.len() {
-            println!("Testing from position {}: {:02X?}", pos, &data[pos..std::cmp::min(pos+16, data.len())]);
+            println!(
+                "Testing from position {}: {:02X?}",
+                pos,
+                &data[pos..std::cmp::min(pos + 16, data.len())]
+            );
 
             // 尝试解析为不同的数据类型
             if pos + 4 <= data.len() {
-                let val_be = u32::from_be_bytes([data[pos], data[pos+1], data[pos+2], data[pos+3]]);
-                let val_le = u32::from_le_bytes([data[pos], data[pos+1], data[pos+2], data[pos+3]]);
+                let val_be =
+                    u32::from_be_bytes([data[pos], data[pos + 1], data[pos + 2], data[pos + 3]]);
+                let val_le =
+                    u32::from_le_bytes([data[pos], data[pos + 1], data[pos + 2], data[pos + 3]]);
                 println!("  As u32 BE: 0x{:08X} ({})", val_be, val_be);
                 println!("  As u32 LE: 0x{:08X} ({})", val_le, val_le);
             }
 
             if pos + 8 <= data.len() {
                 let mut bytes = [0u8; 8];
-                bytes.copy_from_slice(&data[pos..pos+8]);
+                bytes.copy_from_slice(&data[pos..pos + 8]);
                 let val_be = u64::from_be_bytes(bytes);
                 let val_le = u64::from_le_bytes(bytes);
                 println!("  As u64 BE: 0x{:016X}", val_be);
@@ -100,7 +106,6 @@ fn test_parse_specific_segments(data: &[u8]) {
         }
     }
 }
-
 
 #[tokio::test]
 async fn test_new_case_00_00_00_2f() {

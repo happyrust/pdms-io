@@ -1,5 +1,4 @@
 #[allow(warnings)]
-
 use aios_core::bin_data::convert_str_to_bytes;
 use aios_core::file_helper::collect_db_dirs;
 use aios_core::get_db_option;

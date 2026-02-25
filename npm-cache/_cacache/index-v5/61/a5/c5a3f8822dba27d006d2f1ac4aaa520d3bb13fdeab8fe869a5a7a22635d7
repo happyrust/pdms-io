@@ -1,0 +1,2 @@
+
+dfaff72f87eefe7d75ee9b8696546cbe8f2b9616	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/use-sync-external-store","integrity":null,"time":1770949336458,"size":"262","metadata":{"time":1770949336458,"url":"http://registry.npmmirror.com/use-sync-external-store","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/use-sync-external-store"},"options":{"compress":true},"status":301}}

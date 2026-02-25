@@ -14,13 +14,13 @@ use glam::Vec3;
 use nom::IResult;
 
 /// 元素数据的标准头部大小（单位：word）
-/// 
+///
 /// 标准元素数据头部布局：
 /// - bytes[0..4]: impl_len (1 word)
 /// - bytes[4..12]: refno (2 words)
 /// - bytes[12..16]: type_hash (1 word)
 /// - bytes[16..24]: owner (2 words)
-/// 
+///
 /// 总计：6 words = 24 bytes
 pub const STANDARD_ELEMENT_HEADER_WORDS: usize = 6;
 
@@ -45,12 +45,12 @@ pub struct ImplicitAttrOffset {
 /// - `_step`: 当前解析步骤（用于调试）
 ///
 /// # 偏移计算说明
-/// 
+///
 /// Schema 中的 offset 是从元素开头计算的（以 word 为单位）。实际数据位置计算为：
 /// ```text
 /// actual_offset = (schema_offset - f32_neg_offset) * 4
 /// ```
-/// 
+///
 /// 其中 f32_neg_offset 的累计规则：
 /// - 每个 DOUBLE 属性在 f32 模式下节省 1 word
 /// - 每个 Vec3/DIRECTION/POSITION/ORIENTATION 属性在 f32 模式下节省 3 words
@@ -124,11 +124,11 @@ pub fn detect_header_size(input: &[u8]) -> usize {
     // bytes[4..12]: refno - 参考号
     // bytes[12..16]: type_hash - 类型哈希
     // bytes[16..24]: owner - 所有者参考号
-    
+
     if input.len() < 24 {
         return STANDARD_ELEMENT_HEADER_WORDS;
     }
-    
+
     // 目前返回标准头部大小
     // TODO: 如果需要支持特殊元素的扩展头部，在这里添加检测逻辑
     // 例如：检查 type_hash 是否属于需要扩展头部的类型
@@ -460,23 +460,26 @@ mod tests {
         // 测试头部大小检测
         let data = vec![0u8; 100];
         assert_eq!(detect_header_size(&data), STANDARD_ELEMENT_HEADER_WORDS);
-        
+
         // 测试数据不足的情况
         let short_data = vec![0u8; 10];
-        assert_eq!(detect_header_size(&short_data), STANDARD_ELEMENT_HEADER_WORDS);
+        assert_eq!(
+            detect_header_size(&short_data),
+            STANDARD_ELEMENT_HEADER_WORDS
+        );
     }
 
     #[test]
     fn test_f32_offset_adjustment() {
         // 测试 DOUBLE 类型节省 1 word
         assert_eq!(get_f32_offset_adjustment(DbAttributeType::DOUBLE), 1);
-        
+
         // 测试 Vec3 相关类型节省 3 words
         assert_eq!(get_f32_offset_adjustment(DbAttributeType::Vec3Type), 3);
         assert_eq!(get_f32_offset_adjustment(DbAttributeType::DIRECTION), 3);
         assert_eq!(get_f32_offset_adjustment(DbAttributeType::POSITION), 3);
         assert_eq!(get_f32_offset_adjustment(DbAttributeType::ORIENTATION), 3);
-        
+
         // 测试其他类型不受影响
         assert_eq!(get_f32_offset_adjustment(DbAttributeType::INTEGER), 0);
         assert_eq!(get_f32_offset_adjustment(DbAttributeType::STRING), 0);

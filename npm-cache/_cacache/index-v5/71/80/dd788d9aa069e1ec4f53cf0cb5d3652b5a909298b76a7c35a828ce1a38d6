@@ -1,0 +1,2 @@
+
+4ab08de833c72e108a38b4f0cc2f295eb5fb9cb2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/socks","integrity":null,"time":1770949338938,"size":"262","metadata":{"time":1770949338938,"url":"http://registry.npmmirror.com/socks","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/socks"},"options":{"compress":true},"status":301}}

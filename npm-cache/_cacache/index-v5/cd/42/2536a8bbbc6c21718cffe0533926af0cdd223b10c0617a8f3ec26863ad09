@@ -1,0 +1,2 @@
+
+624fbce40245cea4d05006fb8a8d1c18e8222265	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-chord","integrity":null,"time":1770949337732,"size":"262","metadata":{"time":1770949337732,"url":"http://registry.npmmirror.com/d3-chord","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-chord"},"options":{"compress":true},"status":301}}

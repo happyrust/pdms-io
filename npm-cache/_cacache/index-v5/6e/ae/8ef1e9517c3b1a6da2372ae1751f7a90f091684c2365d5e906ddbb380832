@@ -1,0 +1,2 @@
+
+bf18a1758e7d05944c198d7ff775c8d77a67c633	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/on-exit-leak-free","integrity":null,"time":1770949336537,"size":"262","metadata":{"time":1770949336537,"url":"http://registry.npmmirror.com/on-exit-leak-free","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/on-exit-leak-free"},"options":{"compress":true},"status":301}}

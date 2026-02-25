@@ -1,0 +1,2 @@
+
+0654f7d64b2120624427f61ec08c9ca0e0658505	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-interpolate","integrity":null,"time":1770949337762,"size":"262","metadata":{"time":1770949337762,"url":"http://registry.npmmirror.com/d3-interpolate","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-interpolate"},"options":{"compress":true},"status":301}}

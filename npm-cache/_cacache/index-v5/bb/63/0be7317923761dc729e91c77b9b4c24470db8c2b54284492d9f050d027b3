@@ -1,0 +1,2 @@
+
+5baaf609a5cc135128deb1cbf9ae083e7923a076	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/y18n","integrity":null,"time":1770949338600,"size":"262","metadata":{"time":1770949338600,"url":"http://registry.npmmirror.com/y18n","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/y18n"},"options":{"compress":true},"status":301}}

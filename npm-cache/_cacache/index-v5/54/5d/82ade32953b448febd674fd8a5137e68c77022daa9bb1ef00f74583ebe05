@@ -1,0 +1,2 @@
+
+907b5618fdeb5f27c4402a7085fb61db009d15ef	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/mitt","integrity":null,"time":1770949338480,"size":"262","metadata":{"time":1770949338480,"url":"http://registry.npmmirror.com/mitt","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/mitt"},"options":{"compress":true},"status":301}}

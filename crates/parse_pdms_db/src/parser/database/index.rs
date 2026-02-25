@@ -4,8 +4,8 @@
 
 use aios_core::types::RefU64;
 use dashmap::DashMap;
-use nom::number::complete::be_u32;
 use nom::IResult;
+use nom::number::complete::be_u32;
 
 /// 元素索引条目
 #[derive(Debug, Clone, Copy)]

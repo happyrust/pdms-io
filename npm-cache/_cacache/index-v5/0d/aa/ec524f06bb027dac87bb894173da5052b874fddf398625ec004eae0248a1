@@ -1,0 +1,2 @@
+
+b8cad31b1b1b76a63a763da0f4062fdb99496f93	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/default-browser-id","integrity":null,"time":1770949349143,"size":"262","metadata":{"time":1770949349143,"url":"http://registry.npmmirror.com/default-browser-id","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:28 GMT","location":"https://registry.npmmirror.com/default-browser-id"},"options":{"compress":true},"status":301}}

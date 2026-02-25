@@ -1,0 +1,2 @@
+
+933b49214cab42028fe40964c8a40586f5baaabd	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/tsx","integrity":null,"time":1770949339392,"size":"262","metadata":{"time":1770949339392,"url":"http://registry.npmmirror.com/tsx","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/tsx"},"options":{"compress":true},"status":301}}

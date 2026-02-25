@@ -1,0 +1,2 @@
+
+11a1688218e7b48c4e59bb240885274d94117111	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/postcss-nested","integrity":null,"time":1770949336464,"size":"262","metadata":{"time":1770949336464,"url":"http://registry.npmmirror.com/postcss-nested","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/postcss-nested"},"options":{"compress":true},"status":301}}

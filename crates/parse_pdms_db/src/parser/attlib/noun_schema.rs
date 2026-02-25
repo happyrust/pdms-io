@@ -2,7 +2,7 @@ use aios_core::tool::db_tool::db1_hash;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-use super::{AttrDataType, AttrDefiType, AttributeMeta, AttlibData};
+use super::{AttlibData, AttrDataType, AttrDefiType, AttributeMeta};
 
 /// NOUN 的完整属性 Schema
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,10 +35,7 @@ impl NounSchema {
 
     /// 按存储方式过滤 (DAB vs Pseudo)
     pub fn filter_by_defi(&self, defi: AttrDefiType) -> Vec<&AttributeMeta> {
-        self.attributes
-            .iter()
-            .filter(|a| a.defi == defi)
-            .collect()
+        self.attributes.iter().filter(|a| a.defi == defi).collect()
     }
 
     /// 按名称查找属性
@@ -67,9 +64,7 @@ impl NounSchema {
             std::collections::HashMap::new();
 
         for attr in &self.attributes {
-            *type_counts
-                .entry(attr.data_type.to_string())
-                .or_default() += 1;
+            *type_counts.entry(attr.data_type.to_string()).or_default() += 1;
             *defi_counts.entry(attr.defi.to_string()).or_default() += 1;
         }
 

@@ -1,0 +1,2 @@
+
+2df8d1440cfd03d12e370c6ebffe70d738ca21f9	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-brush","integrity":null,"time":1770949337725,"size":"262","metadata":{"time":1770949337725,"url":"http://registry.npmmirror.com/d3-brush","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-brush"},"options":{"compress":true},"status":301}}

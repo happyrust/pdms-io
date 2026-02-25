@@ -1,0 +1,2 @@
+
+3622ef1d705d085f7809b6b12d75ee507af04416	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/utf-8-validate","integrity":null,"time":1770949335321,"size":"262","metadata":{"time":1770949335321,"url":"http://registry.npmmirror.com/utf-8-validate","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/utf-8-validate"},"options":{"compress":true},"status":301}}

@@ -1,8 +1,8 @@
-use aios_core::init_test_surreal;
-use aios_core::RefU64;
-use aios_core::RefI32Tuple;
 use super::convert_str_to_bytes;
 use crate::parse::parse_ele_data;
+use aios_core::RefI32Tuple;
+use aios_core::RefU64;
+use aios_core::init_test_surreal;
 
 #[tokio::test]
 async fn test_parse_uda_elelist_0() {
@@ -201,7 +201,10 @@ async fn test_ams1112_0001_refno_17496_142306_uda() {
 
     // 从数据库查询该 refno 的原始数据并解析
     // 注意：这个测试需要数据库中有对应的 ams1112_0001 数据
-    let sql = format!("SELECT DATA FROM only element WHERE id = {}", target_refno.0);
+    let sql = format!(
+        "SELECT DATA FROM only element WHERE id = {}",
+        target_refno.0
+    );
 
     if let Ok(mut response) = aios_core::SUL_DB.query(&sql).await {
         if let Ok(data_bytes) = response.take::<Vec<u8>>(0) {

@@ -1,0 +1,2 @@
+
+86500190b06a1b94c1308d97160af85d43f014f3	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/tailwindcss","integrity":null,"time":1770949335849,"size":"262","metadata":{"time":1770949335849,"url":"http://registry.npmmirror.com/tailwindcss","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/tailwindcss"},"options":{"compress":true},"status":301}}

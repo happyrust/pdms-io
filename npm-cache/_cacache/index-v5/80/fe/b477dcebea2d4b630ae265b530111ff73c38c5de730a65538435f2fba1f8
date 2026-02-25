@@ -1,0 +1,2 @@
+
+4999ce7e980cc19f9697b4d2e15671596b1d472e	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/undici","integrity":null,"time":1770949348750,"size":"262","metadata":{"time":1770949348750,"url":"http://registry.npmmirror.com/undici","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:27 GMT","location":"https://registry.npmmirror.com/undici"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+676327d6753888db7690b88aef67f65b545b23d1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/katex","integrity":null,"time":1770949335675,"size":"262","metadata":{"time":1770949335675,"url":"http://registry.npmmirror.com/katex","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/katex"},"options":{"compress":true},"status":301}}

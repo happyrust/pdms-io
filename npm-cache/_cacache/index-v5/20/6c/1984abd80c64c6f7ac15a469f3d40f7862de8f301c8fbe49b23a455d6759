@@ -1,0 +1,2 @@
+
+6d46de54d56e71c29cfb8e78acd0a87145d61625	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/fast-uri","integrity":null,"time":1770949336204,"size":"262","metadata":{"time":1770949336204,"url":"http://registry.npmmirror.com/fast-uri","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/fast-uri"},"options":{"compress":true},"status":301}}

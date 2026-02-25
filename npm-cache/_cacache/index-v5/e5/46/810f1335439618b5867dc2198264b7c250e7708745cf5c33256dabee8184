@@ -1,0 +1,2 @@
+
+6a5466b1a85de40076f0c61d0929f6082d798079	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/util-deprecate","integrity":null,"time":1770949339459,"size":"262","metadata":{"time":1770949339459,"url":"http://registry.npmmirror.com/util-deprecate","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/util-deprecate"},"options":{"compress":true},"status":301}}

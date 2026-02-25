@@ -58,11 +58,11 @@ pub async fn test_expression_from_file(case: &TestCase) -> Result<String, String
         Ok(mut file) => {
             let mut data = Vec::new();
             file.read_to_end(&mut data).map_err(|e| e.to_string())?;
-            
+
             let ele_data = parse_ele_data(&data).await.map_err(|e| e.to_string())?;
             let map = &ele_data.whole_attmap.attmap;
             let result = map.get_as_string(&case.attr).unwrap_or_default();
-            
+
             if result.trim() == case.expected.trim() {
                 Ok(result)
             } else {
@@ -80,17 +80,20 @@ pub async fn test_expression_from_file(case: &TestCase) -> Result<String, String
 pub async fn test_expression_via_pdmsio(case: &TestCase) -> Result<String, String> {
     // 1. 解析 refno
     let refno = parse_refno(&case.refno)?;
-    
+
     // 2. 打开 PDMS 文件
     let mut io = PdmsIO::new(case.file_path.clone(), case.file_path.as_str(), false);
     io.open().map_err(|e| format!("打开文件失败: {}", e))?;
-    
+
     // 3. 定位 refno 的物理偏移
     let (sesno, offset) = io
         .search_latest_refno(refno, None)
         .ok_or_else(|| format!("找不到 refno: {}", case.refno))?;
-    
-    println!("[DEBUG] Refno {} => sesno={}, offset={:#X}", case.refno, sesno, offset);
+
+    println!(
+        "[DEBUG] Refno {} => sesno={}, offset={:#X}",
+        case.refno, sesno, offset
+    );
 
     // 4. 读取“单条元素 record”（跨页 + 截断），避免把下一条 record 误吞进来
     let record = io
@@ -107,9 +110,9 @@ pub async fn test_expression_via_pdmsio(case: &TestCase) -> Result<String, Strin
         .map_err(|e| format!("解析失败: {}", e))?;
     let map = &ele_data.whole_attmap.attmap;
     let result = map.get_as_string(&case.attr).unwrap_or_default();
-    
+
     println!("[DEBUG] {} 解析结果: '{}'", case.attr, result);
-    
+
     if result.trim() == case.expected.trim() {
         Ok(result)
     } else {
@@ -123,13 +126,14 @@ pub async fn test_expression_via_pdmsio(case: &TestCase) -> Result<String, Strin
 /// 打印元素的二进制结构（用于调试）
 pub async fn dump_element_structure(file_path: &str, refno_str: &str) -> Result<(), String> {
     let refno = parse_refno(refno_str)?;
-    
+
     let mut io = PdmsIO::new(file_path.to_string(), file_path, false);
     io.open().map_err(|e| format!("打开文件失败: {}", e))?;
-    
-    let (sesno, offset) = io.search_latest_refno(refno, None)
+
+    let (sesno, offset) = io
+        .search_latest_refno(refno, None)
         .ok_or_else(|| format!("找不到 refno: {}", refno_str))?;
-    
+
     println!("=== 元素结构 ===");
     println!("Refno: {}", refno_str);
     println!("Sesno: {}", sesno);
@@ -151,10 +155,10 @@ pub async fn dump_element_structure(file_path: &str, refno_str: &str) -> Result<
 
     // 经验：隐式区头常为 24B；这里仅用于调试展示
     let attr_data = input.get(24..).unwrap_or(&[]);
-    
+
     println!("\n属性数据 (共 {} 字节):", attr_data.len());
     print_hex_dump(attr_data, 16);
-    
+
     Ok(())
 }
 
@@ -210,8 +214,7 @@ mod tests {
     #[ignore]
     #[tokio::test]
     async fn test_phei_expression() {
-        let file_path = std::env::var("PDMS_ELE_FIXTURE")
-            .unwrap_or_else(|_| "".to_string());
+        let file_path = std::env::var("PDMS_ELE_FIXTURE").unwrap_or_else(|_| "".to_string());
         assert!(
             !file_path.is_empty() && Path::new(&file_path).exists(),
             "未得元素夹具文件：请先生成并设置环境变量 PDMS_ELE_FIXTURE 指向单元素二进制文件。当前值='{}'",
@@ -279,47 +282,47 @@ mod tests {
         println!("夹具已写入: {}", out_path);
     }
 
-     #[ignore]
-     #[tokio::test]
-     async fn test_expression_cases_from_json() {
-         let json_path = std::env::var("PDMS_EXPR_TEST_JSON").unwrap_or_else(|_| "".to_string());
-         assert!(
-             !json_path.is_empty() && Path::new(&json_path).exists(),
-             "未得 JSON 用例路径：请设置环境变量 PDMS_EXPR_TEST_JSON。当前值='{}'",
-             json_path
-         );
+    #[ignore]
+    #[tokio::test]
+    async fn test_expression_cases_from_json() {
+        let json_path = std::env::var("PDMS_EXPR_TEST_JSON").unwrap_or_else(|_| "".to_string());
+        assert!(
+            !json_path.is_empty() && Path::new(&json_path).exists(),
+            "未得 JSON 用例路径：请设置环境变量 PDMS_EXPR_TEST_JSON。当前值='{}'",
+            json_path
+        );
 
-         let cases = crate::test::test_case_loader::load_test_cases_from_json(&json_path)
-             .expect("加载 JSON 用例失败");
-         assert!(!cases.is_empty(), "JSON 用例为空: '{}'", json_path);
+        let cases = crate::test::test_case_loader::load_test_cases_from_json(&json_path)
+            .expect("加载 JSON 用例失败");
+        assert!(!cases.is_empty(), "JSON 用例为空: '{}'", json_path);
 
-         for c in cases {
-             let name = c.name.clone();
-             let fixture_path = c
-                 .fixture_path
-                 .as_ref()
-                 .map(|s| s.trim())
-                 .filter(|s| !s.is_empty())
-                 .map(|s| s.to_string());
+        for c in cases {
+            let name = c.name.clone();
+            let fixture_path = c
+                .fixture_path
+                .as_ref()
+                .map(|s| s.trim())
+                .filter(|s| !s.is_empty())
+                .map(|s| s.to_string());
 
-             if let Some(fixture_path) = fixture_path {
-                 assert!(
-                     Path::new(&fixture_path).exists(),
-                     "用例 '{}' 夹具文件不存在: '{}'",
-                     name,
-                     fixture_path
-                 );
-                 let case = TestCase {
-                     refno: c.refno.clone(),
-                     file_path: fixture_path,
-                     attr: c.attr.clone(),
-                     expected: c.expected.clone(),
-                 };
-                 test_expression_from_file(&case)
-                     .await
-                     .unwrap_or_else(|e| panic!("用例 '{}' 失败: {}", name, e));
-                 continue;
-             }
+            if let Some(fixture_path) = fixture_path {
+                assert!(
+                    Path::new(&fixture_path).exists(),
+                    "用例 '{}' 夹具文件不存在: '{}'",
+                    name,
+                    fixture_path
+                );
+                let case = TestCase {
+                    refno: c.refno.clone(),
+                    file_path: fixture_path,
+                    attr: c.attr.clone(),
+                    expected: c.expected.clone(),
+                };
+                test_expression_from_file(&case)
+                    .await
+                    .unwrap_or_else(|e| panic!("用例 '{}' 失败: {}", name, e));
+                continue;
+            }
 
             let ams_path = if !c.file_path.trim().is_empty() {
                 c.file_path.clone()
@@ -327,7 +330,9 @@ mod tests {
                 std::env::var("PDMS_AMS_FILE")
                     .ok()
                     .filter(|val| !val.trim().is_empty())
-                    .or_else(|| resolve_test_db_path("ams1112_0001").map(|p| p.display().to_string()))
+                    .or_else(|| {
+                        resolve_test_db_path("ams1112_0001").map(|p| p.display().to_string())
+                    })
                     .unwrap_or_default()
             };
             assert!(
@@ -336,15 +341,15 @@ mod tests {
                 name,
                 ams_path
             );
-             let case = TestCase {
-                 refno: c.refno.clone(),
-                 file_path: ams_path,
-                 attr: c.attr.clone(),
-                 expected: c.expected.clone(),
-             };
-             test_expression_via_pdmsio(&case)
-                 .await
-                 .unwrap_or_else(|e| panic!("用例 '{}' 失败: {}", name, e));
-         }
-     }
+            let case = TestCase {
+                refno: c.refno.clone(),
+                file_path: ams_path,
+                attr: c.attr.clone(),
+                expected: c.expected.clone(),
+            };
+            test_expression_via_pdmsio(&case)
+                .await
+                .unwrap_or_else(|e| panic!("用例 '{}' 失败: {}", name, e));
+        }
+    }
 }

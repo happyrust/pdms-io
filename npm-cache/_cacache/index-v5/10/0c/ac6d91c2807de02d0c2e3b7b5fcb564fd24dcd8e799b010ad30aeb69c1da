@@ -1,0 +1,2 @@
+
+163aae2921c82c909d7fd910634e71c9e753a1ed	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/chevrotain-allstar","integrity":null,"time":1770949337979,"size":"262","metadata":{"time":1770949337979,"url":"http://registry.npmmirror.com/chevrotain-allstar","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/chevrotain-allstar"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+da166c114118cf2e0194f0096d5cb82d56156d22	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@alloc%2fquick-lru","integrity":null,"time":1770949336457,"size":"262","metadata":{"time":1770949336457,"url":"http://registry.npmmirror.com/@alloc%2fquick-lru","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/@alloc%2fquick-lru"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+3cb2f67024be0de6037a5f0c197e56d8ee2ba699	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-axis","integrity":null,"time":1770949337726,"size":"262","metadata":{"time":1770949337725,"url":"http://registry.npmmirror.com/d3-axis","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-axis"},"options":{"compress":true},"status":301}}

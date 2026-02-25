@@ -1,8 +1,8 @@
 //! 测试 collect_explict_data 函数
 
 use crate::parse::collect_explict_data;
-use aios_core::helper::parse_to_u16;
 use aios_core::RefU64;
+use aios_core::helper::parse_to_u16;
 
 /// 测试从测试用例中获取的实际数据（完整的第一个显式块）
 #[test]
@@ -14,8 +14,7 @@ fn test_collect_explict_data_format() {
     // 创建一个足够大的模拟数据
     let mut explicit_block: Vec<u8> = vec![
         // 0x0000: flag=0x0001, count=119 (0x77)
-        0x00, 0x01, 0x00, 0x77,
-        // 0x0004: refno = 17496_171603
+        0x00, 0x01, 0x00, 0x77, // 0x0004: refno = 17496_171603
         0x00, 0x00, 0x44, 0x58, // refno_0 = 17496
         0x00, 0x02, 0x9E, 0x53, // refno_1 = 171603
     ];
@@ -72,8 +71,12 @@ fn test_collect_explict_data_format() {
         println!("  len_words: {}", len_words);
         println!("  declared_bytes: {}", declared_bytes);
         println!("  declared_bytes < 12: {}", declared_bytes < 12);
-        println!("  declared_bytes > input.len(): {} ({} > {})",
-            declared_bytes > explicit_block.len(), declared_bytes, explicit_block.len());
+        println!(
+            "  declared_bytes > input.len(): {} ({} > {})",
+            declared_bytes > explicit_block.len(),
+            declared_bytes,
+            explicit_block.len()
+        );
 
         println!("  len_words < 5: {}", len_words < 5);
         println!("  maybe_refno != refno: {}", block_refno != refno);

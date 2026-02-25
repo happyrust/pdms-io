@@ -1,0 +1,2 @@
+
+fb06e928544df76b1e0598ae69cf3d4803e8e258	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/cosmiconfig","integrity":null,"time":1770949335362,"size":"262","metadata":{"time":1770949335362,"url":"http://registry.npmmirror.com/cosmiconfig","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/cosmiconfig"},"options":{"compress":true},"status":301}}

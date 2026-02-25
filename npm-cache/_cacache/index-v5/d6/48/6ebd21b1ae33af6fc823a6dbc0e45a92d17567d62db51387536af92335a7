@@ -1,0 +1,2 @@
+
+45ea266bea49a9b093a8ceaf3a2364b8e5ce3ce0	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/event-target-shim","integrity":null,"time":1770949339244,"size":"262","metadata":{"time":1770949339244,"url":"http://registry.npmmirror.com/event-target-shim","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/event-target-shim"},"options":{"compress":true},"status":301}}

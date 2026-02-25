@@ -1,0 +1,2 @@
+
+d9342da1823668412551722e22e5ce2f776a37df	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/extract-zip","integrity":null,"time":1770949338479,"size":"262","metadata":{"time":1770949338479,"url":"http://registry.npmmirror.com/extract-zip","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/extract-zip"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+b26e0eecb37d83903fdd5227c70c6caab3c3e2c0	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@jridgewell%2ftrace-mapping","integrity":null,"time":1770949339698,"size":"262","metadata":{"time":1770949339698,"url":"http://registry.npmmirror.com/@jridgewell%2ftrace-mapping","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/@jridgewell%2ftrace-mapping"},"options":{"compress":true},"status":301}}

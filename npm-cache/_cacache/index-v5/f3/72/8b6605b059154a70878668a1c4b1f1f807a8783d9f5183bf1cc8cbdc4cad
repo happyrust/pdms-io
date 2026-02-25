@@ -1,0 +1,2 @@
+
+f9e7258c4207d0158364e00be1b079dc0577bd43	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/is-inside-container","integrity":null,"time":1770949348923,"size":"262","metadata":{"time":1770949348923,"url":"http://registry.npmmirror.com/is-inside-container","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:27 GMT","location":"https://registry.npmmirror.com/is-inside-container"},"options":{"compress":true},"status":301}}

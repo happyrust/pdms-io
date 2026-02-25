@@ -1,0 +1,16 @@
+0 verbose cli D:\Program Files\nodejs\node.exe D:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.6.2
+2 info using node@v25.0.0
+3 silly config load:file:D:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\Administrator\.npmrc
+5 silly config load:file:D:\npm-global\etc\npmrc
+6 verbose title npm root
+7 verbose argv "root" "--global"
+8 verbose logfile logs-max:10 dir:D:\work\plant-code\pdms-io-fork\npm-cache\_logs\2026-02-14T09_19_44_876Z-
+9 verbose logfile D:\work\plant-code\pdms-io-fork\npm-cache\_logs\2026-02-14T09_19_44_876Z-debug-0.log
+10 verbose cwd D:\work\plant-code\pdms-io-fork
+11 verbose os Windows_NT 10.0.26200
+12 verbose node v25.0.0
+13 verbose npm  v11.6.2
+14 verbose exit 0
+15 info ok

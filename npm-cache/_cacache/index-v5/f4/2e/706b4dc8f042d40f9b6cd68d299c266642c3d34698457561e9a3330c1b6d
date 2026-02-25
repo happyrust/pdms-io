@@ -1,0 +1,2 @@
+
+39e0f0e24511e8b597764b723720af41fc740613	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@types%2fd3-polygon","integrity":null,"time":1770949337660,"size":"262","metadata":{"time":1770949337660,"url":"http://registry.npmmirror.com/@types%2fd3-polygon","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/@types%2fd3-polygon"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+509253faf8d5670c9a13992397785ee0d6165b05	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/@zenuml%2fcore","integrity":null,"time":1770949335673,"size":"262","metadata":{"time":1770949335673,"url":"http://registry.npmmirror.com/@zenuml%2fcore","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/@zenuml%2fcore"},"options":{"compress":true},"status":301}}

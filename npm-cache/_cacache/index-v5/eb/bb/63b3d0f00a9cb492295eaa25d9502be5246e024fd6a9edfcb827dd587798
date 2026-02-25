@@ -1,0 +1,2 @@
+
+c66ea932aef67064f7b2da4f314b559758b773a7	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/to-regex-range","integrity":null,"time":1770949339564,"size":"262","metadata":{"time":1770949339564,"url":"http://registry.npmmirror.com/to-regex-range","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/to-regex-range"},"options":{"compress":true},"status":301}}

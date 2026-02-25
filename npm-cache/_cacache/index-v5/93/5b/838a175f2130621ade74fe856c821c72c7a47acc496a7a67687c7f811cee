@@ -1,0 +1,2 @@
+
+2d8befa0fc6814f8cd39c575a80b91db43b106fa	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/pirates","integrity":null,"time":1770949339462,"size":"262","metadata":{"time":1770949339462,"url":"http://registry.npmmirror.com/pirates","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/pirates"},"options":{"compress":true},"status":301}}

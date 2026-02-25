@@ -1,0 +1,2 @@
+
+51c8ebbeac7fa45a7b0b294ada498811584b57ff	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/tar-stream","integrity":null,"time":1770949338592,"size":"262","metadata":{"time":1770949338592,"url":"http://registry.npmmirror.com/tar-stream","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/tar-stream"},"options":{"compress":true},"status":301}}

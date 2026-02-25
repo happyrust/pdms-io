@@ -1,0 +1,2 @@
+
+fd44d8e9193e6975d7681dd5cf1d8f2a3cf8e699	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ip-address","integrity":null,"time":1770949336275,"size":"262","metadata":{"time":1770949336275,"url":"http://registry.npmmirror.com/ip-address","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/ip-address"},"options":{"compress":true},"status":301}}

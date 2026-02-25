@@ -1,0 +1,2 @@
+
+48ede9fd5b4b4cda8021b56a0728f47b633683fc	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-transition","integrity":null,"time":1770949337834,"size":"262","metadata":{"time":1770949337834,"url":"http://registry.npmmirror.com/d3-transition","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-transition"},"options":{"compress":true},"status":301}}

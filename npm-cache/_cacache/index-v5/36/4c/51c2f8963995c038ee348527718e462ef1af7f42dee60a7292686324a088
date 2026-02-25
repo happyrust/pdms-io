@@ -1,0 +1,2 @@
+
+e5c02d163fff9cc32625f5d33a01fed191c53887	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bare-abort-controller","integrity":null,"time":1770949339825,"size":"262","metadata":{"time":1770949339825,"url":"http://registry.npmmirror.com/bare-abort-controller","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/bare-abort-controller"},"options":{"compress":true},"status":301}}

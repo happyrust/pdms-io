@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use pdms_io::dblist::parse_dblist_file;
 use pdms_io::io::{EleOperationDetail, PdmsIO};
 use std::collections::HashMap;
@@ -26,7 +26,10 @@ async fn main() -> Result<()> {
             }
             "--sessions" => {
                 let val = next_arg(&mut args, "--sessions 需要数值")?;
-                sessions = Some(val.parse::<u32>().map_err(|_| anyhow!("sessions 必须为数字"))?);
+                sessions = Some(
+                    val.parse::<u32>()
+                        .map_err(|_| anyhow!("sessions 必须为数字"))?,
+                );
             }
             "--strict" => strict = true,
             _ => {
@@ -141,10 +144,7 @@ async fn build_name_index(
             if let Some(name) = att_map.get("NAME") {
                 let name = name.get_val_as_string();
                 if !name.is_empty() {
-                    index
-                        .entry(name)
-                        .or_default()
-                        .push(refno.to_string());
+                    index.entry(name).or_default().push(refno.to_string());
                 }
             }
         }
@@ -153,7 +153,9 @@ async fn build_name_index(
 }
 
 fn print_usage() {
-    println!("用法: cargo run --example dblist_regression -- <dblist_path> [snapshot_path] [options]");
+    println!(
+        "用法: cargo run --example dblist_regression -- <dblist_path> [snapshot_path] [options]"
+    );
     println!("选项:");
     println!("  --snapshot <path>   指定快照路径");
     println!("  --update            更新快照");

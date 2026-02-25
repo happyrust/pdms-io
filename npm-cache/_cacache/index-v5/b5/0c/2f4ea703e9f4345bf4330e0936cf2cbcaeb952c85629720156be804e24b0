@@ -1,0 +1,2 @@
+
+38fefe814c9653a321dc5bd08753c808a26db01f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/d3-force","integrity":null,"time":1770949337754,"size":"262","metadata":{"time":1770949337754,"url":"http://registry.npmmirror.com/d3-force","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:16 GMT","location":"https://registry.npmmirror.com/d3-force"},"options":{"compress":true},"status":301}}

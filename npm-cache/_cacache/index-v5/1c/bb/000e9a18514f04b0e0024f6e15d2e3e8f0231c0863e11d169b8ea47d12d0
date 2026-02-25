@@ -1,0 +1,2 @@
+
+a502814b55b430362792a9465310c1eda25ab410	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/fastq","integrity":null,"time":1770949339586,"size":"262","metadata":{"time":1770949339586,"url":"http://registry.npmmirror.com/fastq","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/fastq"},"options":{"compress":true},"status":301}}

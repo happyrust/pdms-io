@@ -1,0 +1,2 @@
+
+6476286f09c2aed494da1902e37f6dfa09186755	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/object-hash","integrity":null,"time":1770949336462,"size":"262","metadata":{"time":1770949336462,"url":"http://registry.npmmirror.com/object-hash","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/object-hash"},"options":{"compress":true},"status":301}}

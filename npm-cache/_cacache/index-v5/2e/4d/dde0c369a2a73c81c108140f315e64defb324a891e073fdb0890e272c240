@@ -1,0 +1,2 @@
+
+660c8654970718f0dda3a5ada5318c6eb47f0b4f	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/pump","integrity":null,"time":1770949338592,"size":"262","metadata":{"time":1770949338592,"url":"http://registry.npmmirror.com/pump","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:17 GMT","location":"https://registry.npmmirror.com/pump"},"options":{"compress":true},"status":301}}

@@ -1,0 +1,2 @@
+
+3b6a8ccd9c002794c55cc16291d8406cb07142b9	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ajv-formats","integrity":null,"time":1770949335365,"size":"262","metadata":{"time":1770949335365,"url":"http://registry.npmmirror.com/ajv-formats","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/ajv-formats"},"options":{"compress":true},"status":301}}

@@ -6,8 +6,8 @@
 //! - 单位换算数值
 
 use aios_core::tool::float_tool::f64_round_3;
-use nom::number::complete::{be_f32, be_f64, be_i16, be_i32, be_u16, be_u32};
 use nom::IResult;
+use nom::number::complete::{be_f32, be_f64, be_i16, be_i32, be_u16, be_u32};
 
 /// 解析大端序 f32
 #[inline]
@@ -61,7 +61,8 @@ pub fn parse_explicit_num_00(data: &[u8]) -> IResult<&[u8], f64> {
     let times = 2_f64.powf((5i16 - times) as f64);
     let (_, a) = be_i32(&data[..4])?;
     let (_, b) = be_i32(&data[4..8])?;
-    let value = (((a as f64 / 0x400 as f64) + (b as f64 / 0x20000000 as f64)) / times * 1000.0).round()
+    let value = (((a as f64 / 0x400 as f64) + (b as f64 / 0x20000000 as f64)) / times * 1000.0)
+        .round()
         / 1000.0;
     let value = f64_round_3(value);
     Ok((data, value))
@@ -78,8 +79,8 @@ pub fn parse_explicit_f64_40(data: &[u8]) -> IResult<&[u8], f64> {
         return Err(nom::Err::Incomplete(nom::Needed::new(12 - data.len())));
     }
     let mut dst_data = data[..8].to_vec();
-    let dst_first =
-        (data[10] & 0xF).checked_shl(4).unwrap_or(0) + (data[11] & 0xF0).checked_shr(4).unwrap_or(0);
+    let dst_first = (data[10] & 0xF).checked_shl(4).unwrap_or(0)
+        + (data[11] & 0xF0).checked_shr(4).unwrap_or(0);
     dst_data[0] = dst_first;
     dst_data[1] = (data[11] & 0xF).checked_shl(4).unwrap_or(0) + (data[1] & 0xF);
 
@@ -195,7 +196,9 @@ mod tests {
     #[test]
     fn test_parse_explicit_f64_40() {
         // 测试数据: -5.0
-        let data = [0x40, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x04, 0x03];
+        let data = [
+            0x40, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x04, 0x03,
+        ];
         let result = parse_explicit_f64_40(&data);
         assert!(result.is_ok());
     }

@@ -1,0 +1,2 @@
+
+25e13a24cd1308f331d94ae128b5b97c2a892ea2	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/ramda","integrity":null,"time":1770949335842,"size":"262","metadata":{"time":1770949335842,"url":"http://registry.npmmirror.com/ramda","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:14 GMT","location":"https://registry.npmmirror.com/ramda"},"options":{"compress":true},"status":301}}

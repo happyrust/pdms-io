@@ -1,0 +1,2 @@
+
+79f7325545a3a424c83e9b3e99338ba585239b04	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/bare-os","integrity":null,"time":1770949339793,"size":"262","metadata":{"time":1770949339793,"url":"http://registry.npmmirror.com/bare-os","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:18 GMT","location":"https://registry.npmmirror.com/bare-os"},"options":{"compress":true},"status":301}}

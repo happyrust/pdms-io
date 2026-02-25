@@ -1,0 +1,2 @@
+
+ef179e63d588028c914eb680fd2e84d9c7a441d1	{"key":"make-fetch-happen:request-cache:http://registry.npmmirror.com/glob-parent","integrity":null,"time":1770949336459,"size":"262","metadata":{"time":1770949336459,"url":"http://registry.npmmirror.com/glob-parent","reqHeaders":{"accept":"application/json"},"resHeaders":{"content-type":"text/html","date":"Fri, 13 Feb 2026 02:22:15 GMT","location":"https://registry.npmmirror.com/glob-parent"},"options":{"compress":true},"status":301}}

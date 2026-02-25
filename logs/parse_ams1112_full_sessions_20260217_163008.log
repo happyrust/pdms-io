@@ -1,0 +1,3118 @@
+warning: unused import: `std::fs`
+ --> build.rs:1:5
+  |
+1 | use std::fs;
+  |     ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::process::Command`
+ --> build.rs:3:5
+  |
+3 | use std::process::Command;
+  |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: `pdms_io` (build script) generated 2 warnings
+warning: unused `#[macro_use]` import
+ --> crates\parse_pdms_db\src\lib.rs:8:1
+  |
+8 | #[macro_use]
+  | ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unexpected `cfg` condition name: `debug_parse_expr`
+    --> crates\parse_pdms_db\src\parse.rs:2647:11
+     |
+2647 |     #[cfg(debug_parse_expr)]
+     |           ^^^^^^^^^^^^^^^^
+     |
+     = help: expected names are: `docsrs`, `feature`, and `test` and 31 more
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(debug_parse_expr)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(debug_parse_expr)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+  --> crates\parse_pdms_db\src\parse.rs:44:20
+   |
+44 | use nom::sequence::tuple;
+   |                    ^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1512:47
+     |
+1512 |                     let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(bytes)?;
+     |                                               ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1921:55
+     |
+1921 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1938:55
+     |
+1938 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:1995:59
+     |
+1995 | ...                   let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+     |                                                 ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2563:45
+     |
+2563 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2576:45
+     |
+2576 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2596:45
+     |
+2596 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2608:45
+     |
+2608 |                 let (_, (value1, value2)) = tuple((be_i32, be_i32))(&res_input[8..16])?;
+     |                                             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2655:13
+     |
+2655 |             tuple((be_u32, be_u32, be_u32, be_u32, be_u32))(input)?;
+     |             ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:2678:41
+     |
+2678 |                 let (_, (a, b, c, d)) = tuple((be_u32, be_u32, be_u32, be_u32))(tmp_input)?;
+     |                                         ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+    --> crates\parse_pdms_db\src\parse.rs:3099:35
+     |
+3099 |         let (_, (_len, _refno)) = tuple::<_, _, nom::error::Error<&[u8]>, _>((
+     |                                   ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+  --> crates\parse_pdms_db\src\parse_explict_tools.rs:15:20
+   |
+15 | use nom::sequence::tuple;
+   |                    ^^^^^
+
+warning: use of deprecated function `nom::sequence::tuple`: `Parser` is directly implemented for tuples
+   --> crates\parse_pdms_db\src\parse_explict_tools.rs:427:25
+    |
+427 |                         tuple((be_i32, be_i32))(&expression_input[..])?;
+    |                         ^^^^^
+
+warning: unused import: `tokio::io::AsyncReadExt`
+  --> crates\parse_pdms_db\src\parse.rs:58:5
+   |
+58 | use tokio::io::AsyncReadExt;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `itertools::Itertools`
+  --> crates\parse_pdms_db\src\parse.rs:33:5
+   |
+33 | use itertools::Itertools;
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `core::slice::SlicePattern`
+  --> crates\parse_pdms_db\src\parse.rs:31:5
+   |
+31 | use core::slice::SlicePattern;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: value assigned to `memb_bytes_len` is never read
+   --> crates\parse_pdms_db\src\parse.rs:444:13
+    |
+444 |             memb_bytes_len = declared_bytes;
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: value assigned to `step_w` is never read
+   --> crates\parse_pdms_db\src\parse.rs:489:26
+    |
+489 |         let mut step_w = 0;
+    |                          ^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: unused variable: `e`
+   --> crates\parse_pdms_db\src\parser\attribute\expression.rs:347:17
+    |
+347 |             Err(e) => {
+    |                 ^ help: if this is intentional, prefix it with an underscore: `_e`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `e`
+   --> crates\parse_pdms_db\src\parser\attribute\expression.rs:409:13
+    |
+409 |         Err(e) => {
+    |             ^ help: if this is intentional, prefix it with an underscore: `_e`
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:199:19
+    |
+199 |             801 | 0x321 => Ok(ArithmeticOpcode::Negate),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+    |
+    = note: `#[warn(unreachable_patterns)]` (part of `#[warn(unused)]`) on by default
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:200:19
+    |
+200 |             802 | 0x322 => Ok(ArithmeticOpcode::Plus),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:201:19
+    |
+201 |             803 | 0x323 => Ok(ArithmeticOpcode::Sub),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:202:19
+    |
+202 |             804 | 0x324 => Ok(ArithmeticOpcode::Mul),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:203:19
+    |
+203 |             805 | 0x325 => Ok(ArithmeticOpcode::Div),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:260:19
+    |
+260 |             901 | 0x385 => Ok(TrigonometricOpcode::Sin),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:261:19
+    |
+261 |             902 | 0x386 => Ok(TrigonometricOpcode::Cos),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:262:19
+    |
+262 |             903 | 0x387 => Ok(TrigonometricOpcode::Tan),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:263:19
+    |
+263 |             904 | 0x388 => Ok(TrigonometricOpcode::Asin),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:264:19
+    |
+264 |             905 | 0x389 => Ok(TrigonometricOpcode::Acos),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:265:19
+    |
+265 |             906 | 0x38A => Ok(TrigonometricOpcode::Atan),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:266:19
+    |
+266 |             907 | 0x38B => Ok(TrigonometricOpcode::Atan2),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:329:20
+    |
+329 |             1001 | 0x3E9 => Ok(RealFunctionOpcode::Sqrt),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:330:20
+    |
+330 |             1002 | 0x3EA => Ok(RealFunctionOpcode::Pow),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:331:20
+    |
+331 |             1003 | 0x3EB => Ok(RealFunctionOpcode::Log),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:332:20
+    |
+332 |             1004 | 0x3EC => Ok(RealFunctionOpcode::Alog),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:333:20
+    |
+333 |             1005 | 0x3ED => Ok(RealFunctionOpcode::Int),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:334:20
+    |
+334 |             1006 | 0x3EE => Ok(RealFunctionOpcode::Nint),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:335:20
+    |
+335 |             1007 | 0x3EF => Ok(RealFunctionOpcode::Abs),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:336:20
+    |
+336 |             1008 | 0x3F0 => Ok(RealFunctionOpcode::Max),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:337:20
+    |
+337 |             1009 | 0x3F1 => Ok(RealFunctionOpcode::Min),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:466:20
+    |
+466 |             1301 | 0x515 => Ok(StringFunctionOpcode::Length),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:467:20
+    |
+467 |             1302 | 0x516 => Ok(StringFunctionOpcode::Real),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:468:20
+    |
+468 |             1303 | 0x517 => Ok(StringFunctionOpcode::Match),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:469:20
+    |
+469 |             1304 | 0x518 => Ok(StringFunctionOpcode::After),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:470:20
+    |
+470 |             1305 | 0x519 => Ok(StringFunctionOpcode::Before),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:471:20
+    |
+471 |             1306 | 0x51A => Ok(StringFunctionOpcode::String),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:472:20
+    |
+472 |             1307 | 0x51B => Ok(StringFunctionOpcode::Upcase),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:473:20
+    |
+473 |             1308 | 0x51C => Ok(StringFunctionOpcode::Lowcase),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:474:20
+    |
+474 |             1309 | 0x51D => Ok(StringFunctionOpcode::Substring),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:475:20
+    |
+475 |             1311 | 0x51F => Ok(StringFunctionOpcode::Defined),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:476:20
+    |
+476 |             1312 | 0x520 => Ok(StringFunctionOpcode::Undefined),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:477:20
+    |
+477 |             1313 | 0x521 => Ok(StringFunctionOpcode::Size),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:478:20
+    |
+478 |             1314 | 0x522 => Ok(StringFunctionOpcode::Trim),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:479:20
+    |
+479 |             1315 | 0x523 => Ok(StringFunctionOpcode::Matchwild),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:480:20
+    |
+480 |             1316 | 0x524 => Ok(StringFunctionOpcode::Width),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:481:20
+    |
+481 |             1317 | 0x525 => Ok(StringFunctionOpcode::Part),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:482:20
+    |
+482 |             1321 | 0x529 => Ok(StringFunctionOpcode::Occurs),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:483:20
+    |
+483 |             1322 | 0x52A => Ok(StringFunctionOpcode::Replace),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:484:20
+    |
+484 |             1369 | 0x559 => Ok(StringFunctionOpcode::Vtext),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:485:20
+    |
+485 |             1370 | 0x55A => Ok(StringFunctionOpcode::Vvalue),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:486:20
+    |
+486 |             1401 | 0x579 => Ok(StringFunctionOpcode::RealAlt),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:487:20
+    |
+487 |             1410 | 0x582 => Ok(StringFunctionOpcode::Str),
+    |             ----   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:532:19
+    |
+532 |             301 | 0x12D => Ok(BooleanOpcode::Not),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:533:19
+    |
+533 |             302 | 0x12E => Ok(BooleanOpcode::And),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:534:19
+    |
+534 |             303 | 0x12F => Ok(BooleanOpcode::Or),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:580:19
+    |
+580 |             401 | 0x191 => Ok(ComparisonOpcode::Eq),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:581:19
+    |
+581 |             501 | 0x1F5 => Ok(ComparisonOpcode::Neq),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: unreachable pattern
+   --> crates\parse_pdms_db\src\parser\attribute\opcode.rs:583:19
+    |
+583 |             601 | 0x259 | 602 => Ok(ComparisonOpcode::Gt),
+    |             ---   ^^^^^ no value can reach this
+    |             |
+    |             matches all the relevant values
+
+warning: function `gen_resolve_error` is never used
+  --> crates\parse_pdms_db\src\error_types.rs:57:4
+   |
+57 | fn gen_resolve_error() -> anyhow::Result<u32> {
+   |    ^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `get_uda_short_name` is never used
+    --> crates\parse_pdms_db\src\parse.rs:1588:4
+     |
+1588 | fn get_uda_short_name(hash: i32) -> Option<String> {
+     |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `convert_int_to_axis_str` is never used
+    --> crates\parse_pdms_db\src\parse.rs:2151:4
+     |
+2151 | fn convert_int_to_axis_str(n: i32) -> &'static str {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `parse_pdms_db` (lib) generated 75 warnings (run `cargo fix --lib -p parse_pdms_db` to apply 2 suggestions)
+warning: unused import: `anyhow::anyhow`
+ --> src\common.rs:1:5
+  |
+1 | use anyhow::anyhow;
+  |     ^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `deku::prelude::*`
+ --> src\common.rs:2:5
+  |
+2 | use deku::prelude::*;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused imports: `TryFrom` and `TryInto`
+ --> src\common.rs:3:20
+  |
+3 | use std::convert::{TryFrom, TryInto};
+  |                    ^^^^^^^  ^^^^^^^
+
+warning: unused import: `std::fmt::Debug`
+ --> src\common.rs:4:5
+  |
+4 | use std::fmt::Debug;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `std::fs::File`
+ --> src\common.rs:5:5
+  |
+5 | use std::fs::File;
+  |     ^^^^^^^^^^^^^
+
+warning: unused imports: `Read`, `SeekFrom`, and `Seek`
+ --> src\common.rs:6:15
+  |
+6 | use std::io::{Read, Seek, SeekFrom};
+  |               ^^^^  ^^^^  ^^^^^^^^
+
+warning: unused import: `std::mem::size_of`
+ --> src\common.rs:7:5
+  |
+7 | use std::mem::size_of;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `MappedLocalTime`
+ --> src\defines.rs:4:31
+  |
+4 | use chrono::{DateTime, Local, MappedLocalTime, TimeZone, Utc};
+  |                               ^^^^^^^^^^^^^^^
+
+warning: unused import: `TryInto`
+  --> src\defines.rs:10:29
+   |
+10 | use std::convert::{TryFrom, TryInto};
+   |                             ^^^^^^^
+
+warning: unused import: `std::str::FromStr`
+  --> src\defines.rs:11:5
+   |
+11 | use std::str::FromStr;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> src\element_serializer.rs:24:5
+   |
+24 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PageKey`
+  --> src\writer.rs:14:27
+   |
+14 | use crate::page_manager::{PageKey, PageManager};
+   |                           ^^^^^^^
+
+warning: unused import: `tokio::fs::File`
+ --> src\sync\sync.rs:5:5
+  |
+5 | use tokio::fs::File;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `log::*`
+ --> src\sync\compress.rs:4:5
+  |
+4 | use log::*;
+  |     ^^^^^^
+
+warning: unused import: `std::fs::create_dir_all`
+ --> src\sync\compress.rs:5:5
+  |
+5 | use std::fs::create_dir_all;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `human_size`
+  --> src\sync\compress.rs:14:13
+   |
+14 | use crate::{human_size /*info_cmd*/};
+   |             ^^^^^^^^^^
+
+warning: unused import: `archive_reader::IoReader`
+  --> src\sync\compress.rs:16:24
+   |
+16 | use dpcsync::{HashSum, archive_reader::IoReader, chunk_dictionary as dict};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PdmsHeader`
+ --> src\watch.rs:1:39
+  |
+1 | use crate::defines::{DbPageBasicInfo, PdmsHeader};
+  |                                       ^^^^^^^^^^
+
+warning: unused import: `future::ok`
+ --> src\watch.rs:7:5
+  |
+7 |     future::ok,
+  |     ^^^^^^^^^^
+
+warning: unused import: `RecursiveMode`
+  --> src\watch.rs:11:49
+   |
+11 | use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+   |                                                 ^^^^^^^^^^^^^
+
+warning: unused import: `Read`
+  --> src\watch.rs:13:15
+   |
+13 | use std::io::{Read, Write};
+   |               ^^^^
+
+warning: unreachable expression
+  --> src\sync\sync.rs:37:5
+   |
+35 |     anyhow::bail!("compress_archive is not available: dpcsync dependency is commented out");
+   |     --------------------------------------------------------------------------------------- any code following this expression is unreachable
+36 |
+37 |     Ok(())
+   |     ^^^^^^ unreachable expression
+   |
+   = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `TryFrom`
+  --> src\defines.rs:10:20
+   |
+10 | use std::convert::{TryFrom, TryInto};
+   |                    ^^^^^^^
+
+warning: unused import: `StreamExt`
+ --> src\watch.rs:5:14
+  |
+5 |     SinkExt, StreamExt,
+  |              ^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src\defines.rs:497:25
+    |
+497 |         let (next_rest, mut d) = RefnoDataLoc::read(rest, ())?;
+    |                         ----^
+    |                         |
+    |                         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `written`
+   --> src\writer.rs:835:13
+    |
+835 |         let written = self.element_writer.flush(file)?;
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_written`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `index`
+  --> src\sync\compress.rs:93:18
+   |
+93 |             let (index, offset, verified, compressed) = result.context("Error compressing")?;
+   |                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_index`
+
+warning: unused variable: `offset`
+  --> src\sync\compress.rs:93:25
+   |
+93 |             let (index, offset, verified, compressed) = result.context("Error compressing")?;
+   |                         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_offset`
+
+warning: unused variable: `input`
+   --> src\watch.rs:139:21
+    |
+139 |                 let input = path.to_path_buf();
+    |                     ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+
+warning: unused variable: `output`
+   --> src\watch.rs:140:21
+    |
+140 |                 let output: PathBuf =
+    |                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_output`
+
+warning: unused variable: `tmp_path`
+   --> src\watch.rs:142:21
+    |
+142 |                 let tmp_path = cbas_dir_path.clone();
+    |                     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_tmp_path`
+
+warning: unused variable: `rotate_size`
+  --> src\io_log.rs:44:5
+   |
+44 |     rotate_size: u64,
+   |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rotate_size`
+
+warning: unused variable: `max_files`
+  --> src\io_log.rs:45:5
+   |
+45 |     max_files: usize,
+   |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_max_files`
+
+warning: associated function `has_next_block_header` is never used
+   --> src\element_record_reader.rs:168:8
+    |
+ 10 | impl ElementRecordReader {
+    | ------------------------ associated function in this implementation
+...
+168 |     fn has_next_block_header(data: &[u8], pos: usize) -> bool {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pdms_io` (lib) generated 34 warnings (run `cargo fix --lib -p pdms_io` to apply 30 suggestions)
+warning: unused import: `PageTypeError`
+ --> src\bin\test_page_types.rs:2:32
+  |
+2 |     DataPageSubtype, PageType, PageTypeError, verify_data_page_subtype, verify_page_type,
+  |                                ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `PageTypeError`
+ --> src\bin\test_all_fixes.rs:2:43
+  |
+2 |     DataPageSubtype, PAGE_SIZE, PageType, PageTypeError, PdmsHeader, verify_data_page_subtype,
+  |                                           ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::env`
+ --> src\bin\benchmark_increment_eles.rs:3:5
+  |
+3 | use std::env;
+  |     ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling pdms_io v0.1.0 (D:\work\plant-code\pdms-io-fork)
+warning: unused import: `aios_core::pdms_types::RefU64`
+ --> src\main.rs:5:5
+  |
+5 | use aios_core::pdms_types::RefU64;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `EleRawData`
+ --> src\main.rs:7:37
+  |
+7 | use pdms_io::defines::{ElePageData, EleRawData, PAGE_SIZE};
+  |                                     ^^^^^^^^^^
+
+warning: unused import: `pdms_io::test::resolve_test_db_path`
+ --> src\main.rs:9:5
+  |
+9 | use pdms_io::test::resolve_test_db_path;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::mem::size_of`
+  --> src\main.rs:14:5
+   |
+14 | use std::mem::size_of;
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> src\main.rs:44:9
+   |
+44 |     let mut bytes: Vec<u8> = ele_page.clone().try_into().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+  --> src\main.rs:60:9
+   |
+60 |     let mut bytes: Vec<u8> = ele_page.try_into().unwrap();
+   |         ----^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:74:9
+   |
+74 |     let mut watch_files: Vec<PathBuf> = Vec::new();
+   |         ----^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:81:9
+   |
+81 |     let mut watcher = PdmsWatcher::new(db_paths);
+   |         ----^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src\main.rs:83:9
+   |
+83 |     let mut time = Instant::now();
+   |         ----^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: unused variable: `watch_files`
+  --> src\main.rs:74:9
+   |
+74 |     let mut watch_files: Vec<PathBuf> = Vec::new();
+   |         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_watch_files`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::NamedAttrValue`
+ --> src\bin\test_get_refno_status.rs:1:5
+  |
+1 | use aios_core::NamedAttrValue;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `EleOperation`
+ --> src\bin\test_get_refno_status.rs:2:29
+  |
+2 | use aios_core::pdms_types::{EleOperation, RefU64};
+  |                             ^^^^^^^^^^^^
+
+warning: unused import: `Utc`
+  --> src\bin\test_sesno_timestamp.rs:95:36
+   |
+95 |             use chrono::{DateTime, Utc};
+   |                                    ^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::RefU64`
+ --> src\bin\test_increment_eles.rs:7:5
+  |
+7 | use aios_core::RefU64;
+  |     ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `aios_core::pdms_types::EleOperation`
+ --> src\bin\test_increment_eles.rs:9:5
+  |
+9 | use aios_core::pdms_types::EleOperation;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `EleOperationData` and `EleOperationDetail`
+  --> src\bin\test_increment_eles.rs:11:19
+   |
+11 | use pdms_io::io::{EleOperationData, EleOperationDetail, PdmsIO};
+   |                   ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `aios_core::SUL_DB`
+  --> src\bin\test_increment_eles.rs:15:5
+   |
+15 | use aios_core::SUL_DB; // 导入SurrealDB全局连接
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+  --> src\bin\test_increment_eles.rs:17:5
+   |
+17 | use std::collections::HashMap;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `elapsed`
+  --> src\bin\test_increment_eles.rs:73:9
+   |
+73 |     let elapsed = start_time.elapsed();
+   |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_elapsed`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `pdms_io` (bin "test_page_types") generated 1 warning (run `cargo fix --bin "test_page_types" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "test_all_fixes") generated 1 warning (run `cargo fix --bin "test_all_fixes" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "benchmark_increment_eles") generated 1 warning (run `cargo fix --bin "benchmark_increment_eles" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "pdms_io") generated 10 warnings (run `cargo fix --bin "pdms_io" -p pdms_io` to apply 10 suggestions)
+warning: `pdms_io` (bin "test_get_refno_status") generated 2 warnings (run `cargo fix --bin "test_get_refno_status" -p pdms_io` to apply 2 suggestions)
+warning: `pdms_io` (bin "test_sesno_timestamp") generated 1 warning (run `cargo fix --bin "test_sesno_timestamp" -p pdms_io` to apply 1 suggestion)
+warning: `pdms_io` (bin "test_increment_eles") generated 6 warnings (run `cargo fix --bin "test_increment_eles" -p pdms_io` to apply 6 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.14s
+     Running tests\diag_ams1112_full_parse.rs (target\debug\deps\diag_ams1112_full_parse-60454e54725cb2c7.exe)
+
+running 1 test
+开始全量会话解析: file=D:\work\plant-code\pdms-io-fork\test-file\ams1112_0001, sesno_range=1..=1020
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 2
+collect sesno: 3
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 4
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 5
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 248 out of range for slice of length 244
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 6
+collect sesno: 7
+[src\io.rs:3268:9] &session_numbers.len() = 1
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 8
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 132 out of range for slice of length 128
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 9
+collect sesno: 10
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 228 out of range for slice of length 224
+collect sesno: 11
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 108 out of range for slice of length 104
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 12
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 13
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 124 out of range for slice of length 120
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 14
+collect sesno: 15
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 196 out of range for slice of length 192
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 16
+collect sesno: 17
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 18
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 120 out of range for slice of length 116
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 19
+collect sesno: 20
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 21
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 22
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 23
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 24
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 25
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 26
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 27
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 28
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 29
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 30
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 644 out of range for slice of length 640
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 31
+collect sesno: 32
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 33
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 188 out of range for slice of length 184
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 34
+collect sesno: 35
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 36
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 37
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 38
+[src\io.rs:3268:9] &session_numbers.len() = 1
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 0
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 716
+test diag_ams1112_full_parse has been running for over 60 seconds
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 280 out of range for slice of length 276
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 717
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 240 out of range for slice of length 236
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 718
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 264 out of range for slice of length 260
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 719
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 720
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 232 out of range for slice of length 228
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 721
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 224 out of range for slice of length 220
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 722
+collect sesno: 723
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 576 out of range for slice of length 572
+collect sesno: 724
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 725
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 726
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 276 out of range for slice of length 272
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 727
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 192 out of range for slice of length 188
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 728
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 180 out of range for slice of length 176
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 729
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 248 out of range for slice of length 244
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 730
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 152 out of range for slice of length 148
+collect sesno: 731
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 224 out of range for slice of length 220
+collect sesno: 732
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1364 out of range for slice of length 1360
+collect sesno: 733
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 188 out of range for slice of length 184
+collect sesno: 734
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 735
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 128 out of range for slice of length 124
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 736
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 156 out of range for slice of length 152
+collect sesno: 737
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 156 out of range for slice of length 152
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 738
+collect sesno: 739
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 188 out of range for slice of length 184
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 740
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 168 out of range for slice of length 164
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 741
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 152 out of range for slice of length 148
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 742
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 180 out of range for slice of length 176
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 743
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 180 out of range for slice of length 176
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 744
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 204 out of range for slice of length 200
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 745
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 200 out of range for slice of length 196
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 746
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 276 out of range for slice of length 272
+collect sesno: 747
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 236 out of range for slice of length 232
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 748
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 248 out of range for slice of length 244
+collect sesno: 749
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 280 out of range for slice of length 276
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 750
+collect sesno: 751
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 752
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 753
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 754
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 755
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 756
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 272 out of range for slice of length 268
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 757
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 244 out of range for slice of length 240
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 758
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 284 out of range for slice of length 280
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 759
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 124 out of range for slice of length 120
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 760
+collect sesno: 761
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 762
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 763
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 764
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 765
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 766
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 188 out of range for slice of length 184
+collect sesno: 767
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 136 out of range for slice of length 132
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 768
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 180 out of range for slice of length 176
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 769
+collect sesno: 770
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 771
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1048 out of range for slice of length 1044
+collect sesno: 772
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1028 out of range for slice of length 1024
+collect sesno: 773
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 204 out of range for slice of length 200
+collect sesno: 774
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1832 out of range for slice of length 1828
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 775
+collect sesno: 776
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1832 out of range for slice of length 1828
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 777
+collect sesno: 778
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1832 out of range for slice of length 1828
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 779
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 252 out of range for slice of length 248
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 780
+collect sesno: 781
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1208 out of range for slice of length 1204
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 782
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1192 out of range for slice of length 1188
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 783
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1176 out of range for slice of length 1172
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 784
+collect sesno: 785
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1172 out of range for slice of length 1168
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 786
+collect sesno: 787
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1208 out of range for slice of length 1204
+collect sesno: 788
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 789
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 790
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 180 out of range for slice of length 176
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 791
+collect sesno: 792
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 793
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 794
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 795
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 796
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1200 out of range for slice of length 1196
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 797
+collect sesno: 798
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 799
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 800
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 801
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 802
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 803
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 804
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 805
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 884 out of range for slice of length 880
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 806
+collect sesno: 807
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 772 out of range for slice of length 768
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 808
+collect sesno: 809
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 810
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 232 out of range for slice of length 228
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 811
+collect sesno: 812
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 813
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 814
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 815
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 816
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 817
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 818
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1260 out of range for slice of length 1256
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 819
+collect sesno: 820
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 821
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 822
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 240 out of range for slice of length 236
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 823
+collect sesno: 824
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 104 out of range for slice of length 100
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 825
+collect sesno: 826
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 368 out of range for slice of length 364
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 827
+collect sesno: 828
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 829
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 830
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 831
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 832
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 833
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 834
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 835
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 836
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 837
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 838
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 839
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 840
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 841
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 842
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 843
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 844
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 845
+collect sesno: 846
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 847
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 848
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 849
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 850
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 851
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 852
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 853
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 854
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 855
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 856
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 857
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 858
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 859
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 860
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 861
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 862
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 863
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 864
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 865
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 866
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 867
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 868
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 869
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 870
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 871
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 872
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 873
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 874
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 875
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+collect sesno: 876
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 877
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 878
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 879
+collect sesno: 880
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 881
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 882
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 883
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 884
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 885
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 886
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 887
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 888
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 889
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 890
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 891
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 892
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 124 out of range for slice of length 120
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 893
+collect sesno: 894
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 895
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 896
+[src\io.rs:3268:9] &session_numbers.len() = 1
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 897
+collect sesno: 898
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 899
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 900
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 901
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 902
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 903
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 904
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 905
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 906
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 907
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 908
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 909
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 910
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 911
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 912
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 913
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 914
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 915
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 916
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 917
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 918
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 919
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 920
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 921
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 922
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 923
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 924
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 925
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 926
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 927
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 928
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 192 out of range for slice of length 188
+collect sesno: 929
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 930
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 931
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 932
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 933
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 934
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 935
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 936
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 937
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 938
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 939
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 940
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 941
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 942
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 943
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 944
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 945
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 946
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 947
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 948
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 949
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 950
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 951
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 952
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 953
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 954
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 955
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 956
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 957
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 958
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 959
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 960
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 961
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 962
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 963
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 964
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 965
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 966
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 967
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 968
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 969
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 970
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 971
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1700 out of range for slice of length 1696
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 972
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1692 out of range for slice of length 1688
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 973
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1356 out of range for slice of length 1352
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 974
+collect sesno: 975
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1864 out of range for slice of length 1860
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 976
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1872 out of range for slice of length 1868
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 977
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 978
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 979
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 980
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 981
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 982
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 983
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 984
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 985
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 986
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 987
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 2048 out of range for slice of length 2044
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 988
+collect sesno: 989
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 990
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 991
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 992
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 993
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 994
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 995
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 996
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 997
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 998
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 999
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1000
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1001
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1002
+[src\io.rs:3268:9] &session_numbers.len() = 1
+
+thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+range end index 1024 out of range for slice of length 1020
+collect sesno: 1003
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1004
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1005
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1006
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1007
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1008
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1009
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1010
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1011
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1012
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1013
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1014
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1015
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1016
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1017
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1018
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1019
+[src\io.rs:3268:9] &session_numbers.len() = 1
+collect sesno: 1020
+[src\io.rs:3268:9] &session_numbers.len() = 1
+全量解析完成: 耗时=327.49004s
+覆盖会话数: 247 / 1020
+无变更会话数: 773
+操作统计: total=1665, add=1090, modified=225, deleted=337, none=13
+会话级问题统计: panics=92, errors=0
+
+首个 panic 会话: sesno=5, msg=range end index 248 out of range for slice of length 244
+thread 'diag_ams1112_full_parse' (1673660) panicked at tests\diag_ams1112_full_parse.rs:112:5:
+全量解析存在会话级异常: panics=92, errors=0
+test diag_ams1112_full_parse ... FAILED
+
+failures:
+
+failures:
+    diag_ams1112_full_parse
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 327.86s
+
+error: test failed, to rerun pass `--test diag_ams1112_full_parse`
+
+=== LOG CHECK (parse issues) ===
+--- pattern: collect sesno: ---
+988:collect sesno: 1
+990:collect sesno: 2
+991:collect sesno: 3
+993:collect sesno: 4
+995:collect sesno: 5
+1002:collect sesno: 6
+1003:collect sesno: 7
+1006:collect sesno: 8
+1011:collect sesno: 9
+1012:collect sesno: 10
+1017:collect sesno: 11
+1023:collect sesno: 12
+1025:collect sesno: 13
+1030:collect sesno: 14
+1031:collect sesno: 15
+1037:collect sesno: 16
+1038:collect sesno: 17
+1040:collect sesno: 18
+1046:collect sesno: 19
+1047:collect sesno: 20
+1049:collect sesno: 21
+1051:collect sesno: 22
+1053:collect sesno: 23
+1055:collect sesno: 24
+1057:collect sesno: 25
+1059:collect sesno: 26
+1061:collect sesno: 27
+1063:collect sesno: 28
+1065:collect sesno: 29
+1067:collect sesno: 30
+1073:collect sesno: 31
+1074:collect sesno: 32
+1076:collect sesno: 33
+1082:collect sesno: 34
+1083:collect sesno: 35
+1085:collect sesno: 36
+1087:collect sesno: 37
+1089:collect sesno: 38
+1769:collect sesno: 716
+1775:collect sesno: 717
+1780:collect sesno: 718
+1785:collect sesno: 719
+1787:collect sesno: 720
+1792:collect sesno: 721
+1797:collect sesno: 722
+1798:collect sesno: 723
+1803:collect sesno: 724
+1805:collect sesno: 725
+1807:collect sesno: 726
+1813:collect sesno: 727
+1818:collect sesno: 728
+1823:collect sesno: 729
+1828:collect sesno: 730
+1832:collect sesno: 731
+1837:collect sesno: 732
+1842:collect sesno: 733
+1847:collect sesno: 734
+1849:collect sesno: 735
+1855:collect sesno: 736
+1859:collect sesno: 737
+1865:collect sesno: 738
+1866:collect sesno: 739
+1872:collect sesno: 740
+1877:collect sesno: 741
+1882:collect sesno: 742
+1887:collect sesno: 743
+1892:collect sesno: 744
+1897:collect sesno: 745
+1902:collect sesno: 746
+1906:collect sesno: 747
+1912:collect sesno: 748
+1916:collect sesno: 749
+1922:collect sesno: 750
+1923:collect sesno: 751
+1925:collect sesno: 752
+1927:collect sesno: 753
+1929:collect sesno: 754
+1931:collect sesno: 755
+1933:collect sesno: 756
+1939:collect sesno: 757
+1944:collect sesno: 758
+1949:collect sesno: 759
+1954:collect sesno: 760
+1955:collect sesno: 761
+1957:collect sesno: 762
+1959:collect sesno: 763
+1961:collect sesno: 764
+1963:collect sesno: 765
+1965:collect sesno: 766
+1970:collect sesno: 767
+1976:collect sesno: 768
+1981:collect sesno: 769
+1982:collect sesno: 770
+1984:collect sesno: 771
+1989:collect sesno: 772
+1994:collect sesno: 773
+1999:collect sesno: 774
+2005:collect sesno: 775
+2006:collect sesno: 776
+2012:collect sesno: 777
+2013:collect sesno: 778
+2019:collect sesno: 779
+2024:collect sesno: 780
+2025:collect sesno: 781
+2031:collect sesno: 782
+2036:collect sesno: 783
+2041:collect sesno: 784
+2042:collect sesno: 785
+2048:collect sesno: 786
+2049:collect sesno: 787
+2054:collect sesno: 788
+2056:collect sesno: 789
+2058:collect sesno: 790
+2064:collect sesno: 791
+2065:collect sesno: 792
+2067:collect sesno: 793
+2069:collect sesno: 794
+2071:collect sesno: 795
+2073:collect sesno: 796
+2079:collect sesno: 797
+2080:collect sesno: 798
+2082:collect sesno: 799
+2084:collect sesno: 800
+2086:collect sesno: 801
+2088:collect sesno: 802
+2090:collect sesno: 803
+2092:collect sesno: 804
+2094:collect sesno: 805
+2100:collect sesno: 806
+2101:collect sesno: 807
+2107:collect sesno: 808
+2108:collect sesno: 809
+2110:collect sesno: 810
+2116:collect sesno: 811
+2117:collect sesno: 812
+2119:collect sesno: 813
+2121:collect sesno: 814
+2123:collect sesno: 815
+2125:collect sesno: 816
+2127:collect sesno: 817
+2129:collect sesno: 818
+2135:collect sesno: 819
+2136:collect sesno: 820
+2138:collect sesno: 821
+2140:collect sesno: 822
+2146:collect sesno: 823
+2147:collect sesno: 824
+2153:collect sesno: 825
+2154:collect sesno: 826
+2160:collect sesno: 827
+2161:collect sesno: 828
+2163:collect sesno: 829
+2165:collect sesno: 830
+2167:collect sesno: 831
+2169:collect sesno: 832
+2171:collect sesno: 833
+2173:collect sesno: 834
+2175:collect sesno: 835
+2177:collect sesno: 836
+2179:collect sesno: 837
+2181:collect sesno: 838
+2183:collect sesno: 839
+2185:collect sesno: 840
+2187:collect sesno: 841
+2193:collect sesno: 842
+2198:collect sesno: 843
+2203:collect sesno: 844
+2208:collect sesno: 845
+2209:collect sesno: 846
+2211:collect sesno: 847
+2213:collect sesno: 848
+2215:collect sesno: 849
+2217:collect sesno: 850
+2219:collect sesno: 851
+2221:collect sesno: 852
+2223:collect sesno: 853
+2225:collect sesno: 854
+2227:collect sesno: 855
+2229:collect sesno: 856
+2231:collect sesno: 857
+2233:collect sesno: 858
+2235:collect sesno: 859
+2237:collect sesno: 860
+2239:collect sesno: 861
+2241:collect sesno: 862
+2243:collect sesno: 863
+2245:collect sesno: 864
+2247:collect sesno: 865
+2249:collect sesno: 866
+2251:collect sesno: 867
+2253:collect sesno: 868
+2255:collect sesno: 869
+2257:collect sesno: 870
+2259:collect sesno: 871
+2261:collect sesno: 872
+2263:collect sesno: 873
+2265:collect sesno: 874
+2267:collect sesno: 875
+2272:collect sesno: 876
+2278:collect sesno: 877
+2283:collect sesno: 878
+2288:collect sesno: 879
+2289:collect sesno: 880
+2291:collect sesno: 881
+2293:collect sesno: 882
+2295:collect sesno: 883
+2297:collect sesno: 884
+2299:collect sesno: 885
+2301:collect sesno: 886
+2303:collect sesno: 887
+2305:collect sesno: 888
+2307:collect sesno: 889
+2309:collect sesno: 890
+2311:collect sesno: 891
+2313:collect sesno: 892
+2319:collect sesno: 893
+2320:collect sesno: 894
+2322:collect sesno: 895
+2324:collect sesno: 896
+2327:collect sesno: 897
+2328:collect sesno: 898
+2330:collect sesno: 899
+2332:collect sesno: 900
+2334:collect sesno: 901
+2336:collect sesno: 902
+2338:collect sesno: 903
+2340:collect sesno: 904
+2342:collect sesno: 905
+2344:collect sesno: 906
+2346:collect sesno: 907
+2348:collect sesno: 908
+2350:collect sesno: 909
+2352:collect sesno: 910
+2354:collect sesno: 911
+2356:collect sesno: 912
+2358:collect sesno: 913
+2360:collect sesno: 914
+2362:collect sesno: 915
+2364:collect sesno: 916
+2366:collect sesno: 917
+2368:collect sesno: 918
+2370:collect sesno: 919
+2372:collect sesno: 920
+2374:collect sesno: 921
+2376:collect sesno: 922
+2378:collect sesno: 923
+2380:collect sesno: 924
+2382:collect sesno: 925
+2384:collect sesno: 926
+2386:collect sesno: 927
+2388:collect sesno: 928
+2393:collect sesno: 929
+2395:collect sesno: 930
+2397:collect sesno: 931
+2399:collect sesno: 932
+2401:collect sesno: 933
+2403:collect sesno: 934
+2405:collect sesno: 935
+2407:collect sesno: 936
+2409:collect sesno: 937
+2411:collect sesno: 938
+2413:collect sesno: 939
+2415:collect sesno: 940
+2417:collect sesno: 941
+2419:collect sesno: 942
+2421:collect sesno: 943
+2423:collect sesno: 944
+2425:collect sesno: 945
+2427:collect sesno: 946
+2429:collect sesno: 947
+2431:collect sesno: 948
+2433:collect sesno: 949
+2435:collect sesno: 950
+2437:collect sesno: 951
+2439:collect sesno: 952
+2441:collect sesno: 953
+2443:collect sesno: 954
+2445:collect sesno: 955
+2447:collect sesno: 956
+2449:collect sesno: 957
+2451:collect sesno: 958
+2453:collect sesno: 959
+2455:collect sesno: 960
+2457:collect sesno: 961
+2459:collect sesno: 962
+2461:collect sesno: 963
+2463:collect sesno: 964
+2465:collect sesno: 965
+2467:collect sesno: 966
+2469:collect sesno: 967
+2471:collect sesno: 968
+2473:collect sesno: 969
+2475:collect sesno: 970
+2477:collect sesno: 971
+2483:collect sesno: 972
+2488:collect sesno: 973
+2493:collect sesno: 974
+2494:collect sesno: 975
+2500:collect sesno: 976
+2505:collect sesno: 977
+2510:collect sesno: 978
+2515:collect sesno: 979
+2520:collect sesno: 980
+2525:collect sesno: 981
+2530:collect sesno: 982
+2535:collect sesno: 983
+2540:collect sesno: 984
+2545:collect sesno: 985
+2550:collect sesno: 986
+2555:collect sesno: 987
+2560:collect sesno: 988
+2561:collect sesno: 989
+2563:collect sesno: 990
+2565:collect sesno: 991
+2567:collect sesno: 992
+2569:collect sesno: 993
+2571:collect sesno: 994
+2573:collect sesno: 995
+2575:collect sesno: 996
+2577:collect sesno: 997
+2579:collect sesno: 998
+2581:collect sesno: 999
+2583:collect sesno: 1000
+2585:collect sesno: 1001
+2587:collect sesno: 1002
+2592:collect sesno: 1003
+2594:collect sesno: 1004
+2596:collect sesno: 1005
+2598:collect sesno: 1006
+2600:collect sesno: 1007
+2602:collect sesno: 1008
+2604:collect sesno: 1009
+2606:collect sesno: 1010
+2608:collect sesno: 1011
+2610:collect sesno: 1012
+2612:collect sesno: 1013
+2614:collect sesno: 1014
+2616:collect sesno: 1015
+2618:collect sesno: 1016
+2620:collect sesno: 1017
+2622:collect sesno: 1018
+2624:collect sesno: 1019
+2626:collect sesno: 1020
+2649:--- pattern: collect sesno: ---
+--- pattern: 会话级问题统计 ---
+2632:会话级问题统计: panics=92, errors=0
+2994:--- pattern: 会话级问题统计 ---
+--- pattern: 首个 panic 会话 ---
+2634:首个 panic 会话: sesno=5, msg=range end index 248 out of range for slice of length 244
+2997:--- pattern: 首个 panic 会话 ---
+--- pattern: 解析元素失败 ---
+3000:--- pattern: 解析元素失败 ---
+--- pattern: collect_eles_in_session: ---
+3002:--- pattern: collect_eles_in_session: ---
+--- pattern: Warning: ---
+3004:--- pattern: Warning: ---
+--- pattern: panicked ---
+998:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1008:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1015:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1020:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1027:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1034:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1043:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1070:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1079:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1772:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1777:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1782:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1789:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1794:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1801:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1810:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1815:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1820:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1825:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1830:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1835:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1840:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1845:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1852:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1857:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1862:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1869:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1874:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1879:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1884:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1889:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1894:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1899:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1904:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1909:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1914:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1919:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1936:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1941:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1946:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1951:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1968:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1973:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1978:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1987:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1992:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+1997:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2002:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2009:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2016:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2021:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2028:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2033:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2038:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2045:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2052:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2061:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2076:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2097:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2104:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2113:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2132:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2143:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2150:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2157:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2190:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2195:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2200:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2205:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2270:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2275:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2280:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2285:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2316:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2391:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2480:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2485:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2490:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2497:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2502:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2507:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2512:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2517:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2522:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2527:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2532:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2537:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2542:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2547:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2552:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2557:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2590:thread 'diag_ams1112_full_parse' (1673660) panicked at crates\parse_pdms_db\src\parse.rs:424:44:
+2635:thread 'diag_ams1112_full_parse' (1673660) panicked at tests\diag_ams1112_full_parse.rs:112:5:
+3006:--- pattern: panicked ---
+--- pattern: FAILED ---
+2637:test diag_ams1112_full_parse ... FAILED
+2644:test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 327.86s
+3101:--- pattern: FAILED ---
+--- pattern: error: ---
+110:3099 |         let (_, (_len, _refno)) = tuple::<_, _, nom::error::Error<&[u8]>, _>((
+2646:error: test failed, to rerun pass `--test diag_ams1112_full_parse`
+3105:--- pattern: error: ---
+--- pattern: 全量解析完成 ---
+2628:全量解析完成: 耗时=327.49004s
+3109:--- pattern: 全量解析完成 ---
+--- pattern: 操作统计: ---
+2631:操作统计: total=1665, add=1090, modified=225, deleted=337, none=13
+3112:--- pattern: 操作统计: ---
+--- pattern: test result: ---
+2644:test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 327.86s
+3103:2644:test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 327.86s
+3115:--- pattern: test result: ---
