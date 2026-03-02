@@ -20,3 +20,5 @@ protoc/bin/include/
 .ace-tool/
 
 **/target/
+
+worktrees/
