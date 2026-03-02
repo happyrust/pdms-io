@@ -12,12 +12,14 @@ pub mod search;
 pub mod test;
 pub mod writer;
 
+#[cfg(feature = "sync-archive")]
 pub mod sync;
 
 pub mod watch;
 
 pub mod dblist;
 pub mod io_log;
+#[cfg(feature = "fjall")]
 pub mod latest_fjall;
 
 // 重新导出常用函数，使其可以直接从crate根访问

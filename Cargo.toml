@@ -7,11 +7,12 @@ autobins = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = []                          #
+default = []                                 #
 debug_parse = []
-debug_btree_search = []               # 启用B+树搜索调试输出
-meilisearch = ["dep:meilisearch-sdk"] # MeiliSearch 搜索引擎支持
-surrealdb = ["dep:surrealdb"]         # SurrealDB 数据库支持
+debug_btree_search = []                      # 启用B+树搜索调试输出
+meilisearch = ["dep:meilisearch-sdk"]        # MeiliSearch 搜索引擎支持
+surrealdb = ["dep:surrealdb"]                # SurrealDB 数据库支持
+sync-archive = ["dep:dpcsync", "dep:blake2"] # 增量同步/克隆功能
 
 [dependencies]
 anyhow = "1.0"
@@ -40,8 +41,8 @@ reqwest = { version = "0.12", default-features = false, features = [
     "rustls-tls",
 ] }
 rayon = "1.8.0"
-dpcsync = { path = "../dpc-sync" }
-blake2 = "0.10.6"
+dpcsync = { path = "../dpc-sync", optional = true }
+blake2 = { version = "0.10.6", optional = true }
 futures-util = "0.3.29"
 log = "0.4.20"
 atty = "0.2.14"
@@ -56,7 +57,7 @@ iter_tools = "0.29.0"
 meilisearch-sdk = { version = "0.28.0", optional = true }
 glam = "0.30.9"
 tempfile = "3"
-fjall = { path = "../fjall" }
+fjall = { version = "1", optional = true }
 
 [profile.dev]
 opt-level = 0
@@ -155,4 +156,5 @@ test = false
 [[bin]]
 name = "build_latest_fjall"
 path = "src/bin/build_latest_fjall.rs"
+required-features = ["fjall"]
 test = false
