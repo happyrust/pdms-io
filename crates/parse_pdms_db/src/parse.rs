@@ -25,6 +25,9 @@ use aios_core::tool::db_tool::*;
 use aios_core::types::WholeAttMap;
 use aios_core::types::db_info::PdmsDatabaseInfo;
 use aios_core::types::*;
+use aios_core::AttrVal::*;
+#[cfg(feature = "surrealdb")]
+use aios_core::SUL_DB;
 use anyhow::*;
 use core::result::Result::Ok;
 #[allow(unused_mut)]
@@ -1658,6 +1661,7 @@ fn resolve_uda_label(hash: i32) -> String {
 }
 
 /// 从数据库批量预加载所有 UDA 名称到缓存
+#[cfg(feature = "surrealdb")]
 pub async fn preload_uda_name_cache() -> anyhow::Result<()> {
     use aios_core::SurrealQueryExt;
     let sql = "SELECT VALUE [UKEY, UDNA, DYUDNA] FROM UDA WHERE UKEY != none";

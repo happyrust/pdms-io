@@ -5,10 +5,12 @@ use crate::paged_reader::PagedReader;
 use aios_core::pdms_data::DataOperation;
 use aios_core::pdms_types::*;
 use aios_core::{
-    NamedAttrMap, NamedAttrValue, RefU64Vec, RefnoEnum, RefnoSesno, SUL_DB,
-    get_default_pdms_db_info, helper::parse_to_i32, query_refno_sesno,
+    helper::parse_to_i32, NamedAttrMap, NamedAttrValue, RefU64Vec,
+    RefnoEnum, RefnoSesno, get_default_pdms_db_info, query_refno_sesno,
 };
-use anyhow::{Context, Result, anyhow};
+#[cfg(feature = "surrealdb")]
+use aios_core::SUL_DB;
+use anyhow::{anyhow, Context, Result};
 use atty::is;
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
@@ -22,8 +24,7 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 /// 用于异步批量写入 SurrealDB 的消息类型（仅在 store_all_refno_sesno_map 内部使用）。
-///
-/// 之前该类型在重构过程中遗漏，导致 `pdms_io` 无法编译。
+#[cfg(feature = "surrealdb")]
 enum SesSqlType {
     SesJson(Vec<String>),
     PeSesSql(Vec<String>),
@@ -2180,6 +2181,7 @@ impl PdmsIO {
 
     ///存储所有的参考号和对应的 sesno 数据
     /// 返回一个历史参考号集合，值为所有的位置
+    #[cfg(feature = "surrealdb")]
     pub async fn store_all_refno_sesno_map(
         &mut self,
     ) -> anyhow::Result<BTreeMap<RefU64, BTreeSet<(u64, u32)>>> {
@@ -2311,6 +2313,7 @@ impl PdmsIO {
     }
 
     //todo 可以指定 sesno 的范围去更新历史数据
+    #[cfg(feature = "surrealdb")]
     pub async fn sync_history(&mut self) -> anyhow::Result<()> {
         //     let history_pe_map = self.store_all_refno_sesno_map().await?;
         //     dbg!(&history_pe_map.len());
@@ -3017,6 +3020,7 @@ impl PdmsIO {
         Ok(())
     }
 
+    #[cfg(feature = "surrealdb")]
     async fn save_ses_pe_relates(all_relates: &Vec<String>) {
         // 修改、删除、增加，放在这里去加一个字段
         for chunk in all_relates.chunks(1000) {
@@ -3026,6 +3030,7 @@ impl PdmsIO {
         }
     }
 
+    #[cfg(feature = "surrealdb")]
     async fn save_att_history(type_att_map: &mut BTreeMap<String, Vec<EleData>>) {
         //对 type_att_map 进行历史数据的保存
         //todo 后续可以改解析，都是用这个方法去保存数据, 存属性时，都是用的最新的 sesno
@@ -4877,6 +4882,7 @@ impl PdmsIO {
     /// 3. 保存会话信息到数据库
     /// 4. 保存元素数据到数据库
     /// 5. 更新会话统计信息
+    #[cfg(feature = "surrealdb")]
     pub async fn collect_and_save_latest_data(
         &mut self,
         max_sessions: Option<u32>,
@@ -4952,6 +4958,7 @@ impl PdmsIO {
     ///
     /// # 返回值
     /// * `anyhow::Result<()>` - 成功返回Ok(())，失败返回错误
+    #[cfg(feature = "surrealdb")]
     async fn save_sessions_and_elements(
         &mut self,
         range_eles: &BTreeMap<u32, Vec<EleOperationData>>,
@@ -5140,6 +5147,7 @@ impl PdmsIO {
     }
 }
 
+#[cfg(feature = "surrealdb")]
 pub async fn sync_all_history_data(path: &str) -> anyhow::Result<()> {
     //先建立 ses 的索引，date 和 dbnum， sesno 都要建立索引
     let mut io = PdmsIO::new("ams", path, true);

@@ -1,3 +1,4 @@
+#![cfg(feature = "surrealdb")]
 //! AMS7330 解析测试案例
 //!
 //! 解析 ams7330_0001 测试文件，保存到 SurrealDB，并添加 profile 耗时分析

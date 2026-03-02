@@ -88,6 +88,7 @@ async fn test_13292_185_udna() {
     dbg!(&ele_data.whole_attmap.explicit_attmap);
 }
 
+#[cfg(feature = "surrealdb")]
 #[tokio::test]
 async fn test_24381_177401_nphs_asr() {
     let _ = init_test_surreal().await;
@@ -130,6 +131,7 @@ async fn test_24381_177401_nphs_asr() {
 
 /// 测试 UDA 表动态缓存功能的性能对比
 /// 验证优化后的实现能够正确获取 UDA 属性名称
+#[cfg(feature = "surrealdb")]
 #[tokio::test]
 async fn test_uda_preload_performance_comparison() {
     use crate::parse::get_uda_full_name;
@@ -192,6 +194,7 @@ async fn test_uda_preload_performance_comparison() {
 
 /// 测试解析 ams1112_0001 并检查 refno 17496_142306 的 UDA 属性
 /// 验证 UDA 表预加载功能正常工作
+#[cfg(feature = "surrealdb")]
 #[tokio::test]
 async fn test_ams1112_0001_refno_17496_142306_uda() {
     let _ = init_test_surreal().await;

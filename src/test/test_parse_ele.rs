@@ -20,6 +20,8 @@ async fn test_parse_ele() {
     dbg!(att);
 }
 
+
+#[cfg(feature = "surrealdb")]
 #[tokio::test]
 async fn test_read_all_sessions() -> anyhow::Result<()> {
     init_test_surreal().await;

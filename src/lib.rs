@@ -18,6 +18,7 @@ pub mod watch;
 
 pub mod dblist;
 pub mod io_log;
+pub mod latest_fjall;
 
 // 重新导出常用函数，使其可以直接从crate根访问
 pub use io::{PdmsIO, benchmark_increment_eles};
@@ -31,4 +32,5 @@ pub use io_log::{LogConfig, init_log, init_log_advanced, init_log_with_file};
 #[cfg(test)]
 pub mod tests;
 
+#[cfg(feature = "surrealdb")]
 pub mod surql;
