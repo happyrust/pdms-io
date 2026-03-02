@@ -18,9 +18,8 @@ sync-archive = ["dep:dpcsync", "dep:blake2"] # 增量同步/克隆功能
 anyhow = "1.0"
 deku = "0.16.0"
 memchr = "2.7.2"
-# aios_core = { git = "https://github.com/happyrust/rs-core.git", default-features = false }
+aios_core = { git = "https://github.com/happyrust/rs-core.git", branch = "dev-3.1", default-features = false }
 # parse_pdms_db = { git = "https://github.com/happyrust/aios-parse-pdms" }
-aios_core = { path = "../rs-core", default-features = false }
 parse_pdms_db = { path = "crates/parse_pdms_db" }
 nom = "8"
 notify = "8.0.0"
@@ -58,6 +57,7 @@ meilisearch-sdk = { version = "0.28.0", optional = true }
 glam = "0.30.9"
 tempfile = "3"
 fjall = { version = "1", optional = true }
+rkyv = { version = "0.8.15", features = ["std", "bytecheck"] }
 
 [profile.dev]
 opt-level = 0
@@ -157,4 +157,9 @@ test = false
 name = "build_latest_fjall"
 path = "src/bin/build_latest_fjall.rs"
 required-features = ["fjall"]
+test = false
+
+[[bin]]
+name = "benchmark_latest_fjall"
+path = "src/bin/benchmark_latest_fjall.rs"
 test = false
