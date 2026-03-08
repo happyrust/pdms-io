@@ -56,4 +56,4 @@ pretty-hex = "0.4.1"
 anyhow = "1.0"
 thiserror = "*"
 glam = { version = "0.30.8", features = ["serde"] }
-aios_core = { git = "https://github.com/happyrust/rs-core.git", branch = "dev-3.1", default-features = false }
+aios_core = { path = "../../../rs-core", default-features = false }

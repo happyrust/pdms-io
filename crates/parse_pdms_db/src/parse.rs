@@ -12,8 +12,6 @@ use crate::parser::database::header::extract_db_no;
 use crate::parser::database::validation::is_valid_db_header;
 use crate::parser::element::children::{extract_members, parse_element_children};
 use crate::parser::primitives::{parse_members, parse_owner};
-use aios_core::AttrVal::*;
-use aios_core::SUL_DB;
 use aios_core::basic::info::RefnoInfo;
 use aios_core::consts::EXPR_ATT_SET;
 use aios_core::db::*;

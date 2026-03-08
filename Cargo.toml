@@ -18,7 +18,7 @@ sync-archive = ["dep:dpcsync", "dep:blake2"] # 增量同步/克隆功能
 anyhow = "1.0"
 deku = "0.16.0"
 memchr = "2.7.2"
-aios_core = { git = "https://github.com/happyrust/rs-core.git", branch = "dev-3.1", default-features = false }
+aios_core = { path = "../rs-core", default-features = false }
 # parse_pdms_db = { git = "https://github.com/happyrust/aios-parse-pdms" }
 parse_pdms_db = { path = "crates/parse_pdms_db" }
 nom = "8"
