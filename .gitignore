@@ -22,3 +22,4 @@ protoc/bin/include/
 **/target/
 
 worktrees/
+npm-cache/
