@@ -1,5 +1,20 @@
 # Changelog - pdms-io-fork
 
+## 2026-04-09
+
+### Fixed
+
+- **parse.rs — 6 处边界防御修复，防止畸形/截断数据导致 panic**
+  - `parse_raw_explicit_attrs`: 循环条件从 `!is_empty()` 改为 `len() >= 4`，防止不足 4 字节时切片越界
+  - `parse_raw_explicit_attrs` STRING 分支: 增加 `4 + len_a <= tmp_input.len()` 检查，防止恶意 `len_a` 导致切片溢出
+  - `get_implicit_len_by_offset`: 增加 `index + 1 < count.len()` 保护，防止最后一个元素时数组越界
+  - `get_refno_entry`: 增加 `offset < 4` 与 `tmp_pos + 20 > input.len()` 前置检查，防止偏移量越界；`else` 分支增加 `tmp_pos + 12 <= input.len()` 守卫
+  - `collect_explict_data`: 引入 `MAX_RESYNC = 64` 上限，连续 resync 超限时中断循环，防止畸形数据导致无限循环
+  - `parse_db_basic_info` / `parse_file_basic_info`: `File::open` 和 `read_exact` 的 unwrap 改为优雅降级；输入长度不足时返回默认值而非 panic
+
+- **element_record_reader.rs — 超限处理改为显式报错**
+  - `find_record_end`: 元素记录超过 1MB 限制时从静默截断改为返回 `Err`，便于上层定位问题
+
 ## 2026-02-25
 
 ### Changed

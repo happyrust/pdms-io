@@ -771,9 +771,11 @@ pub async fn parse_ele_data(input: &[u8]) -> Result<EleData> {
 
 //移除00 00 00 007，保留后面的数据
 pub fn collect_explict_data(mut input: &[u8], refno: RefU64) -> Vec<u8> {
+    const MAX_RESYNC: usize = 64;
     let mut bytes = Vec::new();
     let original_len = input.len();
     let mut block_count = 0;
+    let mut resync_count = 0usize;
     if input.len() < 4 {
         return bytes;
     }
@@ -891,6 +893,7 @@ pub fn collect_explict_data(mut input: &[u8], refno: RefU64) -> Vec<u8> {
                     continue;
                 }
                 block_count += 1;
+                resync_count = 0;
                 if cfg!(feature = "debug_parse") {
                     eprintln!(
                         "[DEBUG collect_explict_data] block#{} found: len_words={}, declared_len_bytes={}",
@@ -1705,7 +1708,7 @@ pub fn parse_raw_explicit_attrs<'a>(
     let is_debug = test_refno == Some(refno);
     let mut attr_values = Vec::new();
 
-    while !residual.is_empty() {
+    while residual.len() >= 4 {
         let mut att_value = None;
         let hash_val = convert_to_hash(&residual[..4]);
         if hash_val == 0 {
@@ -2032,7 +2035,7 @@ pub fn parse_raw_explicit_attrs<'a>(
                             DbAttributeType::STRING => {
                                 let (_, a) = be_u32(tmp_input)?;
                                 let len_a = a as usize;
-                                if tmp_input.len() > 4 {
+                                if tmp_input.len() > 4 && 4 + len_a <= tmp_input.len() {
                                     let (decode_string, _b_chi) =
                                         decode_chars_data(&tmp_input[4..4 + len_a]);
                                     // let name_hash = string_lookup.add_str(decode_string.as_str());
@@ -3111,16 +3114,31 @@ pub struct DbBasicInfo {
 }
 
 /// 获取文件的type和ses_pgno, db number
+///
+/// 监视目录下可能存在空文件、锁文件、非 PDMS 文件等，长度不足 60 字节时不应 panic。
 pub fn parse_db_basic_info(path: PathBuf) -> DbBasicInfo {
-    let mut file = File::open(&path).unwrap();
+    let Ok(mut file) = File::open(&path) else {
+        return DbBasicInfo::default();
+    };
     let mut buf = vec![0u8; 60];
-    file.read_exact(&mut buf).unwrap();
+    let mut total = 0usize;
+    while total < 60 {
+        match file.read(&mut buf[total..]) {
+            Ok(0) => break,
+            Ok(n) => total += n,
+            Err(_) => return DbBasicInfo::default(),
+        }
+    }
     parse_file_basic_info(&buf)
 }
 
 /// 获取文件的type和ses_pgno, db number
 pub fn parse_file_basic_info(input: &[u8]) -> DbBasicInfo {
-    let t = parse_to_u32(&input[32..36]);
+    let t = if input.len() >= 36 {
+        parse_to_u32(&input[32..36])
+    } else {
+        0
+    };
     let mut file_type = "".to_string();
     if t >= 0x81BF1 {
         file_type = db1_dehash(t);
@@ -3149,6 +3167,9 @@ pub fn parse_file_basic_info(input: &[u8]) -> DbBasicInfo {
 ///获得参考号对应的Entry
 #[inline]
 fn get_refno_entry(input: &[u8], offset: usize) -> Option<(RefU64, EleDataEntry)> {
+    if offset < 4 || offset - 4 + 16 > input.len() {
+        return None;
+    }
     let input = &input[offset - 4..];
     let noun_hash = parse_to_i32(&input[12..16]);
     let mut refno_entry = None;
@@ -3165,6 +3186,9 @@ fn get_refno_entry(input: &[u8], offset: usize) -> Option<(RefU64, EleDataEntry)
         let is_debug = test_refno == Some(refno);
         if len != 0 && (len & 0xFFFF000 == 0) {
             let tmp_pos = len as usize * 4; //隐含属性理论结束点
+            if tmp_pos + 20 > input.len() {
+                return None;
+            }
             let found_0_7 = memmem::find(
                 &input[tmp_pos..tmp_pos + 20],
                 &[0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x7],
@@ -3205,7 +3229,7 @@ fn get_refno_entry(input: &[u8], offset: usize) -> Option<(RefU64, EleDataEntry)
                         }
                     }
                 }
-            } else {
+            } else if tmp_pos + 12 <= input.len() {
                 let mem_flag = parse_to_u16(&input[tmp_pos..tmp_pos + 2]);
                 if mem_flag == 2 || mem_flag == 1 {
                     is_ok = (&input[tmp_pos + 4..tmp_pos + 12]) == &input[4..12];
@@ -3254,7 +3278,9 @@ pub fn get_offset_map(map: DashMap<i32, AttrInfo>) -> HashMap<u32, (u32, DbAttri
 ///通过offset获取某个隐式属性的长度
 pub fn get_implicit_len_by_offset(count: &Vec<u32>, offset: u32) -> usize {
     if let Some(index) = count.iter().position(|o| *o == offset) {
-        return (count[index + 1] - count[index]) as usize;
+        if index + 1 < count.len() {
+            return (count[index + 1] - count[index]) as usize;
+        }
     }
     0
 }
