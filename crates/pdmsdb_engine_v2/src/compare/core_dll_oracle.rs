@@ -1,8 +1,9 @@
 use std::path::{Path, PathBuf};
 
 use crate::core::{DbHandle, RefNo};
+use crate::db4::{ElementRecordView, parse_explicit_blocks, parse_member_refs};
+use crate::db4::explicit_attrs::read_explicit_string;
 use anyhow::anyhow;
-use parse_pdms_db::parse::parse_raw_ele_data;
 use serde_json::json;
 use serde_json::Value;
 
@@ -63,7 +64,6 @@ impl CoreDllOracle {
 
     pub fn prepare_parse_environment(repo_root: impl AsRef<Path>) {
         let repo_root = repo_root.as_ref();
-        let config_base = Self::default_db_option_base(repo_root);
         let source_toml = repo_root.join("DbOption.toml");
         let compat_toml = repo_root.join("db_options").join("DbOption.toml");
         if source_toml.exists() && !compat_toml.exists() {
@@ -71,16 +71,6 @@ impl CoreDllOracle {
                 let _ = std::fs::create_dir_all(parent);
             }
             let _ = std::fs::copy(&source_toml, &compat_toml);
-        }
-        // SAFETY: 测试/工具链在进程启动后单线程配置解析阶段调用，用于为 aios_core 指定配置文件。
-        unsafe {
-            let env_value = if source_toml.exists() {
-                source_toml.to_string_lossy().to_string()
-            } else {
-                config_base.to_string_lossy().to_string()
-            };
-            std::env::set_var("DB_OPTION_FILE", env_value);
-            std::env::set_current_dir(repo_root).ok();
         }
     }
 
@@ -248,49 +238,59 @@ impl CoreDllOracle {
             .find_refno(refno, None)?
             .ok_or_else(|| anyhow!("找不到 refno {}", Self::refno_to_string(refno)))?;
         let record = handle.read_record(hit.loc)?;
-        let ele_data = std::panic::catch_unwind(|| parse_raw_ele_data(&record))
-            .map_err(|panic_payload| {
-                let message = if let Some(text) = panic_payload.downcast_ref::<&str>() {
-                    (*text).to_string()
-                } else if let Some(text) = panic_payload.downcast_ref::<String>() {
-                    text.clone()
-                } else {
-                    "parse_raw_ele_data panic".to_string()
-                };
-                anyhow!("Rust 解析配置未就绪或解析链 panic: {}", message)
-            })??;
-        let type_name = ele_data
-            .whole_attmap
-            .attmap
-            .get_as_string("TYPE")
-            .unwrap_or_else(|| ele_data.noun.to_string());
+        let view = ElementRecordView::from_raw(&record)?;
 
         let mut attributes = serde_json::Map::new();
-        attributes.insert("REFNO".into(), Value::String(ele_data.refno.to_string()));
-        attributes.insert("OWNER".into(), Value::String(ele_data.owner.to_string()));
-        attributes.insert("NAME".into(), Value::String(ele_data.name.to_string()));
-        attributes.insert("TYPE".into(), Value::String(type_name));
+        attributes.insert(
+            "REFNO".into(),
+            Value::String(format!("{}:{}", view.refno.hi(), view.refno.lo())),
+        );
+        attributes.insert(
+            "OWNER".into(),
+            Value::String(format!("{}:{}", view.owner.hi(), view.owner.lo())),
+        );
+        attributes.insert(
+            "NOUN_HASH".into(),
+            Value::String(format!("0x{:08X}", view.noun_hash)),
+        );
+        attributes.insert(
+            "IMPL_LEN".into(),
+            Value::Number(view.impl_len_words.into()),
+        );
+
+        let children = parse_member_refs(&view.members_data);
         attributes.insert(
             "CHILDREN".into(),
             Value::Array(
-                ele_data
-                    .children
+                children
                     .iter()
-                    .map(|child| Value::String(child.to_string()))
+                    .map(|c| Value::String(format!("{}:{}", c.hi(), c.lo())))
                     .collect(),
             ),
         );
 
-        for (key, value) in ele_data.whole_attmap.attmap.iter() {
-            attributes.insert(key.to_string(), Value::String(format!("{:?}", value)));
-        }
-        for (key, value) in ele_data.whole_attmap.explicit_attmap.iter() {
-            attributes.insert(key.to_string(), Value::String(format!("{:?}", value)));
+        if !view.explicit_data.is_empty() {
+            if let Ok(blocks) = parse_explicit_blocks(&view.explicit_data) {
+                for (i, block) in blocks.iter().enumerate() {
+                    let key = format!("EXPLICIT_{}_0x{:08X}", i, block.hash);
+                    let value = if !block.payload.is_empty()
+                        && block.payload.len() >= 4
+                        && u32::from_be_bytes(
+                            block.payload[0..4].try_into().unwrap_or([0; 4]),
+                        ) > 0
+                    {
+                        read_explicit_string(&block.payload)
+                    } else {
+                        format!("{}B payload", block.payload.len())
+                    };
+                    attributes.insert(key, Value::String(value));
+                }
+            }
         }
 
         Ok(json!({
             "refno": Self::refno_to_string(refno),
-            "source": "rust_parse",
+            "source": "engine_v2",
             "attributes": Value::Object(attributes),
             "meta": {
                 "db_path": handle.path().to_string_lossy().to_string(),

@@ -16,7 +16,25 @@ impl RecordReaderV2 {
         store: &mut PageStore,
         loc: RecordLoc,
     ) -> Result<Vec<u8>, EngineError> {
-        let start_offset = loc.page_no as u64 * store.page_size() as u64 + loc.byte_offset as u64;
+        let page_size = store.page_size();
+        let start_page = store.read_page(
+            file,
+            PageId {
+                ext_no: loc.ext_no,
+                page_no: loc.page_no,
+            },
+        )?;
+        if start_page.len() >= 4 {
+            let page_type = u32::from_be_bytes(start_page[0..4].try_into().unwrap());
+            if page_type != 5 && page_type != 7 {
+                return Err(EngineError::Format(format!(
+                    "record 起始页 {} 类型非数据页: type={}",
+                    loc.page_no, page_type
+                )));
+            }
+        }
+
+        let start_offset = loc.page_no as u64 * page_size as u64 + loc.byte_offset as u64;
         let file_len = file.metadata()?.len();
         let initial_available = file_len.saturating_sub(start_offset) as usize;
         if initial_available == 0 {
