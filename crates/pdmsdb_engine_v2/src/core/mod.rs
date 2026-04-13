@@ -6,6 +6,8 @@ use std::path::{Path, PathBuf};
 
 use crate::db1::PageStore;
 use crate::db2::HeaderView;
+use crate::db4::ce::CurrentElement;
+use crate::db4::page_layout::ElementRecordView;
 use crate::db5::mark::TransactionManager;
 
 mod error;
@@ -117,6 +119,7 @@ pub struct DbHandle {
     pub(crate) latest_session_range: RefCell<Option<(u32, RangeInclusive<u32>)>>,
     pub(crate) current_index_root: RefCell<Option<PageId>>,
     pub(crate) transaction_manager: RefCell<TransactionManager>,
+    pub(crate) current_element: RefCell<CurrentElement>,
 }
 
 pub struct EngineV2;
@@ -554,6 +557,56 @@ impl DbHandle {
         let mut file = self.file.borrow_mut();
         let mut store = self.page_store.borrow_mut();
         crate::db3::scan_all_entries(&mut file, &mut store, root)
+    }
+
+    pub fn navigate_to(&self, refno: RefNo) -> Result<(), EngineError> {
+        let hit = self
+            .find_refno(refno, None)?
+            .ok_or_else(|| EngineError::NotFound(format!("refno {:?} 不存在", refno)))?;
+        let raw = self.read_record(hit.loc)?;
+        self.current_element
+            .borrow_mut()
+            .set(crate::db4::ce::ElementHandle {
+                refno,
+                loc: hit.loc,
+                raw_data: raw,
+            });
+        Ok(())
+    }
+
+    pub fn ce_record_view(&self) -> Result<ElementRecordView, EngineError> {
+        let ce = self.current_element.borrow();
+        let handle = ce
+            .current()
+            .ok_or_else(|| EngineError::InvalidState("CE 未设置".into()))?;
+        ElementRecordView::from_raw(&handle.raw_data)
+    }
+
+    pub fn ce_refno(&self) -> Result<RefNo, EngineError> {
+        let ce = self.current_element.borrow();
+        let handle = ce
+            .current()
+            .ok_or_else(|| EngineError::InvalidState("CE 未设置".into()))?;
+        Ok(handle.refno)
+    }
+
+    pub fn ce_raw_data(&self) -> Result<Vec<u8>, EngineError> {
+        let ce = self.current_element.borrow();
+        let handle = ce
+            .current()
+            .ok_or_else(|| EngineError::InvalidState("CE 未设置".into()))?;
+        Ok(handle.raw_data.clone())
+    }
+
+    pub fn close(&self) -> Result<(), EngineError> {
+        {
+            let mut file = self.file.borrow_mut();
+            let mut store = self.page_store.borrow_mut();
+            store.flush_dirty(&mut file)?;
+        }
+        self.current_element.borrow_mut().clear();
+        self.transaction_manager.borrow_mut().clear_marks();
+        Ok(())
     }
 
     pub fn sesno_for_page(&self, page_no: u32) -> Option<u32> {
