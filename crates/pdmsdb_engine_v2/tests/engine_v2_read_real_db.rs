@@ -151,3 +151,62 @@ fn scan_all_refnos_and_sample_10() {
     println!("\nresult: {} success, {} fail out of {}", success, fail, sample_size);
     assert!(success > 0, "at least some records should parse successfully");
 }
+
+#[test]
+fn read_all_valid_records() {
+    let handle = match open_db() {
+        Some(h) => h,
+        None => return,
+    };
+
+    let entries = match handle.iter_all_refnos() {
+        Ok(e) => e,
+        Err(_) => return,
+    };
+
+    let mut total = 0;
+    let mut ok = 0;
+    let mut page_type_err = 0;
+    let mut parse_err = 0;
+    let mut read_err = 0;
+
+    let mut noun_stats: std::collections::HashMap<u32, usize> = std::collections::HashMap::new();
+
+    for entry in &entries {
+        total += 1;
+        match handle.read_record(entry.loc) {
+            Ok(raw) => match pdmsdb_engine_v2::db4::ElementRecordView::from_raw(&raw) {
+                Ok(view) => {
+                    ok += 1;
+                    *noun_stats.entry(view.noun_hash).or_default() += 1;
+                }
+                Err(_) => parse_err += 1,
+            },
+            Err(e) => {
+                let msg = format!("{:?}", e);
+                if msg.contains("类型非数据页") {
+                    page_type_err += 1;
+                } else {
+                    read_err += 1;
+                }
+            }
+        }
+    }
+
+    println!("\n=== 全量解析统计 ===");
+    println!("total entries: {}", total);
+    println!("ok: {}", ok);
+    println!("page_type_err: {}", page_type_err);
+    println!("parse_err: {}", parse_err);
+    println!("read_err: {}", read_err);
+    println!("success rate: {:.1}%", ok as f64 / total as f64 * 100.0);
+
+    let mut sorted: Vec<_> = noun_stats.iter().collect();
+    sorted.sort_by(|a, b| b.1.cmp(a.1));
+    println!("\ntop noun types:");
+    for (noun, count) in sorted.iter().take(15) {
+        println!("  0x{:08X}: {}", noun, count);
+    }
+
+    assert!(ok > 50, "should parse at least 50 records successfully");
+}

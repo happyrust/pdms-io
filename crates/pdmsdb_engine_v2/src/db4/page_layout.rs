@@ -44,6 +44,13 @@ impl ElementRecordView {
             return Err(EngineError::Format("impl_len 超出记录边界".into()));
         }
 
+        if prefix + ELEMENT_HEADER_SIZE > raw.len() {
+            return Err(EngineError::Format(format!(
+                "prefix({}) + header({}) > raw({})",
+                prefix, ELEMENT_HEADER_SIZE, raw.len()
+            )));
+        }
+
         let refno = RefNo::from_parts(
             u32::from_be_bytes(raw[prefix + 4..prefix + 8].try_into().unwrap()),
             u32::from_be_bytes(raw[prefix + 8..prefix + 12].try_into().unwrap()),
