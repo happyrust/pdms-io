@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fs::File;
 use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
@@ -107,6 +107,7 @@ pub struct EngineOptions {
 pub struct DbHandle {
     pub(crate) path: PathBuf,
     pub(crate) file: RefCell<File>,
+    pub(crate) extent_files: RefCell<HashMap<u32, File>>,
     pub(crate) page_store: RefCell<PageStore>,
     pub(crate) header: HeaderView,
     pub(crate) sessions: Vec<SessionSnapshot>,
@@ -147,6 +148,10 @@ impl DbHandle {
 
     pub fn header(&self) -> &HeaderView {
         &self.header
+    }
+
+    pub fn extent_count(&self) -> usize {
+        1 + self.extent_files.borrow().len()
     }
 
     pub fn latest_session(&self) -> Result<SessionSnapshot, EngineError> {

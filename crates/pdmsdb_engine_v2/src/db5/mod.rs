@@ -2,6 +2,7 @@ pub mod compact;
 pub mod mark;
 pub mod refresh;
 
+use std::collections::HashMap;
 use std::io::Seek;
 use std::path::Path;
 
@@ -38,9 +39,12 @@ fn build_handle(
     let sessions = SessionChain::walk_latest_backwards(&mut *file, &mut page_store, &header)?;
     let session_ranges = SessionChain::build_session_ranges(&sessions);
 
+    let extent_files = scan_extent_files(path)?;
+
     Ok(DbHandle {
         path: path.to_path_buf(),
         file: std::cell::RefCell::new((*file).try_clone()?),
+        extent_files: std::cell::RefCell::new(extent_files),
         page_store: std::cell::RefCell::new(page_store),
         header,
         sessions,
@@ -51,6 +55,37 @@ fn build_handle(
         current_index_root: std::cell::RefCell::new(None),
         transaction_manager: std::cell::RefCell::new(crate::db5::mark::TransactionManager::new()),
     })
+}
+
+fn scan_extent_files(primary_path: &Path) -> Result<HashMap<u32, std::fs::File>, EngineError> {
+    let mut extent_files = HashMap::new();
+
+    let stem = primary_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("");
+    let parent = primary_path.parent().unwrap_or(Path::new("."));
+
+    if stem.len() < 5 {
+        return Ok(extent_files);
+    }
+
+    let base = &stem[..stem.len() - 4];
+    let suffix_str = &stem[stem.len() - 4..];
+    if suffix_str.chars().all(|c| c.is_ascii_digit()) {
+        for ext_no in 2..=999u32 {
+            let ext_name = format!("{}{:04}", base, ext_no);
+            let ext_path = parent.join(&ext_name);
+            if ext_path.exists() {
+                let file = std::fs::OpenOptions::new().read(true).open(&ext_path)?;
+                extent_files.insert(ext_no, file);
+            } else {
+                break;
+            }
+        }
+    }
+
+    Ok(extent_files)
 }
 
 pub fn commit_session(

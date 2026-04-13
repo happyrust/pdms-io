@@ -24,13 +24,6 @@ impl PageIo for StdPageIo {
         page_id: PageId,
         page_size: usize,
     ) -> Result<Vec<u8>, EngineError> {
-        if page_id.ext_no != 1 {
-            return Err(EngineError::Unsupported(format!(
-                "V2 只支持 ext_no=1，收到 {}",
-                page_id.ext_no
-            )));
-        }
-
         let offset = page_id.page_no as u64 * page_size as u64;
         file.seek(SeekFrom::Start(offset))?;
         let mut buf = vec![0u8; page_size];
@@ -285,12 +278,6 @@ impl PageStore {
         page_id: PageId,
         data: &[u8],
     ) -> Result<(), EngineError> {
-        if page_id.ext_no != 1 {
-            return Err(EngineError::Unsupported(format!(
-                "V2 只支持 ext_no=1，收到 {}",
-                page_id.ext_no
-            )));
-        }
         if data.len() != self.page_size {
             return Err(EngineError::Format(format!(
                 "页面大小不匹配: expected={}, actual={}",
@@ -331,13 +318,6 @@ impl PageStore {
     }
 
     pub fn allocate_page(&mut self, file: &mut File, ext_no: u32) -> Result<PageId, EngineError> {
-        if ext_no != 1 {
-            return Err(EngineError::Unsupported(format!(
-                "V2 只支持 ext_no=1，收到 {}",
-                ext_no
-            )));
-        }
-
         let file_size = file.seek(SeekFrom::End(0))?;
         let disk_page_count = (file_size / self.page_size as u64) as u32;
         let next_cached = self
