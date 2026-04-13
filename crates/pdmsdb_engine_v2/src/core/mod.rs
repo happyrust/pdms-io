@@ -216,6 +216,44 @@ impl DbHandle {
         crate::db4::read_record_from_loc(&mut file, &mut store, loc)
     }
 
+    pub fn read_elements(
+        &self,
+        refnos: &[RefNo],
+    ) -> Result<Vec<(RefNo, Vec<u8>)>, EngineError> {
+        let root = self.latest_session()?.index_root;
+        let mut file = self.file.borrow_mut();
+        let mut store = self.page_store.borrow_mut();
+
+        let mut results = Vec::with_capacity(refnos.len());
+        for &refno in refnos {
+            if let Some(loc) =
+                crate::db3::search_refno(&mut file, &mut store, root, refno)?
+            {
+                let record = crate::db4::read_record_from_loc(&mut file, &mut store, loc)?;
+                results.push((refno, record));
+            }
+        }
+        Ok(results)
+    }
+
+    pub fn insert_elements(
+        &self,
+        elements: Vec<(RefNo, Vec<u8>)>,
+    ) -> Result<Vec<RecordWriteResult>, EngineError> {
+        if self.write_context.borrow().is_none() {
+            return Err(EngineError::InvalidState(
+                "调用 insert_elements 前必须先 begin_write_session".into(),
+            ));
+        }
+
+        let mut results = Vec::with_capacity(elements.len());
+        for (refno, record) in elements {
+            let result = self.insert_record(refno, &record)?;
+            results.push(result);
+        }
+        Ok(results)
+    }
+
     pub fn allocate_page(&self, ext_no: u32) -> Result<PageId, EngineError> {
         let mut file = self.file.borrow_mut();
         let mut store = self.page_store.borrow_mut();
