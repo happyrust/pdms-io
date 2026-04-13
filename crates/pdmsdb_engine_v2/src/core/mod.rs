@@ -468,6 +468,51 @@ impl DbHandle {
         Ok(())
     }
 
+    pub fn update_element(
+        &self,
+        refno: RefNo,
+        new_record: &[u8],
+    ) -> Result<RecordWriteResult, EngineError> {
+        if self.write_context.borrow().is_none() {
+            return Err(EngineError::InvalidState(
+                "调用 update_element 前必须先 begin_write_session".into(),
+            ));
+        }
+
+        let root = self.ensure_index_root()?;
+        let result = self.write_record(1, new_record)?;
+        let updated_root = self.upsert_refno(root, refno, result.start)?;
+        *self.current_index_root.borrow_mut() = Some(updated_root);
+
+        if let Some(context) = self.write_context.borrow_mut().as_mut() {
+            context.index_root = Some(updated_root);
+            context.index_root_initialized = true;
+        }
+
+        Ok(result)
+    }
+
+    pub fn delete_element(&self, refno: RefNo) -> Result<bool, EngineError> {
+        if self.write_context.borrow().is_none() {
+            return Err(EngineError::InvalidState(
+                "调用 delete_element 前必须先 begin_write_session".into(),
+            ));
+        }
+
+        let root = self.ensure_index_root()?;
+        let mut file = self.file.borrow_mut();
+        let mut store = self.page_store.borrow_mut();
+        let deleted = crate::db3::delete_refno(&mut file, &mut store, root, refno)?;
+        Ok(deleted)
+    }
+
+    pub fn iter_all_refnos(&self) -> Result<Vec<crate::db3::IndexIteratorEntry>, EngineError> {
+        let root = self.latest_session()?.index_root;
+        let mut file = self.file.borrow_mut();
+        let mut store = self.page_store.borrow_mut();
+        crate::db3::scan_all_entries(&mut file, &mut store, root)
+    }
+
     pub fn sesno_for_page(&self, page_no: u32) -> Option<u32> {
         if let Some((sesno, range)) = self.latest_session_range.borrow().as_ref() {
             if range.contains(&page_no) {

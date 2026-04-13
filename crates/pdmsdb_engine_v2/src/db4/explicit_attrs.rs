@@ -142,6 +142,150 @@ pub fn read_explicit_reference(payload: &[u8], word_offset: usize) -> Option<Ref
     Some(RefNo::from_parts(hi, lo))
 }
 
+pub struct ExplicitBlockBuilder {
+    flag: u8,
+    hash: u32,
+    self_ref: RefNo,
+}
+
+impl ExplicitBlockBuilder {
+    pub fn new(hash: u32, self_ref: RefNo) -> Self {
+        Self {
+            flag: EXPLICIT_FLAG as u8,
+            hash,
+            self_ref,
+        }
+    }
+
+    pub fn with_flag(mut self, flag: u8) -> Self {
+        self.flag = flag;
+        self
+    }
+
+    pub fn build_string(&self, value: &str) -> Vec<u8> {
+        let padded_len = (value.len() + 3) & !3;
+        let str_words = padded_len / 4;
+        let payload_words = 1 + str_words;
+        let total_words = 4 + payload_words;
+
+        let mut block = Vec::with_capacity(total_words * 4);
+        block.push(0x00);
+        block.push(self.flag);
+        block.extend_from_slice(&(total_words as u16).to_be_bytes());
+        block.extend_from_slice(&self.hash.to_be_bytes());
+        block.extend_from_slice(&self.self_ref.hi().to_be_bytes());
+        block.extend_from_slice(&self.self_ref.lo().to_be_bytes());
+
+        block.extend_from_slice(&(str_words as u32).to_be_bytes());
+        block.extend_from_slice(value.as_bytes());
+        block.resize(block.len() + padded_len - value.len(), 0);
+
+        block
+    }
+
+    pub fn build_integer(&self, value: i32) -> Vec<u8> {
+        let total_words = 5;
+        let mut block = Vec::with_capacity(total_words * 4);
+        block.push(0x00);
+        block.push(self.flag);
+        block.extend_from_slice(&(total_words as u16).to_be_bytes());
+        block.extend_from_slice(&self.hash.to_be_bytes());
+        block.extend_from_slice(&self.self_ref.hi().to_be_bytes());
+        block.extend_from_slice(&self.self_ref.lo().to_be_bytes());
+        block.extend_from_slice(&value.to_be_bytes());
+        block
+    }
+
+    pub fn build_real_f64(&self, value: f64) -> Vec<u8> {
+        let total_words = 6;
+        let mut block = Vec::with_capacity(total_words * 4);
+        block.push(0x00);
+        block.push(self.flag);
+        block.extend_from_slice(&(total_words as u16).to_be_bytes());
+        block.extend_from_slice(&self.hash.to_be_bytes());
+        block.extend_from_slice(&self.self_ref.hi().to_be_bytes());
+        block.extend_from_slice(&self.self_ref.lo().to_be_bytes());
+        block.extend_from_slice(&value.to_be_bytes());
+        block
+    }
+
+    pub fn build_reference(&self, refno: RefNo) -> Vec<u8> {
+        let total_words = 6;
+        let mut block = Vec::with_capacity(total_words * 4);
+        block.push(0x00);
+        block.push(self.flag);
+        block.extend_from_slice(&(total_words as u16).to_be_bytes());
+        block.extend_from_slice(&self.hash.to_be_bytes());
+        block.extend_from_slice(&self.self_ref.hi().to_be_bytes());
+        block.extend_from_slice(&self.self_ref.lo().to_be_bytes());
+        block.extend_from_slice(&refno.hi().to_be_bytes());
+        block.extend_from_slice(&refno.lo().to_be_bytes());
+        block
+    }
+
+    pub fn build_int_array(&self, values: &[i32]) -> Vec<u8> {
+        let total_words = 4 + values.len();
+        let mut block = Vec::with_capacity(total_words * 4);
+        block.push(0x00);
+        block.push(self.flag);
+        block.extend_from_slice(&(total_words as u16).to_be_bytes());
+        block.extend_from_slice(&self.hash.to_be_bytes());
+        block.extend_from_slice(&self.self_ref.hi().to_be_bytes());
+        block.extend_from_slice(&self.self_ref.lo().to_be_bytes());
+        for &v in values {
+            block.extend_from_slice(&v.to_be_bytes());
+        }
+        block
+    }
+
+    pub fn build_real_array(&self, values: &[f64]) -> Vec<u8> {
+        let total_words = 4 + values.len() * 2;
+        let mut block = Vec::with_capacity(total_words * 4);
+        block.push(0x00);
+        block.push(self.flag);
+        block.extend_from_slice(&(total_words as u16).to_be_bytes());
+        block.extend_from_slice(&self.hash.to_be_bytes());
+        block.extend_from_slice(&self.self_ref.hi().to_be_bytes());
+        block.extend_from_slice(&self.self_ref.lo().to_be_bytes());
+        for &v in values {
+            block.extend_from_slice(&v.to_be_bytes());
+        }
+        block
+    }
+
+    pub fn build_ref_array(&self, refnos: &[RefNo]) -> Vec<u8> {
+        let total_words = 4 + refnos.len() * 2;
+        let mut block = Vec::with_capacity(total_words * 4);
+        block.push(0x00);
+        block.push(self.flag);
+        block.extend_from_slice(&(total_words as u16).to_be_bytes());
+        block.extend_from_slice(&self.hash.to_be_bytes());
+        block.extend_from_slice(&self.self_ref.hi().to_be_bytes());
+        block.extend_from_slice(&self.self_ref.lo().to_be_bytes());
+        for r in refnos {
+            block.extend_from_slice(&r.hi().to_be_bytes());
+            block.extend_from_slice(&r.lo().to_be_bytes());
+        }
+        block
+    }
+
+    pub fn build_raw(&self, payload: &[u8]) -> Vec<u8> {
+        let payload_words = (payload.len() + 3) / 4;
+        let total_words = 4 + payload_words;
+        let mut block = Vec::with_capacity(total_words * 4);
+        block.push(0x00);
+        block.push(self.flag);
+        block.extend_from_slice(&(total_words as u16).to_be_bytes());
+        block.extend_from_slice(&self.hash.to_be_bytes());
+        block.extend_from_slice(&self.self_ref.hi().to_be_bytes());
+        block.extend_from_slice(&self.self_ref.lo().to_be_bytes());
+        block.extend_from_slice(payload);
+        let pad = total_words * 4 - block.len();
+        block.resize(block.len() + pad, 0);
+        block
+    }
+}
+
 pub fn explicit_block_to_attr_value(
     block: &ExplicitBlock,
     is_string: bool,

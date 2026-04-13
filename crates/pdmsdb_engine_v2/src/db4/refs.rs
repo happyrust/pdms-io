@@ -41,4 +41,40 @@ impl ElementRefs {
     pub fn child_count(&self) -> usize {
         self.children.len()
     }
+
+    pub fn add_member(&mut self, refno: RefNo) {
+        if !self.children.contains(&refno) {
+            self.children.push(refno);
+        }
+    }
+
+    pub fn remove_member(&mut self, refno: RefNo) -> bool {
+        if let Some(idx) = self.children.iter().position(|r| *r == refno) {
+            self.children.remove(idx);
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn serialize_members_block(&self, self_ref: RefNo) -> Vec<u8> {
+        if self.children.is_empty() {
+            return Vec::new();
+        }
+        let payload_words = 3 + self.children.len() * 2;
+        let total_words = payload_words + 1;
+
+        let mut data = Vec::with_capacity(total_words * 4);
+        data.push(0x00);
+        data.push(0x02);
+        data.extend_from_slice(&(total_words as u16).to_be_bytes());
+        data.extend_from_slice(&0u32.to_be_bytes());
+        data.extend_from_slice(&self_ref.hi().to_be_bytes());
+        data.extend_from_slice(&self_ref.lo().to_be_bytes());
+        for member in &self.children {
+            data.extend_from_slice(&member.hi().to_be_bytes());
+            data.extend_from_slice(&member.lo().to_be_bytes());
+        }
+        data
+    }
 }

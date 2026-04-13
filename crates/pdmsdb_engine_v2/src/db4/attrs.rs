@@ -184,6 +184,130 @@ pub fn read_implicit_logical(
     Ok(v != 0)
 }
 
+pub fn write_implicit_integer(implicit_data: &mut [u8], word_offset: u32, value: i32) -> Result<(), EngineError> {
+    let byte_offset = word_offset as usize * 4;
+    if byte_offset + 4 > implicit_data.len() {
+        return Err(EngineError::Format(format!(
+            "隐式写入偏移越界: offset={}, len={}",
+            byte_offset, implicit_data.len()
+        )));
+    }
+    implicit_data[byte_offset..byte_offset + 4].copy_from_slice(&value.to_be_bytes());
+    Ok(())
+}
+
+pub fn write_implicit_real_f64(implicit_data: &mut [u8], word_offset: u32, value: f64) -> Result<(), EngineError> {
+    let byte_offset = word_offset as usize * 4;
+    if byte_offset + 8 > implicit_data.len() {
+        return Err(EngineError::Format(format!(
+            "隐式 f64 写入偏移越界: offset={}, len={}",
+            byte_offset, implicit_data.len()
+        )));
+    }
+    implicit_data[byte_offset..byte_offset + 8].copy_from_slice(&value.to_be_bytes());
+    Ok(())
+}
+
+pub fn write_implicit_real_f32(implicit_data: &mut [u8], word_offset: u32, value: f32) -> Result<(), EngineError> {
+    let byte_offset = word_offset as usize * 4;
+    if byte_offset + 4 > implicit_data.len() {
+        return Err(EngineError::Format(format!(
+            "隐式 f32 写入偏移越界: offset={}, len={}",
+            byte_offset, implicit_data.len()
+        )));
+    }
+    implicit_data[byte_offset..byte_offset + 4].copy_from_slice(&value.to_be_bytes());
+    Ok(())
+}
+
+pub fn write_implicit_reference(implicit_data: &mut [u8], word_offset: u32, refno: RefNo) -> Result<(), EngineError> {
+    let byte_offset = word_offset as usize * 4;
+    if byte_offset + 8 > implicit_data.len() {
+        return Err(EngineError::Format(format!(
+            "隐式引用写入偏移越界: offset={}, len={}",
+            byte_offset, implicit_data.len()
+        )));
+    }
+    implicit_data[byte_offset..byte_offset + 4].copy_from_slice(&refno.hi().to_be_bytes());
+    implicit_data[byte_offset + 4..byte_offset + 8].copy_from_slice(&refno.lo().to_be_bytes());
+    Ok(())
+}
+
+pub fn write_implicit_logical(implicit_data: &mut [u8], word_offset: u32, value: bool) -> Result<(), EngineError> {
+    write_implicit_integer(implicit_data, word_offset, if value { 1 } else { 0 })
+}
+
+pub fn write_implicit_direction(
+    implicit_data: &mut [u8],
+    word_offset: u32,
+    xyz: [f64; 3],
+    is_f32: bool,
+) -> Result<(), EngineError> {
+    if is_f32 {
+        write_implicit_real_f32(implicit_data, word_offset, xyz[0] as f32)?;
+        write_implicit_real_f32(implicit_data, word_offset + 1, xyz[1] as f32)?;
+        write_implicit_real_f32(implicit_data, word_offset + 2, xyz[2] as f32)?;
+    } else {
+        write_implicit_real_f64(implicit_data, word_offset, xyz[0])?;
+        write_implicit_real_f64(implicit_data, word_offset + 2, xyz[1])?;
+        write_implicit_real_f64(implicit_data, word_offset + 4, xyz[2])?;
+    }
+    Ok(())
+}
+
+pub fn write_implicit_attr(
+    implicit_data: &mut [u8],
+    attr_info: &AttrInfo,
+    value: &AttrValue,
+    is_f32: bool,
+) -> Result<(), EngineError> {
+    match (value, attr_info.att_type) {
+        (AttrValue::Integer(v), AttrType::Integer) => {
+            write_implicit_integer(implicit_data, attr_info.offset, *v)
+        }
+        (AttrValue::Real(v), AttrType::Real | AttrType::Double) => {
+            if is_f32 {
+                write_implicit_real_f32(implicit_data, attr_info.offset, *v as f32)
+            } else {
+                write_implicit_real_f64(implicit_data, attr_info.offset, *v)
+            }
+        }
+        (AttrValue::Float(v), AttrType::Real | AttrType::Double) => {
+            if is_f32 {
+                write_implicit_real_f32(implicit_data, attr_info.offset, *v)
+            } else {
+                write_implicit_real_f64(implicit_data, attr_info.offset, *v as f64)
+            }
+        }
+        (AttrValue::Reference(r), AttrType::Reference) => {
+            write_implicit_reference(implicit_data, attr_info.offset, *r)
+        }
+        (AttrValue::Logical(b), AttrType::Logical) => {
+            write_implicit_logical(implicit_data, attr_info.offset, *b)
+        }
+        (AttrValue::Direction(xyz) | AttrValue::Position(xyz), AttrType::Direction | AttrType::Position) => {
+            write_implicit_direction(implicit_data, attr_info.offset, *xyz, is_f32)
+        }
+        (AttrValue::Orientation(vals), AttrType::Orientation) => {
+            if is_f32 {
+                for i in 0..9 {
+                    write_implicit_real_f32(implicit_data, attr_info.offset + i as u32, vals[i] as f32)?;
+                }
+            } else {
+                for i in 0..9 {
+                    write_implicit_real_f64(implicit_data, attr_info.offset + i as u32 * 2, vals[i])?;
+                }
+            }
+            Ok(())
+        }
+        _ => Err(EngineError::Format(format!(
+            "类型不匹配: value={:?}, expected={:?}",
+            std::mem::discriminant(value),
+            attr_info.att_type
+        ))),
+    }
+}
+
 pub fn read_implicit_attr(
     implicit_data: &[u8],
     attr_info: &AttrInfo,

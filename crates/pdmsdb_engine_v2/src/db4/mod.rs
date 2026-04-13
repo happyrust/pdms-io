@@ -7,10 +7,15 @@ pub mod refs;
 mod record_reader;
 mod record_writer;
 
-pub use attrs::{AttrInfo, AttrType, AttrValue};
+pub use attrs::{
+    AttrInfo, AttrType, AttrValue,
+    write_implicit_attr, write_implicit_direction, write_implicit_integer,
+    write_implicit_logical, write_implicit_real_f32, write_implicit_real_f64,
+    write_implicit_reference,
+};
 pub use ce::{CurrentElement, ElementHandle};
 pub use element::ElementBuilder;
-pub use explicit_attrs::{ExplicitBlock, parse_explicit_blocks};
+pub use explicit_attrs::{ExplicitBlock, ExplicitBlockBuilder, parse_explicit_blocks};
 pub use page_layout::ElementRecordView;
 pub use refs::{ElementRefs, parse_member_refs};
 pub use record_reader::{RecordReaderV2, read_record_from_loc};
