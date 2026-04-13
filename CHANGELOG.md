@@ -1,5 +1,21 @@
 # Changelog - pdms-io-fork
 
+## 2026-04-13
+
+### Added
+
+- **pdmsdb_engine_v2 crate — core.dll db1~5 全量复刻引擎**
+  - `db1`: PageStore (LRU 缓存+页读写+分配+脏页 flush+预读) + PageLockManager (lock_count + referenced bit)
+  - `db2`: HeaderView + SessionChain + SessionBuilderV2 + HeaderUpdaterV2 + ExtractManager + DbLookupTable
+  - `db3`: IndexPageView + search_refno (FHSRCH) + upsert_refno (FHXPND) + split (FHSPLT) + delete_refno (FHDELT) + IndexTableIterator (FHITER) + scan_all_entries
+  - `db4`: RecordReaderV2 + RecordWriterV2/DataPageBuilderV2 + ElementRecordView + CurrentElement (CE 导航栈) + AttrValue/AttrType + ExplicitBlock + ElementRefs + ElementBuilder
+  - `db5`: open_read_db + open_write_db + commit_session + TransactionManager (set_mark/undo) + compact_database + refresh_sessions
+  - `fortran_io`: FileToken + DirectAccessToken + RetryPolicy (SYWAIT + FHSWIT 重试)
+  - `compare`: LegacyOracle + CoreDllOracle 比对工具
+  - 32 个测试全通过，4590 行 / 37 个源文件
+  - 开发计划文档: `docs/2026-04-13-pdms-db-engine-v2-plan.md`
+  - GitHub Issues #2~#9 跟踪
+
 ## 2026-04-09
 
 ### Fixed
