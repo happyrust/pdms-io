@@ -17,3 +17,4 @@ pdms_io_legacy = { package = "pdms_io", path = "../..", optional = true }
 aios_core = { path = "../../../rs-core", default-features = false, optional = true }
 
 [dev-dependencies]
+tempfile = "3"

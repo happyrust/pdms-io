@@ -49,6 +49,7 @@ fn build_handle(
         latest_session_cache: std::cell::RefCell::new(None),
         latest_session_range: std::cell::RefCell::new(None),
         current_index_root: std::cell::RefCell::new(None),
+        transaction_manager: std::cell::RefCell::new(crate::db5::mark::TransactionManager::new()),
     })
 }
 

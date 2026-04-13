@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 
 use crate::db1::PageStore;
 use crate::db2::HeaderView;
+use crate::db5::mark::TransactionManager;
 
 mod error;
 
@@ -114,6 +115,7 @@ pub struct DbHandle {
     pub(crate) latest_session_cache: RefCell<Option<SessionSnapshot>>,
     pub(crate) latest_session_range: RefCell<Option<(u32, RangeInclusive<u32>)>>,
     pub(crate) current_index_root: RefCell<Option<PageId>>,
+    pub(crate) transaction_manager: RefCell<TransactionManager>,
 }
 
 pub struct EngineV2;
@@ -439,6 +441,31 @@ impl DbHandle {
         }
         *self.current_index_root.borrow_mut() = Some(root);
         Ok(root)
+    }
+
+    pub fn set_mark(&self) -> Result<u32, EngineError> {
+        let session = self.latest_session()?;
+        let index_root = self
+            .current_index_root
+            .borrow()
+            .unwrap_or(session.index_root);
+        self.page_store.borrow_mut().snapshot_cow();
+        let mark_id = self
+            .transaction_manager
+            .borrow_mut()
+            .set_mark(session, index_root);
+        Ok(mark_id)
+    }
+
+    pub fn undo_to_mark(&self, mark_id: u32) -> Result<(), EngineError> {
+        let mark = self
+            .transaction_manager
+            .borrow_mut()
+            .undo_to_mark(mark_id)?;
+        self.page_store.borrow_mut().rollback_cow();
+        *self.current_index_root.borrow_mut() = Some(mark.index_root_at_mark);
+        *self.latest_session_cache.borrow_mut() = Some(mark.session_at_mark);
+        Ok(())
     }
 
     pub fn sesno_for_page(&self, page_no: u32) -> Option<u32> {
