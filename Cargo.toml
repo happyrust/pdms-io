@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2024"
 autobins = false
 
+[workspace]
+members = ["crates/parse_pdms_db", "crates/pdmsdb_engine_v2"]
+resolver = "3"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
@@ -21,6 +25,8 @@ memchr = "2.7.2"
 aios_core = { path = "../rs-core", default-features = false }
 # parse_pdms_db = { git = "https://github.com/happyrust/aios-parse-pdms" }
 parse_pdms_db = { path = "crates/parse_pdms_db" }
+# pdmsdb_engine_v2 不能直接依赖，因为 pdmsdb_engine_v2 的 legacy-oracle feature 反向依赖 pdms_io
+# 集成方式: 通过 workspace bin 或独立 adapter crate 引用两者
 nom = "8"
 notify = "8.0.0"
 futures = "0.3.28"
