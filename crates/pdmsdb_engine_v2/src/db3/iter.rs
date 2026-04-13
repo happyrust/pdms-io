@@ -96,7 +96,13 @@ impl IndexTableIterator {
         page_id: PageId,
     ) -> Result<(), EngineError> {
         let page = store.read_page(file, page_id)?;
-        let parsed = IndexPageView::from_page(&page)?;
+        let parsed = match IndexPageView::from_page(&page) {
+            Ok(p) => p,
+            Err(_) => {
+                self.finished = true;
+                return Ok(());
+            }
+        };
 
         if parsed.level == 0 {
             self.pending_entries = parsed.entries;
@@ -129,7 +135,10 @@ impl IndexTableIterator {
         current_child_idx: usize,
     ) -> Result<Option<PageId>, EngineError> {
         let page = store.read_page(file, parent_page_id)?;
-        let parsed = IndexPageView::from_page(&page)?;
+        let parsed = match IndexPageView::from_page(&page) {
+            Ok(p) => p,
+            Err(_) => return Ok(None),
+        };
 
         let next_idx = current_child_idx + 1;
         if next_idx < parsed.entries.len() {

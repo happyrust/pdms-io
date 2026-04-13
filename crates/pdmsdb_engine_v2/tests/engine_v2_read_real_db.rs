@@ -105,14 +105,7 @@ fn scan_all_refnos_and_sample_10() {
         None => return,
     };
 
-    let entries = match handle.iter_all_refnos() {
-        Ok(e) => e,
-        Err(e) => {
-            println!("iter_all_refnos error (known limitation): {:?}", e);
-            println!("falling back to single refno reads");
-            return;
-        }
-    };
+    let entries = handle.iter_all_refnos().unwrap();
     println!("total refnos: {}", entries.len());
     assert!(entries.len() > 0, "should have entries in index");
 
