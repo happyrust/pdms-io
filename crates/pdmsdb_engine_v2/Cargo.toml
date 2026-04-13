@@ -1,0 +1,19 @@
+[package]
+name = "pdmsdb_engine_v2"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+legacy-oracle = ["dep:pdms_io_legacy", "dep:aios_core"]
+
+[dependencies]
+anyhow = "1.0"
+thiserror = "2.0"
+serde_json = "1.0"
+chrono = "0.4.31"
+parse_pdms_db = { path = "../parse_pdms_db" }
+pdms_io_legacy = { package = "pdms_io", path = "../..", optional = true }
+aios_core = { path = "../../../rs-core", default-features = false, optional = true }
+
+[dev-dependencies]
