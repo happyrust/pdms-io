@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/></marker>
+    <marker id="ag" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#059669"/></marker>
+    <marker id="ao" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ea580c"/></marker>
+    <marker id="ap" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed"/></marker>
+    <filter id="sh"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-color="#00000020"/></filter>
+  </defs>
+  <style>text{font-family:"Segoe UI","Microsoft YaHei",sans-serif}.t{font-size:18px;font-weight:bold;fill:#1e293b}.st{font-size:13px;fill:#64748b}.l{font-size:13px;fill:#1e293b;font-weight:600}.sl{font-size:11px;fill:#64748b}.c{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;fill:#334155}</style>
+  <rect width="1200" height="800" fill="#fafafa"/>
+  <text x="600" y="32" text-anchor="middle" class="t">E3D/PDMS NOUN Attribute Metadata Architecture</text>
+  <text x="600" y="50" text-anchor="middle" class="st">From Disk Storage to Runtime Dictionary</text>
+  <rect x="40" y="70" width="340" height="260" rx="8" fill="none" stroke="#94a3b8" stroke-dasharray="6,3"/>
+  <text x="55" y="90" class="l" fill="#475569">Storage: attlib.dat</text>
+  <rect x="60" y="105" width="140" height="60" rx="6" fill="#dbeafe" stroke="#3b82f6" filter="url(#sh)"/>
+  <text x="130" y="128" text-anchor="middle" class="l">ATNAIN</text>
+  <text x="130" y="143" text-anchor="middle" class="sl">[NounHash,AttrIdx,Type]</text>
+  <rect x="220" y="105" width="140" height="60" rx="6" fill="#dbeafe" stroke="#3b82f6" filter="url(#sh)"/>
+  <text x="290" y="128" text-anchor="middle" class="l">ATGTDF</text>
+  <text x="290" y="143" text-anchor="middle" class="sl">[Hash,DataType,Defi]</text>
+  <rect x="60" y="180" width="140" height="50" rx="6" fill="#e0e7ff" stroke="#6366f1" filter="url(#sh)"/>
+  <text x="130" y="203" text-anchor="middle" class="l">Attr Records</text>
+  <text x="130" y="218" text-anchor="middle" class="sl">name, desc, category</text>
+  <rect x="220" y="180" width="140" height="50" rx="6" fill="#e0e7ff" stroke="#6366f1" filter="url(#sh)"/>
+  <text x="290" y="203" text-anchor="middle" class="l">ATGTSX/IX</text>
+  <text x="290" y="218" text-anchor="middle" class="sl">index/aux tables</text>
+  <rect x="100" y="248" width="200" height="35" rx="5" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="200" y="270" text-anchor="middle" class="sl">Page 1 Directory</text>
+  <rect x="420" y="70" width="380" height="260" rx="8" fill="none" stroke="#f97316" stroke-dasharray="6,3"/>
+  <text x="435" y="90" class="l" fill="#c2410c">Runtime: core.dll</text>
+  <rect x="440" y="105" width="170" height="75" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" filter="url(#sh)"/>
+  <text x="525" y="125" text-anchor="middle" class="l">DB_Noun::dictionary_</text>
+  <text x="525" y="143" text-anchor="middle" class="c">map&lt;int, DB_Noun*&gt;</text>
+  <text x="525" y="160" text-anchor="middle" class="sl">1931 entries (RB-tree)</text>
+  <rect x="630" y="105" width="155" height="75" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" filter="url(#sh)"/>
+  <text x="708" y="125" text-anchor="middle" class="l">DB_Attribute::</text>
+  <text x="708" y="143" text-anchor="middle" class="l">dictionary_</text>
+  <text x="708" y="160" text-anchor="middle" class="sl">Lazy-loaded cache</text>
+  <rect x="440" y="205" width="170" height="50" rx="6" fill="#dcfce7" stroke="#16a34a" filter="url(#sh)"/>
+  <text x="525" y="228" text-anchor="middle" class="l">getSystemAttributes()</text>
+  <text x="525" y="243" text-anchor="middle" class="sl">set&lt;int&gt; attr_hashes</text>
+  <rect x="630" y="205" width="155" height="50" rx="6" fill="#dcfce7" stroke="#16a34a" filter="url(#sh)"/>
+  <text x="708" y="228" text-anchor="middle" class="l">db_get_attr_list</text>
+  <text x="708" y="243" text-anchor="middle" class="sl">opcode=60</text>
+  <line x1="360" y1="135" x2="430" y2="135" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="525" y1="180" x2="525" y2="200" stroke="#059669" stroke-width="1.5" marker-end="url(#ag)"/>
+  <line x1="610" y1="230" x2="625" y2="230" stroke="#059669" stroke-width="1.5" marker-end="url(#ag)"/>
+  <rect x="40" y="360" width="760" height="190" rx="8" fill="none" stroke="#7c3aed" stroke-dasharray="6,3"/>
+  <text x="55" y="380" class="l" fill="#6d28d9">Rust: pdms-io-fork</text>
+  <rect x="60" y="395" width="160" height="65" rx="6" fill="#ede9fe" stroke="#8b5cf6" filter="url(#sh)"/>
+  <text x="140" y="418" text-anchor="middle" class="l">AttlibData::</text>
+  <text x="140" y="433" text-anchor="middle" class="l">parse_attlib_file()</text>
+  <text x="140" y="448" text-anchor="middle" class="sl">offline ATNAIN parser</text>
+  <rect x="240" y="395" width="160" height="65" rx="6" fill="#ede9fe" stroke="#8b5cf6" filter="url(#sh)"/>
+  <text x="320" y="418" text-anchor="middle" class="l">NounSchema::</text>
+  <text x="320" y="433" text-anchor="middle" class="l">from_attlib()</text>
+  <text x="320" y="448" text-anchor="middle" class="sl">noun_hash to attrs</text>
+  <rect x="420" y="395" width="175" height="65" rx="8" fill="#fce7f3" stroke="#db2777" stroke-width="2" filter="url(#sh)"/>
+  <text x="508" y="415" text-anchor="middle" class="l">all_attr_info.json</text>
+  <text x="508" y="433" text-anchor="middle" class="sl">339 NOUNs, 6555 attrs</text>
+  <text x="508" y="448" text-anchor="middle" class="sl">offset + type + default</text>
+  <rect x="615" y="395" width="170" height="65" rx="6" fill="#ede9fe" stroke="#8b5cf6" filter="url(#sh)"/>
+  <text x="700" y="418" text-anchor="middle" class="l">ElementRecord</text>
+  <text x="700" y="433" text-anchor="middle" class="l">Reader</text>
+  <text x="700" y="448" text-anchor="middle" class="sl">binary to attributes</text>
+  <line x1="200" y1="270" x2="140" y2="390" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#ap)"/>
+  <line x1="220" y1="427" x2="235" y2="427" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#ap)"/>
+  <line x1="400" y1="427" x2="415" y2="427" stroke="#ea580c" stroke-width="2" marker-end="url(#ao)"/>
+  <line x1="595" y1="427" x2="610" y2="427" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#ap)"/>
+  <rect x="40" y="570" width="760" height="200" rx="8" fill="none" stroke="#0ea5e9" stroke-dasharray="6,3"/>
+  <text x="55" y="590" class="l" fill="#0284c7">Element Record (PIPE implicit area)</text>
+  <rect x="60" y="610" width="80" height="40" rx="4" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="100" y="628" text-anchor="middle" class="sl">Header</text>
+  <text x="100" y="642" text-anchor="middle" class="c">[0..10]</text>
+  <rect x="145" y="610" width="55" height="40" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+  <text x="172" y="628" text-anchor="middle" class="sl">PURP</text>
+  <text x="172" y="642" text-anchor="middle" class="c">[11]</text>
+  <rect x="205" y="610" width="55" height="40" rx="4" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="232" y="628" text-anchor="middle" class="sl">BOOL*3</text>
+  <text x="232" y="642" text-anchor="middle" class="c">[12]</text>
+  <rect x="265" y="610" width="65" height="40" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="297" y="628" text-anchor="middle" class="sl">BORE</text>
+  <text x="297" y="642" text-anchor="middle" class="c">[13..14]</text>
+  <rect x="335" y="610" width="65" height="40" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="367" y="628" text-anchor="middle" class="sl">TEMP</text>
+  <text x="367" y="642" text-anchor="middle" class="c">[15..16]</text>
+  <rect x="405" y="610" width="65" height="40" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="437" y="628" text-anchor="middle" class="sl">PRES</text>
+  <text x="437" y="642" text-anchor="middle" class="c">[17..18]</text>
+  <rect x="475" y="610" width="65" height="40" rx="4" fill="#e0e7ff" stroke="#6366f1"/>
+  <text x="507" y="628" text-anchor="middle" class="sl">PSPE</text>
+  <text x="507" y="642" text-anchor="middle" class="c">[19..20]</text>
+  <rect x="545" y="610" width="65" height="40" rx="4" fill="#e0e7ff" stroke="#6366f1"/>
+  <text x="577" y="628" text-anchor="middle" class="sl">ISPE</text>
+  <text x="577" y="642" text-anchor="middle" class="c">[21..22]</text>
+  <rect x="615" y="610" width="50" height="40" rx="4" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="640" y="628" text-anchor="middle" class="sl">...</text>
+  <text x="640" y="642" text-anchor="middle" class="c">[23+]</text>
+  <text x="60" y="675" class="l" fill="#475569">BOOL Bit Packing (word[12]):</text>
+  <rect x="260" y="662" width="45" height="28" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="282" y="678" text-anchor="middle" class="c">bit0</text>
+  <text x="282" y="695" text-anchor="middle" class="sl">BUIL</text>
+  <rect x="310" y="662" width="45" height="28" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="332" y="678" text-anchor="middle" class="c">bit1</text>
+  <text x="332" y="695" text-anchor="middle" class="sl">SHOP</text>
+  <rect x="360" y="662" width="45" height="28" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="382" y="678" text-anchor="middle" class="c">bit2</text>
+  <text x="382" y="695" text-anchor="middle" class="sl">LISS</text>
+  <rect x="60" y="720" width="120" height="30" rx="4" fill="#fce7f3" stroke="#db2777"/>
+  <text x="120" y="740" text-anchor="middle" class="sl">Members (0x0002)</text>
+  <rect x="190" y="720" width="120" height="30" rx="4" fill="#fce7f3" stroke="#db2777"/>
+  <text x="250" y="740" text-anchor="middle" class="sl">Explicit (0x0001)</text>
+  <rect x="320" y="720" width="80" height="30" rx="4" fill="#fce7f3" stroke="#94a3b8"/>
+  <text x="360" y="740" text-anchor="middle" class="sl">UDA</text>
+  <rect x="830" y="70" width="340" height="290" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="845" y="92" class="l">Legend</text>
+  <rect x="845" y="110" width="20" height="14" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+  <text x="875" y="122" class="sl">attlib.dat tables</text>
+  <rect x="845" y="132" width="20" height="14" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="875" y="144" class="sl">Runtime dictionaries</text>
+  <rect x="845" y="154" width="20" height="14" rx="3" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="875" y="166" class="sl">DOUBLE attributes</text>
+  <rect x="845" y="176" width="20" height="14" rx="3" fill="#e0e7ff" stroke="#6366f1"/>
+  <text x="875" y="188" class="sl">ELEMENT references</text>
+  <rect x="845" y="198" width="20" height="14" rx="3" fill="#ede9fe" stroke="#8b5cf6"/>
+  <text x="875" y="210" class="sl">Rust parsers</text>
+  <rect x="845" y="220" width="20" height="14" rx="3" fill="#fce7f3" stroke="#db2777"/>
+  <text x="875" y="232" class="sl">JSON / record blocks</text>
+  <text x="845" y="252" class="l">Offset Encoding:</text>
+  <text x="845" y="268" class="c">off &lt; 0x100000: word_offset</text>
+  <text x="845" y="284" class="c">off &gt;= 0x100000:</text>
+  <text x="855" y="298" class="sl">bit=(off&gt;&gt;20) word=(off&amp;0xFFFFF)</text>
+  <text x="845" y="318" class="l">Data Sizes (words):</text>
+  <text x="855" y="334" class="sl">INTEGER/WORD/BOOL: 1 word(s)</text>
+  <text x="855" y="348" class="sl">DOUBLE: 2 word(s)</text>
+  <text x="855" y="362" class="sl">ELEMENT: 2 word(s)</text>
+  <text x="855" y="376" class="sl">POSITION: 6 word(s)</text>
+  <text x="855" y="390" class="sl">ORIENTATION: 9 word(s)</text>
+  <rect x="830" y="380" width="340" height="95" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="845" y="400" class="l">db1_hash:</text>
+  <text x="845" y="418" class="c">h = 0</text>
+  <text x="845" y="433" class="c">for ch in NAME.upper():</text>
+  <text x="845" y="448" class="c">  h = (h*26+ord(ch)-64) &amp; 0xFFFFFFFF</text>
+  <text x="845" y="463" class="sl">Reversible via db1_dehash()</text>
+  <rect x="830" y="490" width="340" height="80" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="845" y="510" class="l">Statistics:</text>
+  <text x="845" y="528" class="sl">NOUN types (IDA): 1932</text>
+  <text x="845" y="543" class="sl">NOUN in all_attr_info: 339 (6555 attrs)</text>
+  <text x="845" y="558" class="sl">dictionary_ @ 0x5ADD359C (RB-tree)</text>
+</svg>
