@@ -280,7 +280,111 @@ def db1_dehash(h: int) -> str:
 
 ---
 
-## 8. 解析工具链
+## 8. 属性元数据完整格式（all_attr_info.json）
+
+### 8.1 数据来源
+
+`rs-core/all_attr_info.json` 包含 339 个 NOUN 的完整属性元数据（vs IDA 中的 1932 个 NOUN 常量），每个属性含物理偏移、数据类型和默认值。该数据来自运行时 `DB_Noun::getSystemAttributes` + `DB_Attribute` 字典的提取结果。
+
+### 8.2 文件结构
+
+```json
+{
+  "noun_attr_info_map": {         // 以 noun_hash (数字) 为 key
+    "96059": {                    // db1_hash("ELBO") = 96059
+      "813906": {                 // 属性 hash
+        "name": "RLIN",
+        "hash": 813906,
+        "offset": 0,              // 隐式区偏移（0=Pseudo 属性）
+        "default_val": { "ElementType": "" },
+        "att_type": "ELEMENT"
+      },
+      ...
+    }
+  },
+  "named_attr_info_map": {        // 以 NOUN 名称 (字符串) 为 key
+    "ELBO": { ... }               // 内容与 noun_attr_info_map 相同
+  }
+}
+```
+
+### 8.3 offset 编码规则
+
+offset 字段编码属性在元素记录**隐式区**中的位置：
+
+**普通属性（offset ≤ 0xFFFFF）**：直接 word 偏移（1 word = 4 bytes）
+
+```
+offset = word_offset_in_implicit_area
+实际字节偏移 = offset × 4
+```
+
+**BOOL 属性的位打包编码（offset > 0xFFFFF）**：
+
+```
+offset = (bit_index << 20) | word_offset
+其中：
+  bit_index = (offset >> 20)  — 该 BOOL 在 word 中的位索引（1-based）
+  word_offset = (offset & 0xFFFFF) — word 在隐式区中的偏移
+```
+
+示例（ELBO 的 BOOL 属性，均在 word 25）：
+
+| 属性 | raw offset | bit_index | word_offset | 含义 |
+|------|-----------|-----------|-------------|------|
+| BUIL | 25 | 0 (直接) | 25 | word[25] bit 0 |
+| SHOP | 1048601 (0x100019) | 1 | 25 | word[25] bit 1 |
+| ORIL | 2097177 (0x200019) | 2 | 25 | word[25] bit 2 |
+| POSI | 3145753 (0x300019) | 3 | 25 | word[25] bit 3 |
+
+### 8.4 属性类型分布
+
+| 类型 | 数量 | 说明 |
+|------|------|------|
+| ELEMENT | 1420 | 元素引用（8B RefNo） |
+| STRING | 1344 | 字符串 |
+| BOOL | 1064 | 布尔值（位打包存储） |
+| INTEGER | 895 | 32 位整数 |
+| WORD | 879 | 枚举/字类型 |
+| DOUBLE | 604 | 64 位浮点 |
+| POSITION | 139 | 3D 坐标（3×f64） |
+| ORIENTATION | 116 | 3D 方位矩阵 |
+| INTVEC | 62 | 整数向量 |
+| DIRECTION | 29 | 3D 方向向量 |
+| RefU64Vec | 3 | 引用数组 |
+
+### 8.5 ELBO 完整隐式区布局
+
+以 ELBO 为例，offset > 0 的 DAB 属性在隐式区中的布局：
+
+```
+word[ 0.. 2]  — 隐式头（impl_len, refno, noun_hash, owner）
+word[11..13]  POS   — POSITION (3×f64 = 24B = 6 words)
+word[18..24]  ORI   — ORIENTATION (6×f64 or 9×f64)
+word[25]      BUIL/SHOP/ORIL/POSI — 4 个 BOOL 位打包
+word[26..27]  SPRE  — ELEMENT (8B = 2 words)
+word[28..29]  LSTU  — ELEMENT (8B)
+word[30]      ARRI  — INTEGER (4B)
+word[31]      LEAV  — INTEGER (4B)
+word[32..33]  ISPE  — ELEMENT (8B)
+word[34..35]  TSPE  — ELEMENT (8B)
+word[36..37]  ANGL  — DOUBLE (8B)
+word[38..39]  RADI  — DOUBLE (8B)
+```
+
+### 8.6 与 attlib.dat 解析的对比
+
+| 数据项 | all_attr_info.json | attlib.dat ATNAIN |
+|--------|-------------------|-------------------|
+| NOUN 覆盖 | 339 个（常用类型） | 取决于 attlib 版本 |
+| 属性 offset | 有（含位打包编码） | 无（仅 NounHash→AttrIndex 映射） |
+| 默认值 | 有 | 无 |
+| 类型信息 | att_type 字符串 | AttrDataType 枚举（via ATGTDF） |
+| 数据来源 | 运行时提取 | 静态文件解析 |
+
+---
+
+## 9. 解析工具链
 
 | 步骤 | 工具 | 操作 |
 |------|------|------|
