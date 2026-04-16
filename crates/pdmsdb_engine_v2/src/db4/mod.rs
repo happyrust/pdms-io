@@ -13,7 +13,7 @@ pub use attrs::{
     write_implicit_logical, write_implicit_real_f32, write_implicit_real_f64,
     write_implicit_reference,
 };
-pub use ce::{CurrentElement, ElementHandle};
+pub use ce::{CurrentElement, ElementHandle, NavDirection};
 pub use element::ElementBuilder;
 pub use explicit_attrs::{ExplicitBlock, ExplicitBlockBuilder, parse_explicit_blocks};
 pub use page_layout::ElementRecordView;

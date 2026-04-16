@@ -495,11 +495,18 @@ impl DbHandle {
             .current_index_root
             .borrow()
             .unwrap_or(session.index_root);
+        let ce_refno = self.current_element.borrow().current().map(|h| h.refno);
+        let inserted = self
+            .write_context
+            .borrow()
+            .as_ref()
+            .map(|ctx| ctx.inserted_refnos.clone())
+            .unwrap_or_default();
         self.page_store.borrow_mut().snapshot_cow();
         let mark_id = self
             .transaction_manager
             .borrow_mut()
-            .set_mark(session, index_root);
+            .set_mark_full(session, index_root, ce_refno, inserted);
         Ok(mark_id)
     }
 
@@ -511,6 +518,35 @@ impl DbHandle {
         self.page_store.borrow_mut().rollback_cow();
         *self.current_index_root.borrow_mut() = Some(mark.index_root_at_mark);
         *self.latest_session_cache.borrow_mut() = Some(mark.session_at_mark);
+        if let Some(refno) = mark.ce_refno_at_mark {
+            let _ = self.navigate_to(refno);
+        } else {
+            self.current_element.borrow_mut().clear();
+        }
+        if let Some(ctx) = self.write_context.borrow_mut().as_mut() {
+            ctx.inserted_refnos = mark.inserted_refnos_at_mark;
+            ctx.index_root = Some(mark.index_root_at_mark);
+        }
+        Ok(())
+    }
+
+    pub fn undo_latest(&self) -> Result<(), EngineError> {
+        let mark = self
+            .transaction_manager
+            .borrow_mut()
+            .undo_latest()?;
+        self.page_store.borrow_mut().rollback_cow();
+        *self.current_index_root.borrow_mut() = Some(mark.index_root_at_mark);
+        *self.latest_session_cache.borrow_mut() = Some(mark.session_at_mark);
+        if let Some(refno) = mark.ce_refno_at_mark {
+            let _ = self.navigate_to(refno);
+        } else {
+            self.current_element.borrow_mut().clear();
+        }
+        if let Some(ctx) = self.write_context.borrow_mut().as_mut() {
+            ctx.inserted_refnos = mark.inserted_refnos_at_mark;
+            ctx.index_root = Some(mark.index_root_at_mark);
+        }
         Ok(())
     }
 
@@ -572,6 +608,125 @@ impl DbHandle {
                 raw_data: raw,
             });
         Ok(())
+    }
+
+    fn push_navigate(&self, refno: RefNo) -> Result<(), EngineError> {
+        let hit = self
+            .find_refno(refno, None)?
+            .ok_or_else(|| EngineError::NotFound(format!("refno {:?} 不存在", refno)))?;
+        let raw = self.read_record(hit.loc)?;
+        self.current_element
+            .borrow_mut()
+            .go_to(crate::db4::ce::ElementHandle {
+                refno,
+                loc: hit.loc,
+                raw_data: raw,
+            });
+        Ok(())
+    }
+
+    pub fn navigate_to_owner(&self) -> Result<RefNo, EngineError> {
+        let view = self.ce_record_view()?;
+        let owner = view.owner;
+        if owner.raw() == 0 {
+            return Err(EngineError::InvalidState("当前元素无 owner".into()));
+        }
+        self.push_navigate(owner)?;
+        Ok(owner)
+    }
+
+    pub fn navigate_to_first_member(&self) -> Result<RefNo, EngineError> {
+        let view = self.ce_record_view()?;
+        let members = crate::db4::refs::parse_member_refs(&view.members_data);
+        let first = members
+            .first()
+            .copied()
+            .ok_or_else(|| EngineError::InvalidState("当前元素无子成员".into()))?;
+        self.push_navigate(first)?;
+        Ok(first)
+    }
+
+    pub fn navigate_to_last_member(&self) -> Result<RefNo, EngineError> {
+        let view = self.ce_record_view()?;
+        let members = crate::db4::refs::parse_member_refs(&view.members_data);
+        let last = members
+            .last()
+            .copied()
+            .ok_or_else(|| EngineError::InvalidState("当前元素无子成员".into()))?;
+        self.push_navigate(last)?;
+        Ok(last)
+    }
+
+    pub fn navigate_to_next_sibling(&self) -> Result<RefNo, EngineError> {
+        let current_refno = self.ce_refno()?;
+        let owner = self.ce_record_view()?.owner;
+        if owner.raw() == 0 {
+            return Err(EngineError::InvalidState("当前元素无 owner，无法查找兄弟".into()));
+        }
+        let owner_hit = self
+            .find_refno(owner, None)?
+            .ok_or_else(|| EngineError::NotFound(format!("owner {:?} 不存在", owner)))?;
+        let owner_raw = self.read_record(owner_hit.loc)?;
+        let owner_view = ElementRecordView::from_raw(&owner_raw)?;
+        let siblings = crate::db4::refs::parse_member_refs(&owner_view.members_data);
+        let refs = crate::db4::ElementRefs::new(owner, siblings);
+        let next = refs
+            .next_sibling_of(current_refno)
+            .ok_or_else(|| EngineError::InvalidState("已是最后一个兄弟，无 NEXX".into()))?;
+        self.push_navigate(next)?;
+        Ok(next)
+    }
+
+    pub fn navigate_to_prev_sibling(&self) -> Result<RefNo, EngineError> {
+        let current_refno = self.ce_refno()?;
+        let owner = self.ce_record_view()?.owner;
+        if owner.raw() == 0 {
+            return Err(EngineError::InvalidState("当前元素无 owner，无法查找兄弟".into()));
+        }
+        let owner_hit = self
+            .find_refno(owner, None)?
+            .ok_or_else(|| EngineError::NotFound(format!("owner {:?} 不存在", owner)))?;
+        let owner_raw = self.read_record(owner_hit.loc)?;
+        let owner_view = ElementRecordView::from_raw(&owner_raw)?;
+        let siblings = crate::db4::refs::parse_member_refs(&owner_view.members_data);
+        let refs = crate::db4::ElementRefs::new(owner, siblings);
+        let prev = refs
+            .prev_sibling_of(current_refno)
+            .ok_or_else(|| EngineError::InvalidState("已是第一个兄弟，无 PREX".into()))?;
+        self.push_navigate(prev)?;
+        Ok(prev)
+    }
+
+    pub fn navigate_back(&self) -> Result<RefNo, EngineError> {
+        let popped = self.current_element.borrow_mut().back()?;
+        let ce = self.current_element.borrow();
+        let current = ce
+            .current()
+            .ok_or_else(|| EngineError::InvalidState("back 后栈为空".into()))?;
+        drop(ce);
+        let _ = popped;
+        Ok(self.ce_refno()?)
+    }
+
+    pub fn ce_members(&self) -> Result<Vec<RefNo>, EngineError> {
+        let view = self.ce_record_view()?;
+        Ok(crate::db4::refs::parse_member_refs(&view.members_data))
+    }
+
+    pub fn ce_owner(&self) -> Result<RefNo, EngineError> {
+        Ok(self.ce_record_view()?.owner)
+    }
+
+    pub fn ce_noun_hash(&self) -> Result<u32, EngineError> {
+        Ok(self.ce_record_view()?.noun_hash)
+    }
+
+    pub fn ce_stack_depth(&self) -> usize {
+        self.current_element.borrow().depth()
+    }
+
+    pub fn ce_stack_refnos(&self) -> Vec<RefNo> {
+        self.current_element.borrow().stack_refnos()
     }
 
     pub fn ce_record_view(&self) -> Result<ElementRecordView, EngineError> {

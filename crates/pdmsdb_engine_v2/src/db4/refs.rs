@@ -42,6 +42,40 @@ impl ElementRefs {
         self.children.len()
     }
 
+    pub fn first_member(&self) -> Option<RefNo> {
+        self.children.first().copied()
+    }
+
+    pub fn last_member(&self) -> Option<RefNo> {
+        self.children.last().copied()
+    }
+
+    /// Find the sibling after `target` in the children list.
+    pub fn next_sibling_of(&self, target: RefNo) -> Option<RefNo> {
+        self.children
+            .iter()
+            .position(|r| *r == target)
+            .and_then(|idx| self.children.get(idx + 1).copied())
+    }
+
+    /// Find the sibling before `target` in the children list.
+    pub fn prev_sibling_of(&self, target: RefNo) -> Option<RefNo> {
+        self.children
+            .iter()
+            .position(|r| *r == target)
+            .and_then(|idx| {
+                if idx > 0 {
+                    Some(self.children[idx - 1])
+                } else {
+                    None
+                }
+            })
+    }
+
+    pub fn contains_member(&self, refno: RefNo) -> bool {
+        self.children.contains(&refno)
+    }
+
     pub fn add_member(&mut self, refno: RefNo) {
         if !self.children.contains(&refno) {
             self.children.push(refno);
