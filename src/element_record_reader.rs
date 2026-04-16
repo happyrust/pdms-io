@@ -23,7 +23,16 @@ impl ElementRecordReader {
 
         let file_len = file.metadata().map(|m| m.len()).unwrap_or(u64::MAX);
 
-        let mut target = INITIAL;
+        let initial_available = file_len.saturating_sub(start_offset) as usize;
+        if initial_available == 0 {
+            return Err(anyhow!(
+                "element record start_offset beyond EOF (start_offset={:#X}, file_len={:#X})",
+                start_offset,
+                file_len
+            ));
+        }
+
+        let mut target = INITIAL.min(initial_available);
         let mut data =
             PagedReader::read(file, page_cache, ext_no, page_size, start_offset, target)?;
 
@@ -36,7 +45,9 @@ impl ElementRecordReader {
             if target >= MAX {
                 return Err(anyhow!(
                     "element record exceeds {}B limit (start_offset={:#X}, read={}B)",
-                    MAX, start_offset, data.len()
+                    MAX,
+                    start_offset,
+                    data.len()
                 ));
             }
 

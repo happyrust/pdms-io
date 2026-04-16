@@ -6,7 +6,7 @@
 
 ## 1. 概述
 
-`DB_Noun::dictionary_` 是 E3D core.dll 中的全局静态 `std::map<int, DB_Noun const*>`，在运行时保存所有已知的元素类型（NOUN）注册信息。本文档记录了该数据结构在进程内存中的具体布局、解析方法和提取结果。
+`DB_Noun::dictionary`_ 是 E3D core.dll 中的全局静态 `std::map<int, DB_Noun const*>`，在运行时保存所有已知的元素类型（NOUN）注册信息。本文档记录了该数据结构在进程内存中的具体布局、解析方法和提取结果。
 
 ---
 
@@ -190,18 +190,20 @@ def db1_dehash(h: int) -> str:
 
 验证示例：
 
+
 | NOUN 名称 | Hash (hex) | Hash (dec) |
-|-----------|-----------|------------|
-| DB | 0x0000006A | 106 |
-| BOX | 0x000006E6 | 1766 |
-| TEE | 0x00003557 | 13655 |
-| BRAN | 0x0000B900 | 47360 |
-| ELBO | 0x0001773B | 96059 |
-| EQUI | 0x00018657 | 99927 |
-| PIPE | 0x000463E9 | 287721 |
-| STRT | 0x00054F30 | 347952 |
-| VALV | 0x0005EA62 | 387682 |
-| ZONE | 0x0007221D | 467485 |
+| ------- | ---------- | ---------- |
+| DB      | 0x0000006A | 106        |
+| BOX     | 0x000006E6 | 1766       |
+| TEE     | 0x00003557 | 13655      |
+| BRAN    | 0x0000B900 | 47360      |
+| ELBO    | 0x0001773B | 96059      |
+| EQUI    | 0x00018657 | 99927      |
+| PIPE    | 0x000463E9 | 287721     |
+| STRT    | 0x00054F30 | 347952     |
+| VALV    | 0x0005EA62 | 387682     |
+| ZONE    | 0x0007221D | 467485     |
+
 
 ---
 
@@ -209,22 +211,26 @@ def db1_dehash(h: int) -> str:
 
 ### 6.1 统计
 
-| 指标 | 值 |
-|------|-----|
-| dictionary_ 地址 | 0x5ADD359C |
-| sentinel 地址 | 0x05D06410 |
-| 总条目数 | 1931 |
-| NOUN 常量总数（IDA） | 1932 |
-| 最小 hash | 0x0000006A (DB) |
-| 最大 hash | 0x8CE60CE0 (UNKNOWN) |
+
+| 指标             | 值                    |
+| -------------- | -------------------- |
+| dictionary_ 地址 | 0x5ADD359C           |
+| sentinel 地址    | 0x05D06410           |
+| 总条目数           | 1931                 |
+| NOUN 常量总数（IDA） | 1932                 |
+| 最小 hash        | 0x0000006A (DB)      |
+| 最大 hash        | 0x8CE60CE0 (UNKNOWN) |
+
 
 ### 6.2 输出文件
 
-| 文件 | 格式 | 内容 |
-|------|------|------|
-| `all_noun_types.json` | JSON | 全部 1932 个 NOUN 名称列表 |
-| `noun_hash_table.json` | JSON | 每个 NOUN 的名称、hash 值和全局变量地址 |
-| `noun_dictionary_dump.bin` | 二进制 | 按 hash 升序排列的 NOUN 记录 |
+
+| 文件                         | 格式   | 内容                        |
+| -------------------------- | ---- | ------------------------- |
+| `all_noun_types.json`      | JSON | 全部 1932 个 NOUN 名称列表       |
+| `noun_hash_table.json`     | JSON | 每个 NOUN 的名称、hash 值和全局变量地址 |
+| `noun_dictionary_dump.bin` | 二进制  | 按 hash 升序排列的 NOUN 记录      |
+
 
 ### 6.3 二进制 dump 格式（noun_dictionary_dump.bin）
 
@@ -243,27 +249,29 @@ def db1_dehash(h: int) -> str:
 
 ### 6.4 常见管道类 NOUN 速查
 
-| NOUN | Hash | 说明 |
-|------|------|------|
-| PIPE | 0x000463E9 | 管道 |
+
+| NOUN | Hash       | 说明   |
+| ---- | ---------- | ---- |
+| PIPE | 0x000463E9 | 管道   |
 | BRAN | 0x0000B900 | 管道分支 |
-| STRT | 0x00054F30 | 直段 |
-| ELBO | 0x0001773B | 弯头 |
-| TEE | 0x00003557 | 三通 |
-| VALV | 0x0005EA62 | 阀门 |
-| REDU | 0x0004E181 | 异径管 |
-| FLAN | 0x0001BBC8 | 法兰 |
-| GASK | 0x0001E535 | 垫片 |
-| NOZZ | 0x0003EB8A | 接管嘴 |
-| EQUI | 0x00018657 | 设备 |
-| SITE | 0x00053249 | 站点 |
-| ZONE | 0x0007221D | 区域 |
+| STRT | 0x00054F30 | 直段   |
+| ELBO | 0x0001773B | 弯头   |
+| TEE  | 0x00003557 | 三通   |
+| VALV | 0x0005EA62 | 阀门   |
+| REDU | 0x0004E181 | 异径管  |
+| FLAN | 0x0001BBC8 | 法兰   |
+| GASK | 0x0001E535 | 垫片   |
+| NOZZ | 0x0003EB8A | 接管嘴  |
+| EQUI | 0x00018657 | 设备   |
+| SITE | 0x00053249 | 站点   |
+| ZONE | 0x0007221D | 区域   |
+
 
 ---
 
 ## 7. NOUN_* 全局常量的布局
 
-在 core.dll 的 .data 段中，`dictionary_` 之后紧跟大量 `NOUN_*` 全局常量指针：
+在 core.dll 的 .data 段中，`dictionary`_ 之后紧跟大量 `NOUN_*` 全局常量指针：
 
 ```
 0x5ADD359C: dictionary_ (8 bytes: _Myhead + _Mysize)
@@ -330,28 +338,32 @@ offset = (bit_index << 20) | word_offset
 
 示例（ELBO 的 BOOL 属性，均在 word 25）：
 
-| 属性 | raw offset | bit_index | word_offset | 含义 |
-|------|-----------|-----------|-------------|------|
-| BUIL | 25 | 0 (直接) | 25 | word[25] bit 0 |
-| SHOP | 1048601 (0x100019) | 1 | 25 | word[25] bit 1 |
-| ORIL | 2097177 (0x200019) | 2 | 25 | word[25] bit 2 |
-| POSI | 3145753 (0x300019) | 3 | 25 | word[25] bit 3 |
+
+| 属性   | raw offset         | bit_index | word_offset | 含义             |
+| ---- | ------------------ | --------- | ----------- | -------------- |
+| BUIL | 25                 | 0 (直接)    | 25          | word[25] bit 0 |
+| SHOP | 1048601 (0x100019) | 1         | 25          | word[25] bit 1 |
+| ORIL | 2097177 (0x200019) | 2         | 25          | word[25] bit 2 |
+| POSI | 3145753 (0x300019) | 3         | 25          | word[25] bit 3 |
+
 
 ### 8.4 属性类型分布
 
-| 类型 | 数量 | 说明 |
-|------|------|------|
-| ELEMENT | 1420 | 元素引用（8B RefNo） |
-| STRING | 1344 | 字符串 |
-| BOOL | 1064 | 布尔值（位打包存储） |
-| INTEGER | 895 | 32 位整数 |
-| WORD | 879 | 枚举/字类型 |
-| DOUBLE | 604 | 64 位浮点 |
-| POSITION | 139 | 3D 坐标（3×f64） |
-| ORIENTATION | 116 | 3D 方位矩阵 |
-| INTVEC | 62 | 整数向量 |
-| DIRECTION | 29 | 3D 方向向量 |
-| RefU64Vec | 3 | 引用数组 |
+
+| 类型          | 数量   | 说明             |
+| ----------- | ---- | -------------- |
+| ELEMENT     | 1420 | 元素引用（8B RefNo） |
+| STRING      | 1344 | 字符串            |
+| BOOL        | 1064 | 布尔值（位打包存储）     |
+| INTEGER     | 895  | 32 位整数         |
+| WORD        | 879  | 枚举/字类型         |
+| DOUBLE      | 604  | 64 位浮点         |
+| POSITION    | 139  | 3D 坐标（3×f64）   |
+| ORIENTATION | 116  | 3D 方位矩阵        |
+| INTVEC      | 62   | 整数向量           |
+| DIRECTION   | 29   | 3D 方向向量        |
+| RefU64Vec   | 3    | 引用数组           |
+
 
 ### 8.5 ELBO 完整隐式区布局
 
@@ -374,24 +386,29 @@ word[38..39]  RADI  — DOUBLE (8B)
 
 ### 8.6 与 attlib.dat 解析的对比
 
-| 数据项 | all_attr_info.json | attlib.dat ATNAIN |
-|--------|-------------------|-------------------|
-| NOUN 覆盖 | 339 个（常用类型） | 取决于 attlib 版本 |
-| 属性 offset | 有（含位打包编码） | 无（仅 NounHash→AttrIndex 映射） |
-| 默认值 | 有 | 无 |
-| 类型信息 | att_type 字符串 | AttrDataType 枚举（via ATGTDF） |
-| 数据来源 | 运行时提取 | 静态文件解析 |
+
+| 数据项       | all_attr_info.json | attlib.dat ATNAIN           |
+| --------- | ------------------ | --------------------------- |
+| NOUN 覆盖   | 339 个（常用类型）        | 取决于 attlib 版本               |
+| 属性 offset | 有（含位打包编码）          | 无（仅 NounHash→AttrIndex 映射）  |
+| 默认值       | 有                  | 无                           |
+| 类型信息      | att_type 字符串       | AttrDataType 枚举（via ATGTDF） |
+| 数据来源      | 运行时提取              | 静态文件解析                      |
+
 
 ---
 
 ## 9. 解析工具链
 
-| 步骤 | 工具 | 操作 |
-|------|------|------|
-| 1. 定位地址 | x64dbg MCP | `DbgValFromString` 解析 mangled 符号 |
-| 2. 读取头部 | x64dbg MCP | `DbgValFromString` 读取 [addr] 解引用 |
-| 3. 遍历树 | x64dbg MCP | `ReadDismAtAddress` 读取节点原始字节 |
+
+| 步骤            | 工具          | 操作                                          |
+| ------------- | ----------- | ------------------------------------------- |
+| 1. 定位地址       | x64dbg MCP  | `DbgValFromString` 解析 mangled 符号            |
+| 2. 读取头部       | x64dbg MCP  | `DbgValFromString` 读取 [addr] 解引用            |
+| 3. 遍历树        | x64dbg MCP  | `ReadDismAtAddress` 读取节点原始字节                |
 | 4. 提取 NOUN 名称 | IDA Pro MCP | `py_eval` 遍历 `idautils.Names()` 过滤 `NOUN_*` |
-| 5. 计算 hash | IDA Pro MCP | `py_eval` 执行 `db1_hash()` Python 实现 |
-| 6. 导出数据 | IDA Pro MCP | `py_eval` 写入 JSON/BIN 文件 |
-| 7. 交叉验证 | 两者结合 | IDA 名称 ↔ x64dbg 运行时值 对照 |
+| 5. 计算 hash    | IDA Pro MCP | `py_eval` 执行 `db1_hash()` Python 实现         |
+| 6. 导出数据       | IDA Pro MCP | `py_eval` 写入 JSON/BIN 文件                    |
+| 7. 交叉验证       | 两者结合        | IDA 名称 ↔ x64dbg 运行时值 对照                     |
+
+

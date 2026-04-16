@@ -1,35 +1,37 @@
 //! 页面缓存管理器模块
 //!
 //! 基于 IDA Pro 逆向分析 db1 模块实现的页面缓存机制。
-//! 提供 LRU 缓存策略，减少磁盘 I/O 操作。
+//! 提供 LRU 缓存策略，脏页写回保证，批量 flush 和预读优化。
 //!
 //! # 设计参考
 //! - db1_get_page: 检查缓存 -> 缓存命中返回 / 缓存未命中从磁盘读取
 //! - db1_lock_page: 锁定页面防止被换出
 //! - db1_update_page: 标记页面为脏页
+//! - db1 eviction: 脏页驱逐前必须写回磁盘（对齐 core.dll 行为）
 
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Read, Seek, SeekFrom, Write};
+use std::io::{self, Read, Seek, SeekFrom, Write};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::defines::{PAGE_SIZE_2K, PAGE_SIZE_512};
 
+const DEFAULT_PREFETCH_PAGES: usize = 4;
+const DEFAULT_BATCH_FLUSH_SIZE: usize = 32;
+
 /// 缓存统计信息
 #[derive(Debug, Default, Clone)]
 pub struct CacheStats {
-    /// 缓存命中次数
     pub hits: u64,
-    /// 缓存未命中次数
     pub misses: u64,
-    /// 页面读取次数
     pub reads: u64,
-    /// 页面写入次数
     pub writes: u64,
+    pub evictions: u64,
+    pub dirty_evictions: u64,
+    pub prefetch_reads: u64,
 }
 
 impl CacheStats {
-    /// 计算命中率
     pub fn hit_rate(&self) -> f64 {
         let total = self.hits + self.misses;
         if total == 0 {
@@ -43,22 +45,15 @@ impl CacheStats {
 /// 缓存页面条目
 #[derive(Debug, Clone)]
 pub struct CachedPage {
-    /// 页面数据
     pub data: Vec<u8>,
-    /// 页面号
     pub page_no: u32,
-    /// 数据库/扩展号 (用于多数据库支持)
     pub ext_no: u32,
-    /// 锁计数 (>0 时页面不能被换出)
     pub lock_count: u32,
-    /// 是否为脏页 (已修改但未写入磁盘)
     pub is_dirty: bool,
-    /// 最后访问时间 (用于 LRU)
     pub last_access: u64,
 }
 
 impl CachedPage {
-    /// 创建新的缓存页面
     pub fn new(page_no: u32, ext_no: u32, data: Vec<u8>) -> Self {
         Self {
             data,
@@ -70,7 +65,6 @@ impl CachedPage {
         }
     }
 
-    /// 是否被锁定
     pub fn is_locked(&self) -> bool {
         self.lock_count > 0
     }
@@ -81,27 +75,20 @@ pub type PageKey = (u32, u32);
 
 /// 页面管理器
 ///
-/// 基于 IDA Pro 分析的 db1 模块实现，提供页面级缓存功能。
+/// 基于 IDA Pro 分析的 db1 模块实现，提供页面级缓存、脏页安全驱逐、
+/// 批量写入和预读功能。
 #[derive(Debug)]
 pub struct PageManager {
-    /// 缓存映射表: (ext_no, page_no) -> CachedPage
     pub(crate) cache: HashMap<PageKey, CachedPage>,
-    /// 最大缓存页面数
     max_pages: usize,
-    /// 页面大小
     page_size: usize,
-    /// 访问计数器 (用于 LRU)
     access_counter: AtomicU64,
-    /// 缓存统计
     stats: CacheStats,
+    prefetch_pages: usize,
+    batch_flush_size: usize,
 }
 
 impl PageManager {
-    /// 创建新的页面管理器
-    ///
-    /// # 参数
-    /// * `max_pages` - 最大缓存页面数，默认 256 (约 512KB 或 512MB 取决于页面大小)
-    /// * `page_size` - 页面大小
     pub fn new(max_pages: usize, page_size: usize) -> Self {
         Self {
             cache: HashMap::with_capacity(max_pages),
@@ -109,54 +96,53 @@ impl PageManager {
             page_size,
             access_counter: AtomicU64::new(0),
             stats: CacheStats::default(),
+            prefetch_pages: DEFAULT_PREFETCH_PAGES,
+            batch_flush_size: DEFAULT_BATCH_FLUSH_SIZE,
         }
     }
 
-    /// 使用默认配置创建页面管理器
     pub fn default_512() -> Self {
         Self::new(256, PAGE_SIZE_512)
     }
 
-    /// 使用 2K 页面大小创建页面管理器
     pub fn default_2k() -> Self {
         Self::new(256, PAGE_SIZE_2K)
     }
 
-    /// 获取缓存统计信息
+    pub fn set_prefetch_pages(&mut self, n: usize) {
+        self.prefetch_pages = n;
+    }
+
+    pub fn set_batch_flush_size(&mut self, n: usize) {
+        self.batch_flush_size = n.max(1);
+    }
+
+    pub fn page_size(&self) -> usize {
+        self.page_size
+    }
+
     pub fn stats(&self) -> &CacheStats {
         &self.stats
     }
 
-    /// 获取当前缓存页面数
     pub fn cached_count(&self) -> usize {
         self.cache.len()
     }
 
-    /// 检查页面是否在缓存中
     pub fn is_page_cached(&self, ext_no: u32, page_no: u32) -> bool {
         self.cache.contains_key(&(ext_no, page_no))
     }
 
-    /// 直接插入页面到缓存（用于测试或预加载）
-    ///
-    /// # 参数
-    /// * `page` - 要插入的缓存页面
     pub fn insert_page(&mut self, page: CachedPage) {
         let key = (page.ext_no, page.page_no);
         self.cache.insert(key, page);
     }
 
-    /// 获取页面 (缓存优先)
+    /// 获取页面（缓存优先）
     ///
-    /// 对应 IDA 分析的 db1_get_page 函数:
-    /// 1. 检查缓存是否命中
-    /// 2. 命中则更新访问时间并返回
-    /// 3. 未命中则从文件读取，加入缓存后返回
-    ///
-    /// # 参数
-    /// * `file` - 数据库文件句柄
-    /// * `ext_no` - 扩展号
-    /// * `page_no` - 页面号
+    /// 对应 db1_get_page：缓存命中则返回，未命中则从磁盘读取并加入缓存。
+    /// 当缓存满时触发 LRU 驱逐，脏页驱逐前保证写回磁盘。
+    /// 未命中时会预读后续 `prefetch_pages` 个相邻页。
     pub fn get_page(
         &mut self,
         file: &mut File,
@@ -165,41 +151,64 @@ impl PageManager {
     ) -> std::io::Result<&[u8]> {
         let key = (ext_no, page_no);
 
-        // 检查缓存
         if self.cache.contains_key(&key) {
-            // 缓存命中
             self.stats.hits += 1;
-            let access_time = self.access_counter.fetch_add(1, Ordering::SeqCst);
+            let access_time = self.access_counter.fetch_add(1, Ordering::Relaxed);
             if let Some(page) = self.cache.get_mut(&key) {
                 page.last_access = access_time;
             }
             return Ok(&self.cache.get(&key).unwrap().data);
         }
 
-        // 缓存未命中
         self.stats.misses += 1;
 
-        // 检查是否需要换出页面
-        if self.cache.len() >= self.max_pages {
-            self.evict_one();
-        }
+        self.ensure_capacity(file, 1 + self.prefetch_pages)?;
 
-        // 从文件读取页面
-        let data = self.read_page_from_file(file, page_no)?;
+        let data = self.read_page_from_file(file, ext_no, page_no)?;
         self.stats.reads += 1;
 
-        // 加入缓存
-        let access_time = self.access_counter.fetch_add(1, Ordering::SeqCst);
+        let access_time = self.access_counter.fetch_add(1, Ordering::Relaxed);
         let mut page = CachedPage::new(page_no, ext_no, data);
         page.last_access = access_time;
         self.cache.insert(key, page);
 
+        self.prefetch(file, ext_no, page_no)?;
+
         Ok(&self.cache.get(&key).unwrap().data)
     }
 
-    /// 锁定页面 (防止被换出)
+    /// 获取页面的可变引用
     ///
-    /// 对应 IDA 分析的 db1_lock_page 函数
+    /// 返回后调用者可直接修改 `data`，之后应调用 `mark_dirty` 标记脏页。
+    pub fn get_page_mut(
+        &mut self,
+        file: &mut File,
+        ext_no: u32,
+        page_no: u32,
+    ) -> std::io::Result<&mut [u8]> {
+        let key = (ext_no, page_no);
+
+        if !self.cache.contains_key(&key) {
+            self.stats.misses += 1;
+            self.ensure_capacity(file, 1)?;
+
+            let data = self.read_page_from_file(file, ext_no, page_no)?;
+            self.stats.reads += 1;
+
+            let access_time = self.access_counter.fetch_add(1, Ordering::Relaxed);
+            let mut page = CachedPage::new(page_no, ext_no, data);
+            page.last_access = access_time;
+            self.cache.insert(key, page);
+        } else {
+            self.stats.hits += 1;
+        }
+
+        let access_time = self.access_counter.fetch_add(1, Ordering::Relaxed);
+        let page = self.cache.get_mut(&key).unwrap();
+        page.last_access = access_time;
+        Ok(&mut page.data)
+    }
+
     pub fn lock_page(&mut self, ext_no: u32, page_no: u32) -> bool {
         let key = (ext_no, page_no);
         if let Some(page) = self.cache.get_mut(&key) {
@@ -210,7 +219,6 @@ impl PageManager {
         }
     }
 
-    /// 解锁页面
     pub fn unlock_page(&mut self, ext_no: u32, page_no: u32) -> bool {
         let key = (ext_no, page_no);
         if let Some(page) = self.cache.get_mut(&key) {
@@ -223,9 +231,6 @@ impl PageManager {
         }
     }
 
-    /// 标记页面为脏页
-    ///
-    /// 对应 IDA 分析的 db1_update_page 函数
     pub fn mark_dirty(&mut self, ext_no: u32, page_no: u32) -> bool {
         let key = (ext_no, page_no);
         if let Some(page) = self.cache.get_mut(&key) {
@@ -236,21 +241,38 @@ impl PageManager {
         }
     }
 
-    /// 使缓存中的页面失效
     pub fn invalidate(&mut self, ext_no: u32, page_no: u32) -> Option<CachedPage> {
         let key = (ext_no, page_no);
         self.cache.remove(&key)
     }
 
-    /// 清空所有缓存
     pub fn clear(&mut self) {
         self.cache.clear();
         self.stats = CacheStats::default();
     }
 
-    /// 从文件读取页面
-    fn read_page_from_file(&self, file: &mut File, page_no: u32) -> std::io::Result<Vec<u8>> {
-        let offset = page_no as u64 * self.page_size as u64;
+    fn validate_ext_no(ext_no: u32) -> io::Result<()> {
+        match ext_no {
+            0 | 1 => Ok(()),
+            _ => Err(io::Error::new(
+                io::ErrorKind::Unsupported,
+                format!("暂不支持 ext_no={} 的多扩展物理路由", ext_no),
+            )),
+        }
+    }
+
+    fn page_offset(&self, ext_no: u32, page_no: u32) -> std::io::Result<u64> {
+        Self::validate_ext_no(ext_no)?;
+        Ok(page_no as u64 * self.page_size as u64)
+    }
+
+    fn read_page_from_file(
+        &self,
+        file: &mut File,
+        ext_no: u32,
+        page_no: u32,
+    ) -> std::io::Result<Vec<u8>> {
+        let offset = self.page_offset(ext_no, page_no)?;
         file.seek(SeekFrom::Start(offset))?;
 
         let mut data = vec![0u8; self.page_size];
@@ -259,44 +281,105 @@ impl PageManager {
         Ok(data)
     }
 
-    /// 使用 LRU 策略换出一个页面
-    ///
-    /// 注意：如果页面是脏页，调用者应该先调用 `flush_dirty_pages` 确保数据已写入
-    fn evict_one(&mut self) {
-        // 找到最久未访问且未锁定的页面
-        let mut oldest_key: Option<PageKey> = None;
-        let mut oldest_time = u64::MAX;
+    /// 预读 page_no 之后的 prefetch_pages 个页面。
+    /// 只读取尚未在缓存中的页面，读取失败（如超过文件尾）静默忽略。
+    fn prefetch(&mut self, file: &mut File, ext_no: u32, base_page_no: u32) -> std::io::Result<()> {
+        if self.prefetch_pages == 0 {
+            return Ok(());
+        }
 
-        for (key, page) in &self.cache {
-            if !page.is_locked() && page.last_access < oldest_time {
-                oldest_time = page.last_access;
-                oldest_key = Some(*key);
+        let access_time = self.access_counter.fetch_add(1, Ordering::Relaxed);
+
+        for i in 1..=self.prefetch_pages as u32 {
+            let pg = base_page_no.wrapping_add(i);
+            let key = (ext_no, pg);
+
+            if self.cache.contains_key(&key) || self.cache.len() >= self.max_pages {
+                continue;
+            }
+
+            match self.read_page_from_file(file, ext_no, pg) {
+                Ok(data) => {
+                    self.stats.prefetch_reads += 1;
+                    self.stats.reads += 1;
+                    let mut page = CachedPage::new(pg, ext_no, data);
+                    page.last_access = access_time;
+                    self.cache.insert(key, page);
+                }
+                Err(_) => break,
             }
         }
 
-        // 移除找到的页面
-        if let Some(key) = oldest_key {
-            // 注意: 如果是脏页，实际应用中应该先写回磁盘
-            // 这里简化处理，只读模式下不需要写回
-            self.cache.remove(&key);
+        Ok(())
+    }
+
+    /// 确保缓存有足够空间容纳 `needed` 个新页面。
+    /// 驱逐时优先选择干净且未锁定的页面；如果只剩脏页则写回磁盘后再驱逐。
+    fn ensure_capacity(&mut self, file: &mut File, needed: usize) -> std::io::Result<()> {
+        while self.cache.len() + needed > self.max_pages {
+            self.evict_one(file)?;
         }
+        Ok(())
+    }
+
+    /// LRU 驱逐一个页面。
+    ///
+    /// 优先驱逐干净的未锁定页面。如果所有可驱逐页面都是脏页，
+    /// 则写回磁盘后再驱逐（保证数据不丢失）。
+    fn evict_one(&mut self, file: &mut File) -> std::io::Result<()> {
+        // Phase 1: 尝试找干净的未锁定页面
+        let mut best_clean: Option<(PageKey, u64)> = None;
+        let mut best_dirty: Option<(PageKey, u64)> = None;
+
+        for (key, page) in &self.cache {
+            if page.is_locked() {
+                continue;
+            }
+            let target = if page.is_dirty {
+                &mut best_dirty
+            } else {
+                &mut best_clean
+            };
+            match target {
+                Some((_, t)) if page.last_access < *t => {
+                    *target = Some((*key, page.last_access));
+                }
+                None => {
+                    *target = Some((*key, page.last_access));
+                }
+                _ => {}
+            }
+        }
+
+        if let Some((key, _)) = best_clean {
+            self.cache.remove(&key);
+            self.stats.evictions += 1;
+        } else if let Some((key, _)) = best_dirty {
+            if let Some(page) = self.cache.get(&key) {
+                let ext_no = page.ext_no;
+                let page_no = page.page_no;
+                let data = page.data.clone();
+                self.write_page_to_file(file, ext_no, page_no, &data)?;
+                self.stats.writes += 1;
+                self.stats.dirty_evictions += 1;
+            }
+            self.cache.remove(&key);
+            self.stats.evictions += 1;
+        } else {
+            return Err(io::Error::new(
+                io::ErrorKind::WouldBlock,
+                "缓存已满且所有页面均被锁定，无法驱逐",
+            ));
+        }
+
+        Ok(())
     }
 
     // ==================================================================================
-    // 写入功能 (基于 IDA Pro 逆向分析 db1_write_page 实现)
+    // 写入功能
     // ==================================================================================
 
-    /// 写入页面到文件 (对应 db1_write_page_basic)
-    ///
-    /// # 参数
-    /// * `file` - 数据库文件句柄（需可写）
-    /// * `ext_no` - 扩展号
-    /// * `page_no` - 页面号
-    /// * `data` - 页面数据（必须等于 page_size）
-    ///
-    /// # 返回值
-    /// * `Ok(())` - 写入成功
-    /// * `Err` - I/O 错误
+    /// 写入页面到文件并更新缓存（对应 db1_write_page_basic）
     pub fn write_page(
         &mut self,
         file: &mut File,
@@ -304,71 +387,94 @@ impl PageManager {
         page_no: u32,
         data: &[u8],
     ) -> std::io::Result<()> {
-        // 验证数据大小
         assert_eq!(data.len(), self.page_size, "页面数据大小必须等于 page_size");
 
-        // 写入到文件
-        self.write_page_to_file(file, page_no, data)?;
+        self.write_page_to_file(file, ext_no, page_no, data)?;
         self.stats.writes += 1;
 
-        // 更新缓存（如果存在）
         let key = (ext_no, page_no);
         if let Some(page) = self.cache.get_mut(&key) {
-            page.data = data.to_vec();
+            page.data.copy_from_slice(data);
             page.is_dirty = false;
-            page.last_access = self.access_counter.fetch_add(1, Ordering::SeqCst);
+            page.last_access = self.access_counter.fetch_add(1, Ordering::Relaxed);
         }
 
         Ok(())
     }
 
-    /// 写入页面数据到文件
+    pub fn allocate_page(&mut self, file: &mut File, ext_no: u32) -> std::io::Result<u32> {
+        Self::validate_ext_no(ext_no)?;
+        let file_size = file.seek(SeekFrom::End(0))?;
+        let disk_page_count = (file_size / self.page_size as u64) as u32;
+        let next_cached_page = self
+            .cache
+            .values()
+            .filter(|page| page.ext_no == ext_no)
+            .map(|page| page.page_no.saturating_add(1))
+            .max()
+            .unwrap_or(disk_page_count);
+        let new_page_no = disk_page_count.max(next_cached_page);
+
+        self.ensure_capacity(file, 1)?;
+
+        let access_time = self.access_counter.fetch_add(1, Ordering::Relaxed);
+        let mut page = CachedPage::new(new_page_no, ext_no, vec![0u8; self.page_size]);
+        page.is_dirty = true;
+        page.last_access = access_time;
+        self.cache.insert((ext_no, new_page_no), page);
+
+        Ok(new_page_no)
+    }
+
     fn write_page_to_file(
         &self,
         file: &mut File,
+        ext_no: u32,
         page_no: u32,
         data: &[u8],
     ) -> std::io::Result<()> {
-        let offset = page_no as u64 * self.page_size as u64;
+        let offset = self.page_offset(ext_no, page_no)?;
         file.seek(SeekFrom::Start(offset))?;
         file.write_all(data)?;
-        file.flush()?;
         Ok(())
     }
 
-    /// 刷新所有脏页到磁盘 (对应 db5_save_work 核心逻辑)
+    /// 批量刷新所有脏页到磁盘（对齐 db5_save_work）。
     ///
-    /// # 参数
-    /// * `file` - 数据库文件句柄（需可写）
-    ///
-    /// # 返回值
-    /// * `Ok(usize)` - 成功写入的脏页数量
-    /// * `Err` - I/O 错误
+    /// 按 page_no 排序后顺序写入以减少磁盘寻道，分 batch 写入后统一 flush。
     pub fn flush_dirty_pages(&mut self, file: &mut File) -> std::io::Result<usize> {
-        let dirty_keys: Vec<PageKey> = self.get_dirty_pages();
+        let mut dirty_keys: Vec<PageKey> = self.get_dirty_pages();
+        if dirty_keys.is_empty() {
+            return Ok(0);
+        }
+
+        dirty_keys.sort_by_key(|&(_, pgno)| pgno);
+
         let mut written_count = 0;
 
-        for key in dirty_keys {
-            if let Some(page) = self.cache.get(&key) {
-                let page_no = page.page_no;
-                let data = page.data.clone();
-
-                // 写入到文件
-                self.write_page_to_file(file, page_no, &data)?;
-                self.stats.writes += 1;
-                written_count += 1;
+        for chunk in dirty_keys.chunks(self.batch_flush_size) {
+            for &key in chunk {
+                if let Some(page) = self.cache.get(&key) {
+                    let ext_no = page.ext_no;
+                    let page_no = page.page_no;
+                    let data = page.data.clone();
+                    self.write_page_to_file(file, ext_no, page_no, &data)?;
+                    self.stats.writes += 1;
+                    written_count += 1;
+                }
             }
+            file.flush()?;
 
-            // 清除脏标记
-            if let Some(page) = self.cache.get_mut(&key) {
-                page.is_dirty = false;
+            for &key in chunk {
+                if let Some(page) = self.cache.get_mut(&key) {
+                    page.is_dirty = false;
+                }
             }
         }
 
         Ok(written_count)
     }
 
-    /// 获取所有脏页的键列表
     pub fn get_dirty_pages(&self) -> Vec<PageKey> {
         self.cache
             .iter()
@@ -377,12 +483,10 @@ impl PageManager {
             .collect()
     }
 
-    /// 检查是否有脏页
     pub fn has_dirty_pages(&self) -> bool {
         self.cache.values().any(|page| page.is_dirty)
     }
 
-    /// 获取脏页数量
     pub fn dirty_count(&self) -> usize {
         self.cache.values().filter(|page| page.is_dirty).count()
     }
@@ -405,6 +509,9 @@ mod tests {
             misses: 20,
             reads: 20,
             writes: 0,
+            evictions: 0,
+            dirty_evictions: 0,
+            prefetch_reads: 0,
         };
         assert!((stats.hit_rate() - 0.8).abs() < 0.001);
     }
@@ -421,16 +528,13 @@ mod tests {
     fn test_dirty_page_tracking() {
         let mut pm = PageManager::new(16, 512);
 
-        // 初始状态：无脏页
         assert!(!pm.has_dirty_pages());
         assert_eq!(pm.dirty_count(), 0);
 
-        // 手动添加一个缓存页面并标记为脏
         let page = CachedPage::new(1, 0, vec![0u8; 512]);
         pm.cache.insert((0, 1), page);
         pm.mark_dirty(0, 1);
 
-        // 验证脏页状态
         assert!(pm.has_dirty_pages());
         assert_eq!(pm.dirty_count(), 1);
         assert_eq!(pm.get_dirty_pages(), vec![(0, 1)]);
@@ -441,14 +545,10 @@ mod tests {
         use std::fs::OpenOptions;
         use std::io::Read;
 
-        // 创建临时文件
         let temp_dir = std::env::temp_dir();
         let temp_file = temp_dir.join("pdms_io_test_write.bin");
-
-        // 清理可能存在的旧文件
         let _ = std::fs::remove_file(&temp_file);
 
-        // 创建并初始化文件
         {
             let mut file = OpenOptions::new()
                 .create(true)
@@ -457,12 +557,10 @@ mod tests {
                 .open(&temp_file)
                 .expect("无法创建临时文件");
 
-            // 写入 4 个空页面 (2KB)
             let empty_data = vec![0u8; 512 * 4];
             file.write_all(&empty_data).expect("无法初始化文件");
         }
 
-        // 测试写入
         let mut pm = PageManager::new(16, 512);
         let test_data: Vec<u8> = (0..512).map(|i| (i % 256) as u8).collect();
 
@@ -477,7 +575,6 @@ mod tests {
                 .expect("写入页面失败");
         }
 
-        // 验证写入
         {
             let mut file = std::fs::File::open(&temp_file).expect("无法打开临时文件");
             file.seek(SeekFrom::Start(512 * 2)).expect("无法定位");
@@ -488,10 +585,7 @@ mod tests {
             assert_eq!(read_data, test_data);
         }
 
-        // 验证统计
         assert_eq!(pm.stats().writes, 1);
-
-        // 清理
         let _ = std::fs::remove_file(&temp_file);
     }
 
@@ -499,7 +593,6 @@ mod tests {
     fn test_flush_dirty_pages() {
         use std::fs::OpenOptions;
 
-        // 创建临时文件
         let temp_dir = std::env::temp_dir();
         let temp_file = temp_dir.join("pdms_io_test_flush.bin");
         let _ = std::fs::remove_file(&temp_file);
@@ -518,16 +611,14 @@ mod tests {
 
         let mut pm = PageManager::new(16, 512);
 
-        // 添加多个脏页
         for i in 0..3 {
-            let mut page = CachedPage::new(i, 0, vec![(i as u8); 512]);
+            let mut page = CachedPage::new(i, 0, vec![i as u8; 512]);
             page.is_dirty = true;
             pm.cache.insert((0, i), page);
         }
 
         assert_eq!(pm.dirty_count(), 3);
 
-        // 刷新脏页
         {
             let mut file = OpenOptions::new()
                 .read(true)
@@ -539,11 +630,142 @@ mod tests {
             assert_eq!(written, 3);
         }
 
-        // 验证脏页已清除
         assert!(!pm.has_dirty_pages());
         assert_eq!(pm.dirty_count(), 0);
 
-        // 清理
+        let _ = std::fs::remove_file(&temp_file);
+    }
+
+    #[test]
+    fn test_dirty_eviction_writes_back() {
+        use std::fs::OpenOptions;
+
+        let temp_dir = std::env::temp_dir();
+        let temp_file = temp_dir.join("pdms_io_test_evict.bin");
+        let _ = std::fs::remove_file(&temp_file);
+
+        {
+            let mut file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .open(&temp_file)
+                .expect("无法创建临时文件");
+            let empty_data = vec![0u8; 512 * 8];
+            file.write_all(&empty_data).expect("无法初始化文件");
+        }
+
+        // max_pages=2, prefetch=0 so eviction is forced on third page
+        let mut pm = PageManager::new(2, 512);
+        pm.set_prefetch_pages(0);
+
+        let mut file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&temp_file)
+            .expect("无法打开临时文件");
+
+        pm.get_page(&mut file, 0, 0).expect("读取页面0");
+        pm.cache.get_mut(&(0, 0)).unwrap().data = vec![0xAA; 512];
+        pm.mark_dirty(0, 0);
+
+        pm.get_page(&mut file, 0, 1).expect("读取页面1");
+
+        // Reading page 2 should evict page 0 (dirty), which must be written back
+        pm.get_page(&mut file, 0, 2).expect("读取页面2");
+
+        assert!(pm.stats.dirty_evictions >= 1, "脏页应被写回后驱逐");
+        assert!(!pm.cache.contains_key(&(0, 0)), "页面0应已被驱逐");
+
+        // Verify the dirty data was written to disk
+        file.seek(SeekFrom::Start(0)).expect("seek");
+        let mut read_data = vec![0u8; 512];
+        file.read_exact(&mut read_data).expect("read");
+        assert_eq!(read_data, vec![0xAA; 512], "脏页数据应已写回磁盘");
+
+        drop(file);
+        let _ = std::fs::remove_file(&temp_file);
+    }
+
+    #[test]
+    fn test_get_page_fails_when_all_cached_pages_are_locked() {
+        use std::fs::OpenOptions;
+
+        let temp_dir = std::env::temp_dir();
+        let temp_file = temp_dir.join("pdms_io_test_locked_capacity.bin");
+        let _ = std::fs::remove_file(&temp_file);
+
+        {
+            let mut file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .open(&temp_file)
+                .expect("无法创建临时文件");
+            let empty_data = vec![0u8; 512 * 2];
+            file.write_all(&empty_data).expect("无法初始化文件");
+        }
+
+        let mut pm = PageManager::new(1, 512);
+        pm.set_prefetch_pages(0);
+
+        let mut file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&temp_file)
+            .expect("无法打开临时文件");
+
+        pm.get_page(&mut file, 1, 0).expect("读取页面0");
+        assert!(pm.lock_page(1, 0));
+
+        let err = pm
+            .get_page(&mut file, 1, 1)
+            .expect_err("锁满缓存时应返回错误");
+        assert_eq!(err.kind(), io::ErrorKind::WouldBlock);
+
+        drop(file);
+        let _ = std::fs::remove_file(&temp_file);
+    }
+
+    #[test]
+    fn test_unsupported_ext_no_returns_error() {
+        use std::fs::OpenOptions;
+
+        let temp_dir = std::env::temp_dir();
+        let temp_file = temp_dir.join("pdms_io_test_extno.bin");
+        let _ = std::fs::remove_file(&temp_file);
+
+        {
+            let mut file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .open(&temp_file)
+                .expect("无法创建临时文件");
+            let empty_data = vec![0u8; 512 * 2];
+            file.write_all(&empty_data).expect("无法初始化文件");
+        }
+
+        let mut pm = PageManager::new(4, 512);
+        pm.set_prefetch_pages(0);
+
+        let mut file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&temp_file)
+            .expect("无法打开临时文件");
+
+        let read_err = pm
+            .get_page(&mut file, 2, 0)
+            .expect_err("未实现扩展号应报错");
+        assert_eq!(read_err.kind(), io::ErrorKind::Unsupported);
+
+        let write_err = pm
+            .write_page(&mut file, 2, 0, &vec![0u8; 512])
+            .expect_err("未实现扩展号应报错");
+        assert_eq!(write_err.kind(), io::ErrorKind::Unsupported);
+
+        drop(file);
         let _ = std::fs::remove_file(&temp_file);
     }
 }

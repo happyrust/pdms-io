@@ -2,6 +2,8 @@
 
 本文档定义用于“写回后由 core.dll 读回并对比”的**最小可调用 API**、**JSON 输出格式**及 **Rust 侧对比策略**。目标：Rust 写回新 Element → 用 2.10 core.dll 按 RefNo 读出属性 → 输出 JSON → 与 Rust 解析（PdmsIO → EleData → JSON）做字段级 diff。
 
+> 2026-04-11 说明：Phase 1 收口阶段的 IDA 基线已切换到 **Everything3D 2.10**。若当前会话中仍持有 3.1 的分析结果，只可作语义预勘，不可作为地址冻结、FFI 绑定或最终回归基线。
+
 ---
 
 ## 1. 最小可调用 API（2.10 core.dll）
