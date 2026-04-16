@@ -17,6 +17,8 @@ pub struct SessionPageData {
     pub comment: String,
     /// 此会话修改的页面范围 (start_page..=end_page)
     pub modified_page_range: Option<(u32, u32)>,
+    /// B-树索引根页号 (从会话页 0x1C 读取)
+    pub index_root_pgno: u32,
 }
 
 /// 文件头部信息

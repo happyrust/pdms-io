@@ -36,6 +36,7 @@ fn main() {
     println!("\n--- Session 链 ---");
     let t1 = Instant::now();
     let (dbno, extent, latest_ses) = (db.dbno(), db.extent(), db.header.latest_ses_pgno);
+    let mut root_pgno = 2u32;
     match SessionManager::traverse_chain(
         &mut db.cache, &mut db.handle,
         dbno, extent, latest_ses,
@@ -43,18 +44,23 @@ fn main() {
         Ok(sessions) => {
             println!("  会话数: {} (耗时 {:?})", sessions.len(), t1.elapsed());
             for s in sessions.iter().take(5) {
-                println!("    ses#{} page={} prev={} ts={} computer={}",
-                    s.ses_no, s.page_no, s.prev_ses_page, s.timestamp, s.computer_name);
+                println!("    ses#{} page={} prev={} ts={} computer=\"{}\" index_root={}",
+                    s.ses_no, s.page_no, s.prev_ses_page, s.timestamp, s.computer_name, s.index_root_pgno);
             }
             if sessions.len() > 5 {
                 println!("    ... 还有 {} 个会话", sessions.len() - 5);
+            }
+            if let Some(latest) = sessions.first() {
+                if latest.index_root_pgno > 0 {
+                    root_pgno = latest.index_root_pgno;
+                    println!("  → 使用最新会话的索引根页: {}", root_pgno);
+                }
             }
         }
         Err(e) => println!("  遍历失败: {e}"),
     }
 
-    println!("\n--- B-树索引遍历 ---");
-    let root_pgno = 2;
+    println!("\n--- B-树索引遍历 (根页={}) ---", root_pgno);
     let t2 = Instant::now();
     match TableIterator::new(
         &mut db.cache, &mut db.handle,

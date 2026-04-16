@@ -100,31 +100,46 @@ impl PageCache {
         let pfno = self.allocate_slot(handle)?;
 
         if self.prefetch_count > 1 {
-            let pages = self.page_io.prefetch_pages(
-                handle, dbno, extent, page_no, self.prefetch_count,
-            )?;
-            self.stats.prefetch_reads += pages.len() as u64;
-
-            for (i, mut desc) in pages.into_iter().enumerate() {
-                self.tick += 1;
-                desc.access_tick = self.tick;
-                if i == 0 {
+            match self.page_io.prefetch_pages(handle, dbno, extent, page_no, self.prefetch_count) {
+                Ok(pages) => {
+                    self.stats.prefetch_reads += pages.len() as u64;
+                    for (i, mut desc) in pages.into_iter().enumerate() {
+                        self.tick += 1;
+                        desc.access_tick = self.tick;
+                        if i == 0 {
+                            desc.lock();
+                            let pid = desc.id;
+                            self.pool[pfno] = Some(desc);
+                            self.lookup.insert(pid, pfno);
+                        } else {
+                            if self.lookup.contains_key(&desc.id) { continue; }
+                            if let Ok(slot) = self.find_free_slot() {
+                                let pid = desc.id;
+                                self.pool[slot] = Some(desc);
+                                self.lookup.insert(pid, slot);
+                            }
+                        }
+                    }
+                }
+                Err(_) => {
+                    let mut desc = self.page_io.read_page(handle, dbno, extent, page_no)?;
+                    self.tick += 1;
+                    desc.access_tick = self.tick;
                     desc.lock();
-                    let pid = desc.id;
                     self.pool[pfno] = Some(desc);
-                    self.lookup.insert(pid, pfno);
-                } else {
-                    if self.lookup.contains_key(&desc.id) {
-                        continue;
-                    }
-                    if let Ok(slot) = self.find_free_slot() {
-                        let pid = desc.id;
-                        self.pool[slot] = Some(desc);
-                        self.lookup.insert(pid, slot);
-                    }
+                    self.lookup.insert(id, pfno);
                 }
             }
         } else {
+            let mut desc = self.page_io.read_page(handle, dbno, extent, page_no)?;
+            self.tick += 1;
+            desc.access_tick = self.tick;
+            desc.lock();
+            self.pool[pfno] = Some(desc);
+            self.lookup.insert(id, pfno);
+        }
+
+        if self.pool[pfno].is_none() {
             let mut desc = self.page_io.read_page(handle, dbno, extent, page_no)?;
             self.tick += 1;
             desc.access_tick = self.tick;
