@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>PDMS DB Engine V2 — 解析原理架构图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f172a; font-family: 'Segoe UI', system-ui, sans-serif; overflow: auto; }
+  #canvas { display: block; margin: 20px auto; }
+  h1 { color: #e2e8f0; text-align: center; padding: 24px 0 4px; font-size: 22px; letter-spacing: 1px; }
+  .subtitle { color: #94a3b8; text-align: center; font-size: 13px; padding-bottom: 12px; }
+</style>
+</head>
+<body>
+<h1>PDMS DB Engine V2 — 数据库解析原理</h1>
+<p class="subtitle">core.dll 五层架构 · db5 → db4 → db3 → db2 → db1 → Rust I/O → OS · 全 Rust 实现，无 Fortran 依赖</p>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const DPR = window.devicePixelRatio || 1;
+const W = 1360, H = 1520;
+canvas.width = W * DPR; canvas.height = H * DPR;
+canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+ctx.scale(DPR, DPR);
+
+const LAYERS = [
+  { id:'app',  label:'应用层', color:'#22c55e', bg:'#14532d20', y:30,  h:60, items:[
+    {x:540, w:280, label:'PML Script / C++ DB_DB', sub:'db_open_read_db · db_go_to_element · db_get_*'}
+  ]},
+  { id:'db5', label:'db5 — 数据库访问层', color:'#3b82f6', bg:'#1e3a5f30', y:130, h:120, items:[
+    {x:60,  w:170, label:'open_read_db',  sub:'mode=7 只读'},
+    {x:245, w:170, label:'open_write_db', sub:'独占锁 读写'},
+    {x:430, w:175, label:'open_shared_db',sub:'多用户共享'},
+    {x:620, w:160, label:'save_work',     sub:'脏页flush→索引→会话'},
+    {x:795, w:130, label:'close_db',      sub:'同步+释放'},
+    {x:940, w:130, label:'compact',       sub:'碎片整理'},
+    {x:1085,w:130, label:'refresh_work',  sub:'加载他人修改'},
+    {x:1230,w:100, label:'undo',          sub:'事务回滚'},
+  ]},
+  { id:'db4', label:'db4 — 元素与属性管理层', color:'#f97316', bg:'#7c2d1220', y:290, h:160, items:[
+    {x:60,  w:200, label:'CE 导航栈',       sub:'go_to_element(refno)\npush / pop / clear\nopcode 108'},
+    {x:275, w:200, label:'属性读取分派',     sub:'get_integer · get_string\nget_real · get_reference\nget_logical'},
+    {x:490, w:180, label:'属性写入分派',     sub:'put_integer · put_string\nput_reference ...'},
+    {x:685, w:170, label:'列表属性',         sub:'get/store_list\nint_array · ref_array'},
+    {x:870, w:150, label:'元素 CRUD',        sub:'create_element\ncopy_user_element'},
+    {x:1035,w:160, label:'引用关系',         sub:'insert_ref · remove_ref\nFOWN/LOWN/PREX/NEXX'},
+    {x:1210,w:120, label:'页面布局',         sub:'type=5 元素页\ntype=7 续页拼接'},
+  ]},
+  { id:'db3', label:'db3 — B-树索引层', color:'#a855f7', bg:'#581c8730', y:495, h:130, items:[
+    {x:60,  w:210, label:'FHSRCH 索引查找',  sub:'根→中间→叶 三级定位\n返回 (page_no, offset)'},
+    {x:290, w:190, label:'FHXPND 索引插入',  sub:'排序插入\n容量检查→触发split'},
+    {x:500, w:190, label:'FHSPLT 节点分裂',  sub:'叶子/内部/根 分裂\n中点拆分 · 提升树高'},
+    {x:710, w:190, label:'FHDELT 节点删除',  sub:'合并/重平衡\n级联更新父节点边界'},
+    {x:920, w:210, label:'FHITER 迭代器',    sub:'DB_IndexTableIterator\nctor → increment → scan'},
+    {x:1150,w:180, label:'索引表管理',        sub:'create_new_table\n0x1C header · 16B/条目'},
+  ]},
+  { id:'db2', label:'db2 — 会话与头部管理层', color:'#eab308', bg:'#713f1220', y:665, h:130, items:[
+    {x:100, w:260, label:'Header 读写',        sub:'PdmsHeader 0x00~0x3F\nmodify_header_page\nget/set_int_att'},
+    {x:400, w:260, label:'Session 会话链',      sub:'type=3 会话页\nlatest_ses_pgno → prev 链遍历\n时间戳 · 计算机名 · 注释'},
+    {x:700, w:220, label:'Extract 管理',        sub:'insert_extract\nremove_extract'},
+    {x:960, w:260, label:'DB Lookup 数据库查找', sub:'find_db_data · create_lookup\nfind_empty · find_current\nthere_are_aux_db_blocks'},
+  ]},
+  { id:'db1', label:'db1 — 页面管理层 (核心)', color:'#ef4444', bg:'#7f1d1d20', y:840, h:150, items:[
+    {x:60,  w:230, label:'页面缓存池',      sub:'pfno 池化描述符数组\n三元组 (dbno, page_id, extent)\nis_page_incore 检查'},
+    {x:310, w:210, label:'LRU 驱逐策略',    sub:'plu_locate_entry\nlock_count 引用计数\nreferenced bit 双态标记'},
+    {x:540, w:200, label:'页面 I/O',         sub:'read_page (FHDBRN)\nwrite_page (FHDBWN)\n页面类型分类'},
+    {x:760, w:220, label:'COW 页面分配',     sub:'get_new_page\n分配临时页→拷贝→标脏\n→原页位回写'},
+    {x:1000,w:150, label:'预读机制',         sub:'batch read N pages\ndword_6A5415C > 1'},
+    {x:1170,w:160, label:'本地文件缓存',     sub:'sub_5BCC210\n可选 · 加速重复读取'},
+  ]},
+  { id:'fio', label:'Rust I/O 层 (替代 Fortran I/O 语义)', color:'#06b6d4', bg:'#0e749020', y:1035, h:120, items:[
+    {x:60,  w:250, label:'FileManager',            sub:'Rust std::fs::File\nopen / create / OpenOptions\n替代 FIOXST / FIONEW'},
+    {x:330, w:250, label:'DirectReader',            sub:'seek + read_exact\n页对齐直接读取\n替代 FHDBRN + DirectAccessToken'},
+    {x:600, w:250, label:'DirectWriter',            sub:'seek + write_all\n原子写入 + fsync\n替代 FHDBWN + DirectAccessToken'},
+    {x:870, w:200, label:'RetryPolicy',             sub:'tokio::time::sleep(500ms)\n→ reopen file handle\n→ retry (max 3次)'},
+    {x:1090,w:230, label:'FileLock (跨平台)',        sub:'Windows: LockFileEx\nLinux: flock/fcntl\n替代 FHSWIT 模式切换'},
+  ]},
+  { id:'os',  label:'操作系统', color:'#94a3b8', bg:'#0f172a60', y:1200, h:60, items:[
+    {x:440, w:200, label:'ReadFile',  sub:'offset = pgno × page_size'},
+    {x:700, w:200, label:'WriteFile', sub:'物理磁盘 I/O'},
+  ]},
+];
+
+function roundRect(x, y, w, h, r, fill, stroke, lineW) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.arcTo(x+w, y, x+w, y+r, r);
+  ctx.lineTo(x+w, y+h-r); ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+  ctx.lineTo(x+r, y+h); ctx.arcTo(x, y+h, x, y+h-r, r);
+  ctx.lineTo(x, y+r); ctx.arcTo(x, y, x+r, y, r);
+  ctx.closePath();
+  if(fill) { ctx.fillStyle = fill; ctx.fill(); }
+  if(stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineW||1.5; ctx.stroke(); }
+}
+
+function drawArrow(x1, y1, x2, y2, color, dashed) {
+  ctx.beginPath();
+  ctx.strokeStyle = color || '#475569';
+  ctx.lineWidth = 2;
+  if(dashed) ctx.setLineDash([6,4]); else ctx.setLineDash([]);
+  ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.setLineDash([]);
+  const angle = Math.atan2(y2-y1, x2-x1);
+  const aw = 8;
+  ctx.beginPath();
+  ctx.fillStyle = color || '#475569';
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - aw*Math.cos(angle - Math.PI/6), y2 - aw*Math.sin(angle - Math.PI/6));
+  ctx.lineTo(x2 - aw*Math.cos(angle + Math.PI/6), y2 - aw*Math.sin(angle + Math.PI/6));
+  ctx.closePath(); ctx.fill();
+}
+
+function wrapText(text, x, y, maxW, lineH) {
+  const lines = text.split('\n');
+  lines.forEach((line, i) => {
+    ctx.fillText(line, x, y + i * lineH);
+  });
+  return lines.length;
+}
+
+LAYERS.forEach(layer => {
+  roundRect(30, layer.y, W-60, layer.h, 10, layer.bg, layer.color+'60', 1.5);
+
+  ctx.font = 'bold 13px "Segoe UI", system-ui, sans-serif';
+  ctx.fillStyle = layer.color;
+  ctx.textAlign = 'left';
+  ctx.fillText(layer.label, 44, layer.y + 18);
+
+  layer.items.forEach(item => {
+    const iy = layer.y + 28;
+    const ih = layer.h - 36;
+    roundRect(item.x, iy, item.w, ih, 6, '#1e293b', layer.color+'50', 1);
+
+    ctx.font = 'bold 12px "Segoe UI", system-ui, sans-serif';
+    ctx.fillStyle = '#f1f5f9';
+    ctx.textAlign = 'center';
+    ctx.fillText(item.label, item.x + item.w/2, iy + 16);
+
+    if(item.sub) {
+      ctx.font = '10.5px "Segoe UI", system-ui, sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      wrapText(item.sub, item.x + item.w/2, iy + 30, item.w - 12, 13);
+    }
+  });
+});
+
+const arrows = [
+  {from:{layer:0,item:0,side:'b'}, to:{layer:1,item:0,side:'t'}, color:'#22c55e80'},
+  {from:{layer:1,item:0,side:'b'}, to:{layer:2,item:0,side:'t'}, color:'#3b82f680'},
+  {from:{layer:2,item:0,side:'b'}, to:{layer:3,item:0,side:'t'}, color:'#f9731680', label:'B-树定位'},
+  {from:{layer:2,item:1,side:'b'}, to:{layer:5,item:2,side:'t'}, color:'#f9731640'},
+  {from:{layer:3,item:0,side:'b'}, to:{layer:5,item:0,side:'t'}, color:'#a855f780'},
+  {from:{layer:4,item:1,side:'b'}, to:{layer:5,item:0,side:'t'}, color:'#eab30880'},
+  {from:{layer:5,item:2,side:'b'}, to:{layer:6,item:1,side:'t'}, color:'#ef444480'},
+  {from:{layer:5,item:0,side:'b'}, to:{layer:6,item:1,side:'t'}, color:'#ef444440'},
+  {from:{layer:6,item:1,side:'b'}, to:{layer:7,item:0,side:'t'}, color:'#06b6d480'},
+  {from:{layer:6,item:2,side:'b'}, to:{layer:7,item:1,side:'t'}, color:'#06b6d480'},
+];
+
+arrows.forEach(a => {
+  const fl = LAYERS[a.from.layer], fi = fl.items[a.from.item];
+  const tl = LAYERS[a.to.layer],   ti = tl.items[a.to.item];
+  const x1 = fi.x + fi.w/2, y1 = fl.y + fl.h - 6;
+  const x2 = ti.x + ti.w/2, y2 = tl.y + 30;
+  drawArrow(x1, y1, x2, y2, a.color);
+});
+
+// data flow annotation on the right
+ctx.save();
+ctx.font = 'bold 13px "Segoe UI", system-ui, sans-serif';
+ctx.fillStyle = '#475569';
+ctx.textAlign = 'center';
+ctx.translate(W - 25, 700);
+ctx.rotate(-Math.PI/2);
+ctx.fillText('调用方向  ────────────────────────────────►', 0, 0);
+ctx.restore();
+
+// key data flow box at the bottom
+const bx = 40, by = 1290, bw = W - 80, bh = 200;
+roundRect(bx, by, bw, bh, 10, '#1e293b80', '#334155', 1);
+ctx.font = 'bold 14px "Segoe UI", system-ui, sans-serif';
+ctx.fillStyle = '#e2e8f0';
+ctx.textAlign = 'left';
+ctx.fillText('▎端到端读取数据流', bx + 16, by + 22);
+
+ctx.font = '12px "Segoe UI", system-ui, sans-serif';
+ctx.fillStyle = '#94a3b8';
+const flowLines = [
+  '① App → db5.open_read_db(dbno, session)  →  Rust FileManager::open  →  OS.OpenFile  →  获得 File handle',
+  '② App → db4.go_to_element(refno)  →  db3 B-树搜索  →  db1.get_page(索引页)  →  缓存/磁盘读取  →  返回 (page_no, offset)',
+  '③ db4 → db1.get_page(元素页)  →  is_page_incore?  →  命中: 直接返回  /  未命中: DirectReader → ReadFile → 页面类型分类 → 写入缓存',
+  '④ App → db4.get_integer(ATT_ID)  →  从页面数据 + offset 直接读取属性值',
+  '⑤ App → db4.get_string(ATT_NAME) →  从页面读取  →  若跨页: db1.get_page(续页 type=7) → 拼接完整字符串',
+  '',
+  '核心区别 (V2 vs 旧实现):',
+  '• I/O:  全 Rust std::fs 实现，弃用 Fortran I/O 语义  (旧: 依赖 FHDBRN/FHDBWN/FIOXST)',
+  '• 缓存: pfno 池化描述符 + LRU  (旧: HashMap<(ext_no, page_no)>)',
+  '• 写入: COW 临时页→拷贝→标脏→回写  (旧: mark_dirty 单标记)',
+  '• 索引: FHSRCH + FHXPND + FHSPLT + FHDELT 全套  (旧: 无删除)',
+  '• 结构: db1~db5 五层分离  (旧: io.rs 5700行单文件)',
+  '• 文件锁: 跨平台 LockFileEx / flock  (旧: FHSWIT 模式切换)',
+];
+flowLines.forEach((line, i) => {
+  if(line.startsWith('核心区别')) {
+    ctx.font = 'bold 12px "Segoe UI", system-ui, sans-serif';
+    ctx.fillStyle = '#f97316';
+  } else if(line.startsWith('•')) {
+    ctx.font = '11.5px "Segoe UI", system-ui, sans-serif';
+    ctx.fillStyle = '#cbd5e1';
+  } else {
+    ctx.font = '12px "Segoe UI", system-ui, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+  }
+  ctx.fillText(line, bx + 20, by + 42 + i * 15);
+});
+</script>
+</body>
+</html>

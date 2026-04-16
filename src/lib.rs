@@ -18,6 +18,8 @@ pub mod sync;
 pub mod watch;
 
 pub mod dblist;
+
+pub mod engine_v2;
 pub mod io_log;
 
 // 重新导出常用函数，使其可以直接从crate根访问
