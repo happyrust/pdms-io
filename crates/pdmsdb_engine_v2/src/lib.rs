@@ -11,3 +11,12 @@ pub use crate::core::{
     CommitSessionRequest, DbHandle, EngineError, EngineOptions, EngineV2, PageId, RecordLoc,
     RecordWriteResult, RefNo, SearchHit, SessionSnapshot,
 };
+
+pub use crate::db4::{
+    AttrInfo, AttrType, AttrValue, ElementBuilder, ElementHandle, ElementRecordView,
+    ElementRefs, NavDirection,
+};
+
+pub use crate::db2::{ExtractManager, ExtractRecord, ExtractStatus};
+
+pub use crate::db5::compact::CompactStats;
