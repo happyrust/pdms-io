@@ -1,6 +1,6 @@
 #![cfg(feature = "surrealdb")]
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use pdms_io::io::PdmsIO;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;

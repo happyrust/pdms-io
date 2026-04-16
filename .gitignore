@@ -20,6 +20,7 @@ protoc/bin/include/
 .ace-tool/
 
 **/target/
+.target_v2cli/
 
 worktrees/
 npm-cache/

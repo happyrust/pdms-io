@@ -36,7 +36,9 @@ impl ElementRecordReader {
             if target >= MAX {
                 return Err(anyhow!(
                     "element record exceeds {}B limit (start_offset={:#X}, read={}B)",
-                    MAX, start_offset, data.len()
+                    MAX,
+                    start_offset,
+                    data.len()
                 ));
             }
 
