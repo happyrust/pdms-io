@@ -5,7 +5,7 @@ edition = "2024"
 autobins = false
 
 [workspace]
-members = ["crates/parse_pdms_db", "crates/pdmsdb_engine_v2"]
+members = ["crates/parse_pdms_db", "crates/pdmsdb_engine_v2", "crates/pdmsdb_adapter"]
 resolver = "3"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
