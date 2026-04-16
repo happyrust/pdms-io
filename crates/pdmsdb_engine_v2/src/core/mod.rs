@@ -700,7 +700,7 @@ impl DbHandle {
     pub fn navigate_back(&self) -> Result<RefNo, EngineError> {
         let popped = self.current_element.borrow_mut().back()?;
         let ce = self.current_element.borrow();
-        let current = ce
+        let _current = ce
             .current()
             .ok_or_else(|| EngineError::InvalidState("back 后栈为空".into()))?;
         drop(ce);

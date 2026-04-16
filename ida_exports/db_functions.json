@@ -1,0 +1,26 @@
+{
+  "functions": [
+    { "name": "db1_get_page", "address": "0x1063fd10" },
+    { "name": "db1_update_page", "address": "0x10640d80" },
+    { "name": "db1_write_page", "address": "0x1063eef0" },
+    { "name": "db2_get_session_pgid", "address": "0x1062c1f0" },
+    { "name": "db2_write_page", "address": "0x10639d10" },
+    { "name": "db3_start_table_search", "address": "0x106299c0" },
+    { "name": "db3_get_next_table_entry", "address": "0x10629e80" },
+    { "name": "db3_insert_page_entry", "address": "0x106262f0" },
+    { "name": "db3_update_page_entry", "address": "0x106261e0" },
+    { "name": "db3_split_node", "address": "0x10626790" },
+    { "name": "db3_split_root", "address": "0x10627080" },
+    { "name": "db4_get_att_dets", "address": "0x1061f2d0" },
+    { "name": "db4_get_ce_att", "address": "0x10621000" },
+    { "name": "db4_set_ce_att", "address": "0x1061fbc0" },
+    { "name": "db5_init", "address": "0x105eccc0" },
+    { "name": "db5_open_read_db", "address": "0x105ee520" },
+    { "name": "db5_open_write_db", "address": "0x105ee620" },
+    { "name": "db5_close_db", "address": "0x105ee940" },
+    { "name": "db5_save_work", "address": "0x105f3870" }
+  ],
+  "source": "ida_pro_mcp_lookup_funcs_and_func_query",
+  "dll_version": "Everything3D 2.10",
+  "note": "当前文件仅包含 v2 helper 所需的最小 db1-db5 函数子集，不是完整导出。"
+}

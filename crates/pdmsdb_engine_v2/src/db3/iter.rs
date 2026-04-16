@@ -15,6 +15,7 @@ pub struct IndexTableIterator {
     leaf_stack: Vec<(PageId, usize)>,
     pending_entries: Vec<IndexEntry>,
     current_index: usize,
+    #[allow(dead_code)]
     page_size: usize,
     finished: bool,
 }

@@ -1,0 +1,43 @@
+{
+  "attributes": {
+    "AEXCES": "F32Type(0.0)",
+    "ANGL": "F32Type(14.976)",
+    "ARRI": "IntegerType(1)",
+    "BUIL": "BoolType(false)",
+    "CHILDREN": [],
+    "DELDSG": "StringType(\"FALS\")",
+    "HREL": "BoolType(true)",
+    "ISOH": "BoolType(false)",
+    "ISPE": "RefU64Type(0_0)",
+    "LEAV": "IntegerType(2)",
+    "LEXCES": "F32Type(0.0)",
+    "LOFF": "BoolType(true)",
+    "LOOS": "BoolType(false)",
+    "LSTU": "RefU64Type(13245_639038)",
+    "NAME": "",
+    "NCUTS": "IntegerType(0)",
+    "ORI": "F32VecType([-90.0, 14.976, -77.301])",
+    "ORIL": "BoolType(true)",
+    "OWNER": "RefU64Type(17496_171134)",
+    "POS": "F32VecType([1933.66, -8581.04, 66403.71])",
+    "POSI": "BoolType(true)",
+    "RADI": "F32Type(0.0)",
+    "REFNO": "RefU64Type(17496_171138)",
+    "RLOC": "IntegerType(-1)",
+    "SHOP": "BoolType(false)",
+    "SPRE": "RefU64Type(13245_639100)",
+    "TSPE": "RefU64Type(0_0)",
+    "TYPE": "StringType(\"BEND\")",
+    "TYPEX": "IntegerType(620516)",
+    "USEFED": "F32Type(0.0)"
+  },
+  "meta": {
+    "byte_offset": 776,
+    "db_path": "D:\\work\\plant-code\\pdms-io-fork-engine-v2\\crates\\pdmsdb_engine_v2\\..\\..\\test-file\\ams1112_0001",
+    "ext_no": 1,
+    "page_no": 11207,
+    "sesno": 733
+  },
+  "refno": "17496:171138",
+  "source": "rust_parse"
+}

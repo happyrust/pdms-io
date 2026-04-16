@@ -1,0 +1,12 @@
+{
+  "diffCount": 0,
+  "diffs": [],
+  "fixturePath": "D:/work/plant-code/pdms-io-fork-engine-v2/.tmp_compare_cli\\test_output\\core_dll\\17496_171138.json",
+  "ignoredKeys": [
+    "PGNO"
+  ],
+  "matches": true,
+  "refno": "17496:171138",
+  "reportPath": "D:/work/plant-code/pdms-io-fork-engine-v2/.tmp_compare_cli\\test_output\\compare_reports\\17496_171138.json",
+  "rustPath": "D:/work/plant-code/pdms-io-fork-engine-v2/.tmp_compare_cli\\test_output\\rust_parse\\17496_171138.json"
+}

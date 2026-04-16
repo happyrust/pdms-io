@@ -4058,6 +4058,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "pdmsdb_adapter"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "pdmsdb_engine_v2",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "pdmsdb_engine_v2"
 version = "0.1.0"
 dependencies = [

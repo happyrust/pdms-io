@@ -34,6 +34,7 @@ impl PageIo for StdPageIo {
 
 #[derive(Clone)]
 struct PageFrame {
+    #[allow(dead_code)]
     pfno: u32,
     page_id: PageId,
     data: Vec<u8>,
