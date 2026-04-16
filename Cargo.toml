@@ -152,4 +152,9 @@ name = "check_instances_json"
 path = "src/bin/check_instances_json.rs"
 test = false
 
+[[bin]]
+name = "verify_engine_v2"
+path = "src/bin/verify_engine_v2.rs"
+test = false
+
 
