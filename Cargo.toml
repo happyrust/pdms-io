@@ -31,7 +31,7 @@ tokio = { version = "1.32.0", features = ["full"] }
 dashmap = "=7.0.0-rc2"
 serde_json = "1.0.105"
 chrono = "0.4.31"
-surrealdb = { git = "https://gitee.com/happydpc/surrealdb", branch = "dev-3.1", default-features = false, optional = true, features = [
+surrealdb = { git = "https://github.com/happyrust/surrealdb", branch = "dev-3.1", default-features = false, optional = true, features = [
     "protocol-ws",
     "kv-mem",
 ] }
