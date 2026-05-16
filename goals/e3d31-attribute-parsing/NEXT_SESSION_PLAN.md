@@ -1,17 +1,19 @@
 # Next Session Plan — Slice 4 Followups
 
 > Originally produced 2026-05-16 at end of session "Steps 6-10".
-> **Updated 2026-05-16** after Step 11 (default-value pool API) and Step 12 (UDA name verification):
-> * #1 ✅ DONE on the runtime/decoder side (only #1b on-disk parser pass remains)
-> * #2 ✅ **VERIFIED ALREADY SATISFIED** — fixture has 0 ATGTIX hash above `0x171FAD39`; the existing `system_names → db1_dehash → hex` chain resolves all 6644 hashes and all 1477 UDA-source records to readable names. The originally-imagined "UDA name string" payload at the ATGTIX-pointed bytes turned out to be value/enum/length-prefixed data, carved out as #2b.
-> 66/66 tests green across `e3d-io` (50) + `e3d-attlib` (16). Three repos clean.
+> **Updated 2026-05-16** after Steps 11–13:
+> * **#1 ✅ DONE** on the runtime/decoder side (Step 11)
+> * **#2 ✅ VERIFIED ALREADY SATISFIED** (Step 12)
+> * **#1b ✅ DONE — closed in Step 13** via IDA decompile of `sub_55F53B8`: the ATGTDF on-disk reader already wrote the kind=2 default word, e3d-attlib was just stashing it in the wrong field. `parse_file` now auto-populates `AttrDefEntry::default_value` for all 111 kind=2 scalar entries on the fixture without any test-side injection.
+> 69/69 tests green across `e3d-io` (51) + `e3d-attlib` (18). Three repos clean.
 
 ## Followup Triage
 
 | # | Followup | Value | IDA evidence ready? | New IDA session required? | Code effort | Status |
 |---|---|---|---|---|---|---|
-| 1 | **Default-value pool extraction** (`RAW_USE_DEFAULT = 0xFFFFFFFF` → real default) | Turns sentinel zeros into semantically meaningful defaults; improves `summarize_element` readability | YES — `progress.jsonl` entry #20 gives the double-indexed formula `dword_6C21390[dword_6C21200[atgtdf_idx - 1] - 1]` | NO (light fixture verification only) | LOW: `AttrDefEntry.default_value` field + ATGTDF default-pool parser pass | **✅ DONE (Step 11) — runtime path + API + fixture-validated end-to-end. Only the on-disk layout parser pass in `attlib.dat` remains (see #1b below).** |
-| 1b | **ATGTDF default-pool on-disk layout in `attlib.dat`** (populate `AttrDefEntry::default_value` automatically during `parse_file`) | Eliminates the manual `set_attr_default` injection step so real defaults surface for every fixture without code-level intervention | NO — needs a fresh IDA pass on the ATGTDF-buffer tail (the runtime `dword_6C21200` / `dword_6C21390` arrays are loaded from somewhere in `attlib.dat`, but the on-disk slice isn't yet recovered) | YES (small targeted IDA session, possibly 30–60 min) | LOW: add a parser pass after `parse_atgtdf` that reads default-index + default-value arrays and calls `set_attr_default` per hash | PENDING |
+| 1 | **Default-value pool extraction** (`RAW_USE_DEFAULT = 0xFFFFFFFF` → real default) | Turns sentinel zeros into semantically meaningful defaults; improves `summarize_element` readability | YES — `progress.jsonl` entry #20 gives the double-indexed formula `dword_6C21390[dword_6C21200[atgtdf_idx - 1] - 1]` | NO (light fixture verification only) | LOW: `AttrDefEntry.default_value` field + ATGTDF default-pool parser pass | **✅ DONE (Step 11) — runtime path + API + fixture-validated end-to-end.** |
+| 1b | **ATGTDF default-pool on-disk layout in `attlib.dat`** (populate `AttrDefEntry::default_value` automatically during `parse_file`) | Eliminates the manual `set_attr_default` injection step so real defaults surface for every fixture without code-level intervention | YES (acquired in Step 13 via `user-ida-pro-mcp.decompile` on `sub_55F53B8`) | n/a (IDA evidence acquired in this session) | LOW: re-interpret the trailing word that `parse_atgtdf` was already consuming as a typed `AttrDefault` | **✅ DONE (Step 13) — `parse_file` auto-populates default_value for all 111 kind=2 scalar entries on the fixture. e3d-attlib `67571d3` + e3d-io `19c3b15`.** |
+| 1c | **ATGTDF kind=2 type=4 array defaults** (variable-length array default values in the runtime pool) | Surfaces array defaults for the small number of variable-length attributes that carry pre-populated default arrays | YES (same IDA decompile as #1b) | n/a | LOW–MED: requires an `IntArray` (or similar) `AttrDefault` variant, which would break the current `Copy` constraint — needs a small restructure of `AttrDefEntry` storage or a side table keyed by hash | PENDING (low priority — fixture has 0 kind=2 type=4 entries) |
 | 2 | ~~**UDA name resolution**~~ (the original framing assumed hashes > `0x171FAD39` which do not exist in this fixture) | n/a — the property "every UDA-source attribute has a readable name" is already true on this fixture | n/a | n/a | n/a | **✅ VERIFIED ALREADY SATISFIED (Step 12) — pinned by `e3d-io tests/uda_name_resolution_verified.rs` (2 tests). 0 ATGTIX hash > 0x171FAD39; 1477/1477 UDA-source records resolved; 0 hex fallback.** |
 | 2b | **ATGTIX-pointed payload decoder** (decode the (page, word_offset) byte region for UDA-source ATGTIX entries) | The bytes hold type/kind/length headers + length-prefixed ASCII strings — likely enum-value or default-value tables, not name strings. Decoding them might unlock UDA value catalogs | NO — needs a fresh IDA pass to determine the record layout (the empirical dump shows `(type, kind, length)` + chars, but the actual semantics need IDA confirmation) | YES (small/medium focused IDA session) | MED: `e3d-attlib::parse_atgtix_payload()` + payload variant decoders + per-fixture validation | PENDING (carved out from Step 12 investigation) |
 | 3 | **DB-internal noun template loader** (`dword_6A54024 + 60 × template_id + 16`) | **Structural unlock** — current code uses global ATGTDF position as the atnlog slot index, which is not noun-correct for many nouns; the per-DB template table is the authoritative noun-correct layout source | PARTIAL — descriptor offsets known (`+36 count`, `+56 hash`, `+60 stride`, `+64 aux`) per entry #16, but template-page physical storage in the DB file and `sub_5AF6AB0` decompile still pending (entries #18 / #19) | **YES** — dedicated IDA session (1–2h focused reversing) | MED–HIGH: new `e3d-io::record::template` module + `engine::summarize_element` migration with old-path fallback + cross-noun fixture validation | PENDING |
@@ -33,21 +35,27 @@
   - `summarize_element` on NXTR yields 0 hex-fallback names.
   - The bytes at the (page, word_offset) location pointed to by UDA-source ATGTIX entries hold `(type, kind, length) + length-prefixed chars` records (observed: `TEXTPRIMITIVE`, `TEXTPRIMITIVES`, `Multi-line ...`), which look like **enum-value / default-value tables**, not name strings. Decoding them requires fresh IDA evidence and is carved out as Followup **#2b**.
 
+### Step 13 Delivery Summary (Followup #1b — Closed via IDA decompile)
+
+- **IDA evidence**: `decompile` of `sub_55F53B8` (the ATGTDF on-disk reader) showed each kind=2 entry already stores the default-value word that ends up in the runtime pool `dword_6C21390[dword_6C21200[idx-1]-1]`. Pre-Step 13 e3d-attlib code already CONSUMED that word but mis-filed it as `size`.
+- **Code**: `parse_atgtdf` now constructs `AttrDefEntry` with a populated `default_value: Option<AttrDefault>` for every kind=2 type≠4 entry via the new `decode_default_from_raw(type, raw)` helper (type=1 → Int, type=3 → Bool, others → Raw). Legacy `size` field semantics are intentionally preserved for EXMAP backward compat.
+- **Tests**: 3 new (1 e3d-attlib unit + 1 e3d-attlib integration + 1 e3d-io integration); baseline 66 → **69 GREEN**.
+- **Fixture coverage**: 111 / 111 kind=2 scalar entries on the fixture get an auto-populated default; e3d-io's `decode_attribute_by_hash` consumes them end-to-end without any test-side `set_attr_default` injection.
+- **Carved-out residue**: `#1c` covers kind=2 type=4 array defaults (currently 0 occurrences on this fixture; would require relaxing `AttrDefault: Copy`).
+
 ### Updated Recommendation
 
-- **#1b** (small targeted IDA pass for default-pool on-disk layout) and **#2b** (ATGTIX-pointed payload decoder) are both small IDA tasks; either is a viable next step if a quick IDA window is available.
-- **#3** (DB-internal noun template loader) is the highest-value structural unlock and remains the recommended dedicated-IDA-session focus when a longer window is available.
-- If neither IDA option is on the table for the next session, the previous Slice 4 work is at a clean checkpoint and no in-tree code-only work is queued.
+- **#3 DB-internal noun template loader** is now the single largest remaining unlock — heaviest IDA work but biggest structural payoff (noun-correct attribute layout, replaces global-ATGTDF-position heuristic). Recommended dedicated IDA session.
+- **#2b** (ATGTIX-pointed payload decoder) and **#1c** (array defaults) are smaller cleanups; suitable as warm-up or follow-on once #3 is in motion.
+- All in-tree code-only work that can be done without further IDA evidence is now landed.
 
-## Recommended Order — Light → Heavy (Updated post-Step 12)
+## Recommended Order — Updated post-Step 13
 
-**#1 ✅ DONE on the runtime/decoder side. #2 ✅ VERIFIED ALREADY SATISFIED.** Remaining order:
+**#1 ✅ DONE / #1b ✅ DONE / #2 ✅ VERIFIED.** Remaining order:
 
-- **#1b** (default-pool on-disk layout in `attlib.dat`): small targeted IDA pass; finishes off #1 by removing the manual `set_attr_default` injection step.
-- **#2b** (ATGTIX-pointed payload decoder): small/medium IDA pass; uncertain value until the payloads are confirmed to carry useful schema info beyond what ATGTDF already provides.
-- **#3** (DB-internal noun template loader): heaviest item, structural noun-correct decoding unlock; best done in its own dedicated IDA session.
-
-Choose **#1b or #2b** for a quick IDA window; **#3** for a longer focused session.
+- **#3** (DB-internal noun template loader): heaviest IDA work, largest structural unlock (noun-correct attribute layout). Recommended next focused IDA session.
+- **#1c** (array defaults for kind=2 type=4): minor cleanup; needs an `AttrDefault` variant that breaks `Copy`. Low priority.
+- **#2b** (ATGTIX-pointed payload decoder): medium IDA work; uncertain value until the payload semantics are confirmed via further IDA decompile of `sub_55F4FFC` (ATGTIX consumer chain).
 
 ## Ready-to-Paste Startup Prompts
 
