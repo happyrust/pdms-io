@@ -1,11 +1,12 @@
 # Next Session Plan — Slice 4 Followups
 
 > Originally produced 2026-05-16 at end of session "Steps 6-10".
-> **Updated 2026-05-16** after Steps 11–13:
+> **Updated 2026-05-16** after Steps 11–14:
 > * **#1 ✅ DONE** on the runtime/decoder side (Step 11)
 > * **#2 ✅ VERIFIED ALREADY SATISFIED** (Step 12)
-> * **#1b ✅ DONE — closed in Step 13** via IDA decompile of `sub_55F53B8`: the ATGTDF on-disk reader already wrote the kind=2 default word, e3d-attlib was just stashing it in the wrong field. `parse_file` now auto-populates `AttrDefEntry::default_value` for all 111 kind=2 scalar entries on the fixture without any test-side injection.
-> 69/69 tests green across `e3d-io` (51) + `e3d-attlib` (18). Three repos clean.
+> * **#1b ✅ DONE** in Step 13 (parse_file auto-populates default_value for all 111 kind=2 scalar entries)
+> * **#3 IDA-side scaffold ✅ DONE** in Step 14 — full template-loading call chain (`sub_5AF6AB0` / `sub_5B03900` / `sub_5AF0640` / `sub_5AECBC0` / `sub_5AA9270`) decompiled and documented in `docs/ida-3.1-structures.md §14`. A multi-noun coverage test (`noun_coverage_analysis`) baseline shows 5 unique nouns / 24 attrs / **100% readable names / 0 hex fallback** on current ATGTDF-position path — pinning the "before" state so the Rust loader's improvement can be measured.
+> 70/70 tests green across `e3d-io` (52) + `e3d-attlib` (18). Three repos clean.
 
 ## Followup Triage
 
@@ -16,7 +17,9 @@
 | 1c | **ATGTDF kind=2 type=4 array defaults** (variable-length array default values in the runtime pool) | Surfaces array defaults for the small number of variable-length attributes that carry pre-populated default arrays | YES (same IDA decompile as #1b) | n/a | LOW–MED: requires an `IntArray` (or similar) `AttrDefault` variant, which would break the current `Copy` constraint — needs a small restructure of `AttrDefEntry` storage or a side table keyed by hash | PENDING (low priority — fixture has 0 kind=2 type=4 entries) |
 | 2 | ~~**UDA name resolution**~~ (the original framing assumed hashes > `0x171FAD39` which do not exist in this fixture) | n/a — the property "every UDA-source attribute has a readable name" is already true on this fixture | n/a | n/a | n/a | **✅ VERIFIED ALREADY SATISFIED (Step 12) — pinned by `e3d-io tests/uda_name_resolution_verified.rs` (2 tests). 0 ATGTIX hash > 0x171FAD39; 1477/1477 UDA-source records resolved; 0 hex fallback.** |
 | 2b | **ATGTIX-pointed payload decoder** (decode the (page, word_offset) byte region for UDA-source ATGTIX entries) | The bytes hold type/kind/length headers + length-prefixed ASCII strings — likely enum-value or default-value tables, not name strings. Decoding them might unlock UDA value catalogs | NO — needs a fresh IDA pass to determine the record layout (the empirical dump shows `(type, kind, length)` + chars, but the actual semantics need IDA confirmation) | YES (small/medium focused IDA session) | MED: `e3d-attlib::parse_atgtix_payload()` + payload variant decoders + per-fixture validation | PENDING (carved out from Step 12 investigation) |
-| 3 | **DB-internal noun template loader** (`dword_6A54024 + 60 × template_id + 16`) | **Structural unlock** — current code uses global ATGTDF position as the atnlog slot index, which is not noun-correct for many nouns; the per-DB template table is the authoritative noun-correct layout source | PARTIAL — descriptor offsets known (`+36 count`, `+56 hash`, `+60 stride`, `+64 aux`) per entry #16, but template-page physical storage in the DB file and `sub_5AF6AB0` decompile still pending (entries #18 / #19) | **YES** — dedicated IDA session (1–2h focused reversing) | MED–HIGH: new `e3d-io::record::template` module + `engine::summarize_element` migration with old-path fallback + cross-noun fixture validation | PENDING |
+| 3 | **DB-internal noun template loader** (`dword_6A54024 + 60 × template_id + 16`) | **Structural unlock** — current code uses global ATGTDF position as the atnlog slot index, which is not noun-correct for many nouns; the per-DB template table is the authoritative noun-correct layout source | YES — **IDA-side scaffold complete** in Step 14: `sub_5AF6AB0` / `sub_5B03900` / `sub_5AF0640` / `sub_5AECBC0` / `sub_5AA9270` all decompiled; full call chain + payload layout + descriptor table + child entry format documented in `docs/ida-3.1-structures.md §14`. Only `dword_6A54028` initialization in `db_open` (#3b) remains to fully nail file-side storage | NO for #3a (Rust); MAYBE for #3b (small IDA pass) | MED–HIGH: split into #3a (Rust loader + engine integration) and #3b (small IDA trace) — see below | **🟡 PARTIAL — IDA scaffold DONE (Step 14); Rust loader pending as #3a** |
+| 3a | **Rust `e3d-io::record::template` module + engine integration** | Consume the IDA scaffold from Step 14 / `docs §14` to surface per-noun attribute layout in `summarize_element`; measure improvement against the `noun_coverage_analysis` baseline | n/a — already in `docs §14` | NO | MED: new module + per-noun loader + 3-phase implementation per `docs §14.5`; engine falls back to ATGTDF-position when template unavailable | PENDING (recommended next focused session) |
+| 3b | **Trace `dword_6A54028` initialization in `db_open` path** | Identify which DB-file page(s) carry the raw template payload, so the Rust loader can read it directly from `ams1112_0001` instead of fabricating it | NO — small targeted IDA pass | YES (small IDA window) | LOW | PENDING (can fold into the same session as #3a if quick IDA window is available) |
 
 ### Step 11 Delivery Summary (Followup #1)
 
@@ -43,19 +46,32 @@
 - **Fixture coverage**: 111 / 111 kind=2 scalar entries on the fixture get an auto-populated default; e3d-io's `decode_attribute_by_hash` consumes them end-to-end without any test-side `set_attr_default` injection.
 - **Carved-out residue**: `#1c` covers kind=2 type=4 array defaults (currently 0 occurrences on this fixture; would require relaxing `AttrDefault: Copy`).
 
-### Updated Recommendation
+### Step 14 Delivery Summary (Followup #3 — IDA Scaffold + Coverage Baseline)
 
-- **#3 DB-internal noun template loader** is now the single largest remaining unlock — heaviest IDA work but biggest structural payoff (noun-correct attribute layout, replaces global-ATGTDF-position heuristic). Recommended dedicated IDA session.
-- **#2b** (ATGTIX-pointed payload decoder) and **#1c** (array defaults) are smaller cleanups; suitable as warm-up or follow-on once #3 is in motion.
-- All in-tree code-only work that can be done without further IDA evidence is now landed.
+- **IDA evidence acquired** in this session via `user-ida-pro-mcp.decompile`:
+  - `sub_5AF6AB0` — template_lookup with descriptor binary search + 3-chunk cache
+  - `sub_5B03900` — GALFE high-level entry; uses default template via `dword_6A54024 + 60 * dword_6A54024[2] + 16`
+  - `sub_5AF0640` — chunk reader wrapping `FHDBRN` with 3-tier retry
+  - `sub_5AECBC0` / `sub_5AA9270` — db state check + dispatcher context-swap
+- **Documentation**: `docs/ida-3.1-structures.md` gains a new **Section 14** "Noun Template / Attribute Schema 调用链" with full call-chain diagram, payload layout (`+36 count / +56 hash / +60 stride / +64 aux`), descriptor table format (24 bytes/entry), child entry format (28 bytes/child), active template index semantics, and 3-phase implementation recommendations.
+- **Coverage analysis**: New `e3d-io/tests/noun_coverage_analysis.rs` probes 11 candidate RefNos and reports per-noun (elem_count, impl_w, attrs, readable, hex) — observes 5 unique nouns (VERT, PLOO, ZONE, NXTR, FIXING), 24 attrs total, **100% readable / 0 hex fallback** on the current ATGTDF-position path. This is the "before" baseline against which a future Rust template loader can be measured.
+- **Tests**: 1 new (e3d-io integration); baseline 69 → **70 GREEN**.
+- **No new production code**: Step 14 is intentionally pure scaffold + diagnostic — the Rust loader is carved out as `#3a` to avoid landing a half-finished implementation.
 
-## Recommended Order — Updated post-Step 13
+### Updated Recommendation (post-Step 14)
 
-**#1 ✅ DONE / #1b ✅ DONE / #2 ✅ VERIFIED.** Remaining order:
+- **#3a Rust loader** is the recommended next focused session — `docs §14` is a turn-key implementation manual; the IDA scaffold is complete enough for direct Rust translation.
+- **#3b** (`dword_6A54028` initialization trace) can fold into the same session as a small IDA warm-up.
+- **#1c** (array defaults) and **#2b** (ATGTIX payload decoder) remain as smaller, lower-priority cleanups.
 
-- **#3** (DB-internal noun template loader): heaviest IDA work, largest structural unlock (noun-correct attribute layout). Recommended next focused IDA session.
-- **#1c** (array defaults for kind=2 type=4): minor cleanup; needs an `AttrDefault` variant that breaks `Copy`. Low priority.
-- **#2b** (ATGTIX-pointed payload decoder): medium IDA work; uncertain value until the payload semantics are confirmed via further IDA decompile of `sub_55F4FFC` (ATGTIX consumer chain).
+## Recommended Order — Updated post-Step 14
+
+**#1 ✅ / #1b ✅ / #2 ✅ / #3 IDA scaffold ✅.** Remaining order:
+
+- **#3a Rust template loader** (recommended next session): consume `docs §14` to implement `e3d-io::record::template`. Three phases per §14.5: (1) default-template path; (2) named-template via `sub_5AF6AB0` emulation; (3) `engine::summarize_element` integration with ATGTDF-position fallback.
+- **#3b** small IDA trace of `dword_6A54028` initialization (folds into the same session if convenient).
+- **#1c** array defaults — low priority.
+- **#2b** ATGTIX payload decoder — medium priority.
 
 ## Ready-to-Paste Startup Prompts
 
