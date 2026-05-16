@@ -1,12 +1,13 @@
 # Next Session Plan — Slice 4 Followups
 
 > Originally produced 2026-05-16 at end of session "Steps 6-10".
-> **Updated 2026-05-16** after Steps 11–14:
+> **Updated 2026-05-16** after Steps 11–15:
 > * **#1 ✅ DONE** on the runtime/decoder side (Step 11)
 > * **#2 ✅ VERIFIED ALREADY SATISFIED** (Step 12)
-> * **#1b ✅ DONE** in Step 13 (parse_file auto-populates default_value for all 111 kind=2 scalar entries)
-> * **#3 IDA-side scaffold ✅ DONE** in Step 14 — full template-loading call chain (`sub_5AF6AB0` / `sub_5B03900` / `sub_5AF0640` / `sub_5AECBC0` / `sub_5AA9270`) decompiled and documented in `docs/ida-3.1-structures.md §14`. A multi-noun coverage test (`noun_coverage_analysis`) baseline shows 5 unique nouns / 24 attrs / **100% readable names / 0 hex fallback** on current ATGTDF-position path — pinning the "before" state so the Rust loader's improvement can be measured.
-> 70/70 tests green across `e3d-io` (52) + `e3d-attlib` (18). Three repos clean.
+> * **#1b ✅ DONE** in Step 13 (parse_file auto-populates default_value for 111/111 kind=2 scalar entries)
+> * **#3 IDA scaffold ✅ DONE** in Step 14 (`docs/ida-3.1-structures.md §14` + `noun_coverage_analysis` baseline)
+> * **#3a Rust loader ✅ DONE** in Step 15: `e3d-io::record::template` (NounTemplate / TemplateAttr / from_attlib_noun_map) + `ReadOnlyEngine::summarize_element_with_template` lands; NXTR end-to-end yields 9 attrs matching the ATGTDF-path output (proves the wiring); ATGTSX-fallback comparison test SKIPs cleanly on the fixture (no candidate noun has ATGTSX coverage).
+> 76/76 tests green across `e3d-io` (58) + `e3d-attlib` (18). Three repos clean.
 
 ## Followup Triage
 
@@ -18,8 +19,8 @@
 | 2 | ~~**UDA name resolution**~~ (the original framing assumed hashes > `0x171FAD39` which do not exist in this fixture) | n/a — the property "every UDA-source attribute has a readable name" is already true on this fixture | n/a | n/a | n/a | **✅ VERIFIED ALREADY SATISFIED (Step 12) — pinned by `e3d-io tests/uda_name_resolution_verified.rs` (2 tests). 0 ATGTIX hash > 0x171FAD39; 1477/1477 UDA-source records resolved; 0 hex fallback.** |
 | 2b | **ATGTIX-pointed payload decoder** (decode the (page, word_offset) byte region for UDA-source ATGTIX entries) | The bytes hold type/kind/length headers + length-prefixed ASCII strings — likely enum-value or default-value tables, not name strings. Decoding them might unlock UDA value catalogs | NO — needs a fresh IDA pass to determine the record layout (the empirical dump shows `(type, kind, length)` + chars, but the actual semantics need IDA confirmation) | YES (small/medium focused IDA session) | MED: `e3d-attlib::parse_atgtix_payload()` + payload variant decoders + per-fixture validation | PENDING (carved out from Step 12 investigation) |
 | 3 | **DB-internal noun template loader** (`dword_6A54024 + 60 × template_id + 16`) | **Structural unlock** — current code uses global ATGTDF position as the atnlog slot index, which is not noun-correct for many nouns; the per-DB template table is the authoritative noun-correct layout source | YES — **IDA-side scaffold complete** in Step 14: `sub_5AF6AB0` / `sub_5B03900` / `sub_5AF0640` / `sub_5AECBC0` / `sub_5AA9270` all decompiled; full call chain + payload layout + descriptor table + child entry format documented in `docs/ida-3.1-structures.md §14`. Only `dword_6A54028` initialization in `db_open` (#3b) remains to fully nail file-side storage | NO for #3a (Rust); MAYBE for #3b (small IDA pass) | MED–HIGH: split into #3a (Rust loader + engine integration) and #3b (small IDA trace) — see below | **🟡 PARTIAL — IDA scaffold DONE (Step 14); Rust loader pending as #3a** |
-| 3a | **Rust `e3d-io::record::template` module + engine integration** | Consume the IDA scaffold from Step 14 / `docs §14` to surface per-noun attribute layout in `summarize_element`; measure improvement against the `noun_coverage_analysis` baseline | n/a — already in `docs §14` | NO | MED: new module + per-noun loader + 3-phase implementation per `docs §14.5`; engine falls back to ATGTDF-position when template unavailable | PENDING (recommended next focused session) |
-| 3b | **Trace `dword_6A54028` initialization in `db_open` path** | Identify which DB-file page(s) carry the raw template payload, so the Rust loader can read it directly from `ams1112_0001` instead of fabricating it | NO — small targeted IDA pass | YES (small IDA window) | LOW | PENDING (can fold into the same session as #3a if quick IDA window is available) |
+| 3a | **Rust `e3d-io::record::template` module + engine integration** | Consume the IDA scaffold from Step 14 / `docs §14` to surface per-noun attribute layout in `summarize_element`; measure improvement against the `noun_coverage_analysis` baseline | n/a — already in `docs §14` | NO | MED: new module + per-noun loader + 3-phase implementation per `docs §14.5`; engine falls back to ATGTDF-position when template unavailable | **✅ DONE (Step 15) — data model + engine method + structural ATGTSX fallback + 6 new tests; NXTR end-to-end yields 9 attrs matching ATGTDF-path baseline. e3d-io `32bc9da`.** |
+| 3b | **Trace `dword_6A54028` initialization in `db_open` path** | Identify which DB-file page(s) carry the raw template payload, so the Rust loader can populate `NounTemplate` directly from `ams1112_0001` instead of relying on the ATGTSX fallback (which only covers 39 nouns and uses uniform stride=1) | NO — small targeted IDA pass | YES (small IDA window) | LOW–MED: trace dword_6A54028 init point + locate template-bearing DB page(s) + write `NounTemplate::load_from_db_file(engine, noun_hash)` | PENDING (recommended next focused session) |
 
 ### Step 11 Delivery Summary (Followup #1)
 
@@ -58,18 +59,23 @@
 - **Tests**: 1 new (e3d-io integration); baseline 69 → **70 GREEN**.
 - **No new production code**: Step 14 is intentionally pure scaffold + diagnostic — the Rust loader is carved out as `#3a` to avoid landing a half-finished implementation.
 
-### Updated Recommendation (post-Step 14)
+### Step 15 Delivery Summary (Followup #3a — Rust loader landed)
 
-- **#3a Rust loader** is the recommended next focused session — `docs §14` is a turn-key implementation manual; the IDA scaffold is complete enough for direct Rust translation.
-- **#3b** (`dword_6A54028` initialization trace) can fold into the same session as a small IDA warm-up.
+- **Code**: `e3d-io::record::template` module (TemplateAttr, NounTemplate, from_attlib_noun_map, total_stride); `ReadOnlyEngine::summarize_element_with_template` walks the supplied template with cumulative stride and decodes via `decode_value_with_meta`. SYNO chain walk intentionally not performed in this first cut.
+- **Tests**: 6 new (4 unit + 2 integration); baseline 70 → **76 GREEN**.
+- **Fixture sanity**: on NXTR refno 17496/9621 with a stand-in template built from `attlib.attr_defs_unique().take(30)`, the template path yields 9 non-zero attrs (AVAIDB, NAME, RPTX, DESTEX, QTXT, VISI, DEPEND, UNIT, QSET) — identical to the ATGTDF-path baseline. The compare test SKIPs cleanly when no ATGTSX-covered noun is reachable.
+- **What's missing for true "noun-correct" decoding**: the ATGTSX-fallback templates use uniform stride=1, which is the same assumption as the ATGTDF-position path — so the template path can't yet outperform the legacy path. The DB-file template loader (#3b) is needed to source real `(hash, stride, aux)` triples with non-uniform stride.
+
+### Updated Recommendation (post-Step 15)
+
+- **#3b** (`dword_6A54028` initialization trace + real `NounTemplate::load_from_db_file`) is the single highest-value remaining item — once it lands, the template path actually beats ATGTDF-position on nouns with variable-stride attribute records.
 - **#1c** (array defaults) and **#2b** (ATGTIX payload decoder) remain as smaller, lower-priority cleanups.
 
-## Recommended Order — Updated post-Step 14
+## Recommended Order — Updated post-Step 15
 
-**#1 ✅ / #1b ✅ / #2 ✅ / #3 IDA scaffold ✅.** Remaining order:
+**#1 ✅ / #1b ✅ / #2 ✅ / #3 IDA scaffold ✅ / #3a Rust loader ✅.** Remaining order:
 
-- **#3a Rust template loader** (recommended next session): consume `docs §14` to implement `e3d-io::record::template`. Three phases per §14.5: (1) default-template path; (2) named-template via `sub_5AF6AB0` emulation; (3) `engine::summarize_element` integration with ATGTDF-position fallback.
-- **#3b** small IDA trace of `dword_6A54028` initialization (folds into the same session if convenient).
+- **#3b** (recommended next): small IDA trace of `dword_6A54028` initialization in `db_open` to identify the DB-file page(s) carrying the raw template payload; then `NounTemplate::load_from_db_file(engine, noun_hash)` populates a real noun-correct template (variable stride, real aux tokens). Without #3b the template path is wire-equivalent to the ATGTDF-position path on non-ATGTSX nouns.
 - **#1c** array defaults — low priority.
 - **#2b** ATGTIX payload decoder — medium priority.
 
