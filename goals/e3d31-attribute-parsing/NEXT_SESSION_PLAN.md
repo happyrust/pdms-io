@@ -1,8 +1,10 @@
 # Next Session Plan — Slice 4 Followups
 
 > Originally produced 2026-05-16 at end of session "Steps 6-10".
-> **Updated 2026-05-16** after Step 11 (default-value pool API) — Followup #1 is now ✅ **DONE** on the runtime/decoder side; only the attlib.dat on-disk layout for the default pool remains as a small future parser pass.
-> 64/64 tests green across `e3d-io` (48) + `e3d-attlib` (16). Three repos clean.
+> **Updated 2026-05-16** after Step 11 (default-value pool API) and Step 12 (UDA name verification):
+> * #1 ✅ DONE on the runtime/decoder side (only #1b on-disk parser pass remains)
+> * #2 ✅ **VERIFIED ALREADY SATISFIED** — fixture has 0 ATGTIX hash above `0x171FAD39`; the existing `system_names → db1_dehash → hex` chain resolves all 6644 hashes and all 1477 UDA-source records to readable names. The originally-imagined "UDA name string" payload at the ATGTIX-pointed bytes turned out to be value/enum/length-prefixed data, carved out as #2b.
+> 66/66 tests green across `e3d-io` (50) + `e3d-attlib` (16). Three repos clean.
 
 ## Followup Triage
 
@@ -10,7 +12,8 @@
 |---|---|---|---|---|---|---|
 | 1 | **Default-value pool extraction** (`RAW_USE_DEFAULT = 0xFFFFFFFF` → real default) | Turns sentinel zeros into semantically meaningful defaults; improves `summarize_element` readability | YES — `progress.jsonl` entry #20 gives the double-indexed formula `dword_6C21390[dword_6C21200[atgtdf_idx - 1] - 1]` | NO (light fixture verification only) | LOW: `AttrDefEntry.default_value` field + ATGTDF default-pool parser pass | **✅ DONE (Step 11) — runtime path + API + fixture-validated end-to-end. Only the on-disk layout parser pass in `attlib.dat` remains (see #1b below).** |
 | 1b | **ATGTDF default-pool on-disk layout in `attlib.dat`** (populate `AttrDefEntry::default_value` automatically during `parse_file`) | Eliminates the manual `set_attr_default` injection step so real defaults surface for every fixture without code-level intervention | NO — needs a fresh IDA pass on the ATGTDF-buffer tail (the runtime `dword_6C21200` / `dword_6C21390` arrays are loaded from somewhere in `attlib.dat`, but the on-disk slice isn't yet recovered) | YES (small targeted IDA session, possibly 30–60 min) | LOW: add a parser pass after `parse_atgtdf` that reads default-index + default-value arrays and calls `set_attr_default` per hash | PENDING |
-| 2 | **UDA name resolution** (hash > `0x171FAD39` → follow UDA-ATGTIX page-offset pointer → length-prefixed string) | 6493 UDA hashes currently render as `0x????????`; unlocks user-engineering names | YES — entries #13 / #16 confirm ATGTIX is 2-word records `(hash, page*512 + word_offset)` pointing to a length-prefixed string region | NO (light IDA only to confirm length encoding) | LOW–MED: `e3d-attlib::lookup_uda_name()` + UDA-ATGTIX page deref + length-prefixed string reader | PENDING |
+| 2 | ~~**UDA name resolution**~~ (the original framing assumed hashes > `0x171FAD39` which do not exist in this fixture) | n/a — the property "every UDA-source attribute has a readable name" is already true on this fixture | n/a | n/a | n/a | **✅ VERIFIED ALREADY SATISFIED (Step 12) — pinned by `e3d-io tests/uda_name_resolution_verified.rs` (2 tests). 0 ATGTIX hash > 0x171FAD39; 1477/1477 UDA-source records resolved; 0 hex fallback.** |
+| 2b | **ATGTIX-pointed payload decoder** (decode the (page, word_offset) byte region for UDA-source ATGTIX entries) | The bytes hold type/kind/length headers + length-prefixed ASCII strings — likely enum-value or default-value tables, not name strings. Decoding them might unlock UDA value catalogs | NO — needs a fresh IDA pass to determine the record layout (the empirical dump shows `(type, kind, length)` + chars, but the actual semantics need IDA confirmation) | YES (small/medium focused IDA session) | MED: `e3d-attlib::parse_atgtix_payload()` + payload variant decoders + per-fixture validation | PENDING (carved out from Step 12 investigation) |
 | 3 | **DB-internal noun template loader** (`dword_6A54024 + 60 × template_id + 16`) | **Structural unlock** — current code uses global ATGTDF position as the atnlog slot index, which is not noun-correct for many nouns; the per-DB template table is the authoritative noun-correct layout source | PARTIAL — descriptor offsets known (`+36 count`, `+56 hash`, `+60 stride`, `+64 aux`) per entry #16, but template-page physical storage in the DB file and `sub_5AF6AB0` decompile still pending (entries #18 / #19) | **YES** — dedicated IDA session (1–2h focused reversing) | MED–HIGH: new `e3d-io::record::template` module + `engine::summarize_element` migration with old-path fallback + cross-noun fixture validation | PENDING |
 
 ### Step 11 Delivery Summary (Followup #1)
@@ -20,13 +23,31 @@
 - **Fixture validation**: NXTR refno 17496/9621, slot 26 (hash `0x000FCD44`) confirmed as `RAW_USE_DEFAULT`; with `set_attr_default(AttrDefault::Int(0x424242))` the decoder returns `Int(0x424242)` instead of the generic `Bool(false)` sentinel decode.
 - **Remaining as #1b**: a future small parser pass populates `default_value` automatically during `parse_file`; this is the only piece needing additional IDA work to close #1 fully.
 
-## Recommended Order — Light → Heavy (Updated post-Step 11)
+### Step 12 Delivery Summary (Followup #2 — Verification & Re-scoping)
 
-**#1 ✅ DONE on the runtime/decoder side.** Remaining order:
+- **No new production code** — Step 12 is investigation + validation only.
+- **Tests**: 2 new (`e3d-io/tests/uda_name_resolution_verified.rs`); baseline 64 → **66 GREEN**.
+- **Findings** (sourced from byte-dump exploration of UDA-source ATGTIX targets on the fixture):
+  - 6644 / 6644 ATGTIX hashes are within base-27 dehash range; 0 are above `0x171FAD39`.
+  - All 1477 UDA-source records already resolve to short readable names via `db1_dehash` (e.g. `CNBC`, `TEE`, `LUG`).
+  - `summarize_element` on NXTR yields 0 hex-fallback names.
+  - The bytes at the (page, word_offset) location pointed to by UDA-source ATGTIX entries hold `(type, kind, length) + length-prefixed chars` records (observed: `TEXTPRIMITIVE`, `TEXTPRIMITIVES`, `Multi-line ...`), which look like **enum-value / default-value tables**, not name strings. Decoding them requires fresh IDA evidence and is carved out as Followup **#2b**.
 
-- **#2 UDA name resolution** is now the recommended next step: low IDA effort, low–medium code effort, immediate user-facing impact (UDA hashes get readable names everywhere).
-- **#1b** (default-pool on-disk layout in `attlib.dat`) is a small targeted IDA pass — can be folded into the same session as #2 if convenient, or done separately as a quick win.
-- **#3 DB-internal noun template loader** remains the heavy-IDA / structural-unlock item; best done in its own focused session after #2 and #1b land.
+### Updated Recommendation
+
+- **#1b** (small targeted IDA pass for default-pool on-disk layout) and **#2b** (ATGTIX-pointed payload decoder) are both small IDA tasks; either is a viable next step if a quick IDA window is available.
+- **#3** (DB-internal noun template loader) is the highest-value structural unlock and remains the recommended dedicated-IDA-session focus when a longer window is available.
+- If neither IDA option is on the table for the next session, the previous Slice 4 work is at a clean checkpoint and no in-tree code-only work is queued.
+
+## Recommended Order — Light → Heavy (Updated post-Step 12)
+
+**#1 ✅ DONE on the runtime/decoder side. #2 ✅ VERIFIED ALREADY SATISFIED.** Remaining order:
+
+- **#1b** (default-pool on-disk layout in `attlib.dat`): small targeted IDA pass; finishes off #1 by removing the manual `set_attr_default` injection step.
+- **#2b** (ATGTIX-pointed payload decoder): small/medium IDA pass; uncertain value until the payloads are confirmed to carry useful schema info beyond what ATGTDF already provides.
+- **#3** (DB-internal noun template loader): heaviest item, structural noun-correct decoding unlock; best done in its own dedicated IDA session.
+
+Choose **#1b or #2b** for a quick IDA window; **#3** for a longer focused session.
 
 ## Ready-to-Paste Startup Prompts
 
