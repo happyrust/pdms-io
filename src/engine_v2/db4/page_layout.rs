@@ -20,7 +20,6 @@
 ///
 /// ## type=7 续页
 /// 当元素数据超过单页时，通过续页链接拼接。
-
 use crate::engine_v2::types::RefNo;
 
 const ELEMENT_PAGE_HEADER_SIZE: usize = 16;
@@ -97,7 +96,9 @@ impl ContinuationReader {
 
     /// 在原始数据中查找元素记录结束位置
     pub fn find_record_end(data: &[u8]) -> Option<usize> {
-        if data.len() < 8 { return None; }
+        if data.len() < 8 {
+            return None;
+        }
 
         for i in (0..data.len() - 7).step_by(4) {
             if &data[i..i + 4] == &Self::END_MARKER

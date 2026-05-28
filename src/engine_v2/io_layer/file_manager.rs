@@ -46,7 +46,10 @@ impl FileHandle {
     pub fn create(path: impl AsRef<Path>, page_size: PageSize) -> DbResult<Self> {
         let path = path.as_ref().to_path_buf();
         let file = OpenOptions::new()
-            .read(true).write(true).create(true).truncate(true)
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(true)
             .open(&path)?;
         Ok(Self {
             file,

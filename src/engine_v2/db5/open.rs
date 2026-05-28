@@ -1,5 +1,5 @@
-use std::path::{Path, PathBuf};
 use std::io::{Read, Seek, SeekFrom};
+use std::path::{Path, PathBuf};
 
 use crate::engine_v2::db2::header::HeaderManager;
 use crate::engine_v2::io_layer::{FileHandle, OpenMode};
@@ -55,10 +55,14 @@ impl DbOpen {
         for ps in candidates {
             for &pgno in &probe_pgnos {
                 let off = pgno as u64 * ps.bytes() as u64;
-                if off + 4 > file_len { continue; }
+                if off + 4 > file_len {
+                    continue;
+                }
                 file.seek(SeekFrom::Start(off))?;
                 let mut buf = [0u8; 4];
-                if file.read_exact(&mut buf).is_err() { continue; }
+                if file.read_exact(&mut buf).is_err() {
+                    continue;
+                }
                 let page_type = i32::from_be_bytes(buf);
                 if page_type == 3 {
                     return Ok(ps);

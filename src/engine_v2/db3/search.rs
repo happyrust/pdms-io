@@ -1,7 +1,7 @@
+use super::btree::{BTreeNode, START_MARKER};
 use crate::engine_v2::db1::PageCache;
 use crate::engine_v2::io_layer::FileHandle;
 use crate::engine_v2::types::*;
-use super::btree::{BTreeNode, START_MARKER};
 
 /// B-树搜索 (对齐 FHSRCH)
 ///
@@ -70,7 +70,9 @@ impl BTreeSearch {
         node: &BTreeNode,
         target: &RefNo,
     ) -> DbResult<Option<RefnoDataLoc>> {
-        let valid: Vec<_> = node.entries.iter()
+        let valid: Vec<_> = node
+            .entries
+            .iter()
             .filter(|e| e.refno != START_MARKER)
             .collect();
 

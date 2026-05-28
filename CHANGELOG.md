@@ -2,6 +2,27 @@
 
 ## [未发布]
 
+### 修复 — 显式属性与元素记录边界对齐 core.dll
+
+- 新增 `parse_packed_explicit_entry`，按 core.dll packed header（dab_type << 26 | payload_len_words）切分显式条目
+- `parse_raw_explicit_attrs` 改为先切条目再解析表达式 payload，修复 PHEI 等 packed 表达式字段误读
+- 显式块扫描终止条件补充 `hash == -1`，`collect_explict_data` 可识别 reserved prefix 后的负 hash 非表达式属性
+- `ElementRecordReader` 不在首个未知 word 截断，避免丢失十几 KB 之后的 explicit block；新增相邻记录边界探测
+- 元素记录读取上限改为 64KB，超限返回已读数据而非报错；`len_words=0` 块头改为跳过继续扫描
+
+### 变更 — engine_v2 代码格式化
+
+- 全模块 `rustfmt` 统一格式（`DbError` 变体、模块声明顺序等），无行为变更
+
+### 清理
+
+- 移除误提交的 `meilisearch.exe`、`nasm-installer.exe` 与 `MEILISEARCH_IMPLEMENTATION_SUMMARY.md`
+
+### 文档与调试
+
+- 新增 `docs/e3d 数据库分析/2026-05-27_core_dll显式属性读取对齐分析.md`
+- 新增 `tests/aps7201_expression_debug.rs` 表达式调试入口
+
 ### 新增 — engine_v2 全新数据库引擎
 
 > 基于 core.dll 逆向分析，按 db1~db5 五层架构从零构建，全 Rust 实现，弃用 Fortran I/O 依赖。

@@ -1,5 +1,5 @@
-use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
+use std::io::{Read, Seek, SeekFrom};
 
 use crate::engine_v2::types::{DbResult, PageSize};
 
@@ -13,7 +13,9 @@ pub struct DirectReader {
 
 impl DirectReader {
     pub fn new(page_size: PageSize) -> Self {
-        Self { page_size: page_size.bytes() }
+        Self {
+            page_size: page_size.bytes(),
+        }
     }
 
     /// 从文件指定偏移读取 n 字节
@@ -32,12 +34,7 @@ impl DirectReader {
     }
 
     /// 读取跨页连续数据 (用于元素续页拼接)
-    pub fn read_span(
-        &self,
-        file: &mut File,
-        start_offset: u64,
-        len: usize,
-    ) -> DbResult<Vec<u8>> {
+    pub fn read_span(&self, file: &mut File, start_offset: u64, len: usize) -> DbResult<Vec<u8>> {
         let mut buf = vec![0u8; len];
         Self::read_at(file, start_offset, &mut buf)?;
         Ok(buf)

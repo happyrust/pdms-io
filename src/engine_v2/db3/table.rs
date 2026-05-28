@@ -2,10 +2,7 @@ use crate::engine_v2::io_layer::FileHandle;
 use crate::engine_v2::types::*;
 
 /// 创建新索引表 (空 B-树根节点)
-pub fn create_new_table(
-    handle: &mut FileHandle,
-    page_size: usize,
-) -> DbResult<u32> {
+pub fn create_new_table(handle: &mut FileHandle, page_size: usize) -> DbResult<u32> {
     let page_no = handle.total_pages();
     let mut data = vec![0u8; page_size];
 

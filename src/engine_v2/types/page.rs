@@ -9,13 +9,21 @@ pub struct PageId {
 
 impl PageId {
     pub fn new(dbno: u32, page_no: u32, extent: u32) -> Self {
-        Self { dbno, page_no, extent }
+        Self {
+            dbno,
+            page_no,
+            extent,
+        }
     }
 }
 
 impl std::fmt::Display for PageId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Page(db={}, pg={}, ext={})", self.dbno, self.page_no, self.extent)
+        write!(
+            f,
+            "Page(db={}, pg={}, ext={})",
+            self.dbno, self.page_no, self.extent
+        )
     }
 }
 

@@ -1,8 +1,8 @@
+use super::btree::{BTreeNode, START_MARKER, max_entries_per_page};
+use super::split::BTreeSplit;
 use crate::engine_v2::db1::PageCache;
 use crate::engine_v2::io_layer::FileHandle;
 use crate::engine_v2::types::*;
-use super::btree::{BTreeNode, START_MARKER, max_entries_per_page};
-use super::split::BTreeSplit;
 
 /// B-树索引插入 (对齐 FHXPND)
 ///
@@ -23,9 +23,8 @@ impl BTreeInsert {
         entry: IndexEntry,
         page_size: usize,
     ) -> DbResult<Option<u32>> {
-        let result = Self::insert_recursive(
-            cache, handle, dbno, extent, root_pgno, entry, page_size,
-        )?;
+        let result =
+            Self::insert_recursive(cache, handle, dbno, extent, root_pgno, entry, page_size)?;
 
         match result {
             InsertResult::Done => Ok(None),
@@ -58,7 +57,9 @@ impl BTreeInsert {
             );
         }
 
-        let valid: Vec<_> = node.entries.iter()
+        let valid: Vec<_> = node
+            .entries
+            .iter()
             .filter(|e| e.refno != START_MARKER)
             .collect();
 
@@ -75,20 +76,17 @@ impl BTreeInsert {
             child
         };
 
-        let result = Self::insert_recursive(
-            cache, handle, dbno, extent, child_page, entry, page_size,
-        )?;
+        let result =
+            Self::insert_recursive(cache, handle, dbno, extent, child_page, entry, page_size)?;
 
         match result {
             InsertResult::Done => {
                 Self::update_internal_boundary(cache, handle, dbno, extent, page_no, child_page)?;
                 Ok(InsertResult::Done)
             }
-            InsertResult::Split { promoted, new_page } => {
-                Self::insert_into_internal(
-                    cache, handle, dbno, extent, page_no, node, promoted, new_page, page_size,
-                )
-            }
+            InsertResult::Split { promoted, new_page } => Self::insert_into_internal(
+                cache, handle, dbno, extent, page_no, node, promoted, new_page, page_size,
+            ),
         }
     }
 
@@ -137,7 +135,10 @@ impl BTreeInsert {
             let (re_promoted, new_page) = BTreeSplit::split_internal(
                 cache, handle, dbno, extent, page_no, node, promoted, page_size,
             )?;
-            Ok(InsertResult::Split { promoted: re_promoted, new_page: new_page })
+            Ok(InsertResult::Split {
+                promoted: re_promoted,
+                new_page: new_page,
+            })
         }
     }
 
@@ -149,9 +150,8 @@ impl BTreeInsert {
         _page_size: usize,
     ) {
         let mut entries = node.entries.clone();
-        let pos = entries.partition_point(|e| {
-            (e.refno.hi, e.refno.lo) < (entry.refno.hi, entry.refno.lo)
-        });
+        let pos = entries
+            .partition_point(|e| (e.refno.hi, e.refno.lo) < (entry.refno.hi, entry.refno.lo));
         entries.insert(pos, *entry);
 
         let count = entries.len() as u32;

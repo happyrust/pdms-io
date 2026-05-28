@@ -1,7 +1,7 @@
+use super::btree::{BTreeNode, START_MARKER};
 use crate::engine_v2::db1::PageCache;
 use crate::engine_v2::io_layer::FileHandle;
 use crate::engine_v2::types::*;
-use super::btree::{BTreeNode, START_MARKER};
 
 /// B-树节点删除 (对齐 FHDELT)
 ///
@@ -22,7 +22,10 @@ impl BTreeDelete {
         _page_size: usize,
     ) -> DbResult<bool> {
         let result = Self::delete_recursive(cache, handle, dbno, extent, root_pgno, &target)?;
-        Ok(matches!(result, DeleteResult::Deleted | DeleteResult::Underflow))
+        Ok(matches!(
+            result,
+            DeleteResult::Deleted | DeleteResult::Underflow
+        ))
     }
 
     fn delete_recursive(
@@ -42,16 +45,24 @@ impl BTreeDelete {
             return Self::delete_from_leaf(cache, handle, dbno, extent, page_no, &node, target);
         }
 
-        let valid: Vec<_> = node.entries.iter()
+        let valid: Vec<_> = node
+            .entries
+            .iter()
             .filter(|e| e.refno != START_MARKER)
             .collect();
 
         let child_page = if valid.is_empty() {
-            if let Some(p) = node.start_marker_page() { p } else { return Ok(DeleteResult::NotFound); }
+            if let Some(p) = node.start_marker_page() {
+                p
+            } else {
+                return Ok(DeleteResult::NotFound);
+            }
         } else {
             let mut child = valid.last().unwrap().page_no;
             for e in &valid {
-                if (*target).hi < e.refno.hi || ((*target).hi == e.refno.hi && (*target).lo <= e.refno.lo) {
+                if (*target).hi < e.refno.hi
+                    || ((*target).hi == e.refno.hi && (*target).lo <= e.refno.lo)
+                {
                     child = e.page_no;
                     break;
                 }
@@ -64,12 +75,16 @@ impl BTreeDelete {
         match result {
             DeleteResult::NotFound => Ok(DeleteResult::NotFound),
             DeleteResult::Deleted => {
-                Self::update_boundary_after_delete(cache, handle, dbno, extent, page_no, child_page)?;
+                Self::update_boundary_after_delete(
+                    cache, handle, dbno, extent, page_no, child_page,
+                )?;
                 Ok(DeleteResult::Deleted)
             }
             DeleteResult::Underflow => {
                 // TODO: 合并或重新平衡兄弟节点
-                Self::update_boundary_after_delete(cache, handle, dbno, extent, page_no, child_page)?;
+                Self::update_boundary_after_delete(
+                    cache, handle, dbno, extent, page_no, child_page,
+                )?;
                 Ok(DeleteResult::Deleted)
             }
         }
@@ -92,7 +107,9 @@ impl BTreeDelete {
                 let data = cache.get_page_mut(handle, dbno, extent, page_no)?;
 
                 let new_count = node.entries.len() - 1;
-                let remaining: Vec<_> = node.entries.iter()
+                let remaining: Vec<_> = node
+                    .entries
+                    .iter()
                     .enumerate()
                     .filter(|(i, _)| *i != idx)
                     .map(|(_, e)| *e)

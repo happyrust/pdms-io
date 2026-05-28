@@ -19,7 +19,7 @@ impl ElementRecordReader {
         start_offset: u64,
     ) -> Result<Vec<u8>> {
         const INITIAL: usize = 16 * 1024;
-        const MAX: usize = 1024 * 1024;
+        const MAX: usize = 64 * 1024;
 
         let file_len = file.metadata().map(|m| m.len()).unwrap_or(u64::MAX);
 
@@ -43,12 +43,7 @@ impl ElementRecordReader {
             }
 
             if target >= MAX {
-                return Err(anyhow!(
-                    "element record exceeds {}B limit (start_offset={:#X}, read={}B)",
-                    MAX,
-                    start_offset,
-                    data.len()
-                ));
+                return Ok(data);
             }
 
             target = (target * 2).min(MAX);
@@ -94,6 +89,7 @@ impl ElementRecordReader {
 
         let actual_impl_len = Self::extend_impl_len(declared_impl_len, &data[prefix..]);
         let mut pos = prefix + actual_impl_len;
+        let mut saw_explicit_block = false;
 
         while pos + 4 <= data.len() {
             // 优先识别“明确”的结束标记：00 00 00 00 + 00 00 00 07
@@ -124,18 +120,26 @@ impl ElementRecordReader {
                 continue;
             }
 
+            if saw_explicit_block && Self::looks_like_element_record_start(data, pos) {
+                return Ok(Some(pos));
+            }
+
             let flag = u16::from_be_bytes([data[pos], data[pos + 1]]);
             let len_words = u16::from_be_bytes([data[pos + 2], data[pos + 3]]) as usize;
 
             if flag == 0x0001 || flag == 0x0002 {
                 if len_words == 0 {
-                    return Err(anyhow!("block len_words=0 at pos={}", pos));
+                    pos += 4;
+                    continue;
                 }
                 let block_len = len_words * 4;
                 if pos + block_len > data.len() {
                     return Ok(None);
                 }
                 pos += block_len;
+                if flag == 0x0001 {
+                    saw_explicit_block = true;
+                }
 
                 pos = match Self::advance_over_segments(data, pos, flag as u8) {
                     Some(p) => p,
@@ -144,13 +148,42 @@ impl ElementRecordReader {
                 continue;
             }
 
-            // 到了这里既不是 padding / end marker，也不是 0x0001/0x0002 块头：
-            // 在 PDMS 元素格式里，这通常意味着“下一条元素记录”已经开始（例如 impl_len_words）。
-            // 相比继续盲扫（可能吞入后续记录/页面），这里直接认为当前元素结束更稳妥。
-            return Ok(Some(pos));
+            // 有些 E3D 记录在 implicit/member 区和后续显式块之间夹着当前解析器
+            // 尚不认识的 word。不能在第一个未知 word 就截断，否则会丢掉后面的
+            // explicit block（例如 PHEI 可能在十几 KB 之后）。
+            pos += 4;
         }
 
         Ok(None)
+    }
+
+    fn looks_like_element_record_start(data: &[u8], pos: usize) -> bool {
+        if pos + 16 > data.len() {
+            return false;
+        }
+
+        let impl_len_words = i32::from_be_bytes(data[pos..pos + 4].try_into().unwrap());
+        if impl_len_words <= 0 {
+            return false;
+        }
+
+        let Some(impl_len) = (impl_len_words as usize).checked_mul(4) else {
+            return false;
+        };
+        let Some(end) = pos.checked_add(impl_len) else {
+            return false;
+        };
+        if impl_len < 16 || end > data.len() {
+            return false;
+        }
+
+        let refno = &data[pos + 4..pos + 12];
+        if refno.iter().all(|&b| b == 0) {
+            return false;
+        }
+
+        let noun_hash = i32::from_be_bytes(data[pos + 12..pos + 16].try_into().unwrap());
+        noun_hash != 0
     }
 
     fn skip_padding_len(input: &[u8]) -> usize {
@@ -370,6 +403,65 @@ mod tests {
         let out =
             ElementRecordReader::read(&mut file, &mut pm, 0, page_size, start_offset).unwrap();
         assert_eq!(out, record);
+
+        let _ = std::fs::remove_file(&temp_file);
+    }
+
+    #[test]
+    fn test_element_record_reader_stops_before_adjacent_record_without_padding() {
+        let page_size = 0x800usize;
+        let temp_dir = std::env::temp_dir();
+        let temp_file = temp_dir.join("pdms_io_test_adjacent_records.bin");
+        let _ = std::fs::remove_file(&temp_file);
+
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .write(true)
+            .truncate(true)
+            .open(&temp_file)
+            .unwrap();
+
+        let start_offset = 0u64;
+        let mut buf = vec![0u8; page_size * 2];
+
+        let impl_len_words: i32 = 6; // 24 bytes
+        let mut implicit = vec![0u8; impl_len_words as usize * 4];
+        implicit[0..4].copy_from_slice(&impl_len_words.to_be_bytes());
+        implicit[4..12].copy_from_slice(&0x0000_0001_0000_0001u64.to_be_bytes());
+
+        let explicit_len_words: u16 = 5; // 20 bytes
+        let mut explicit = vec![0u8; explicit_len_words as usize * 4];
+        explicit[0..2].copy_from_slice(&0x0001u16.to_be_bytes());
+        explicit[2..4].copy_from_slice(&explicit_len_words.to_be_bytes());
+        explicit[4..12].copy_from_slice(&0x0000_0001_0000_0001u64.to_be_bytes());
+        explicit[12..16].copy_from_slice(&0x00CC_6B3Fu32.to_be_bytes());
+        explicit[16..20].copy_from_slice(&0x3800_0002u32.to_be_bytes());
+
+        let first_record = [implicit.as_slice(), explicit.as_slice()].concat();
+
+        let mut next_record = vec![0u8; impl_len_words as usize * 4];
+        next_record[0..4].copy_from_slice(&impl_len_words.to_be_bytes());
+        next_record[4..12].copy_from_slice(&0x0000_0001_0000_0002u64.to_be_bytes());
+        next_record[12..16].copy_from_slice(&0x000C_2E93u32.to_be_bytes());
+        let end_marker = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07];
+
+        let file_bytes = [
+            first_record.as_slice(),
+            next_record.as_slice(),
+            end_marker.as_slice(),
+        ]
+        .concat();
+        write_at(&mut buf, start_offset as usize, &file_bytes);
+
+        file.write_all(&buf).unwrap();
+        file.flush().unwrap();
+        file.seek(SeekFrom::Start(0)).unwrap();
+
+        let mut pm = PageManager::new(128, page_size);
+        let out =
+            ElementRecordReader::read(&mut file, &mut pm, 0, page_size, start_offset).unwrap();
+        assert_eq!(out, first_record);
 
         let _ = std::fs::remove_file(&temp_file);
     }

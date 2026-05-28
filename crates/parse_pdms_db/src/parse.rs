@@ -1,7 +1,9 @@
 use crate::consts::*;
 use crate::parse_explict_tools::*;
 // 使用新 parser 模块中的基础函数
-use crate::parser::attribute::explicit::{get_explicit_attr_type, parse_explicit_header};
+use crate::parser::attribute::explicit::{
+    get_explicit_attr_type, parse_explicit_header, parse_packed_explicit_entry,
+};
 use crate::parser::attribute::expression::parse_expression_attr as parse_expression_attr_nom;
 use crate::parser::attribute::expression_payload::decode_expression_payload;
 use crate::parser::attribute::implicit::{
@@ -1697,6 +1699,67 @@ pub fn process_explicit_attrs(
     Ok(())
 }
 
+fn expression_input_from_entry(hash_val: i32, payload: &[u8]) -> Vec<u8> {
+    let mut input = Vec::with_capacity(4 + payload.len());
+    input.extend_from_slice(&hash_val.to_be_bytes());
+    input.extend_from_slice(payload);
+    input
+}
+
+fn parse_explicit_entry_expression_value<'a>(
+    residual: &'a [u8],
+    hash_val: i32,
+    refno: RefU64,
+) -> Option<(&'a [u8], String)> {
+    parse_explicit_entry_expression_value_with_type(residual, hash_val, refno)
+        .map(|(rest, _ty, value)| (rest, value))
+}
+
+fn parse_explicit_entry_expression_value_with_type<'a>(
+    residual: &'a [u8],
+    hash_val: i32,
+    refno: RefU64,
+) -> Option<(&'a [u8], String, String)> {
+    let (rest, entry) = parse_packed_explicit_entry(residual).ok()?;
+    if entry.hash != hash_val || entry.packed_header == 0 {
+        return None;
+    }
+
+    let expr_input = expression_input_from_entry(hash_val, entry.payload);
+    let Ok((_, (ty, value))) = parse_expression_attr_nom(&expr_input, refno.0) else {
+        return None;
+    };
+
+    Some((rest, ty, value))
+}
+
+fn parse_legacy_explicit_entry_expression_value<'a>(
+    residual: &'a [u8],
+    hash_val: i32,
+    refno: RefU64,
+) -> Option<(&'a [u8], String)> {
+    let (rest, entry) = parse_packed_explicit_entry(residual).ok()?;
+    if entry.hash != hash_val || entry.packed_header == 0 {
+        return None;
+    }
+
+    let expr_input = expression_input_from_entry(hash_val, entry.payload);
+    crate::parse_explict_tools::parse_expression_attr(&expr_input, refno)
+        .ok()
+        .map(|(_, (_ty, value))| (rest, value))
+}
+
+fn configured_test_refno() -> Option<RefU64> {
+    let config_file = std::env::var("DB_OPTION_FILE")
+        .unwrap_or_else(|_| "db_options/DbOption".to_string());
+    let config_path = Path::new(&config_file);
+    if !config_path.exists() && !config_path.with_extension("toml").exists() {
+        return None;
+    }
+
+    get_db_option().get_test_refno().map(|x| x.refno())
+}
+
 /// 获取已知显式属性的原始数据解析（不包含UDA异步处理）
 pub fn parse_raw_explicit_attrs<'a>(
     input: &'a [u8],
@@ -1704,14 +1767,14 @@ pub fn parse_raw_explicit_attrs<'a>(
     refno: RefU64,
 ) -> IResult<&'a [u8], Vec<ExplicitAttr>> {
     let mut residual = input;
-    let test_refno = get_db_option().get_test_refno().map(|x| x.refno());
+    let test_refno = configured_test_refno();
     let is_debug = test_refno == Some(refno);
     let mut attr_values = Vec::new();
 
     while residual.len() >= 4 {
         let mut att_value = None;
         let hash_val = convert_to_hash(&residual[..4]);
-        if hash_val == 0 {
+        if hash_val == 0 || hash_val == -1 {
             break;
         }
         let is_uda = is_uda(hash_val);
@@ -1737,7 +1800,9 @@ pub fn parse_raw_explicit_attrs<'a>(
         // 强制按表达式解析（仅针对 PX/PY/DX/DY/PRAD/DRAD 等字段）
         if force_expr {
             let mut parsed: Option<(&[u8], String)> = None;
-            if let Ok((input, (_ty, value))) = parse_expression_attr_nom(residual, refno.0) {
+            if let Some((input, value)) =
+                parse_explicit_entry_expression_value(residual, hash_val, refno)
+            {
                 if !value.trim().is_empty() {
                     parsed = Some((input, value));
                 }
@@ -1758,11 +1823,13 @@ pub fn parse_raw_explicit_attrs<'a>(
             }
         }
 
-        if att_value.is_none() && check_is_expr(hash_val) {
+        if att_value.is_none() && EXPR_ATT_SET.contains(&hash_val) {
             // dbg!(&att_name);
             let mut parsed: Option<(&[u8], String)> = None;
             let mut expr_type: Option<String> = None;
-            if let Ok((input, (ty, value))) = parse_expression_attr_nom(residual, refno.0) {
+            if let Some((input, ty, value)) =
+                parse_explicit_entry_expression_value_with_type(residual, hash_val, refno)
+            {
                 expr_type = Some(ty);
                 parsed = Some((input, value));
             }
@@ -1774,9 +1841,7 @@ pub fn parse_raw_explicit_attrs<'a>(
                 .as_ref()
                 .map(|(_, value)| value.trim().is_empty())
                 .unwrap_or(true);
-            let legacy = crate::parse_explict_tools::parse_expression_attr(residual, refno)
-                .ok()
-                .map(|(input, (_ty, value))| (input, value));
+            let legacy = parse_legacy_explicit_entry_expression_value(residual, hash_val, refno);
             let score = |s: &str| -> i32 {
                 let mut sc = 0;
                 if s.contains("PARA[") {
@@ -3013,8 +3078,9 @@ mod tests_attr_members {
 
 #[cfg(test)]
 mod tests_explicit_segments {
-    use super::collect_explict_data;
+    use super::{collect_explict_data, parse_raw_explicit_attrs};
     use aios_core::types::RefU64;
+    use dashmap::DashMap;
 
     fn make_explicit_block(refno: RefU64, payload: &[u8]) -> Vec<u8> {
         assert_eq!(payload.len() % 4, 0);
@@ -3049,6 +3115,74 @@ mod tests_explicit_segments {
         let mut expected = base_payload;
         expected.extend_from_slice(&seg_payload);
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_collect_explict_data_detects_negative_non_expr_attr_after_reserved_prefix() {
+        let refno = RefU64::from_two_nums(1, 2);
+        let bang_hash = -0x000A_5E21i32;
+
+        let mut bang_entry = Vec::new();
+        bang_entry.extend_from_slice(&bang_hash.to_be_bytes());
+        bang_entry.extend_from_slice(&0x0C00u16.to_be_bytes()); // INTEGER
+        bang_entry.extend_from_slice(&1u16.to_be_bytes()); // one payload word
+        bang_entry.extend_from_slice(&42i32.to_be_bytes());
+
+        let mut payload = Vec::new();
+        payload.extend_from_slice(&0xDEAD_BEEFu32.to_be_bytes());
+        payload.extend_from_slice(&0xFEED_FACEu32.to_be_bytes());
+        payload.extend_from_slice(&bang_entry);
+
+        let data = make_explicit_block(refno, &payload);
+        let result = collect_explict_data(&data, refno);
+
+        assert_eq!(result, bang_entry);
+    }
+
+    #[test]
+    fn test_parse_raw_explicit_attrs_decodes_packed_expression_entry_payload() {
+        let refno = RefU64::from_two_nums(1, 2);
+        let phei_hash = 0xFFF5_20EFu32 as i32;
+        let expr_words: [i32; 8] = [0, 0x65, 2, 1, 0x65, 2, 2, 602];
+        let payload_len_words = 1 + expr_words.len();
+
+        let mut input = Vec::new();
+        input.extend_from_slice(&phei_hash.to_be_bytes());
+        input.extend_from_slice(&(((7u32) << 26) | payload_len_words as u32).to_be_bytes());
+        input.extend_from_slice(&(expr_words.len() as i32).to_be_bytes());
+        for word in expr_words {
+            input.extend_from_slice(&word.to_be_bytes());
+        }
+        input.extend_from_slice(&(-1i32).to_be_bytes());
+
+        let attr_info_map = DashMap::new();
+        let (rest, attrs) = parse_raw_explicit_attrs(&input, &attr_info_map, refno).unwrap();
+
+        assert_eq!(rest, &(-1i32).to_be_bytes());
+        assert_eq!(attrs.len(), 1);
+        assert_eq!(attrs[0].name, "PHEI");
+        assert_eq!(attrs[0].value.string_value(), "1 GT 2");
+    }
+
+    #[test]
+    fn test_parse_raw_explicit_attrs_keeps_negative_non_expr_integer_entry() {
+        let refno = RefU64::from_two_nums(1, 2);
+        let bang_hash = -0x000A_5E21i32;
+
+        let mut input = Vec::new();
+        input.extend_from_slice(&bang_hash.to_be_bytes());
+        input.extend_from_slice(&0x0C00u16.to_be_bytes()); // INTEGER
+        input.extend_from_slice(&1u16.to_be_bytes()); // one payload word
+        input.extend_from_slice(&42i32.to_be_bytes());
+        input.extend_from_slice(&(-1i32).to_be_bytes());
+
+        let attr_info_map = DashMap::new();
+        let (rest, attrs) = parse_raw_explicit_attrs(&input, &attr_info_map, refno).unwrap();
+
+        assert_eq!(rest, &(-1i32).to_be_bytes());
+        assert_eq!(attrs.len(), 1);
+        assert_eq!(attrs[0].name, "BANG");
+        assert_eq!(attrs[0].value.i32_value(), 42);
     }
 }
 

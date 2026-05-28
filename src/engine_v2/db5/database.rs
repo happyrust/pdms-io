@@ -6,8 +6,8 @@ use crate::engine_v2::db4::ce::CurrentElement;
 use crate::engine_v2::io_layer::FileHandle;
 use crate::engine_v2::types::*;
 
-use super::open::DbOpen;
 use super::close::DbClose;
+use super::open::DbOpen;
 use super::save::DbSave;
 
 /// 数据库引擎 V2 统一入口
@@ -56,8 +56,12 @@ impl Database {
     /// B-树搜索定位元素
     pub fn find_element(&mut self, refno: RefNo, root_pgno: u32) -> DbResult<Option<RefnoDataLoc>> {
         BTreeSearch::find(
-            &mut self.cache, &mut self.handle,
-            self.dbno, self.extent, root_pgno, refno,
+            &mut self.cache,
+            &mut self.handle,
+            self.dbno,
+            self.extent,
+            root_pgno,
+            refno,
         )
     }
 
@@ -73,7 +77,8 @@ impl Database {
 
     /// 读取页面数据
     pub fn get_page(&mut self, page_no: u32) -> DbResult<&[u8]> {
-        self.cache.get_page(&mut self.handle, self.dbno, self.extent, page_no)
+        self.cache
+            .get_page(&mut self.handle, self.dbno, self.extent, page_no)
     }
 
     /// 保存所有修改
@@ -86,7 +91,13 @@ impl Database {
         DbClose::close(&mut self.cache, &mut self.handle)
     }
 
-    pub fn dbno(&self) -> u32 { self.dbno }
-    pub fn extent(&self) -> u32 { self.extent }
-    pub fn page_size(&self) -> usize { self.handle.page_size() }
+    pub fn dbno(&self) -> u32 {
+        self.dbno
+    }
+    pub fn extent(&self) -> u32 {
+        self.extent
+    }
+    pub fn page_size(&self) -> usize {
+        self.handle.page_size()
+    }
 }

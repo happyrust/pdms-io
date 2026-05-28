@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
+use super::page_io::PageIO;
 use crate::engine_v2::io_layer::FileHandle;
 use crate::engine_v2::types::*;
-use super::page_io::PageIO;
 
 const DEFAULT_POOL_SIZE: usize = 256;
 const DEFAULT_PREFETCH: u32 = 4;
@@ -20,7 +20,11 @@ pub struct CacheStats {
 impl CacheStats {
     pub fn hit_rate(&self) -> f64 {
         let total = self.hits + self.misses;
-        if total == 0 { 0.0 } else { self.hits as f64 / total as f64 }
+        if total == 0 {
+            0.0
+        } else {
+            self.hits as f64 / total as f64
+        }
     }
 }
 
@@ -51,7 +55,11 @@ pub struct PageCache {
 
 impl PageCache {
     pub fn new(capacity: usize) -> Self {
-        let cap = if capacity == 0 { DEFAULT_POOL_SIZE } else { capacity };
+        let cap = if capacity == 0 {
+            DEFAULT_POOL_SIZE
+        } else {
+            capacity
+        };
         Self {
             pool: (0..cap).map(|_| None).collect(),
             lookup: HashMap::with_capacity(cap),
@@ -100,7 +108,10 @@ impl PageCache {
         let pfno = self.allocate_slot(handle)?;
 
         if self.prefetch_count > 1 {
-            match self.page_io.prefetch_pages(handle, dbno, extent, page_no, self.prefetch_count) {
+            match self
+                .page_io
+                .prefetch_pages(handle, dbno, extent, page_no, self.prefetch_count)
+            {
                 Ok(pages) => {
                     self.stats.prefetch_reads += pages.len() as u64;
                     for (i, mut desc) in pages.into_iter().enumerate() {
@@ -112,7 +123,9 @@ impl PageCache {
                             self.pool[pfno] = Some(desc);
                             self.lookup.insert(pid, pfno);
                         } else {
-                            if self.lookup.contains_key(&desc.id) { continue; }
+                            if self.lookup.contains_key(&desc.id) {
+                                continue;
+                            }
                             if let Ok(slot) = self.find_free_slot() {
                                 let pid = desc.id;
                                 self.pool[slot] = Some(desc);
@@ -240,7 +253,9 @@ impl PageCache {
 
         for i in 0..self.capacity {
             if let Some(desc) = &self.pool[i] {
-                if desc.is_locked() { continue; }
+                if desc.is_locked() {
+                    continue;
+                }
                 if desc.referenced {
                     self.pool[i].as_mut().unwrap().referenced = false;
                     continue;

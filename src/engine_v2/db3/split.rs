@@ -1,7 +1,7 @@
+use super::btree::{BTreeNode, START_MARKER, max_entries_per_page};
 use crate::engine_v2::db1::PageCache;
 use crate::engine_v2::io_layer::FileHandle;
 use crate::engine_v2::types::*;
-use super::btree::{BTreeNode, START_MARKER, max_entries_per_page};
 
 /// B-树节点分裂 (对齐 FHSPLT)
 pub struct BTreeSplit;
@@ -61,7 +61,9 @@ impl BTreeSplit {
     ) -> DbResult<(IndexEntry, u32)> {
         let mut all = node.entries.clone();
         let pos = all.partition_point(|e| {
-            if e.refno == START_MARKER { return true; }
+            if e.refno == START_MARKER {
+                return true;
+            }
             (e.refno.hi, e.refno.lo) < (new_entry.refno.hi, new_entry.refno.lo)
         });
         all.insert(pos, new_entry);
@@ -71,7 +73,16 @@ impl BTreeSplit {
         let right = &all[mid..];
 
         let level = node.header.level;
-        Self::write_entries_to_page(cache, handle, dbno, extent, old_page_no, left, level, page_size)?;
+        Self::write_entries_to_page(
+            cache,
+            handle,
+            dbno,
+            extent,
+            old_page_no,
+            left,
+            level,
+            page_size,
+        )?;
 
         let new_page_no = handle.total_pages();
         let mut new_data = vec![0u8; page_size];
@@ -79,11 +90,12 @@ impl BTreeSplit {
         handle.write_page(new_page_no, &new_data)?;
         handle.refresh_len()?;
 
-        let promoted_refno = if let Some(first_valid) = right.iter().find(|e| e.refno != START_MARKER) {
-            first_valid.refno
-        } else {
-            right[0].refno
-        };
+        let promoted_refno =
+            if let Some(first_valid) = right.iter().find(|e| e.refno != START_MARKER) {
+                first_valid.refno
+            } else {
+                right[0].refno
+            };
 
         let promoted = IndexEntry {
             refno: promoted_refno,

@@ -8,7 +8,9 @@ pub struct PageIO {
 
 impl PageIO {
     pub fn new() -> Self {
-        Self { retry: RetryPolicy::default() }
+        Self {
+            retry: RetryPolicy::default(),
+        }
     }
 
     pub fn with_retry(retry: RetryPolicy) -> Self {
@@ -52,11 +54,7 @@ impl PageIO {
     }
 
     /// 将脏页写回磁盘
-    pub fn write_page(
-        &self,
-        handle: &mut FileHandle,
-        desc: &PageDescriptor,
-    ) -> DbResult<()> {
+    pub fn write_page(&self, handle: &mut FileHandle, desc: &PageDescriptor) -> DbResult<()> {
         handle.write_page(desc.id.page_no, &desc.data)
     }
 }

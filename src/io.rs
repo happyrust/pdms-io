@@ -181,6 +181,13 @@ impl RefnoAdjacentChangeStats {
 impl PdmsIO {
     // ... (其他代码保持不变)
 
+    #[inline]
+    fn local_file_ext_no(&self) -> u32 {
+        // `PdmsIO` 当前以单个扩展文件为输入，物理页号按本文件本地偏移读取。
+        // 数据库 dbnum 仍用于属性语义，不能作为 PageManager 的物理扩展号。
+        0
+    }
+
     pub fn new(project: impl Into<String>, file_path: impl AsRef<Path>, detail: bool) -> Self {
         let file_path = file_path.as_ref().to_path_buf();
         let page_size = PAGE_SIZE_2K;
@@ -280,7 +287,7 @@ impl PdmsIO {
             self.open()?;
         }
 
-        let ext_no = self.dbnum as u32;
+        let ext_no = self.local_file_ext_no();
         let file = self.file.as_mut().unwrap();
         let data = self.page_cache.get_page(file, ext_no, pgno)?;
         Ok(data.to_vec())
@@ -358,7 +365,7 @@ impl PdmsIO {
             self.open()?;
         }
 
-        let ext_no = self.dbnum as u32;
+        let ext_no = self.local_file_ext_no();
         let page_size = self.page_size;
         let file = self.file.as_mut().unwrap();
         PagedReader::read(
@@ -391,7 +398,7 @@ impl PdmsIO {
             self.open()?;
         }
 
-        let ext_no = self.dbnum as u32;
+        let ext_no = self.local_file_ext_no();
         let page_size = self.page_size;
         let file = self.file.as_mut().unwrap();
         ElementRecordReader::read(file, &mut self.page_cache, ext_no, page_size, start_offset)

@@ -50,7 +50,12 @@ impl HeaderManager {
     /// 获取库级整型属性 (对齐 db2_get_db_int_att)
     pub fn get_int_att(data: &[u8], offset: usize) -> i32 {
         if offset + 4 <= data.len() {
-            i32::from_be_bytes([data[offset], data[offset + 1], data[offset + 2], data[offset + 3]])
+            i32::from_be_bytes([
+                data[offset],
+                data[offset + 1],
+                data[offset + 2],
+                data[offset + 3],
+            ])
         } else {
             0
         }

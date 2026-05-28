@@ -34,7 +34,12 @@ impl AttrReader {
     /// 读取整型属性 (opcode 80)
     pub fn get_integer(data: &[u8], offset: usize) -> i32 {
         if offset + 4 <= data.len() {
-            i32::from_be_bytes([data[offset], data[offset + 1], data[offset + 2], data[offset + 3]])
+            i32::from_be_bytes([
+                data[offset],
+                data[offset + 1],
+                data[offset + 2],
+                data[offset + 3],
+            ])
         } else {
             0
         }
@@ -44,8 +49,14 @@ impl AttrReader {
     pub fn get_real(data: &[u8], offset: usize) -> f64 {
         if offset + 8 <= data.len() {
             f64::from_be_bytes([
-                data[offset], data[offset + 1], data[offset + 2], data[offset + 3],
-                data[offset + 4], data[offset + 5], data[offset + 6], data[offset + 7],
+                data[offset],
+                data[offset + 1],
+                data[offset + 2],
+                data[offset + 3],
+                data[offset + 4],
+                data[offset + 5],
+                data[offset + 6],
+                data[offset + 7],
             ])
         } else {
             0.0
@@ -72,19 +83,30 @@ impl AttrReader {
 
     /// 读取变长字符串属性 (opcode 106)
     pub fn get_string(data: &[u8], offset: usize) -> String {
-        if offset + 4 > data.len() { return String::new(); }
+        if offset + 4 > data.len() {
+            return String::new();
+        }
         let len = i32::from_be_bytes([
-            data[offset], data[offset + 1], data[offset + 2], data[offset + 3],
+            data[offset],
+            data[offset + 1],
+            data[offset + 2],
+            data[offset + 3],
         ]) as usize;
         let str_start = offset + 4;
         let str_end = (str_start + len).min(data.len());
-        if str_start >= data.len() { return String::new(); }
-        String::from_utf8_lossy(&data[str_start..str_end]).trim_end_matches('\0').to_string()
+        if str_start >= data.len() {
+            return String::new();
+        }
+        String::from_utf8_lossy(&data[str_start..str_end])
+            .trim_end_matches('\0')
+            .to_string()
     }
 
     /// 读取整型数组
     pub fn get_int_array(data: &[u8], offset: usize) -> Vec<i32> {
-        if offset + 4 > data.len() { return Vec::new(); }
+        if offset + 4 > data.len() {
+            return Vec::new();
+        }
         let count = Self::get_integer(data, offset) as usize;
         let mut result = Vec::with_capacity(count);
         for i in 0..count {
@@ -98,7 +120,9 @@ impl AttrReader {
 
     /// 读取引用数组
     pub fn get_ref_array(data: &[u8], offset: usize) -> Vec<RefNo> {
-        if offset + 4 > data.len() { return Vec::new(); }
+        if offset + 4 > data.len() {
+            return Vec::new();
+        }
         let count = Self::get_integer(data, offset) as usize;
         let mut result = Vec::with_capacity(count);
         for i in 0..count {

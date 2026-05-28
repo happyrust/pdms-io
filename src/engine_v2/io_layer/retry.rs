@@ -1,8 +1,8 @@
-use std::time::Duration;
 use std::thread;
+use std::time::Duration;
 
-use crate::engine_v2::types::{DbError, DbResult};
 use super::FileHandle;
+use crate::engine_v2::types::{DbError, DbResult};
 
 /// 重试策略配置
 ///
@@ -42,7 +42,10 @@ impl RetryPolicy {
                 Err(DbError::Io(e)) if is_retryable(&e) => {
                     log::warn!(
                         "page read failed (attempt {}/{}): {} — retrying in {}ms",
-                        attempt + 1, self.max_attempts, e, self.wait_ms
+                        attempt + 1,
+                        self.max_attempts,
+                        e,
+                        self.wait_ms
                     );
                     thread::sleep(Duration::from_millis(self.wait_ms));
 

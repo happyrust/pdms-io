@@ -33,7 +33,12 @@ impl CurrentElement {
 
     /// 移动 CE 到指定元素 (opcode 108)
     pub fn go_to(&mut self, refno: RefNo, dbno: u32, page_no: u32, offset: u32) {
-        self.current = Some(CeState { refno, dbno, page_no, offset });
+        self.current = Some(CeState {
+            refno,
+            dbno,
+            page_no,
+            offset,
+        });
     }
 
     /// 获取当前 CE 的 RefNo

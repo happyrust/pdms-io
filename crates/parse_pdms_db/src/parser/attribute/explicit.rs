@@ -6,7 +6,7 @@
 //! - 属性值解析
 
 use aios_core::pdms_types::DbAttributeType;
-use nom::IResult;
+use nom::{IResult, Needed};
 use nom::Parser;
 use nom::number::complete::{be_i32, be_u16};
 
@@ -69,6 +69,56 @@ pub fn parse_explicit_header(input: &[u8]) -> IResult<&[u8], ExplicitAttrHeader>
             hash,
             type_code,
             length,
+        },
+    ))
+}
+
+/// core.dll 风格显式条目。
+///
+/// 格式:
+/// - word[0]: attr_hash
+/// - word[1]: packed_header = (dab_type << 26) | payload_len_words
+/// - word[2..]: payload
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ExplicitEntry<'a> {
+    pub hash: i32,
+    pub packed_header: u32,
+    pub dab_type: u8,
+    pub type_code: u16,
+    pub payload_len_words: usize,
+    pub payload: &'a [u8],
+}
+
+/// 按 core.dll 的 packed header 规则切出一个显式条目。
+pub fn parse_packed_explicit_entry(input: &[u8]) -> IResult<&[u8], ExplicitEntry<'_>> {
+    if input.len() < 8 {
+        return Err(nom::Err::Incomplete(Needed::new(8 - input.len())));
+    }
+
+    let hash = i32::from_be_bytes(input[..4].try_into().unwrap());
+    let packed_header = u32::from_be_bytes(input[4..8].try_into().unwrap());
+    let dab_type = (packed_header >> 26) as u8;
+    let payload_len_words = (packed_header & 0x03ff_ffff) as usize;
+    let payload_len_bytes = payload_len_words
+        .checked_mul(4)
+        .ok_or_else(|| nom::Err::Failure(nom::error::make_error(input, nom::error::ErrorKind::TooLarge)))?;
+    let total_len = 8usize
+        .checked_add(payload_len_bytes)
+        .ok_or_else(|| nom::Err::Failure(nom::error::make_error(input, nom::error::ErrorKind::TooLarge)))?;
+
+    if input.len() < total_len {
+        return Err(nom::Err::Incomplete(Needed::new(total_len - input.len())));
+    }
+
+    Ok((
+        &input[total_len..],
+        ExplicitEntry {
+            hash,
+            packed_header,
+            dab_type,
+            type_code: (dab_type as u16) << 10,
+            payload_len_words,
+            payload: &input[8..total_len],
         },
     ))
 }
@@ -211,6 +261,33 @@ mod tests {
         assert_eq!(header.type_code, 0x0800);
         assert_eq!(header.length, 3);
         assert_eq!(header.data_len(), 12);
+    }
+
+    #[test]
+    fn test_parse_packed_explicit_entry_uses_lower_26_bits_for_payload_len() {
+        let input = [
+            0xFF, 0xF5, 0x20, 0xEF, // PHEI hash
+            0x1C, 0x00, 0x00, 0x1A, // dab_type=7, payload_len_words=26
+            0x00, 0x00, 0x00, 0x19, // payload[0]
+            0xAA, 0xBB, 0xCC, 0xDD, // payload[1]
+            0x00, 0x00, 0x00, 0x00, // next bytes are outside this truncated sample
+        ];
+
+        let err = parse_packed_explicit_entry(&input).unwrap_err();
+        assert!(matches!(err, nom::Err::Incomplete(_)));
+
+        let mut complete = input[..8].to_vec();
+        complete.extend_from_slice(&[0u8; 26 * 4]);
+        complete.extend_from_slice(&[0x12, 0x34, 0x56, 0x78]);
+
+        let (rest, entry) = parse_packed_explicit_entry(&complete).unwrap();
+        assert_eq!(entry.hash, hashes::ATT_PHEI);
+        assert_eq!(entry.packed_header, 0x1C00_001A);
+        assert_eq!(entry.dab_type, 7);
+        assert_eq!(entry.type_code, 0x1C00);
+        assert_eq!(entry.payload_len_words, 26);
+        assert_eq!(entry.payload.len(), 26 * 4);
+        assert_eq!(rest, &[0x12, 0x34, 0x56, 0x78]);
     }
 
     #[test]

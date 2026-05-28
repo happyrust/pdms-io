@@ -1,8 +1,11 @@
-use crate::engine_v2::types::{IndexEntry, IndexPageHeader, INDEX_PAGE_HEADER_SIZE, RefNo};
+use crate::engine_v2::types::{INDEX_PAGE_HEADER_SIZE, IndexEntry, IndexPageHeader, RefNo};
 
 /// 起始标记 RefNo (0x80000001, 0x80000001)
 /// B-树非叶子节点的第一个条目，指向最小子树
-pub const START_MARKER: RefNo = RefNo { hi: 0x80000001, lo: 0x80000001 };
+pub const START_MARKER: RefNo = RefNo {
+    hi: 0x80000001,
+    lo: 0x80000001,
+};
 
 /// 每页最大条目数 (页面大小相关)
 pub fn max_entries_per_page(page_size: usize) -> usize {
@@ -33,7 +36,11 @@ impl BTreeNode {
             }
         }
 
-        Self { header, page_no, entries }
+        Self {
+            header,
+            page_no,
+            entries,
+        }
     }
 
     pub fn is_leaf(&self) -> bool {
@@ -47,25 +54,34 @@ impl BTreeNode {
 
     /// 获取起始标记对应的子页面号 (非叶子节点)
     pub fn start_marker_page(&self) -> Option<u32> {
-        self.entries.iter()
+        self.entries
+            .iter()
             .find(|e| e.refno == START_MARKER)
             .map(|e| e.page_no)
     }
 
     /// 二分查找：找到第一个 refno >= target 的条目索引
     pub fn lower_bound(&self, target: &RefNo) -> usize {
-        let valid: Vec<_> = self.entries.iter()
+        let valid: Vec<_> = self
+            .entries
+            .iter()
             .enumerate()
             .filter(|(_, e)| e.refno != START_MARKER)
             .collect();
 
         match valid.binary_search_by(|(_, e)| {
-            e.refno.hi.cmp(&target.hi)
+            e.refno
+                .hi
+                .cmp(&target.hi)
                 .then_with(|| e.refno.lo.cmp(&target.lo))
         }) {
             Ok(pos) => valid[pos].0,
             Err(pos) => {
-                if pos < valid.len() { valid[pos].0 } else { self.entries.len() }
+                if pos < valid.len() {
+                    valid[pos].0
+                } else {
+                    self.entries.len()
+                }
             }
         }
     }

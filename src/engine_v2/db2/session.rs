@@ -33,10 +33,14 @@ pub struct SessionManager;
 impl SessionManager {
     /// 从会话页解析 SessionPageData
     pub fn parse_session_page(page_no: u32, data: &[u8]) -> Option<SessionPageData> {
-        if data.len() < 0x80 { return None; }
+        if data.len() < 0x80 {
+            return None;
+        }
 
         let page_type = i32::from_be_bytes([data[0], data[1], data[2], data[3]]);
-        if page_type != 3 { return None; }
+        if page_type != 3 {
+            return None;
+        }
 
         let prev_ses_page = u32::from_be_bytes([data[4], data[5], data[6], data[7]]);
         let _prev_ext = u32::from_be_bytes([data[8], data[9], data[10], data[11]]);
@@ -144,9 +148,13 @@ impl SessionManager {
     fn decode_pdms_string(data: &[u8]) -> String {
         let mut result = String::new();
         for chunk in data.chunks(4) {
-            if chunk.len() < 4 { break; }
+            if chunk.len() < 4 {
+                break;
+            }
             let val = i32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]);
-            if val == 0 { break; }
+            if val == 0 {
+                break;
+            }
             let ch = (val & 0xFF) as u8;
             if ch.is_ascii_graphic() || ch == b' ' {
                 result.push(ch as char);
