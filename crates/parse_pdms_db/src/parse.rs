@@ -14,6 +14,9 @@ use crate::parser::database::header::extract_db_no;
 use crate::parser::database::validation::is_valid_db_header;
 use crate::parser::element::children::{extract_members, parse_element_children};
 use crate::parser::primitives::{parse_members, parse_owner};
+use aios_core::AttrVal::*;
+#[cfg(feature = "surrealdb")]
+use aios_core::SUL_DB;
 use aios_core::basic::info::RefnoInfo;
 use aios_core::consts::EXPR_ATT_SET;
 use aios_core::db::*;
@@ -25,9 +28,6 @@ use aios_core::tool::db_tool::*;
 use aios_core::types::WholeAttMap;
 use aios_core::types::db_info::PdmsDatabaseInfo;
 use aios_core::types::*;
-use aios_core::AttrVal::*;
-#[cfg(feature = "surrealdb")]
-use aios_core::SUL_DB;
 use anyhow::*;
 use core::result::Result::Ok;
 #[allow(unused_mut)]
@@ -49,6 +49,7 @@ use phf::phf_map;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rayon::prelude::IntoParallelIterator;
 use serde::{Deserialize, Serialize};
+use std::cell::Cell;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fmt::Debug;
 use std::fs;
@@ -690,11 +691,26 @@ pub fn parse_raw_ele_data_with_info(
     implicit_attmap.insert("REFNO".into(), NamedAttrValue::RefU64Type(refno));
     let name = implicit_attmap.get_name_or_default();
 
+    // 显式块在文件中的起始偏移 = 元素文件偏移 + explicit_start（块内字节经 collect_explict_data
+    // 重组，逐字节偏移为近似值，但块起始可用于在 16 进制编辑器中定位）。
+    let explicit_block_file_off = current_element_file_offset()
+        .map(|elem_off| elem_off.saturating_add(explicit_start as u64));
+    set_explicit_block_file_offset(explicit_block_file_off);
+    // 透传记录级 small/large(f32/f64)标志：core.dll 用记录 word[10] bit29 区分实数是
+    // 4 字节 float(small) 还是 8 字节 double(large)；本仓隐式区已据偏移装填算出等价的 is_f32，
+    // 这里复用它，供显式标量 DOUBLE 对齐(small→f32 加宽，large→f64)。
+    set_record_is_f32(is_f32);
     let explicit_attrs =
         match parse_raw_explicit_attrs(&final_explicit_data, &cur_type_info_map, refno) {
             Ok(result) => result.1,
             Err(e) => {
-                println!("解析显式属性失败: {:?}, refno={:?}", e, refno);
+                // 不直接打印 nom error 的 Debug（会把整段剩余二进制刷进日志），
+                // 只打印错误类型 + 该 refno 显式块字节的 16 进制编辑器风格 hexdump（已截断）。
+                println!(
+                    "解析显式属性失败: refno={refno}, {}\n该 refno 显式块字节(重组后):\n{}",
+                    summarize_nom_byte_err(&e),
+                    format_bytes_hexdump(&final_explicit_data, explicit_block_file_off),
+                );
                 Vec::new()
             }
         };
@@ -733,14 +749,17 @@ pub fn parse_raw_ele_data(input: &[u8]) -> Result<EleData> {
 }
 
 /// 解析元素数据，包含异步处理
-pub async fn parse_ele_data_with_info(
+/// 同步解析元素数据（纯 CPU，函数体内无任何 `.await`）。
+///
+/// 供 rayon 并行路径（见 `parse_db`）直接调用，避免在工作线程里驱动 future；
+/// 异步入口 `parse_ele_data_with_info` 委托到此，行为与原实现一致。
+pub fn parse_ele_data_with_info_sync(
     input: &[u8],
     database_info: &PdmsDatabaseInfo,
 ) -> Result<EleData> {
     // 使用同步函数解析基础数据
     let mut ele_data = parse_raw_ele_data_with_info(input, database_info)?;
 
-    // 获取需要的信息用于异步调用
     let _refno = ele_data.refno;
     let noun_name = db1_dehash(ele_data.noun);
     let cur_type_info_map = database_info
@@ -749,7 +768,6 @@ pub async fn parse_ele_data_with_info(
         .ok_or(anyhow!("{} not exist in attr_info_map", &noun_name))?;
 
     // 解析显式属性
-    // 异步处理显式属性
     let explicit_attmap = &mut ele_data.whole_attmap.explicit_attmap;
 
     // 如果存在UDA属性，进行处理（直接从预加载的缓存读取）
@@ -763,6 +781,13 @@ pub async fn parse_ele_data_with_info(
     ele_data.whole_attmap = ele_data.whole_attmap.refine(&cur_type_info_map);
 
     Ok(ele_data)
+}
+
+pub async fn parse_ele_data_with_info(
+    input: &[u8],
+    database_info: &PdmsDatabaseInfo,
+) -> Result<EleData> {
+    parse_ele_data_with_info_sync(input, database_info)
 }
 
 /// 解析元素数据，包含异步处理（使用默认数据库配置）
@@ -959,7 +984,7 @@ pub fn parse_db_basic_data(
 ) -> Result<DbBasicData> {
     let gen_ref_time = Instant::now();
     let (refno_table_map, world_refno) = gen_ref_type_pos_table(&input);
-    println!(
+    log::debug!(
         "gen_ref_type_pos_table: {} ms",
         gen_ref_time.elapsed().as_millis()
     );
@@ -991,7 +1016,7 @@ pub fn parse_db_basic_data(
 
     let all_refnos_count = children_map.len();
 
-    println!(
+    log::debug!(
         "Parsing children members cost: {} ms",
         memb_time.elapsed().as_millis()
     );
@@ -1214,7 +1239,7 @@ pub async fn parse_db(
 
     let gen_ref_time = Instant::now();
     let (refno_table_map, world_refno) = gen_ref_type_pos_table(input);
-    println!(
+    log::debug!(
         "gen_ref_type_pos_table: {} ms",
         gen_ref_time.elapsed().as_millis()
     );
@@ -1278,37 +1303,55 @@ pub async fn parse_db(
             children_map.insert(refno, RefU64Vec(membs));
         }
     }
-    println!(
+    log::debug!(
         "Parsing children members cost: {} ms",
         memb_time.elapsed().as_millis()
     );
     println!("All refnos count: {}", all_refnos.len());
     let _eles_time = Instant::now();
-    println!("Begin parse attributes");
-    // all_refnos.iter().for_each(|refno| {
-    for refno in all_refnos {
-        if refno_table_map.contains_key(&refno) {
-            let entry = &*refno_table_map.get(&refno).unwrap();
-            let pos = entry.pos;
-            let whole_attr_dashmap = total_attr_map.clone();
-            let type_ele_map = type_ele_map.clone();
-            if let Ok(EleData {
-                refno,
-                noun,
-                whole_attmap,
-                ..
-            }) = parse_ele_data_with_info(&input[pos - 4..], database_info).await
-            {
-                let mut named_attmap: NamedAttrMap = whole_attmap.merge().into();
-                named_attmap.insert("DBNUM".into(), NamedAttrValue::IntegerType(dbnum as i32));
-                whole_attr_dashmap.insert(refno, named_attmap);
-                type_ele_map
-                    .entry(noun)
-                    .or_insert(HashSet::default())
-                    .insert(refno);
-            }
+    log::debug!("Begin parse attributes");
+    // 逐元素属性解析是 CPU 密集型，原本串行 `.await` 逐个解析，大库（数十万元素）耗时巨大。
+    // 此处改用 rayon 并行（参照同文件 gen_ref_type_pos_table / parse_db_basic_data 的 par_iter 范式）：
+    // - parse_ele_data_with_info 本质同步（无 .await），故并行路径直接调用其同步版，避免在 rayon 线程里驱动 future；
+    // - 输出写入并发安全的 DashMap（total_attr_map / type_ele_map），顺序无关，不影响结果正确性；
+    // - input(&[u8]) / database_info(&PdmsDatabaseInfo, 字段均为 DashMap) 均为 Sync，可跨线程共享借用。
+    let total_len = input.len();
+    // 收紧每元素切片上界：原先把 `&input[pos-4..]`（直到文件末尾）交给解析器，导致显式属性
+    // 解析对大库做远超本记录范围的扫描（O(n×文件)）。本记录的数据必终止于「下一条记录起点」
+    // 之前，故以排序后的全部记录起点（pos）二分求得 next_pos，把上界收紧到 next_pos-4。
+    // 该切片是原 to-EOF 切片的严格前缀，不会截断本元素自身数据。
+    let mut sorted_pos: Vec<usize> = refno_table_map.iter().map(|e| e.value().pos).collect();
+    sorted_pos.sort_unstable();
+    let all_refnos: Vec<RefU64> = all_refnos.into_iter().collect();
+    all_refnos.par_iter().for_each(|refno| {
+        // 先复制出 pos 并立即释放 refno_table_map 的分片读 guard，再做重活，
+        // 避免长时间持有分片锁（issue #23：guard 不跨重活持有）。
+        let pos = match refno_table_map.get(refno) {
+            Some(entry) => entry.pos,
+            None => return,
+        };
+        // 下一条记录起点（next_pos-4）即本记录数据上界；末元素回退到文件末尾。
+        let end = match sorted_pos.binary_search(&pos) {
+            Ok(i) => sorted_pos.get(i + 1).map(|&np| np - 4).unwrap_or(total_len),
+            Err(i) => sorted_pos.get(i).map(|&np| np - 4).unwrap_or(total_len),
         }
-    }
+        .max(pos);
+        if let Ok(EleData {
+            refno,
+            noun,
+            whole_attmap,
+            ..
+        }) = parse_ele_data_with_info_sync(&input[pos - 4..end], database_info)
+        {
+            let mut named_attmap: NamedAttrMap = whole_attmap.merge().into();
+            named_attmap.insert("DBNUM".into(), NamedAttrValue::IntegerType(dbnum as i32));
+            total_attr_map.insert(refno, named_attmap);
+            type_ele_map
+                .entry(noun)
+                .or_insert(HashSet::default())
+                .insert(refno);
+        }
+    });
     // println!("解析属性所耗时间: {:?} ms", eles_time.elapsed().as_millis());
     // println!("带有外键属性的参考号个数为 {}", foreign_refnos_map.len());
     // println!("DB {} attrs count: {}", file_name, total_attr_map.len());
@@ -1516,7 +1559,11 @@ pub fn parse_implicit_attr_value<'a>(
                                 dbg!(f32_flag);
                                 dbg!(f32_neg_offset);
                                 dbg!(attr_info);
-                                println!("parse double 有问题的数据：{:#04X?}", origin_bytes);
+                                println!(
+                                    "parse double 有问题的数据 attr={}:\n{}",
+                                    attr_info.name,
+                                    format_bytes_hexdump(origin_bytes, current_element_file_offset()),
+                                );
                             }
                         }
                     } else {
@@ -1598,7 +1645,11 @@ pub fn parse_implicit_attr_value<'a>(
                                 dbg!(f32_flag);
                                 dbg!(_cnt);
                                 dbg!(attr_info);
-                                println!("parse vec3 有问题的数据：{:#04X?}", origin_bytes);
+                                println!(
+                                    "parse vec3 有问题的数据 attr={}:\n{}",
+                                    attr_info.name,
+                                    format_bytes_hexdump(origin_bytes, current_element_file_offset()),
+                                );
                             }
                         }
                     } else {
@@ -1750,14 +1801,121 @@ fn parse_legacy_explicit_entry_expression_value<'a>(
 }
 
 fn configured_test_refno() -> Option<RefU64> {
-    let config_file = std::env::var("DB_OPTION_FILE")
-        .unwrap_or_else(|_| "db_options/DbOption".to_string());
+    let config_file =
+        std::env::var("DB_OPTION_FILE").unwrap_or_else(|_| "db_options/DbOption".to_string());
     let config_path = Path::new(&config_file);
     if !config_path.exists() && !config_path.with_extension("toml").exists() {
         return None;
     }
 
     get_db_option().get_test_refno().map(|x| x.refno())
+}
+
+thread_local! {
+    /// 当前正在解析的元素在 .db 文件中的起始字节偏移（由 io 层在调用 `parse_*` 前设置）。
+    /// 仅用于解析出错时打印 file 偏移，方便用 16 进制编辑器定位记录。`None` 表示未知
+    /// （例如直接从内存字节解析、未经过 io 层）。
+    static CURRENT_ELEMENT_FILE_OFFSET: Cell<Option<u64>> = const { Cell::new(None) };
+    /// 当前元素“显式属性块”在 .db 文件中的起始偏移（= 元素偏移 + explicit_start）。
+    /// 由 `parse_raw_ele_data_with_info` 在调用 `parse_raw_explicit_attrs` 前设置。
+    static CURRENT_EXPLICIT_BLOCK_FILE_OFFSET: Cell<Option<u64>> = const { Cell::new(None) };
+    /// 当前元素记录是否为 small/f32 记录（core.dll 用记录 word[10] bit29 区分：small
+    /// record 实数存 4 字节 float，large record 存 8 字节 double）。由解析层在调用
+    /// `parse_raw_explicit_attrs` 前依据隐式区推算出的 is_f32 设置，供显式标量 DOUBLE 对齐。
+    static CURRENT_RECORD_IS_F32: Cell<bool> = const { Cell::new(false) };
+}
+
+/// 由 io 层在 `read_element_record_cached` 之后、调用 `parse_ele_data` /
+/// `parse_raw_ele_data` 之前调用，记录该元素在 .db 文件中的起始字节偏移。
+/// 解析出错时会据此打印 file 偏移（hex 编辑器风格定位）。传 `None` 表示未知。
+pub fn set_current_element_file_offset(offset: Option<u64>) {
+    CURRENT_ELEMENT_FILE_OFFSET.with(|c| c.set(offset));
+}
+
+fn current_element_file_offset() -> Option<u64> {
+    CURRENT_ELEMENT_FILE_OFFSET.with(|c| c.get())
+}
+
+fn set_explicit_block_file_offset(offset: Option<u64>) {
+    CURRENT_EXPLICIT_BLOCK_FILE_OFFSET.with(|c| c.set(offset));
+}
+
+fn explicit_block_file_offset() -> Option<u64> {
+    CURRENT_EXPLICIT_BLOCK_FILE_OFFSET.with(|c| c.get())
+}
+
+fn set_record_is_f32(is_f32: bool) {
+    CURRENT_RECORD_IS_F32.with(|c| c.set(is_f32));
+}
+
+fn record_is_f32() -> bool {
+    CURRENT_RECORD_IS_F32.with(|c| c.get())
+}
+
+/// 解析出错时，按 16 进制编辑器样式打印“出问题的那一小段字节”。
+///
+/// - `base_offset`：该段首字节对应的 .db 文件偏移（`None` 表示未知，偏移列从 0 起算）；
+/// - 为避免把整段二进制刷进日志：最多打印 `MAX_DUMP_BYTES` 字节，超出仅提示总长度；
+/// - 输出为 hex 编辑器/xxd 风格——左侧 file 偏移地址、中间 16 字节（8 字节一组）、右侧 ASCII。
+fn format_bytes_hexdump(bytes: &[u8], base_offset: Option<u64>) -> String {
+    use std::fmt::Write as _;
+    const MAX_DUMP_BYTES: usize = 256;
+    let total = bytes.len();
+    let shown = total.min(MAX_DUMP_BYTES);
+    let base = base_offset.unwrap_or(0);
+    let off_note = match base_offset {
+        Some(off) => format!("file 偏移 0x{off:08X}"),
+        None => "file 偏移未知".to_string(),
+    };
+    let mut out = String::with_capacity(shown * 4 + 96);
+    if total > shown {
+        let _ = writeln!(out, "  (起始 {off_note}, 共 {total} 字节, 仅显示前 {shown} 字节)");
+    } else {
+        let _ = writeln!(out, "  (起始 {off_note}, 共 {total} 字节)");
+    }
+    for (row, chunk) in bytes[..shown].chunks(16).enumerate() {
+        let addr = base.saturating_add((row * 16) as u64);
+        let _ = write!(out, "  {addr:08X}  ");
+        for col in 0..16usize {
+            if col == 8 {
+                out.push(' ');
+            }
+            match chunk.get(col) {
+                Some(b) => {
+                    let _ = write!(out, "{b:02X} ");
+                }
+                None => out.push_str("   "),
+            }
+        }
+        out.push_str(" |");
+        for &b in chunk {
+            out.push(if b.is_ascii_graphic() || b == b' ' {
+                b as char
+            } else {
+                '.'
+            });
+        }
+        out.push_str("|\n");
+    }
+    out
+}
+
+/// 概括 nom 字节解析错误：只输出错误类型与出错处剩余长度，
+/// 不打印 `nom::error::Error` 内部携带的整段输入字节。
+fn summarize_nom_byte_err(e: &nom::Err<nom::error::Error<&[u8]>>) -> String {
+    match e {
+        nom::Err::Incomplete(needed) => format!("nom Incomplete({needed:?})"),
+        nom::Err::Error(err) => {
+            format!("nom Error({:?}, 出错处剩余 {} 字节)", err.code, err.input.len())
+        }
+        nom::Err::Failure(err) => {
+            format!(
+                "nom Failure({:?}, 出错处剩余 {} 字节)",
+                err.code,
+                err.input.len()
+            )
+        }
+    }
 }
 
 /// 获取已知显式属性的原始数据解析（不包含UDA异步处理）
@@ -1904,7 +2062,7 @@ pub fn parse_raw_explicit_attrs<'a>(
                 }
                 residual = input;
             } else {
-                println!(
+                log::debug!(
                     "解析{} 表达式属性退出: {:?}, {:#4X?}",
                     refno.to_e3d_id(),
                     &att_name,
@@ -1916,7 +2074,7 @@ pub fn parse_raw_explicit_attrs<'a>(
             let (l, header) = match parse_explicit_header(&residual[..]) {
                 Ok(result) => result,
                 Err(_e) => {
-                    println!(
+                    log::debug!(
                         "解析{} 显式属性退出: {:?}, {:#4X?}",
                         refno.to_e3d_id(),
                         &att_name,
@@ -1927,12 +2085,33 @@ pub fn parse_raw_explicit_attrs<'a>(
             };
             let attr_type_num = header.type_code;
             let type_len = header.length as usize;
+            // 对齐 core.dll(sub_5AB4CF0 / db4_get_ce_att)：显式条目的 dab_type 必须有效
+            // (packed>>26 != 0，即 type_code 能映射出 DbAttributeType)，且单条 payload 不会
+            // 超过 core.dll 的单记录上限(512 word)。否则说明游标已越过真实属性表、落进了
+            // 记录体的引用/几何数据区(如目录件里的兄弟引用字 0x00003B58=DB号)。
+            // 这里用与 hash==0/-1 相同的“到表尾”语义结束扫描，避免把这种字误当超长属性头
+            // (len=0x3B58=15192)而盲跳大块，导致游标错位后 be_*()? 读到空触发 nom Eof，
+            // 最终把整条记录的显式属性全部清空(外层 catch 返回 Vec::new())。
+            const MAX_EXPLICIT_ATTR_WORDS: usize = 512;
+            let type_known = get_explicit_attr_type(attr_type_num).is_some();
+            let known_attr = attr_info_map.contains_key(&att_name);
+            if !type_known && !known_attr {
+                break;
+            }
+            if type_len == 0 || type_len > MAX_EXPLICIT_ATTR_WORDS {
+                break;
+            }
             if type_len * 4 <= l.len() {
                 residual = &l[type_len * 4..];
                 // 显式属性有可能他给了type但是超了01 后面得长度 所以还要做一层判断
                 let tmp_input = &l[..type_len * 4];
                 // println!("{:#4X}", explict_hash);
                 // dbg!(db1_dehash(explict_hash as u32));
+                // 单条属性的值解码包进“非致命”闭包：residual 已在上面推进到下一条，
+                // 因此某条属性解码中途遇到短读/坏长度(be_*()? 触发 nom Eof)时只丢这一条，
+                // 不再向上冒泡导致外层把整条记录的显式属性全部清空。对齐 core.dll 的逐条独立读取。
+                let _decode_one: Result<(), nom::Err<nom::error::Error<&[u8]>>> =
+                    (|| -> Result<(), nom::Err<nom::error::Error<&[u8]>>> {
                 if attr_info_map.contains_key(&att_name) {
                     let attr_info = attr_info_map.get_mut(&att_name).unwrap();
                     // dbg!(&attr_info.value());
@@ -1959,8 +2138,15 @@ pub fn parse_raw_explicit_attrs<'a>(
                         DoubleType(_) => {
                             let dou_len = tmp_input.len() / 4;
                             if dou_len == 1 {
-                                let (_, val) = be_i32(tmp_input)?;
-                                att_value = Some(IntegerType(val));
+                                // small/f32 记录(core.dll: large-record bit29==0)里实数存 4 字节 float，
+                                // 应加宽成 f64；否则维持原行为(按 int 读)。large record 不受影响。
+                                if record_is_f32() {
+                                    let val = parse_to_f32(&tmp_input[..4]) as f64;
+                                    att_value = Some(DoubleType(val));
+                                } else {
+                                    let (_, val) = be_i32(tmp_input)?;
+                                    att_value = Some(IntegerType(val));
+                                }
                             } else {
                                 let val = parse_to_f64(&tmp_input[..8]);
                                 att_value = Some(DoubleType(val));
@@ -1972,31 +2158,24 @@ pub fn parse_raw_explicit_attrs<'a>(
                                 bytes_len -= 1; //去掉一个自身
                                 let (tmp_input, data_len) = be_i32(tmp_input)?;
                                 let len = data_len as usize;
-                                let double_or_float = bytes_len / len;
+                                let double_or_float = if len == 0 { 0 } else { bytes_len / len };
                                 let mut tmp_input = tmp_input;
 
                                 if double_or_float == 2 {
-                                    if tmp_input.len() >= 8 {
-                                        let mut data = vec![];
-                                        for _ in 0..len {
-                                            data.push(parse_to_f64(&tmp_input[..8]));
-                                            tmp_input = &tmp_input[8..];
-                                        }
-                                        att_value = Some(DoubleArrayType(data));
-                                    } else {
-                                        att_value = Some(DoubleArrayType(vec![]));
+                                    // 防御：按可用字节读取，污染的 len 不会再切片越界 panic。
+                                    let mut data = vec![];
+                                    while data.len() < len && tmp_input.len() >= 8 {
+                                        data.push(parse_to_f64(&tmp_input[..8]));
+                                        tmp_input = &tmp_input[8..];
                                     }
+                                    att_value = Some(DoubleArrayType(data));
                                 } else if double_or_float == 1 {
-                                    if tmp_input.len() > 4 {
-                                        let mut data = vec![];
-                                        for _ in 0..len {
-                                            data.push(parse_to_f32(&tmp_input[..4]) as f64);
-                                            tmp_input = &tmp_input[4..];
-                                        }
-                                        att_value = Some(DoubleArrayType(data));
-                                    } else {
-                                        att_value = Some(DoubleArrayType(vec![]));
+                                    let mut data = vec![];
+                                    while data.len() < len && tmp_input.len() >= 4 {
+                                        data.push(parse_to_f32(&tmp_input[..4]) as f64);
+                                        tmp_input = &tmp_input[4..];
                                     }
+                                    att_value = Some(DoubleArrayType(data));
                                 }
                             }
                         }
@@ -2035,8 +2214,11 @@ pub fn parse_raw_explicit_attrs<'a>(
                         Vec3Type(_) => {
                             let (l, v) = be_i32(tmp_input)?;
                             let _len = v as usize;
-                            let data = parse_to_f64_arr(l, 3).try_into().unwrap();
-                            att_value = Some(Vec3Type(data));
+                            // 防御：不足 3 个 f64（24 字节）时跳过，避免 parse_to_f64_arr 切片越界 panic。
+                            if l.len() >= 24 {
+                                let data = parse_to_f64_arr(l, 3).try_into().unwrap();
+                                att_value = Some(Vec3Type(data));
+                            }
                         }
                         ElementType(_) => {
                             let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
@@ -2085,8 +2267,12 @@ pub fn parse_raw_explicit_attrs<'a>(
                                 att_value = Some(IntegerType(val));
                             }
                             DbAttributeType::DOUBLE => {
-                                if tmp_input.len() >= 8 {
+                                if !record_is_f32() && tmp_input.len() >= 8 {
                                     let val = parse_to_f64(&tmp_input[..8]);
+                                    att_value = Some(DoubleType(val));
+                                } else if record_is_f32() && tmp_input.len() >= 4 {
+                                    // small/f32 记录：实数存 4 字节 float，加宽成 f64
+                                    let val = parse_to_f32(&tmp_input[..4]) as f64;
                                     att_value = Some(DoubleType(val));
                                 } else {
                                     let (_, val) = be_i32(tmp_input)?;
@@ -2107,9 +2293,18 @@ pub fn parse_raw_explicit_attrs<'a>(
                                     // att_value = Some(StringHashType(name_hash));
                                     att_value = Some(StringType(decode_string.into()));
                                 } else {
-                                    println!("len_a={:#04X?}", len_a);
-                                    println!("error refno={:?}", refno);
-                                    println!("error 显示 input={:#04X?}", tmp_input);
+                                    // 不整段 dump tmp_input；只对该 refno 的剩余字节做 16 进制编辑器风格 hexdump（已截断）。
+                                    // tmp_input 是 input（重组后的显式块）的子切片，用指针差算出它在块内的偏移，
+                                    // 再叠加显式块的文件起始偏移，得到该段的近似 file 偏移。
+                                    let seg_file_off = explicit_block_file_offset().map(|block_off| {
+                                        let rel = (tmp_input.as_ptr() as usize)
+                                            .saturating_sub(input.as_ptr() as usize);
+                                        block_off.saturating_add(rel as u64)
+                                    });
+                                    println!(
+                                        "解析 STRING 属性失败: refno={refno}, len_a={len_a:#X}\n剩余字节:\n{}",
+                                        format_bytes_hexdump(tmp_input, seg_file_off),
+                                    );
                                 }
                             }
                             DbAttributeType::ELEMENT => {
@@ -2131,8 +2326,11 @@ pub fn parse_raw_explicit_attrs<'a>(
                             | DbAttributeType::ORIENTATION => {
                                 let (l, v) = be_i32(tmp_input)?;
                                 let _len = v as usize;
-                                let data = parse_to_f64_arr(l, 3).try_into().unwrap();
-                                att_value = Some(Vec3Type(data));
+                                // 防御：不足 3 个 f64（24 字节）时跳过，避免 parse_to_f64_arr 切片越界 panic。
+                                if l.len() >= 24 {
+                                    let data = parse_to_f64_arr(l, 3).try_into().unwrap();
+                                    att_value = Some(Vec3Type(data));
+                                }
                             }
 
                             DbAttributeType::DOUBLEVEC => {
@@ -2140,17 +2338,18 @@ pub fn parse_raw_explicit_attrs<'a>(
                                 if array_len >= 2 {
                                     let (mut tmp_input, data_len) = be_i32(tmp_input)?;
                                     let len = data_len as usize;
-                                    let double_or_float = (array_len - 1) / len;
+                                    let double_or_float = if len == 0 { 0 } else { (array_len - 1) / len };
                                     if double_or_float == 2 {
+                                        // 防御：按可用字节读取，避免污染的 len 切片越界 panic。
                                         let mut data = vec![];
-                                        for _ in 0..len {
+                                        while data.len() < len && tmp_input.len() >= 8 {
                                             data.push(parse_to_f64(&tmp_input[..8]));
                                             tmp_input = &tmp_input[8..];
                                         }
                                         att_value = Some(DoubleArrayType(data));
                                     } else if double_or_float == 1 {
                                         let mut data = vec![];
-                                        for _ in 0..len {
+                                        while data.len() < len && tmp_input.len() >= 4 {
                                             data.push(parse_to_f32(&tmp_input[..4]) as f64);
                                             tmp_input = &tmp_input[4..];
                                         }
@@ -2172,11 +2371,11 @@ pub fn parse_raw_explicit_attrs<'a>(
                             }
                             DbAttributeType::TYPEX => {
                                 let (tmp_input, len) = be_u32(tmp_input)?;
-                                if len == 1 {
+                                // 防御：len==1 但 payload 不足 4 字节时跳过，避免切片越界 panic。
+                                if len == 1 && tmp_input.len() >= 4 {
                                     let (_, typex) = be_u32(&tmp_input[..4])?;
                                     // let typex = db1_dehash(typex);
                                     att_value = Some(IntegerType(typex as _));
-                                } else {
                                 }
                             }
                             DbAttributeType::RefU64Vec => {
@@ -2195,6 +2394,9 @@ pub fn parse_raw_explicit_attrs<'a>(
                         }
                     }
                 }
+                Ok(())
+                })();
+                let _ = _decode_one;
             } else {
                 break;
             }
@@ -2877,12 +3079,7 @@ pub fn match_axis(key: u32) -> String {
 /// 检查是否是Axis属性
 #[inline]
 pub fn check_is_expr(noun: i32) -> bool {
-    //todo make stable
-    if EXPR_ATT_SET.contains(&noun) || noun < 0 {
-        true
-    } else {
-        false
-    }
+    EXPR_ATT_SET.contains(&noun)
 }
 
 /// 隐式表达式解析，给一个字符串返回DDHEIGHT这种表达式
@@ -3078,7 +3275,7 @@ mod tests_attr_members {
 
 #[cfg(test)]
 mod tests_explicit_segments {
-    use super::{collect_explict_data, parse_raw_explicit_attrs};
+    use super::{check_is_expr, collect_explict_data, parse_raw_explicit_attrs};
     use aios_core::types::RefU64;
     use dashmap::DashMap;
 
@@ -3183,6 +3380,12 @@ mod tests_explicit_segments {
         assert_eq!(attrs.len(), 1);
         assert_eq!(attrs[0].name, "BANG");
         assert_eq!(attrs[0].value.i32_value(), 42);
+    }
+
+    #[test]
+    fn test_check_is_expr_does_not_treat_every_negative_hash_as_expression() {
+        let bang_hash = -0x000A_5E21i32;
+        assert!(!check_is_expr(bang_hash));
     }
 }
 
@@ -3441,14 +3644,28 @@ pub fn gen_ref_type_pos_table(input: &[u8]) -> (DashMap<RefU64, EleDataEntry>, R
     let refno_0_set = get_total_refno_0s(input);
     let refno_table = DashMap::new();
     let word_refno_hashset = DashSet::new();
-    refno_0_set.par_iter().for_each(|ref_0| {
-        let pos_iter = rfind_iter(&input, ref_0);
-        for p in pos_iter {
-            //需要检查是否满足要求，前面基本是 0x 00 00 00 xx
-            let t = &input[p - 4..p];
-            if !(t[0] == 0 && t[1] == 0 && t[2] == 0 && t[3] >= 0x8) {
-                continue;
-            }
+    let len = input.len();
+    if len < 16 {
+        return (refno_table, RefU64::default());
+    }
+    // 单趟扫描替代「对每个 ref_0 做全缓冲 rfind」：复杂度从 O(n_ref0 × len) 降为 O(len)，
+    // 大库（数十/上百 MB、十万级元素）由此大幅提速；O(len) 顺序扫描即便 1.2GB 也仅约 1~2s，
+    // 解析瓶颈随之转移到（已并行化的）属性解析。
+    //
+    // 在每个候选位置 p 先查前导 record 标记 `00 00 00 (>=8)`；命中后用 O(1) 哈希判断其后
+    // 4 字节是否为已知 ref_0，再走原 `get_refno_entry` 校验/提取。
+    //
+    // **顺序方向必须从高地址向低地址**：原实现用 `rfind_iter`（反向遍历）+ `or_insert`，
+    // 等价于「同一 refno 保留 pos 最大（最新会话）的 entry」——这是 world/root 及各元素取到
+    // 正确记录位置的关键。此处从 len-4 递减到 4，配合 `or_insert`（首次写入胜出）保持完全一致。
+    let mut p = len - 4;
+    loop {
+        if input[p - 4] == 0
+            && input[p - 3] == 0
+            && input[p - 2] == 0
+            && input[p - 1] >= 0x8
+            && refno_0_set.contains(&input[p..p + 4])
+        {
             if let Some((refno, entry)) = get_refno_entry(input, p) {
                 //判断是否是World
                 if entry.noun_hash == WORLD_NOUN {
@@ -3457,7 +3674,11 @@ pub fn gen_ref_type_pos_table(input: &[u8]) -> (DashMap<RefU64, EleDataEntry>, R
                 refno_table.entry(refno).or_insert(entry);
             }
         }
-    });
+        if p == 4 {
+            break;
+        }
+        p -= 1;
+    }
     let world_refno = word_refno_hashset.into_iter().next().unwrap_or_default();
     (refno_table, world_refno)
 }
