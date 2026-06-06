@@ -23,3 +23,10 @@ protoc/bin/include/
 
 worktrees/
 npm-cache/
+
+# Python 字节码缓存(分析脚本)
+__pycache__/
+*.pyc
+
+# MEMANTO 本地记忆文件(本地状态,勿提交)
+MEMORY.md

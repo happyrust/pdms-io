@@ -12,7 +12,10 @@ debug_parse = []
 debug_btree_search = []                      # 启用B+树搜索调试输出
 meilisearch = ["dep:meilisearch-sdk"]        # MeiliSearch 搜索引擎支持
 surrealdb = ["dep:surrealdb"]                # SurrealDB 数据库支持
-sync-archive = ["dep:dpcsync", "dep:blake2"] # 增量同步/克隆功能
+# sync-archive 需本地 `../dpc-sync` 依赖;该路径缺失会令 Cargo 清单解析失败、阻塞所有构建。
+# 为支持默认构建(E3D 离线解码集成)暂移除 dpcsync;提供 ../dpc-sync 后,把下行恢复为
+# `["dep:dpcsync", "dep:blake2"]` 并取消下方 dpcsync 依赖行的注释即可。
+sync-archive = ["dep:blake2"] # 增量同步/克隆功能(dpcsync 暂缺,见上)
 
 [dependencies]
 anyhow = "1.0"
@@ -40,7 +43,7 @@ reqwest = { version = "0.12", default-features = false, features = [
     "rustls-tls",
 ] }
 rayon = "1.8.0"
-dpcsync = { path = "../dpc-sync", optional = true }
+# dpcsync = { path = "../dpc-sync", optional = true }  # 缺失:提供 ../dpc-sync 后取消注释 + 恢复 sync-archive 的 dep:dpcsync
 blake2 = { version = "0.10.6", optional = true }
 futures-util = "0.3.29"
 log = "0.4.20"

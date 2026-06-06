@@ -22,6 +22,11 @@ pub mod dblist;
 pub mod engine_v2;
 pub mod io_log;
 
+/// Fully-offline E3D/PDMS DABACON element decoder (std-only; see docs/e3d 数据库分析/).
+/// Standalone module, no extra deps; ported from the validated `tools/e3d_decode_rs`.
+#[allow(dead_code)]
+pub mod e3d_decode;
+
 // 重新导出常用函数，使其可以直接从crate根访问
 pub use io::{PdmsIO, benchmark_increment_eles};
 

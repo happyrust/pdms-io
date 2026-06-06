@@ -1,0 +1,12 @@
+[package]
+name = "e3d_decode_rs"
+version = "0.1.0"
+edition = "2021"
+
+# Standalone workspace: isolated from the parent pdms-io crate (which needs the
+# missing `dpc-sync` path dependency and cannot build in this environment).
+[workspace]
+
+[[bin]]
+name = "e3d_decode_rs"
+path = "src/main.rs"

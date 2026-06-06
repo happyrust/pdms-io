@@ -2,6 +2,19 @@
 
 ## [未发布]
 
+### 新增 — E3D/PDMS 元素数据**离线解析 + 安全写**(读/格式全闭环,IDA 2.10 权威 + 实测)
+
+> 基于 AVEVA Everything3D 2.10 `core.dll` 逐函数反编译 + 真实样本(sam7200/acp7002/ams1112/amssys)交叉验证。给定元素记录即可纯文件离线解出 `noun · NAME · refno · owner · 全部隐式/显式(DA)属性 · 引用(连通+跨库目录) · owner 层级树`。
+
+- **集成模块** `src/e3d_decode.rs`(std-only,接入 `lib.rs` `pub mod e3d_decode`):`SchemaSet`(跨库 `*vir.dat` typedef)/`Edb`/`decode_full`/`index_db`/`db1_dehash`/`set_inline_value`(安全在位写)。edition-2024 自检 **5 测试**(读计数/WELD POS/UDA/real+int+ref 在位写)。
+- **独立 Rust 工具** `tools/e3d_decode_rs/`(完整读取/解码/JSON 导出 + 跨库引用解析);与 Python 工具链**属性级对齐**(目录库 100%、设计库 99.95%/implicit 0 diff)。
+- **属性取值权威化**(`db4_get_ce_att` 0x10612A50 全函数反编译):type 枚举(2/6 实数、3/7 整、4/8/16 引用、5 布尔、10/15 文本、14/18 UDA 表)、`sel`(record[10]bit29)主/备 offset + packed/unpacked、标量/计数前缀、定宽表 `dbl_10F68E90`;**offset 磁盘来源 = 模式库 `*vir.dat`**(typedef skeleton K/I/J)。
+- **UDA**:存储=DA 区以 hash(>0x171FAD39)为键的条目,real/int/text/ref 强类型值纯离线可解;真名需字典库(udalib)。
+- **写侧**:页**无校验和**(`db1_read/write_page`),安全在位定长值写已实现验证;完整 COW 写机制(B 树插入/分裂 + `db5_save_work` 会话提交/page0 重指)已权威分析(未实现)。
+- **修复**:Python 解码器 `e3d_attr_decoder.py` 文本 `latin1`→**UTF-8**(中文元素名 `/穹顶`/`/天花板` 不再乱码);短 skeleton 越界崩溃(amssys);大库 B 树遍历 leaf cap 截断(ams1112 真实 ~42 万元素);`detect_page_size` 纠错为 `字数×4`。
+- **构建解阻**:`Cargo.toml` 暂移除缺失的可选 `dpcsync` path 依赖(`sync-archive` 去 `dep:dpcsync`;含恢复说明),使默认构建可解析。
+- 文档:`docs/e3d 数据库分析/`(`E3D_DB_文件格式规范.md` §7.6–§7.10/§12、`E3D_DB_解析指导.md`、`E3D_DB_索引.md`、`离线属性解析_总结.md` + 工具脚本)与 `.planning/` 逆向记录。
+
 ### 修复 — 显式属性与元素记录边界对齐 core.dll
 
 - 新增 `parse_packed_explicit_entry`，按 core.dll packed header（dab_type << 26 | payload_len_words）切分显式条目

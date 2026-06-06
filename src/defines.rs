@@ -28,9 +28,12 @@ pub const PAGE_SIZE_4K: usize = 0x1000; // 4096 字节 (部分 E3D/PDMS)
 /// * `usize` - 页面大小
 #[inline]
 pub fn detect_page_size(header: &PdmsHeader) -> usize {
-    let declared = header.page_size as usize;
-    match declared {
-        PAGE_SIZE_512 | PAGE_SIZE_2K | PAGE_SIZE_4K => declared,
+    // 纠错: header.page_size(偏移 0x34) 是“每页的 32 位字数”，字节数 = 字数 × 4。
+    // 实测 4 个 E3D 2.10 样本(sam7200/acp7002/ams1112/amssys)该字段均为 512 字 = 2048 字节;
+    // 旧实现把该值直接当字节数(512)是错误的。
+    let bytes = (header.page_size as usize).saturating_mul(4);
+    match bytes {
+        PAGE_SIZE_512 | PAGE_SIZE_2K | PAGE_SIZE_4K => bytes,
         _ => PAGE_SIZE_2K,
     }
 }
@@ -833,26 +836,27 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_detect_page_size_prefers_header() {
+    fn test_detect_page_size_words_times_4() {
+        // header.page_size 是“字数”，字节 = 字数 × 4
         let mut header = PdmsHeader::default();
 
-        header.page_size = PAGE_SIZE_512 as u32;
+        header.page_size = 128; // 128 字 -> 512 字节
         assert_eq!(detect_page_size(&header), PAGE_SIZE_512);
 
-        header.page_size = PAGE_SIZE_2K as u32;
+        header.page_size = 512; // 512 字 -> 2048 字节 (E3D 2.10 实测)
         assert_eq!(detect_page_size(&header), PAGE_SIZE_2K);
 
-        header.page_size = PAGE_SIZE_4K as u32;
+        header.page_size = 1024; // 1024 字 -> 4096 字节
         assert_eq!(detect_page_size(&header), PAGE_SIZE_4K);
     }
 
     #[test]
     fn test_detect_page_size_fallback() {
         let mut header = PdmsHeader::default();
-        header.page_size = 0;
+        header.page_size = 0; // 0 -> 回退 2048
         assert_eq!(detect_page_size(&header), PAGE_SIZE_2K);
 
-        header.page_size = 1234;
+        header.page_size = 1234; // 1234*4=4936 非法 -> 回退 2048
         assert_eq!(detect_page_size(&header), PAGE_SIZE_2K);
     }
 }

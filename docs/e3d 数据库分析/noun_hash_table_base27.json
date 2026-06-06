@@ -1,0 +1,9667 @@
+{
+  "total": 1932,
+  "algorithm": "base-27, offset 0x81BF1 (rs-core db_tool.rs::db1_hash), u32 wrap",
+  "note": "Corrected table; supersedes noun_hash_table.json which used a WRONG base-26 formula.",
+  "entries": [
+    {
+      "name": "DB",
+      "hash": 531499,
+      "hex": "0x00081C2B"
+    },
+    {
+      "name": "TP",
+      "hash": 531893,
+      "hex": "0x00081DB5"
+    },
+    {
+      "name": "ACR",
+      "hash": 544645,
+      "hex": "0x00084F85"
+    },
+    {
+      "name": "AHU",
+      "hash": 546967,
+      "hex": "0x00085897"
+    },
+    {
+      "name": "ARC",
+      "hash": 534115,
+      "hex": "0x00082663"
+    },
+    {
+      "name": "BOX",
+      "hash": 549344,
+      "hex": "0x000861E0"
+    },
+    {
+      "name": "CAP",
+      "hash": 543135,
+      "hex": "0x0008499F"
+    },
+    {
+      "name": "DBL",
+      "hash": 540247,
+      "hex": "0x00083E57"
+    },
+    {
+      "name": "GRP",
+      "hash": 543598,
+      "hex": "0x00084B6E"
+    },
+    {
+      "name": "LNK",
+      "hash": 539850,
+      "hex": "0x00083CCA"
+    },
+    {
+      "name": "LOC",
+      "hash": 534045,
+      "hex": "0x0008261D"
+    },
+    {
+      "name": "LUG",
+      "hash": 537123,
+      "hex": "0x00083223"
+    },
+    {
+      "name": "MDB",
+      "hash": 533020,
+      "hex": "0x0008221C"
+    },
+    {
+      "name": "ROD",
+      "hash": 534780,
+      "hex": "0x000828FC"
+    },
+    {
+      "name": "RUN",
+      "hash": 542232,
+      "hex": "0x00084618"
+    },
+    {
+      "name": "SHU",
+      "hash": 546985,
+      "hex": "0x000858A9"
+    },
+    {
+      "name": "TEE",
+      "hash": 535241,
+      "hex": "0x00082AC9"
+    },
+    {
+      "name": "UDA",
+      "hash": 532299,
+      "hex": "0x00081F4B"
+    },
+    {
+      "name": "ABOX",
+      "hash": 1014823,
+      "hex": "0x000F7C27"
+    },
+    {
+      "name": "ACDT",
+      "hash": 928099,
+      "hex": "0x000E2963"
+    },
+    {
+      "name": "ACRL",
+      "hash": 780841,
+      "hex": "0x000BEA29"
+    },
+    {
+      "name": "ACRW",
+      "hash": 997354,
+      "hex": "0x000F37EA"
+    },
+    {
+      "name": "ACTI",
+      "hash": 723250,
+      "hex": "0x000B0932"
+    },
+    {
+      "name": "ACTN",
+      "hash": 821665,
+      "hex": "0x000C89A1"
+    },
+    {
+      "name": "ACTO",
+      "hash": 841348,
+      "hex": "0x000CD684"
+    },
+    {
+      "name": "ADDE",
+      "hash": 632881,
+      "hex": "0x0009A831"
+    },
+    {
+      "name": "ADIM",
+      "hash": 793990,
+      "hex": "0x000C1D86"
+    },
+    {
+      "name": "ADIR",
+      "hash": 892405,
+      "hex": "0x000D9DF5"
+    },
+    {
+      "name": "ALLP",
+      "hash": 855442,
+      "hex": "0x000D0D92"
+    },
+    {
+      "name": "ANCI",
+      "hash": 711154,
+      "hex": "0x000AD9F2"
+    },
+    {
+      "name": "APPT",
+      "hash": 937198,
+      "hex": "0x000E4CEE"
+    },
+    {
+      "name": "ASET",
+      "hash": 929260,
+      "hex": "0x000E2DEC"
+    },
+    {
+      "name": "ASWL",
+      "hash": 784918,
+      "hex": "0x000BFA16"
+    },
+    {
+      "name": "ATLI",
+      "hash": 717877,
+      "hex": "0x000AF435"
+    },
+    {
+      "name": "ATTA",
+      "hash": 566245,
+      "hex": "0x0008A3E5"
+    },
+    {
+      "name": "BACK",
+      "hash": 750170,
+      "hex": "0x000B725A"
+    },
+    {
+      "name": "BARE",
+      "hash": 643007,
+      "hex": "0x0009CFBF"
+    },
+    {
+      "name": "BATT",
+      "hash": 939710,
+      "hex": "0x000E56BE"
+    },
+    {
+      "name": "BBLT",
+      "hash": 933905,
+      "hex": "0x000E4011"
+    },
+    {
+      "name": "BEND",
+      "hash": 620516,
+      "hex": "0x000977E4"
+    },
+    {
+      "name": "BFDT",
+      "hash": 928181,
+      "hex": "0x000E29B5"
+    },
+    {
+      "name": "BLIS",
+      "hash": 912305,
+      "hex": "0x000DEBB1"
+    },
+    {
+      "name": "BLTA",
+      "hash": 566030,
+      "hex": "0x0008A30E"
+    },
+    {
+      "name": "BLTP",
+      "hash": 861275,
+      "hex": "0x000D245B"
+    },
+    {
+      "name": "BOUN",
+      "hash": 822719,
+      "hex": "0x000C8DBF"
+    },
+    {
+      "name": "BOXI",
+      "hash": 726491,
+      "hex": "0x000B15DB"
+    },
+    {
+      "name": "BRAN",
+      "hash": 808220,
+      "hex": "0x000C551C"
+    },
+    {
+      "name": "BRCO",
+      "hash": 829361,
+      "hex": "0x000CA7B1"
+    },
+    {
+      "name": "BSAR",
+      "hash": 886979,
+      "hex": "0x000D88C3"
+    },
+    {
+      "name": "BTSE",
+      "hash": 644249,
+      "hex": "0x0009D499"
+    },
+    {
+      "name": "BUWL",
+      "hash": 784973,
+      "hex": "0x000BFA4D"
+    },
+    {
+      "name": "BVAR",
+      "hash": 887060,
+      "hex": "0x000D8914"
+    },
+    {
+      "name": "BVCL",
+      "hash": 770420,
+      "hex": "0x000BC174"
+    },
+    {
+      "name": "BVIE",
+      "hash": 637013,
+      "hex": "0x0009B855"
+    },
+    {
+      "name": "BVSA",
+      "hash": 565571,
+      "hex": "0x0008A143"
+    },
+    {
+      "name": "BWLD",
+      "hash": 619544,
+      "hex": "0x00097418"
+    },
+    {
+      "name": "CABD",
+      "hash": 611661,
+      "hex": "0x0009554D"
+    },
+    {
+      "name": "CARD",
+      "hash": 623325,
+      "hex": "0x000982DD"
+    },
+    {
+      "name": "CASE",
+      "hash": 643737,
+      "hex": "0x0009D299"
+    },
+    {
+      "name": "CAST",
+      "hash": 938982,
+      "hex": "0x000E53E6"
+    },
+    {
+      "name": "CASW",
+      "hash": 998031,
+      "hex": "0x000F3A8F"
+    },
+    {
+      "name": "CATA",
+      "hash": 565734,
+      "hex": "0x0008A1E6"
+    },
+    {
+      "name": "CATE",
+      "hash": 644466,
+      "hex": "0x0009D572"
+    },
+    {
+      "name": "CBOU",
+      "hash": 955776,
+      "hex": "0x000E9580"
+    },
+    {
+      "name": "CCTA",
+      "hash": 565788,
+      "hex": "0x0008A21C"
+    },
+    {
+      "name": "CDSE",
+      "hash": 643818,
+      "hex": "0x0009D2EA"
+    },
+    {
+      "name": "CELL",
+      "hash": 776523,
+      "hex": "0x000BD94B"
+    },
+    {
+      "name": "CINF",
+      "hash": 659991,
+      "hex": "0x000A1217"
+    },
+    {
+      "name": "CINV",
+      "hash": 974919,
+      "hex": "0x000EE047"
+    },
+    {
+      "name": "CIRC",
+      "hash": 603858,
+      "hex": "0x000936D2"
+    },
+    {
+      "name": "CIRL",
+      "hash": 781005,
+      "hex": "0x000BEACD"
+    },
+    {
+      "name": "CLEV",
+      "hash": 968439,
+      "hex": "0x000EC6F7"
+    },
+    {
+      "name": "CLLB",
+      "hash": 579882,
+      "hex": "0x0008D92A"
+    },
+    {
+      "name": "CLOS",
+      "hash": 916680,
+      "hex": "0x000DFCC8"
+    },
+    {
+      "name": "CMBU",
+      "hash": 946596,
+      "hex": "0x000E71A4"
+    },
+    {
+      "name": "CMFI",
+      "hash": 713316,
+      "hex": "0x000AE264"
+    },
+    {
+      "name": "CMMA",
+      "hash": 560955,
+      "hex": "0x00088F3B"
+    },
+    {
+      "name": "CMMO",
+      "hash": 836517,
+      "hex": "0x000CC3A5"
+    },
+    {
+      "name": "CMOP",
+      "hash": 857658,
+      "hex": "0x000D163A"
+    },
+    {
+      "name": "CMPD",
+      "hash": 622191,
+      "hex": "0x00097E6F"
+    },
+    {
+      "name": "CMPF",
+      "hash": 661557,
+      "hex": "0x000A1835"
+    },
+    {
+      "name": "CMPT",
+      "hash": 937119,
+      "hex": "0x000E4C9F"
+    },
+    {
+      "name": "CMPW",
+      "hash": 996168,
+      "hex": "0x000F3348"
+    },
+    {
+      "name": "CMRE",
+      "hash": 643332,
+      "hex": "0x0009D104"
+    },
+    {
+      "name": "COCO",
+      "hash": 829281,
+      "hex": "0x000CA761"
+    },
+    {
+      "name": "COFI",
+      "hash": 713370,
+      "hex": "0x000AE29A"
+    },
+    {
+      "name": "COMM",
+      "hash": 797205,
+      "hex": "0x000C2A15"
+    },
+    {
+      "name": "COMW",
+      "hash": 994035,
+      "hex": "0x000F2AF3"
+    },
+    {
+      "name": "CONE",
+      "hash": 640470,
+      "hex": "0x0009C5D6"
+    },
+    {
+      "name": "CONS",
+      "hash": 916032,
+      "hex": "0x000DFA40"
+    },
+    {
+      "name": "CONT",
+      "hash": 935715,
+      "hex": "0x000E4723"
+    },
+    {
+      "name": "CONW",
+      "hash": 994764,
+      "hex": "0x000F2DCC"
+    },
+    {
+      "name": "CORE",
+      "hash": 643386,
+      "hex": "0x0009D13A"
+    },
+    {
+      "name": "COUP",
+      "hash": 862086,
+      "hex": "0x000D2786"
+    },
+    {
+      "name": "COWL",
+      "hash": 784812,
+      "hex": "0x000BF9AC"
+    },
+    {
+      "name": "CPIN",
+      "hash": 813999,
+      "hex": "0x000C6BAF"
+    },
+    {
+      "name": "CPOR",
+      "hash": 897105,
+      "hex": "0x000DB051"
+    },
+    {
+      "name": "CROS",
+      "hash": 916842,
+      "hex": "0x000DFD6A"
+    },
+    {
+      "name": "CRST",
+      "hash": 939441,
+      "hex": "0x000E55B1"
+    },
+    {
+      "name": "CTOR",
+      "hash": 897213,
+      "hex": "0x000DB0BD"
+    },
+    {
+      "name": "CWAY",
+      "hash": 1024869,
+      "hex": "0x000FA365"
+    },
+    {
+      "name": "CYLI",
+      "hash": 718014,
+      "hex": "0x000AF4BE"
+    },
+    {
+      "name": "DAMP",
+      "hash": 855877,
+      "hex": "0x000D0F45"
+    },
+    {
+      "name": "DATA",
+      "hash": 565735,
+      "hex": "0x0008A1E7"
+    },
+    {
+      "name": "DATU",
+      "hash": 959395,
+      "hex": "0x000EA3A3"
+    },
+    {
+      "name": "DBLI",
+      "hash": 717394,
+      "hex": "0x000AF252"
+    },
+    {
+      "name": "DBOX",
+      "hash": 1014826,
+      "hex": "0x000F7C2A"
+    },
+    {
+      "name": "DBTY",
+      "hash": 1038154,
+      "hex": "0x000FD74A"
+    },
+    {
+      "name": "DBVW",
+      "hash": 1000246,
+      "hex": "0x000F4336"
+    },
+    {
+      "name": "DDAR",
+      "hash": 886576,
+      "hex": "0x000D8730"
+    },
+    {
+      "name": "DDAT",
+      "hash": 925942,
+      "hex": "0x000E20F6"
+    },
+    {
+      "name": "DDSE",
+      "hash": 643819,
+      "hex": "0x0009D2EB"
+    },
+    {
+      "name": "DEPT",
+      "hash": 936904,
+      "hex": "0x000E4BC8"
+    },
+    {
+      "name": "DGML",
+      "hash": 777307,
+      "hex": "0x000BDC5B"
+    },
+    {
+      "name": "DISH",
+      "hash": 703003,
+      "hex": "0x000ABA1B"
+    },
+    {
+      "name": "DLLB",
+      "hash": 579883,
+      "hex": "0x0008D92B"
+    },
+    {
+      "name": "DMND",
+      "hash": 620734,
+      "hex": "0x000978BE"
+    },
+    {
+      "name": "DOCU",
+      "hash": 947380,
+      "hex": "0x000E74B4"
+    },
+    {
+      "name": "DOOR",
+      "hash": 897079,
+      "hex": "0x000DB037"
+    },
+    {
+      "name": "DOST",
+      "hash": 939361,
+      "hex": "0x000E5561"
+    },
+    {
+      "name": "DOWL",
+      "hash": 784813,
+      "hex": "0x000BF9AD"
+    },
+    {
+      "name": "DPAR",
+      "hash": 886900,
+      "hex": "0x000D8874"
+    },
+    {
+      "name": "DPBA",
+      "hash": 553018,
+      "hex": "0x0008703A"
+    },
+    {
+      "name": "DPCA",
+      "hash": 553747,
+      "hex": "0x00087313"
+    },
+    {
+      "name": "DPCY",
+      "hash": 1026139,
+      "hex": "0x000FA85B"
+    },
+    {
+      "name": "DPLI",
+      "hash": 717772,
+      "hex": "0x000AF3CC"
+    },
+    {
+      "name": "DPLL",
+      "hash": 776821,
+      "hex": "0x000BDA75"
+    },
+    {
+      "name": "DPNT",
+      "hash": 935743,
+      "hex": "0x000E473F"
+    },
+    {
+      "name": "DPOI",
+      "hash": 719959,
+      "hex": "0x000AFC57"
+    },
+    {
+      "name": "DPPT",
+      "hash": 937201,
+      "hex": "0x000E4CF1"
+    },
+    {
+      "name": "DPSE",
+      "hash": 644143,
+      "hex": "0x0009D42F"
+    },
+    {
+      "name": "DPSP",
+      "hash": 860656,
+      "hex": "0x000D21F0"
+    },
+    {
+      "name": "DRAW",
+      "hash": 985369,
+      "hex": "0x000F0919"
+    },
+    {
+      "name": "DRWG",
+      "hash": 686479,
+      "hex": "0x000A798F"
+    },
+    {
+      "name": "DSEG",
+      "hash": 673384,
+      "hex": "0x000A4668"
+    },
+    {
+      "name": "DTAB",
+      "hash": 572080,
+      "hex": "0x0008BAB0"
+    },
+    {
+      "name": "DTSE",
+      "hash": 644251,
+      "hex": "0x0009D49B"
+    },
+    {
+      "name": "DTWL",
+      "hash": 784948,
+      "hex": "0x000BFA34"
+    },
+    {
+      "name": "DUCT",
+      "hash": 927859,
+      "hex": "0x000E2873"
+    },
+    {
+      "name": "DVEC",
+      "hash": 594733,
+      "hex": "0x0009132D"
+    },
+    {
+      "name": "ELBO",
+      "hash": 828473,
+      "hex": "0x000CA439"
+    },
+    {
+      "name": "ELLI",
+      "hash": 717665,
+      "hex": "0x000AF361"
+    },
+    {
+      "name": "EPLA",
+      "hash": 560309,
+      "hex": "0x00088CB5"
+    },
+    {
+      "name": "EQUI",
+      "hash": 724361,
+      "hex": "0x000B0D89"
+    },
+    {
+      "name": "ETRI",
+      "hash": 722255,
+      "hex": "0x000B054F"
+    },
+    {
+      "name": "EXTR",
+      "hash": 900968,
+      "hex": "0x000DBF68"
+    },
+    {
+      "name": "EYNT",
+      "hash": 935987,
+      "hex": "0x000E4833"
+    },
+    {
+      "name": "EYRD",
+      "hash": 623975,
+      "hex": "0x00098567"
+    },
+    {
+      "name": "FBLI",
+      "hash": 717396,
+      "hex": "0x000AF254"
+    },
+    {
+      "name": "FILT",
+      "hash": 934098,
+      "hex": "0x000E40D2"
+    },
+    {
+      "name": "FITT",
+      "hash": 939930,
+      "hex": "0x000E579A"
+    },
+    {
+      "name": "FLAN",
+      "hash": 808062,
+      "hex": "0x000C547E"
+    },
+    {
+      "name": "FLEX",
+      "hash": 1007808,
+      "hex": "0x000F60C0"
+    },
+    {
+      "name": "FLUI",
+      "hash": 724227,
+      "hex": "0x000B0D03"
+    },
+    {
+      "name": "FMWL",
+      "hash": 784761,
+      "hex": "0x000BF979"
+    },
+    {
+      "name": "FNTF",
+      "hash": 664503,
+      "hex": "0x000A23B7"
+    },
+    {
+      "name": "FPLA",
+      "hash": 560310,
+      "hex": "0x00088CB6"
+    },
+    {
+      "name": "FRMW",
+      "hash": 994119,
+      "hex": "0x000F2B47"
+    },
+    {
+      "name": "FTUB",
+      "hash": 586662,
+      "hex": "0x0008F3A6"
+    },
+    {
+      "name": "FTWL",
+      "hash": 784950,
+      "hex": "0x000BFA36"
+    },
+    {
+      "name": "GASK",
+      "hash": 761839,
+      "hex": "0x000B9FEF"
+    },
+    {
+      "name": "GLAB",
+      "hash": 571867,
+      "hex": "0x0008B9DB"
+    },
+    {
+      "name": "GMSE",
+      "hash": 644065,
+      "hex": "0x0009D3E1"
+    },
+    {
+      "name": "GMSS",
+      "hash": 919627,
+      "hex": "0x000E084B"
+    },
+    {
+      "name": "GPWL",
+      "hash": 784843,
+      "hex": "0x000BF9CB"
+    },
+    {
+      "name": "GRDM",
+      "hash": 790729,
+      "hex": "0x000C10C9"
+    },
+    {
+      "name": "GRIL",
+      "hash": 774691,
+      "hex": "0x000BD223"
+    },
+    {
+      "name": "GROU",
+      "hash": 956212,
+      "hex": "0x000E9734"
+    },
+    {
+      "name": "GRSO",
+      "hash": 841030,
+      "hex": "0x000CD546"
+    },
+    {
+      "name": "GRUL",
+      "hash": 783439,
+      "hex": "0x000BF44F"
+    },
+    {
+      "name": "HACC",
+      "hash": 592712,
+      "hex": "0x00090B48"
+    },
+    {
+      "name": "HANG",
+      "hash": 679463,
+      "hex": "0x000A5E27"
+    },
+    {
+      "name": "HELE",
+      "hash": 638747,
+      "hex": "0x0009BF1B"
+    },
+    {
+      "name": "HEXA",
+      "hash": 568763,
+      "hex": "0x0008ADBB"
+    },
+    {
+      "name": "HFAN",
+      "hash": 807902,
+      "hex": "0x000C53DE"
+    },
+    {
+      "name": "HNUT",
+      "hash": 940796,
+      "hex": "0x000E5AFC"
+    },
+    {
+      "name": "HOOK",
+      "hash": 759302,
+      "hex": "0x000B9606"
+    },
+    {
+      "name": "HPIN",
+      "hash": 814004,
+      "hex": "0x000C6BB4"
+    },
+    {
+      "name": "HROD",
+      "hash": 621602,
+      "hex": "0x00097C22"
+    },
+    {
+      "name": "HRSO",
+      "hash": 841031,
+      "hex": "0x000CD547"
+    },
+    {
+      "name": "HRST",
+      "hash": 939446,
+      "hex": "0x000E55B6"
+    },
+    {
+      "name": "HRUL",
+      "hash": 783440,
+      "hex": "0x000BF450"
+    },
+    {
+      "name": "HSAD",
+      "hash": 611423,
+      "hex": "0x0009545F"
+    },
+    {
+      "name": "HTAP",
+      "hash": 847646,
+      "hex": "0x000CEF1E"
+    },
+    {
+      "name": "HVAC",
+      "hash": 591821,
+      "hex": "0x000907CD"
+    },
+    {
+      "name": "IDAM",
+      "hash": 788166,
+      "hex": "0x000C06C6"
+    },
+    {
+      "name": "IDLI",
+      "hash": 717453,
+      "hex": "0x000AF28D"
+    },
+    {
+      "name": "ILIM",
+      "hash": 794214,
+      "hex": "0x000C1E66"
+    },
+    {
+      "name": "INST",
+      "hash": 939339,
+      "hex": "0x000E554B"
+    },
+    {
+      "name": "INSU",
+      "hash": 959022,
+      "hex": "0x000EA22E"
+    },
+    {
+      "name": "IPOI",
+      "hash": 719964,
+      "hex": "0x000AFC5C"
+    },
+    {
+      "name": "JOIN",
+      "hash": 813979,
+      "hex": "0x000C6B9B"
+    },
+    {
+      "name": "LALB",
+      "hash": 579594,
+      "hex": "0x0008D80A"
+    },
+    {
+      "name": "LAYE",
+      "hash": 648120,
+      "hex": "0x0009E3B8"
+    },
+    {
+      "name": "LCCA",
+      "hash": 553404,
+      "hex": "0x000871BC"
+    },
+    {
+      "name": "LCCY",
+      "hash": 1025796,
+      "hex": "0x000FA704"
+    },
+    {
+      "name": "LCDE",
+      "hash": 632865,
+      "hex": "0x0009A821"
+    },
+    {
+      "name": "LCSP",
+      "hash": 860313,
+      "hex": "0x000D2099"
+    },
+    {
+      "name": "LCYL",
+      "hash": 785955,
+      "hex": "0x000BFE23"
+    },
+    {
+      "name": "LDIM",
+      "hash": 794001,
+      "hex": "0x000C1D91"
+    },
+    {
+      "name": "LIBY",
+      "hash": 1025229,
+      "hex": "0x000FA4CD"
+    },
+    {
+      "name": "LINE",
+      "hash": 640317,
+      "hex": "0x0009C53D"
+    },
+    {
+      "name": "LJSE",
+      "hash": 643989,
+      "hex": "0x0009D395"
+    },
+    {
+      "name": "LMDB",
+      "hash": 574086,
+      "hex": "0x0008C286"
+    },
+    {
+      "name": "LNKI",
+      "hash": 716997,
+      "hex": "0x000AF0C5"
+    },
+    {
+      "name": "LNKS",
+      "hash": 913827,
+      "hex": "0x000DF1A3"
+    },
+    {
+      "name": "LOAP",
+      "hash": 847515,
+      "hex": "0x000CEE9B"
+    },
+    {
+      "name": "LOOP",
+      "hash": 857721,
+      "hex": "0x000D1679"
+    },
+    {
+      "name": "LPYR",
+      "hash": 904404,
+      "hex": "0x000DCCD4"
+    },
+    {
+      "name": "LRLB",
+      "hash": 580053,
+      "hex": "0x0008D9D5"
+    },
+    {
+      "name": "LSNO",
+      "hash": 837417,
+      "hex": "0x000CC729"
+    },
+    {
+      "name": "LSWL",
+      "hash": 784929,
+      "hex": "0x000BFA21"
+    },
+    {
+      "name": "LTAB",
+      "hash": 572088,
+      "hex": "0x0008BAB8"
+    },
+    {
+      "name": "LTEA",
+      "hash": 555321,
+      "hex": "0x00087939"
+    },
+    {
+      "name": "MATW",
+      "hash": 998770,
+      "hex": "0x000F3D72"
+    },
+    {
+      "name": "MBLI",
+      "hash": 717403,
+      "hex": "0x000AF25B"
+    },
+    {
+      "name": "MBOL",
+      "hash": 778639,
+      "hex": "0x000BE18F"
+    },
+    {
+      "name": "MDBL",
+      "hash": 769216,
+      "hex": "0x000BBCC0"
+    },
+    {
+      "name": "MDBW",
+      "hash": 985729,
+      "hex": "0x000F0A81"
+    },
+    {
+      "name": "MESH",
+      "hash": 702904,
+      "hex": "0x000AB9B8"
+    },
+    {
+      "name": "MESS",
+      "hash": 919417,
+      "hex": "0x000E0779"
+    },
+    {
+      "name": "MFIX",
+      "hash": 1010569,
+      "hex": "0x000F6B89"
+    },
+    {
+      "name": "MISW",
+      "hash": 998257,
+      "hex": "0x000F3B71"
+    },
+    {
+      "name": "MNOZ",
+      "hash": 1054525,
+      "hex": "0x0010173D"
+    },
+    {
+      "name": "MNUM",
+      "hash": 803020,
+      "hex": "0x000C40CC"
+    },
+    {
+      "name": "MRKP",
+      "hash": 854887,
+      "hex": "0x000D0B67"
+    },
+    {
+      "name": "MSET",
+      "hash": 929272,
+      "hex": "0x000E2DF8"
+    },
+    {
+      "name": "MSLI",
+      "hash": 717862,
+      "hex": "0x000AF426"
+    },
+    {
+      "name": "MTYP",
+      "hash": 865147,
+      "hex": "0x000D337B"
+    },
+    {
+      "name": "NBOX",
+      "hash": 1014836,
+      "hex": "0x000F7C34"
+    },
+    {
+      "name": "NBXI",
+      "hash": 726152,
+      "hex": "0x000B1488"
+    },
+    {
+      "name": "NCON",
+      "hash": 818033,
+      "hex": "0x000C7B71"
+    },
+    {
+      "name": "NCTO",
+      "hash": 841361,
+      "hex": "0x000CD691"
+    },
+    {
+      "name": "NCYL",
+      "hash": 785957,
+      "hex": "0x000BFE25"
+    },
+    {
+      "name": "NDIS",
+      "hash": 912101,
+      "hex": "0x000DEAE5"
+    },
+    {
+      "name": "NGMS",
+      "hash": 915098,
+      "hex": "0x000DF69A"
+    },
+    {
+      "name": "NLCY",
+      "hash": 1026041,
+      "hex": "0x000FA7F9"
+    },
+    {
+      "name": "NLPY",
+      "hash": 1035518,
+      "hex": "0x000FCCFE"
+    },
+    {
+      "name": "NLSN",
+      "hash": 821192,
+      "hex": "0x000C87C8"
+    },
+    {
+      "name": "NODI",
+      "hash": 711923,
+      "hex": "0x000ADCF3"
+    },
+    {
+      "name": "NOLO",
+      "hash": 835853,
+      "hex": "0x000CC10D"
+    },
+    {
+      "name": "NOTE",
+      "hash": 644855,
+      "hex": "0x0009D6F7"
+    },
+    {
+      "name": "NOZZ",
+      "hash": 1062572,
+      "hex": "0x001036AC"
+    },
+    {
+      "name": "NPYR",
+      "hash": 904406,
+      "hex": "0x000DCCD6"
+    },
+    {
+      "name": "NREV",
+      "hash": 968612,
+      "hex": "0x000EC7A4"
+    },
+    {
+      "name": "NRTO",
+      "hash": 841766,
+      "hex": "0x000CD826"
+    },
+    {
+      "name": "NSBO",
+      "hash": 828671,
+      "hex": "0x000CA4FF"
+    },
+    {
+      "name": "NSCO",
+      "hash": 829400,
+      "hex": "0x000CA7D8"
+    },
+    {
+      "name": "NSCT",
+      "hash": 927815,
+      "hex": "0x000E2847"
+    },
+    {
+      "name": "NSCY",
+      "hash": 1026230,
+      "hex": "0x000FA8B6"
+    },
+    {
+      "name": "NSDS",
+      "hash": 908861,
+      "hex": "0x000DDE3D"
+    },
+    {
+      "name": "NSEX",
+      "hash": 1008005,
+      "hex": "0x000F6185"
+    },
+    {
+      "name": "NSLC",
+      "hash": 599765,
+      "hex": "0x000926D5"
+    },
+    {
+      "name": "NSNO",
+      "hash": 837419,
+      "hex": "0x000CC72B"
+    },
+    {
+      "name": "NSRE",
+      "hash": 643505,
+      "hex": "0x0009D1B1"
+    },
+    {
+      "name": "NSRT",
+      "hash": 938750,
+      "hex": "0x000E52FE"
+    },
+    {
+      "name": "NSSL",
+      "hash": 782015,
+      "hex": "0x000BEEBF"
+    },
+    {
+      "name": "NSSP",
+      "hash": 860747,
+      "hex": "0x000D224B"
+    },
+    {
+      "name": "NTUB",
+      "hash": 586670,
+      "hex": "0x0008F3AE"
+    },
+    {
+      "name": "NXTR",
+      "hash": 900977,
+      "hex": "0x000DBF71"
+    },
+    {
+      "name": "OFST",
+      "hash": 939129,
+      "hex": "0x000E5479"
+    },
+    {
+      "name": "OLAY",
+      "hash": 1024584,
+      "hex": "0x000FA248"
+    },
+    {
+      "name": "OLET",
+      "hash": 929085,
+      "hex": "0x000E2D3D"
+    },
+    {
+      "name": "OUTL",
+      "hash": 782799,
+      "hex": "0x000BF1CF"
+    },
+    {
+      "name": "OVER",
+      "hash": 889989,
+      "hex": "0x000D9485"
+    },
+    {
+      "name": "PALJ",
+      "hash": 737062,
+      "hex": "0x000B3F26"
+    },
+    {
+      "name": "PANE",
+      "hash": 640105,
+      "hex": "0x0009C469"
+    },
+    {
+      "name": "PAVE",
+      "hash": 645937,
+      "hex": "0x0009DB31"
+    },
+    {
+      "name": "PBOX",
+      "hash": 1014838,
+      "hex": "0x000F7C36"
+    },
+    {
+      "name": "PCLA",
+      "hash": 559969,
+      "hex": "0x00088B61"
+    },
+    {
+      "name": "PCLI",
+      "hash": 717433,
+      "hex": "0x000AF279"
+    },
+    {
+      "name": "PCOJ",
+      "hash": 739303,
+      "hex": "0x000B47E7"
+    },
+    {
+      "name": "PCOM",
+      "hash": 798352,
+      "hex": "0x000C2E90"
+    },
+    {
+      "name": "PCYL",
+      "hash": 785959,
+      "hex": "0x000BFE27"
+    },
+    {
+      "name": "PDIM",
+      "hash": 794005,
+      "hex": "0x000C1D95"
+    },
+    {
+      "name": "PFIT",
+      "hash": 931840,
+      "hex": "0x000E3800"
+    },
+    {
+      "name": "PIPE",
+      "hash": 641779,
+      "hex": "0x0009CAF3"
+    },
+    {
+      "name": "PJOI",
+      "hash": 719809,
+      "hex": "0x000AFBC1"
+    },
+    {
+      "name": "PLAT",
+      "hash": 926170,
+      "hex": "0x000E21DA"
+    },
+    {
+      "name": "PLEN",
+      "hash": 810988,
+      "hex": "0x000C5FEC"
+    },
+    {
+      "name": "PLIN",
+      "hash": 813904,
+      "hex": "0x000C6B50"
+    },
+    {
+      "name": "PLLB",
+      "hash": 579895,
+      "hex": "0x0008D937"
+    },
+    {
+      "name": "PLOO",
+      "hash": 837961,
+      "hex": "0x000CC949"
+    },
+    {
+      "name": "PLUG",
+      "hash": 684871,
+      "hex": "0x000A7347"
+    },
+    {
+      "name": "PNOD",
+      "hash": 621502,
+      "hex": "0x00097BBE"
+    },
+    {
+      "name": "POGO",
+      "hash": 832210,
+      "hex": "0x000CB2D2"
+    },
+    {
+      "name": "POHE",
+      "hash": 636109,
+      "hex": "0x0009B4CD"
+    },
+    {
+      "name": "POIN",
+      "hash": 813985,
+      "hex": "0x000C6BA1"
+    },
+    {
+      "name": "PORI",
+      "hash": 722131,
+      "hex": "0x000B04D3"
+    },
+    {
+      "name": "PORS",
+      "hash": 918961,
+      "hex": "0x000E05B1"
+    },
+    {
+      "name": "POST",
+      "hash": 939373,
+      "hex": "0x000E556D"
+    },
+    {
+      "name": "PPLA",
+      "hash": 560320,
+      "hex": "0x00088CC0"
+    },
+    {
+      "name": "PPOS",
+      "hash": 916801,
+      "hex": "0x000DFD41"
+    },
+    {
+      "name": "PPPT",
+      "hash": 937213,
+      "hex": "0x000E4CFD"
+    },
+    {
+      "name": "PPYR",
+      "hash": 904408,
+      "hex": "0x000DCCD8"
+    },
+    {
+      "name": "PRIM",
+      "hash": 794383,
+      "hex": "0x000C1F0F"
+    },
+    {
+      "name": "PRMF",
+      "hash": 659518,
+      "hex": "0x000A103E"
+    },
+    {
+      "name": "PSNO",
+      "hash": 837421,
+      "hex": "0x000CC72D"
+    },
+    {
+      "name": "PTAP",
+      "hash": 847654,
+      "hex": "0x000CEF26"
+    },
+    {
+      "name": "PTAX",
+      "hash": 1005118,
+      "hex": "0x000F563E"
+    },
+    {
+      "name": "PTCA",
+      "hash": 553867,
+      "hex": "0x0008738B"
+    },
+    {
+      "name": "PTMI",
+      "hash": 718621,
+      "hex": "0x000AF71D"
+    },
+    {
+      "name": "PTRA",
+      "hash": 564802,
+      "hex": "0x00089E42"
+    },
+    {
+      "name": "PTSE",
+      "hash": 644263,
+      "hex": "0x0009D4A7"
+    },
+    {
+      "name": "PTSS",
+      "hash": 919825,
+      "hex": "0x000E0911"
+    },
+    {
+      "name": "PTST",
+      "hash": 939508,
+      "hex": "0x000E55F4"
+    },
+    {
+      "name": "PTWL",
+      "hash": 784960,
+      "hex": "0x000BFA40"
+    },
+    {
+      "name": "PVOL",
+      "hash": 779182,
+      "hex": "0x000BE3AE"
+    },
+    {
+      "name": "PYRA",
+      "hash": 564937,
+      "hex": "0x00089EC9"
+    },
+    {
+      "name": "RAIL",
+      "hash": 774243,
+      "hex": "0x000BD063"
+    },
+    {
+      "name": "RCPL",
+      "hash": 779400,
+      "hex": "0x000BE488"
+    },
+    {
+      "name": "RDIM",
+      "hash": 794007,
+      "hex": "0x000C1D97"
+    },
+    {
+      "name": "RECI",
+      "hash": 710928,
+      "hex": "0x000AD910"
+    },
+    {
+      "name": "RECT",
+      "hash": 927441,
+      "hex": "0x000E26D1"
+    },
+    {
+      "name": "REDU",
+      "hash": 947853,
+      "hex": "0x000E768D"
+    },
+    {
+      "name": "REGI",
+      "hash": 713844,
+      "hex": "0x000AE474"
+    },
+    {
+      "name": "RELE",
+      "hash": 638757,
+      "hex": "0x0009BF25"
+    },
+    {
+      "name": "REME",
+      "hash": 639486,
+      "hex": "0x0009C1FE"
+    },
+    {
+      "name": "REPO",
+      "hash": 838503,
+      "hex": "0x000CCB67"
+    },
+    {
+      "name": "REST",
+      "hash": 939105,
+      "hex": "0x000E5461"
+    },
+    {
+      "name": "REVI",
+      "hash": 724779,
+      "hex": "0x000B0F2B"
+    },
+    {
+      "name": "REVO",
+      "hash": 842877,
+      "hex": "0x000CDC7D"
+    },
+    {
+      "name": "RFWL",
+      "hash": 784584,
+      "hex": "0x000BF8C8"
+    },
+    {
+      "name": "RLST",
+      "hash": 939294,
+      "hex": "0x000E551E"
+    },
+    {
+      "name": "RLWL",
+      "hash": 784746,
+      "hex": "0x000BF96A"
+    },
+    {
+      "name": "ROLE",
+      "hash": 639027,
+      "hex": "0x0009C033"
+    },
+    {
+      "name": "ROLW",
+      "hash": 993321,
+      "hex": "0x000F2829"
+    },
+    {
+      "name": "ROOM",
+      "hash": 798678,
+      "hex": "0x000C2FD6"
+    },
+    {
+      "name": "RPLA",
+      "hash": 560322,
+      "hex": "0x00088CC2"
+    },
+    {
+      "name": "RPLB",
+      "hash": 580005,
+      "hex": "0x0008D9A5"
+    },
+    {
+      "name": "RPLG",
+      "hash": 678420,
+      "hex": "0x000A5A14"
+    },
+    {
+      "name": "RPOI",
+      "hash": 719973,
+      "hex": "0x000AFC65"
+    },
+    {
+      "name": "RPPT",
+      "hash": 937215,
+      "hex": "0x000E4CFF"
+    },
+    {
+      "name": "RRST",
+      "hash": 939456,
+      "hex": "0x000E55C0"
+    },
+    {
+      "name": "RRUL",
+      "hash": 783450,
+      "hex": "0x000BF45A"
+    },
+    {
+      "name": "RSEG",
+      "hash": 673398,
+      "hex": "0x000A4676"
+    },
+    {
+      "name": "RTOR",
+      "hash": 897228,
+      "hex": "0x000DB0CC"
+    },
+    {
+      "name": "RUNF",
+      "hash": 660330,
+      "hex": "0x000A136A"
+    },
+    {
+      "name": "RUNW",
+      "hash": 994941,
+      "hex": "0x000F2E7D"
+    },
+    {
+      "name": "SANN",
+      "hash": 817255,
+      "hex": "0x000C7867"
+    },
+    {
+      "name": "SAPR",
+      "hash": 897445,
+      "hex": "0x000DB1A5"
+    },
+    {
+      "name": "SBFI",
+      "hash": 713035,
+      "hex": "0x000AE14B"
+    },
+    {
+      "name": "SBFR",
+      "hash": 890182,
+      "hex": "0x000D9546"
+    },
+    {
+      "name": "SBOL",
+      "hash": 778645,
+      "hex": "0x000BE195"
+    },
+    {
+      "name": "SBOX",
+      "hash": 1014841,
+      "hex": "0x000F7C39"
+    },
+    {
+      "name": "SBPR",
+      "hash": 897472,
+      "hex": "0x000DB1C0"
+    },
+    {
+      "name": "SCLA",
+      "hash": 559972,
+      "hex": "0x00088B64"
+    },
+    {
+      "name": "SCOJ",
+      "hash": 739306,
+      "hex": "0x000B47EA"
+    },
+    {
+      "name": "SCOM",
+      "hash": 798355,
+      "hex": "0x000C2E93"
+    },
+    {
+      "name": "SCON",
+      "hash": 818038,
+      "hex": "0x000C7B76"
+    },
+    {
+      "name": "SCOW",
+      "hash": 995185,
+      "hex": "0x000F2F71"
+    },
+    {
+      "name": "SCPR",
+      "hash": 897499,
+      "hex": "0x000DB1DB"
+    },
+    {
+      "name": "SCTN",
+      "hash": 821683,
+      "hex": "0x000C89B3"
+    },
+    {
+      "name": "SCTO",
+      "hash": 841366,
+      "hex": "0x000CD696"
+    },
+    {
+      "name": "SCYL",
+      "hash": 785962,
+      "hex": "0x000BFE2A"
+    },
+    {
+      "name": "SDEN",
+      "hash": 810775,
+      "hex": "0x000C5F17"
+    },
+    {
+      "name": "SDIS",
+      "hash": 912106,
+      "hex": "0x000DEAEA"
+    },
+    {
+      "name": "SDLO",
+      "hash": 835561,
+      "hex": "0x000CBFE9"
+    },
+    {
+      "name": "SDSH",
+      "hash": 702883,
+      "hex": "0x000AB9A3"
+    },
+    {
+      "name": "SDTE",
+      "hash": 644563,
+      "hex": "0x0009D5D3"
+    },
+    {
+      "name": "SECT",
+      "hash": 927442,
+      "hex": "0x000E26D2"
+    },
+    {
+      "name": "SELE",
+      "hash": 638758,
+      "hex": "0x0009BF26"
+    },
+    {
+      "name": "SELJ",
+      "hash": 737173,
+      "hex": "0x000B3F95"
+    },
+    {
+      "name": "SEVE",
+      "hash": 646048,
+      "hex": "0x0009DBA0"
+    },
+    {
+      "name": "SEXP",
+      "hash": 864019,
+      "hex": "0x000D2F13"
+    },
+    {
+      "name": "SEXT",
+      "hash": 942751,
+      "hex": "0x000E629F"
+    },
+    {
+      "name": "SFIT",
+      "hash": 931843,
+      "hex": "0x000E3803"
+    },
+    {
+      "name": "SHEE",
+      "hash": 633736,
+      "hex": "0x0009AB88"
+    },
+    {
+      "name": "SHLB",
+      "hash": 579790,
+      "hex": "0x0008D8CE"
+    },
+    {
+      "name": "SHOE",
+      "hash": 641026,
+      "hex": "0x0009C802"
+    },
+    {
+      "name": "SILE",
+      "hash": 638866,
+      "hex": "0x0009BF92"
+    },
+    {
+      "name": "SITE",
+      "hash": 644698,
+      "hex": "0x0009D65A"
+    },
+    {
+      "name": "SJOI",
+      "hash": 719812,
+      "hex": "0x000AFBC4"
+    },
+    {
+      "name": "SKIR",
+      "hash": 892612,
+      "hex": "0x000D9EC4"
+    },
+    {
+      "name": "SLAB",
+      "hash": 571879,
+      "hex": "0x0008B9E7"
+    },
+    {
+      "name": "SLCY",
+      "hash": 1026046,
+      "hex": "0x000FA7FE"
+    },
+    {
+      "name": "SLOO",
+      "hash": 837964,
+      "hex": "0x000CC94C"
+    },
+    {
+      "name": "SLUG",
+      "hash": 684874,
+      "hex": "0x000A734A"
+    },
+    {
+      "name": "SMAP",
+      "hash": 847468,
+      "hex": "0x000CEE6C"
+    },
+    {
+      "name": "SMES",
+      "hash": 909433,
+      "hex": "0x000DE079"
+    },
+    {
+      "name": "SMTE",
+      "hash": 644806,
+      "hex": "0x0009D6C6"
+    },
+    {
+      "name": "SNOD",
+      "hash": 621505,
+      "hex": "0x00097BC1"
+    },
+    {
+      "name": "SNOU",
+      "hash": 956116,
+      "hex": "0x000E96D4"
+    },
+    {
+      "name": "SNUB",
+      "hash": 586513,
+      "hex": "0x0008F311"
+    },
+    {
+      "name": "SOLI",
+      "hash": 717760,
+      "hex": "0x000AF3C0"
+    },
+    {
+      "name": "SOST",
+      "hash": 939376,
+      "hex": "0x000E5570"
+    },
+    {
+      "name": "SPAC",
+      "hash": 591670,
+      "hex": "0x00090736"
+    },
+    {
+      "name": "SPCO",
+      "hash": 829324,
+      "hex": "0x000CA78C"
+    },
+    {
+      "name": "SPEC",
+      "hash": 594586,
+      "hex": "0x0009129A"
+    },
+    {
+      "name": "SPLA",
+      "hash": 560323,
+      "hex": "0x00088CC3"
+    },
+    {
+      "name": "SPLO",
+      "hash": 835885,
+      "hex": "0x000CC12D"
+    },
+    {
+      "name": "SPLR",
+      "hash": 894934,
+      "hex": "0x000DA7D6"
+    },
+    {
+      "name": "SPOI",
+      "hash": 719974,
+      "hex": "0x000AFC66"
+    },
+    {
+      "name": "SPRF",
+      "hash": 663112,
+      "hex": "0x000A1E48"
+    },
+    {
+      "name": "SPRO",
+      "hash": 840259,
+      "hex": "0x000CD243"
+    },
+    {
+      "name": "SPST",
+      "hash": 939403,
+      "hex": "0x000E558B"
+    },
+    {
+      "name": "SPVE",
+      "hash": 646345,
+      "hex": "0x0009DCC9"
+    },
+    {
+      "name": "SPWL",
+      "hash": 784855,
+      "hex": "0x000BF9D7"
+    },
+    {
+      "name": "SREC",
+      "hash": 594640,
+      "hex": "0x000912D0"
+    },
+    {
+      "name": "SREV",
+      "hash": 968617,
+      "hex": "0x000EC7A9"
+    },
+    {
+      "name": "SRTO",
+      "hash": 841771,
+      "hex": "0x000CD82B"
+    },
+    {
+      "name": "SSBD",
+      "hash": 612163,
+      "hex": "0x00095743"
+    },
+    {
+      "name": "SSLC",
+      "hash": 599770,
+      "hex": "0x000926DA"
+    },
+    {
+      "name": "SSPH",
+      "hash": 701101,
+      "hex": "0x000AB2AD"
+    },
+    {
+      "name": "SSTR",
+      "hash": 900847,
+      "hex": "0x000DBEEF"
+    },
+    {
+      "name": "STAT",
+      "hash": 926389,
+      "hex": "0x000E22B5"
+    },
+    {
+      "name": "STCA",
+      "hash": 553870,
+      "hex": "0x0008738E"
+    },
+    {
+      "name": "STIF",
+      "hash": 656659,
+      "hex": "0x000A0513"
+    },
+    {
+      "name": "STLS",
+      "hash": 914725,
+      "hex": "0x000DF525"
+    },
+    {
+      "name": "STRA",
+      "hash": 564805,
+      "hex": "0x00089E45"
+    },
+    {
+      "name": "STRT",
+      "hash": 938782,
+      "hex": "0x000E531E"
+    },
+    {
+      "name": "STRU",
+      "hash": 958465,
+      "hex": "0x000EA001"
+    },
+    {
+      "name": "STSE",
+      "hash": 644266,
+      "hex": "0x0009D4AA"
+    },
+    {
+      "name": "STYL",
+      "hash": 786421,
+      "hex": "0x000BFFF5"
+    },
+    {
+      "name": "SUBD",
+      "hash": 612217,
+      "hex": "0x00095779"
+    },
+    {
+      "name": "SUBE",
+      "hash": 631900,
+      "hex": "0x0009A45C"
+    },
+    {
+      "name": "SUBJ",
+      "hash": 730315,
+      "hex": "0x000B24CB"
+    },
+    {
+      "name": "SUBS",
+      "hash": 907462,
+      "hex": "0x000DD8C6"
+    },
+    {
+      "name": "SUPC",
+      "hash": 602740,
+      "hex": "0x00093274"
+    },
+    {
+      "name": "SVER",
+      "hash": 889993,
+      "hex": "0x000D9489"
+    },
+    {
+      "name": "SWBR",
+      "hash": 887833,
+      "hex": "0x000D8C19"
+    },
+    {
+      "name": "SYLB",
+      "hash": 580249,
+      "hex": "0x0008DA99"
+    },
+    {
+      "name": "SYMB",
+      "hash": 580978,
+      "hex": "0x0008DD72"
+    },
+    {
+      "name": "SYOU",
+      "hash": 956413,
+      "hex": "0x000E97FD"
+    },
+    {
+      "name": "SYTM",
+      "hash": 802594,
+      "hex": "0x000C3F22"
+    },
+    {
+      "name": "TABL",
+      "hash": 769142,
+      "hex": "0x000BBC76"
+    },
+    {
+      "name": "TAGR",
+      "hash": 890885,
+      "hex": "0x000D9805"
+    },
+    {
+      "name": "TANP",
+      "hash": 856622,
+      "hex": "0x000D122E"
+    },
+    {
+      "name": "TAPE",
+      "hash": 641567,
+      "hex": "0x0009CA1F"
+    },
+    {
+      "name": "TAPR",
+      "hash": 897446,
+      "hex": "0x000DB1A6"
+    },
+    {
+      "name": "TASK",
+      "hash": 761852,
+      "hex": "0x000B9FFC"
+    },
+    {
+      "name": "TBPR",
+      "hash": 897473,
+      "hex": "0x000DB1C1"
+    },
+    {
+      "name": "TCAS",
+      "hash": 906248,
+      "hex": "0x000DD408"
+    },
+    {
+      "name": "TCOM",
+      "hash": 798356,
+      "hex": "0x000C2E94"
+    },
+    {
+      "name": "TCPR",
+      "hash": 897500,
+      "hex": "0x000DB1DC"
+    },
+    {
+      "name": "TDEN",
+      "hash": 810776,
+      "hex": "0x000C5F18"
+    },
+    {
+      "name": "TDIS",
+      "hash": 912107,
+      "hex": "0x000DEAEB"
+    },
+    {
+      "name": "TEAM",
+      "hash": 788204,
+      "hex": "0x000C06EC"
+    },
+    {
+      "name": "TEXP",
+      "hash": 864020,
+      "hex": "0x000D2F14"
+    },
+    {
+      "name": "TEXT",
+      "hash": 942752,
+      "hex": "0x000E62A0"
+    },
+    {
+      "name": "THRE",
+      "hash": 643214,
+      "hex": "0x0009D08E"
+    },
+    {
+      "name": "TMAR",
+      "hash": 886835,
+      "hex": "0x000D8833"
+    },
+    {
+      "name": "TMLI",
+      "hash": 717707,
+      "hex": "0x000AF38B"
+    },
+    {
+      "name": "TMPL",
+      "hash": 779672,
+      "hex": "0x000BE598"
+    },
+    {
+      "name": "TMWL",
+      "hash": 784775,
+      "hex": "0x000BF987"
+    },
+    {
+      "name": "TPOI",
+      "hash": 719975,
+      "hex": "0x000AFC67"
+    },
+    {
+      "name": "TPWL",
+      "hash": 784856,
+      "hex": "0x000BF9D8"
+    },
+    {
+      "name": "TRAC",
+      "hash": 591725,
+      "hex": "0x0009076D"
+    },
+    {
+      "name": "TRAP",
+      "hash": 847604,
+      "hex": "0x000CEEF4"
+    },
+    {
+      "name": "TRLB",
+      "hash": 580061,
+      "hex": "0x0008D9DD"
+    },
+    {
+      "name": "TRNB",
+      "hash": 581519,
+      "hex": "0x0008DF8F"
+    },
+    {
+      "name": "TRNN",
+      "hash": 817715,
+      "hex": "0x000C7A33"
+    },
+    {
+      "name": "TRNS",
+      "hash": 916130,
+      "hex": "0x000DFAA2"
+    },
+    {
+      "name": "TRST",
+      "hash": 939458,
+      "hex": "0x000E55C2"
+    },
+    {
+      "name": "TSTR",
+      "hash": 900848,
+      "hex": "0x000DBEF0"
+    },
+    {
+      "name": "TUBD",
+      "hash": 612218,
+      "hex": "0x0009577A"
+    },
+    {
+      "name": "TUBE",
+      "hash": 631901,
+      "hex": "0x0009A45D"
+    },
+    {
+      "name": "TUBI",
+      "hash": 710633,
+      "hex": "0x000AD7E9"
+    },
+    {
+      "name": "TXTM",
+      "hash": 802568,
+      "hex": "0x000C3F08"
+    },
+    {
+      "name": "TYOU",
+      "hash": 956414,
+      "hex": "0x000E97FE"
+    },
+    {
+      "name": "UBOL",
+      "hash": 778647,
+      "hex": "0x000BE197"
+    },
+    {
+      "name": "UDEF",
+      "hash": 653313,
+      "hex": "0x0009F801"
+    },
+    {
+      "name": "UDET",
+      "hash": 928875,
+      "hex": "0x000E2C6B"
+    },
+    {
+      "name": "UDTG",
+      "hash": 683931,
+      "hex": "0x000A6F9B"
+    },
+    {
+      "name": "UDTW",
+      "hash": 998859,
+      "hex": "0x000F3DCB"
+    },
+    {
+      "name": "UGRO",
+      "hash": 840018,
+      "hex": "0x000CD152"
+    },
+    {
+      "name": "UNIO",
+      "hash": 833646,
+      "hex": "0x000CB86E"
+    },
+    {
+      "name": "UNIT",
+      "hash": 932061,
+      "hex": "0x000E38DD"
+    },
+    {
+      "name": "USDA",
+      "hash": 554574,
+      "hex": "0x0008764E"
+    },
+    {
+      "name": "USEC",
+      "hash": 594669,
+      "hex": "0x000912ED"
+    },
+    {
+      "name": "USER",
+      "hash": 889914,
+      "hex": "0x000D943A"
+    },
+    {
+      "name": "USLI",
+      "hash": 717870,
+      "hex": "0x000AF42E"
+    },
+    {
+      "name": "USWL",
+      "hash": 784938,
+      "hex": "0x000BFA2A"
+    },
+    {
+      "name": "UWRL",
+      "hash": 781401,
+      "hex": "0x000BEC59"
+    },
+    {
+      "name": "VALV",
+      "hash": 973264,
+      "hex": "0x000ED9D0"
+    },
+    {
+      "name": "VENT",
+      "hash": 935464,
+      "hex": "0x000E4628"
+    },
+    {
+      "name": "VERT",
+      "hash": 938380,
+      "hex": "0x000E518C"
+    },
+    {
+      "name": "VFWA",
+      "hash": 568075,
+      "hex": "0x0008AB0B"
+    },
+    {
+      "name": "VIEW",
+      "hash": 988060,
+      "hex": "0x000F139C"
+    },
+    {
+      "name": "VNOT",
+      "hash": 936436,
+      "hex": "0x000E49F4"
+    },
+    {
+      "name": "VOLM",
+      "hash": 796495,
+      "hex": "0x000C274F"
+    },
+    {
+      "name": "VRTX",
+      "hash": 1018921,
+      "hex": "0x000F8C29"
+    },
+    {
+      "name": "VSEC",
+      "hash": 594670,
+      "hex": "0x000912EE"
+    },
+    {
+      "name": "VSPR",
+      "hash": 897934,
+      "hex": "0x000DB38E"
+    },
+    {
+      "name": "VTWA",
+      "hash": 568453,
+      "hex": "0x0008AC85"
+    },
+    {
+      "name": "WALL",
+      "hash": 776435,
+      "hex": "0x000BD8F3"
+    },
+    {
+      "name": "WASH",
+      "hash": 702806,
+      "hex": "0x000AB956"
+    },
+    {
+      "name": "WDET",
+      "hash": 928877,
+      "hex": "0x000E2C6D"
+    },
+    {
+      "name": "WELD",
+      "hash": 619079,
+      "hex": "0x00097247"
+    },
+    {
+      "name": "WORL",
+      "hash": 781187,
+      "hex": "0x000BEB83"
+    },
+    {
+      "name": "WPAD",
+      "hash": 611357,
+      "hex": "0x0009541D"
+    },
+    {
+      "name": "WPOS",
+      "hash": 916808,
+      "hex": "0x000DFD48"
+    },
+    {
+      "name": "ZONE",
+      "hash": 640493,
+      "hex": "0x0009C5ED"
+    },
+    {
+      "name": "ACONE",
+      "hash": 3475225,
+      "hex": "0x00350719"
+    },
+    {
+      "name": "ACRST",
+      "hash": 11547442,
+      "hex": "0x00B03332"
+    },
+    {
+      "name": "ACTOR",
+      "hash": 10407286,
+      "hex": "0x009ECD76"
+    },
+    {
+      "name": "ACYLI",
+      "hash": 5568913,
+      "hex": "0x0054F991"
+    },
+    {
+      "name": "ADISH",
+      "hash": 5163616,
+      "hex": "0x004ECA60"
+    },
+    {
+      "name": "AEXTR",
+      "hash": 10508671,
+      "hex": "0x00A0597F"
+    },
+    {
+      "name": "APCAL",
+      "hash": 6931036,
+      "hex": "0x0069C25C"
+    },
+    {
+      "name": "APYRA",
+      "hash": 1435834,
+      "hex": "0x0015E8BA"
+    },
+    {
+      "name": "AREVO",
+      "hash": 8940214,
+      "hex": "0x00886AB6"
+    },
+    {
+      "name": "ARTOR",
+      "hash": 10407691,
+      "hex": "0x009ECF0B"
+    },
+    {
+      "name": "ASLCY",
+      "hash": 13885777,
+      "hex": "0x00D3E151"
+    },
+    {
+      "name": "ASNOU",
+      "hash": 11997667,
+      "hex": "0x00B711E3"
+    },
+    {
+      "name": "ASSOC",
+      "hash": 2435374,
+      "hex": "0x0025292E"
+    },
+    {
+      "name": "ATTHD",
+      "hash": 2829790,
+      "hex": "0x002B2DDE"
+    },
+    {
+      "name": "AUXFN",
+      "hash": 8107777,
+      "hex": "0x007BB701"
+    },
+    {
+      "name": "AUXPR",
+      "hash": 10430371,
+      "hex": "0x009F27A3"
+    },
+    {
+      "name": "AWELD",
+      "hash": 2897668,
+      "hex": "0x002C3704"
+    },
+    {
+      "name": "BEVEL",
+      "hash": 7023323,
+      "hex": "0x006B2ADB"
+    },
+    {
+      "name": "BLOCK",
+      "hash": 6447602,
+      "hex": "0x006261F2"
+    },
+    {
+      "name": "BRTAB",
+      "hash": 1629074,
+      "hex": "0x0018DB92"
+    },
+    {
+      "name": "BUILD",
+      "hash": 2900531,
+      "hex": "0x002C4233"
+    },
+    {
+      "name": "BVTBL",
+      "hash": 6963275,
+      "hex": "0x006A404B"
+    },
+    {
+      "name": "CABLE",
+      "hash": 3426330,
+      "hex": "0x0034481A"
+    },
+    {
+      "name": "CBSEG",
+      "hash": 4363851,
+      "hex": "0x0042964B"
+    },
+    {
+      "name": "CHOLE",
+      "hash": 3435996,
+      "hex": "0x00346DDC"
+    },
+    {
+      "name": "CJUMP",
+      "hash": 9305958,
+      "hex": "0x008DFF66"
+    },
+    {
+      "name": "CNODE",
+      "hash": 3278694,
+      "hex": "0x00320766"
+    },
+    {
+      "name": "CPROF",
+      "hash": 4028889,
+      "hex": "0x003D79D9"
+    },
+    {
+      "name": "CSEAM",
+      "hash": 7464018,
+      "hex": "0x0071E452"
+    },
+    {
+      "name": "CSURF",
+      "hash": 4090206,
+      "hex": "0x003E695E"
+    },
+    {
+      "name": "CTRAY",
+      "hash": 13850814,
+      "hex": "0x00D358BE"
+    },
+    {
+      "name": "CTTEE",
+      "hash": 3302184,
+      "hex": "0x00326328"
+    },
+    {
+      "name": "CURVE",
+      "hash": 3635364,
+      "hex": "0x003778A4"
+    },
+    {
+      "name": "CUTBR",
+      "hash": 10151895,
+      "hex": "0x009AE7D7"
+    },
+    {
+      "name": "CUTFR",
+      "hash": 10230627,
+      "hex": "0x009C1B63"
+    },
+    {
+      "name": "CWALL",
+      "hash": 7146282,
+      "hex": "0x006D0B2A"
+    },
+    {
+      "name": "DARST",
+      "hash": 11547391,
+      "hex": "0x00B032FF"
+    },
+    {
+      "name": "DBALL",
+      "hash": 7145716,
+      "hex": "0x006D08F4"
+    },
+    {
+      "name": "DBLOC",
+      "hash": 2429815,
+      "hex": "0x00251377"
+    },
+    {
+      "name": "DBSET",
+      "hash": 11272585,
+      "hex": "0x00AC0189"
+    },
+    {
+      "name": "DBSTL",
+      "hash": 7316302,
+      "hex": "0x006FA34E"
+    },
+    {
+      "name": "DCLIP",
+      "hash": 9220477,
+      "hex": "0x008CB17D"
+    },
+    {
+      "name": "DCURP",
+      "hash": 9404185,
+      "hex": "0x008F7F19"
+    },
+    {
+      "name": "DEDGE",
+      "hash": 3329482,
+      "hex": "0x0032CDCA"
+    },
+    {
+      "name": "DEPNT",
+      "hash": 11447626,
+      "hex": "0x00AEAD4A"
+    },
+    {
+      "name": "DESEL",
+      "hash": 7021138,
+      "hex": "0x006B2252"
+    },
+    {
+      "name": "DGARC",
+      "hash": 2480980,
+      "hex": "0x0025DB54"
+    },
+    {
+      "name": "DGDLT",
+      "hash": 11399566,
+      "hex": "0x00ADF18E"
+    },
+    {
+      "name": "DGMLA",
+      "hash": 1308748,
+      "hex": "0x0013F84C"
+    },
+    {
+      "name": "DGPDD",
+      "hash": 2747794,
+      "hex": "0x0029ED92"
+    },
+    {
+      "name": "DGRAD",
+      "hash": 2690203,
+      "hex": "0x00290C9B"
+    },
+    {
+      "name": "DHOLE",
+      "hash": 3435997,
+      "hex": "0x00346DDD"
+    },
+    {
+      "name": "DICEW",
+      "hash": 12855433,
+      "hex": "0x00C42889"
+    },
+    {
+      "name": "DINCL",
+      "hash": 6978235,
+      "hex": "0x006A7ABB"
+    },
+    {
+      "name": "DINTC",
+      "hash": 2529877,
+      "hex": "0x00269A55"
+    },
+    {
+      "name": "DLINE",
+      "hash": 3471097,
+      "hex": "0x0034F6F9"
+    },
+    {
+      "name": "DPLIM",
+      "hash": 7626505,
+      "hex": "0x00745F09"
+    },
+    {
+      "name": "DPODR",
+      "hash": 10187482,
+      "hex": "0x009B72DA"
+    },
+    {
+      "name": "DRAEL",
+      "hash": 7008367,
+      "hex": "0x006AF06F"
+    },
+    {
+      "name": "DRULE",
+      "hash": 3440641,
+      "hex": "0x00348001"
+    },
+    {
+      "name": "DSEAM",
+      "hash": 7464019,
+      "hex": "0x0071E453"
+    },
+    {
+      "name": "DTBMF",
+      "hash": 3977968,
+      "hex": "0x003CB2F0"
+    },
+    {
+      "name": "DTEXT",
+      "hash": 11636842,
+      "hex": "0x00B1906A"
+    },
+    {
+      "name": "DTJOB",
+      "hash": 1897402,
+      "hex": "0x001CF3BA"
+    },
+    {
+      "name": "DTSLB",
+      "hash": 1844914,
+      "hex": "0x001C26B2"
+    },
+    {
+      "name": "ECASE",
+      "hash": 3563438,
+      "hex": "0x00365FAE"
+    },
+    {
+      "name": "ECIND",
+      "hash": 2939414,
+      "hex": "0x002CDA16"
+    },
+    {
+      "name": "ECMAP",
+      "hash": 9063743,
+      "hex": "0x008A4D3F"
+    },
+    {
+      "name": "ECOPC",
+      "hash": 2451713,
+      "hex": "0x00256901"
+    },
+    {
+      "name": "ECWLD",
+      "hash": 2910254,
+      "hex": "0x002C682E"
+    },
+    {
+      "name": "EFGRP",
+      "hash": 9394061,
+      "hex": "0x008F578D"
+    },
+    {
+      "name": "EXTBL",
+      "hash": 6963332,
+      "hex": "0x006A4084"
+    },
+    {
+      "name": "EXTLI",
+      "hash": 5565839,
+      "hex": "0x0054ED8F"
+    },
+    {
+      "name": "FAWLD",
+      "hash": 2910201,
+      "hex": "0x002C67F9"
+    },
+    {
+      "name": "FIELD",
+      "hash": 2897295,
+      "hex": "0x002C358F"
+    },
+    {
+      "name": "FLOOR",
+      "hash": 10403889,
+      "hex": "0x009EC031"
+    },
+    {
+      "name": "FMGRP",
+      "hash": 9394251,
+      "hex": "0x008F584B"
+    },
+    {
+      "name": "FMWSK",
+      "hash": 6768393,
+      "hex": "0x00674709"
+    },
+    {
+      "name": "FNCAW",
+      "hash": 12776838,
+      "hex": "0x00C2F586"
+    },
+    {
+      "name": "FNCCW",
+      "hash": 12816204,
+      "hex": "0x00C38F4C"
+    },
+    {
+      "name": "GENNC",
+      "hash": 2411674,
+      "hex": "0x0024CC9A"
+    },
+    {
+      "name": "GENNG",
+      "hash": 4537438,
+      "hex": "0x00453C5E"
+    },
+    {
+      "name": "GENNI",
+      "hash": 5600320,
+      "hex": "0x00557440"
+    },
+    {
+      "name": "GENPC",
+      "hash": 2451040,
+      "hex": "0x00256660"
+    },
+    {
+      "name": "GENPG",
+      "hash": 4576804,
+      "hex": "0x0045D624"
+    },
+    {
+      "name": "GENPI",
+      "hash": 5639686,
+      "hex": "0x00560E06"
+    },
+    {
+      "name": "GIBLO",
+      "hash": 8740960,
+      "hex": "0x00856060"
+    },
+    {
+      "name": "GLYPH",
+      "hash": 5116453,
+      "hex": "0x004E1225"
+    },
+    {
+      "name": "GLYTB",
+      "hash": 2006539,
+      "hex": "0x001E9E0B"
+    },
+    {
+      "name": "GPART",
+      "hash": 11515723,
+      "hex": "0x00AFB74B"
+    },
+    {
+      "name": "GPROF",
+      "hash": 4028893,
+      "hex": "0x003D79DD"
+    },
+    {
+      "name": "GPSET",
+      "hash": 11272966,
+      "hex": "0x00AC0306"
+    },
+    {
+      "name": "GROLW",
+      "hash": 13002208,
+      "hex": "0x00C665E0"
+    },
+    {
+      "name": "GRPLI",
+      "hash": 5562763,
+      "hex": "0x0054E18B"
+    },
+    {
+      "name": "GSEAM",
+      "hash": 7464022,
+      "hex": "0x0071E456"
+    },
+    {
+      "name": "GSTAT",
+      "hash": 11195044,
+      "hex": "0x00AAD2A4"
+    },
+    {
+      "name": "GSURF",
+      "hash": 4090210,
+      "hex": "0x003E6962"
+    },
+    {
+      "name": "GTMWL",
+      "hash": 7371466,
+      "hex": "0x00707ACA"
+    },
+    {
+      "name": "GWALL",
+      "hash": 7146286,
+      "hex": "0x006D0B2E"
+    },
+    {
+      "name": "HANCI",
+      "hash": 5383700,
+      "hex": "0x00522614"
+    },
+    {
+      "name": "HATTA",
+      "hash": 1471157,
+      "hex": "0x001672B5"
+    },
+    {
+      "name": "HBEAD",
+      "hash": 2680595,
+      "hex": "0x0028E713"
+    },
+    {
+      "name": "HCLIP",
+      "hash": 9220481,
+      "hex": "0x008CB181"
+    },
+    {
+      "name": "HHOLE",
+      "hash": 3436001,
+      "hex": "0x00346DE1"
+    },
+    {
+      "name": "HIBEA",
+      "hash": 1163006,
+      "hex": "0x0011BEFE"
+    },
+    {
+      "name": "HIBLO",
+      "hash": 8740961,
+      "hex": "0x00856061"
+    },
+    {
+      "name": "HIBOU",
+      "hash": 11988656,
+      "hex": "0x00B6EEB0"
+    },
+    {
+      "name": "HIBRA",
+      "hash": 1418885,
+      "hex": "0x0015A685"
+    },
+    {
+      "name": "HICUR",
+      "hash": 10513160,
+      "hex": "0x00A06B08"
+    },
+    {
+      "name": "HICUT",
+      "hash": 11576042,
+      "hex": "0x00B0A2EA"
+    },
+    {
+      "name": "HIDOU",
+      "hash": 11990114,
+      "hex": "0x00B6F462"
+    },
+    {
+      "name": "HIFLA",
+      "hash": 1303703,
+      "hex": "0x0013E497"
+    },
+    {
+      "name": "HIHOL",
+      "hash": 7210061,
+      "hex": "0x006E044D"
+    },
+    {
+      "name": "HINOT",
+      "hash": 11465963,
+      "hex": "0x00AEF4EB"
+    },
+    {
+      "name": "HIPAN",
+      "hash": 8003213,
+      "hex": "0x007A1E8D"
+    },
+    {
+      "name": "HIPIL",
+      "hash": 7097795,
+      "hex": "0x006C4DC3"
+    },
+    {
+      "name": "HIPLA",
+      "hash": 1310993,
+      "hex": "0x00140111"
+    },
+    {
+      "name": "HIPOI",
+      "hash": 5621570,
+      "hex": "0x0055C742"
+    },
+    {
+      "name": "HISEA",
+      "hash": 1175399,
+      "hex": "0x0011EF67"
+    },
+    {
+      "name": "HISTI",
+      "hash": 5722172,
+      "hex": "0x0057503C"
+    },
+    {
+      "name": "HMARK",
+      "hash": 6732674,
+      "hex": "0x0066BB82"
+    },
+    {
+      "name": "HNODE",
+      "hash": 3278699,
+      "hex": "0x0032076B"
+    },
+    {
+      "name": "HRSOF",
+      "hash": 4029677,
+      "hex": "0x003D7CED"
+    },
+    {
+      "name": "HRSOL",
+      "hash": 7218323,
+      "hex": "0x006E2493"
+    },
+    {
+      "name": "HSEAM",
+      "hash": 7464023,
+      "hex": "0x0071E457"
+    },
+    {
+      "name": "HSTYL",
+      "hash": 7415909,
+      "hex": "0x00712865"
+    },
+    {
+      "name": "HYFRH",
+      "hash": 5142320,
+      "hex": "0x004E7730"
+    },
+    {
+      "name": "HYSAC",
+      "hash": 2159981,
+      "hex": "0x0020F56D"
+    },
+    {
+      "name": "ICELL",
+      "hash": 7148664,
+      "hex": "0x006D1478"
+    },
+    {
+      "name": "ICLIP",
+      "hash": 9220482,
+      "hex": "0x008CB182"
+    },
+    {
+      "name": "IEDGE",
+      "hash": 3329487,
+      "hex": "0x0032CDCF"
+    },
+    {
+      "name": "IHOLE",
+      "hash": 3436002,
+      "hex": "0x00346DE2"
+    },
+    {
+      "name": "INODE",
+      "hash": 3278700,
+      "hex": "0x0032076C"
+    },
+    {
+      "name": "INSUF",
+      "hash": 4147668,
+      "hex": "0x003F49D4"
+    },
+    {
+      "name": "IPANE",
+      "hash": 3465378,
+      "hex": "0x0034E0A2"
+    },
+    {
+      "name": "ISEAM",
+      "hash": 7464024,
+      "hex": "0x0071E458"
+    },
+    {
+      "name": "ISECT",
+      "hash": 11223477,
+      "hex": "0x00AB41B5"
+    },
+    {
+      "name": "ISOLB",
+      "hash": 1841976,
+      "hex": "0x001C1B38"
+    },
+    {
+      "name": "ISOTM",
+      "hash": 7845291,
+      "hex": "0x0077B5AB"
+    },
+    {
+      "name": "ISTRU",
+      "hash": 12061098,
+      "hex": "0x00B809AA"
+    },
+    {
+      "name": "ITABL",
+      "hash": 6949377,
+      "hex": "0x006A0A01"
+    },
+    {
+      "name": "IWELD",
+      "hash": 2897676,
+      "hex": "0x002C370C"
+    },
+    {
+      "name": "JNODE",
+      "hash": 3278701,
+      "hex": "0x0032076D"
+    },
+    {
+      "name": "JWELD",
+      "hash": 2897677,
+      "hex": "0x002C370D"
+    },
+    {
+      "name": "JWSET",
+      "hash": 11273158,
+      "hex": "0x00AC03C6"
+    },
+    {
+      "name": "LCOMC",
+      "hash": 2392671,
+      "hex": "0x0024825F"
+    },
+    {
+      "name": "LCOMD",
+      "hash": 2924112,
+      "hex": "0x002C9E50"
+    },
+    {
+      "name": "LCOML",
+      "hash": 7175640,
+      "hex": "0x006D7DD8"
+    },
+    {
+      "name": "LCOMW",
+      "hash": 13021491,
+      "hex": "0x00C6B133"
+    },
+    {
+      "name": "LNKLI",
+      "hash": 5559015,
+      "hex": "0x0054D2E7"
+    },
+    {
+      "name": "LOCLI",
+      "hash": 5553210,
+      "hex": "0x0054BC3A"
+    },
+    {
+      "name": "MATUR",
+      "hash": 10525342,
+      "hex": "0x00A09A9E"
+    },
+    {
+      "name": "MBPRO",
+      "hash": 8869081,
+      "hex": "0x008754D9"
+    },
+    {
+      "name": "MBURN",
+      "hash": 8341285,
+      "hex": "0x007F4725"
+    },
+    {
+      "name": "MIHNC",
+      "hash": 2407414,
+      "hex": "0x0024BBF6"
+    },
+    {
+      "name": "MNPLA",
+      "hash": 1311133,
+      "hex": "0x0014019D"
+    },
+    {
+      "name": "MPELE",
+      "hash": 3428932,
+      "hex": "0x00345244"
+    },
+    {
+      "name": "MPROF",
+      "hash": 4028899,
+      "hex": "0x003D79E3"
+    },
+    {
+      "name": "MPWLD",
+      "hash": 2910613,
+      "hex": "0x002C6995"
+    },
+    {
+      "name": "MRPLA",
+      "hash": 1311241,
+      "hex": "0x00140209"
+    },
+    {
+      "name": "MWELD",
+      "hash": 2897680,
+      "hex": "0x002C3710"
+    },
+    {
+      "name": "NCMAP",
+      "hash": 9063752,
+      "hex": "0x008A4D48"
+    },
+    {
+      "name": "OBJHD",
+      "hash": 2822028,
+      "hex": "0x002B0F8C"
+    },
+    {
+      "name": "ORDER",
+      "hash": 10199211,
+      "hex": "0x009BA0AB"
+    },
+    {
+      "name": "PADEL",
+      "hash": 7010107,
+      "hex": "0x006AF73B"
+    },
+    {
+      "name": "PAINT",
+      "hash": 11442427,
+      "hex": "0x00AE98FB"
+    },
+    {
+      "name": "PCDSE",
+      "hash": 3565636,
+      "hex": "0x00366844"
+    },
+    {
+      "name": "PEROP",
+      "hash": 9343015,
+      "hex": "0x008E9027"
+    },
+    {
+      "name": "PEXSP",
+      "hash": 9426121,
+      "hex": "0x008FD4C9"
+    },
+    {
+      "name": "PFACE",
+      "hash": 3248602,
+      "hex": "0x003191DA"
+    },
+    {
+      "name": "PGBOX",
+      "hash": 13582933,
+      "hex": "0x00CF4255"
+    },
+    {
+      "name": "PIACT",
+      "hash": 11220298,
+      "hex": "0x00AB354A"
+    },
+    {
+      "name": "PIBLK",
+      "hash": 6615205,
+      "hex": "0x0064F0A5"
+    },
+    {
+      "name": "PIGEN",
+      "hash": 8075392,
+      "hex": "0x007B3880"
+    },
+    {
+      "name": "PIPCA",
+      "hash": 1133854,
+      "hex": "0x00114D1E"
+    },
+    {
+      "name": "PSPWL",
+      "hash": 7373635,
+      "hex": "0x00708343"
+    },
+    {
+      "name": "PSURF",
+      "hash": 4090219,
+      "hex": "0x003E696B"
+    },
+    {
+      "name": "PTPOS",
+      "hash": 10936285,
+      "hex": "0x00A6DFDD"
+    },
+    {
+      "name": "PULLN",
+      "hash": 8217142,
+      "hex": "0x007D6236"
+    },
+    {
+      "name": "PULLP",
+      "hash": 9280024,
+      "hex": "0x008D9A18"
+    },
+    {
+      "name": "PWCHA",
+      "hash": 1223170,
+      "hex": "0x0012AA02"
+    },
+    {
+      "name": "PWMAN",
+      "hash": 8001412,
+      "hex": "0x007A1784"
+    },
+    {
+      "name": "RATTA",
+      "hash": 1471167,
+      "hex": "0x001672BF"
+    },
+    {
+      "name": "RAWPL",
+      "hash": 7240473,
+      "hex": "0x006E7B19"
+    },
+    {
+      "name": "RAWPR",
+      "hash": 10429119,
+      "hex": "0x009F22BF"
+    },
+    {
+      "name": "RBRAN",
+      "hash": 8004492,
+      "hex": "0x007A238C"
+    },
+    {
+      "name": "RLSET",
+      "hash": 11272869,
+      "hex": "0x00AC02A5"
+    },
+    {
+      "name": "RLSWL",
+      "hash": 7375635,
+      "hex": "0x00708B13"
+    },
+    {
+      "name": "RNODE",
+      "hash": 3278709,
+      "hex": "0x00320775"
+    },
+    {
+      "name": "RPATH",
+      "hash": 5177808,
+      "hex": "0x004F01D0"
+    },
+    {
+      "name": "RSECT",
+      "hash": 11223486,
+      "hex": "0x00AB41BE"
+    },
+    {
+      "name": "RWELD",
+      "hash": 2897685,
+      "hex": "0x002C3715"
+    },
+    {
+      "name": "SCCAB",
+      "hash": 1616293,
+      "hex": "0x0018A9A5"
+    },
+    {
+      "name": "SCIND",
+      "hash": 2939428,
+      "hex": "0x002CDA24"
+    },
+    {
+      "name": "SCOPE",
+      "hash": 3514609,
+      "hex": "0x0035A0F1"
+    },
+    {
+      "name": "SCSEG",
+      "hash": 4363894,
+      "hex": "0x00429676"
+    },
+    {
+      "name": "SCTUB",
+      "hash": 2022346,
+      "hex": "0x001EDBCA"
+    },
+    {
+      "name": "SKTXT",
+      "hash": 11647549,
+      "hex": "0x00B1BA3D"
+    },
+    {
+      "name": "SLINE",
+      "hash": 3471112,
+      "hex": "0x0034F708"
+    },
+    {
+      "name": "SMGEO",
+      "hash": 8606944,
+      "hex": "0x008354E0"
+    },
+    {
+      "name": "SPBOU",
+      "hash": 11988856,
+      "hex": "0x00B6EF78"
+    },
+    {
+      "name": "SPINE",
+      "hash": 3471220,
+      "hex": "0x0034F774"
+    },
+    {
+      "name": "SPMEB",
+      "hash": 1702666,
+      "hex": "0x0019FB0A"
+    },
+    {
+      "name": "SPMSA",
+      "hash": 1446787,
+      "hex": "0x00161383"
+    },
+    {
+      "name": "SPMSW",
+      "hash": 13138489,
+      "hex": "0x00C87A39"
+    },
+    {
+      "name": "SPOOL",
+      "hash": 7215364,
+      "hex": "0x006E1904"
+    },
+    {
+      "name": "STAMP",
+      "hash": 9291664,
+      "hex": "0x008DC790"
+    },
+    {
+      "name": "STDOU",
+      "hash": 11990422,
+      "hex": "0x00B6F596"
+    },
+    {
+      "name": "STINT",
+      "hash": 11442943,
+      "hex": "0x00AE9AFF"
+    },
+    {
+      "name": "STLST",
+      "hash": 11543545,
+      "hex": "0x00B023F9"
+    },
+    {
+      "name": "STREF",
+      "hash": 3832183,
+      "hex": "0x003A7977"
+    },
+    {
+      "name": "STSTR",
+      "hash": 10505449,
+      "hex": "0x00A04CE9"
+    },
+    {
+      "name": "STWLD",
+      "hash": 2910727,
+      "hex": "0x002C6A07"
+    },
+    {
+      "name": "SUPPO",
+      "hash": 8830234,
+      "hex": "0x0086BD1A"
+    },
+    {
+      "name": "SVOLM",
+      "hash": 7687918,
+      "hex": "0x00754EEE"
+    },
+    {
+      "name": "TATTA",
+      "hash": 1471169,
+      "hex": "0x001672C1"
+    },
+    {
+      "name": "TEXPA",
+      "hash": 1395461,
+      "hex": "0x00154B05"
+    },
+    {
+      "name": "TMGRP",
+      "hash": 9394265,
+      "hex": "0x008F5859"
+    },
+    {
+      "name": "TRDAY",
+      "hash": 13840571,
+      "hex": "0x00D330BB"
+    },
+    {
+      "name": "TREAD",
+      "hash": 2681039,
+      "hex": "0x0028E8CF"
+    },
+    {
+      "name": "TRLOC",
+      "hash": 2430263,
+      "hex": "0x00251537"
+    },
+    {
+      "name": "TRNCC",
+      "hash": 2195525,
+      "hex": "0x00218045"
+    },
+    {
+      "name": "TRNRR",
+      "hash": 10462385,
+      "hex": "0x009FA4B1"
+    },
+    {
+      "name": "UDLOV",
+      "hash": 12527265,
+      "hex": "0x00BF26A1"
+    },
+    {
+      "name": "UNTST",
+      "hash": 11549217,
+      "hex": "0x00B03A21"
+    },
+    {
+      "name": "VPCAL",
+      "hash": 6931057,
+      "hex": "0x0069C271"
+    },
+    {
+      "name": "WKSUR",
+      "hash": 10524893,
+      "hex": "0x00A098DD"
+    },
+    {
+      "name": "WPCAL",
+      "hash": 6931058,
+      "hex": "0x0069C272"
+    },
+    {
+      "name": "XCELL",
+      "hash": 7148679,
+      "hex": "0x006D1487"
+    },
+    {
+      "name": "XCELS",
+      "hash": 10868766,
+      "hex": "0x00A5D81E"
+    },
+    {
+      "name": "XCLTN",
+      "hash": 8374128,
+      "hex": "0x007FC770"
+    },
+    {
+      "name": "XGEOM",
+      "hash": 7739277,
+      "hex": "0x0076178D"
+    },
+    {
+      "name": "ACCPNT",
+      "hash": 295266952,
+      "hex": "0x11996A88"
+    },
+    {
+      "name": "ACCSET",
+      "hash": 290543032,
+      "hex": "0x115155B8"
+    },
+    {
+      "name": "ACRULE",
+      "hash": 79079815,
+      "hex": "0x04B6A987"
+    },
+    {
+      "name": "ACSTYL",
+      "hash": 186411943,
+      "hex": "0x0B1C6BA7"
+    },
+    {
+      "name": "AIDARC",
+      "hash": 53166943,
+      "hex": "0x032B435F"
+    },
+    {
+      "name": "AIDCIR",
+      "hash": 263656945,
+      "hex": "0x0FB715F1"
+    },
+    {
+      "name": "AIDGRO",
+      "hash": 225471925,
+      "hex": "0x0D706DB5"
+    },
+    {
+      "name": "AIDLIN",
+      "hash": 206438464,
+      "hex": "0x0C4E0040"
+    },
+    {
+      "name": "AIDPOI",
+      "hash": 137961307,
+      "hex": "0x08391F5B"
+    },
+    {
+      "name": "AIDTEX",
+      "hash": 347959234,
+      "hex": "0x14BD6FC2"
+    },
+    {
+      "name": "AITEMS",
+      "hash": 280182646,
+      "hex": "0x10B33F76"
+    },
+    {
+      "name": "ANNRLR",
+      "hash": 265553938,
+      "hex": "0x0FD40812"
+    },
+    {
+      "name": "APOLYH",
+      "hash": 128856286,
+      "hex": "0x07AE30DE"
+    },
+    {
+      "name": "APPDAR",
+      "hash": 259434037,
+      "hex": "0x0F76A635"
+    },
+    {
+      "name": "APPLDA",
+      "hash": 17254405,
+      "hex": "0x01074805"
+    },
+    {
+      "name": "APPLDW",
+      "hash": 332930359,
+      "hex": "0x13D81D37"
+    },
+    {
+      "name": "ARCHIV",
+      "hash": 321150502,
+      "hex": "0x13245E26"
+    },
+    {
+      "name": "AREADE",
+      "hash": 74425555,
+      "hex": "0x046FA4D3"
+    },
+    {
+      "name": "AREASE",
+      "hash": 82397170,
+      "hex": "0x04E947F2"
+    },
+    {
+      "name": "AREAWL",
+      "hash": 184965283,
+      "hex": "0x0B0658A3"
+    },
+    {
+      "name": "ASDFGP",
+      "hash": 233955568,
+      "hex": "0x0DF1E0F0"
+    },
+    {
+      "name": "ASDFWL",
+      "hash": 185062996,
+      "hex": "0x0B07D654"
+    },
+    {
+      "name": "ASITEM",
+      "hash": 190125172,
+      "hex": "0x0B551474"
+    },
+    {
+      "name": "ASMBLY",
+      "hash": 365680765,
+      "hex": "0x15CBD87D"
+    },
+    {
+      "name": "ASREQU",
+      "hash": 311005036,
+      "hex": "0x12898F6C"
+    },
+    {
+      "name": "ASSDEF",
+      "hash": 89375185,
+      "hex": "0x0553C1D1"
+    },
+    {
+      "name": "ASSMBR",
+      "hash": 260144893,
+      "hex": "0x0F817EFD"
+    },
+    {
+      "name": "ASSOGP",
+      "hash": 234143650,
+      "hex": "0x0DF4BFA2"
+    },
+    {
+      "name": "ASSOWL",
+      "hash": 185251078,
+      "hex": "0x0B0AB506"
+    },
+    {
+      "name": "ASTATU",
+      "hash": 312522085,
+      "hex": "0x12A0B565"
+    },
+    {
+      "name": "ATTCLS",
+      "hash": 279612136,
+      "hex": "0x10AA8AE8"
+    },
+    {
+      "name": "ATTCOL",
+      "hash": 180764110,
+      "hex": "0x0AC63DCE"
+    },
+    {
+      "name": "ATTDAT",
+      "hash": 288134875,
+      "hex": "0x112C96DB"
+    },
+    {
+      "name": "ATTFIL",
+      "hash": 177634513,
+      "hex": "0x0A967CD1"
+    },
+    {
+      "name": "ATTMAP",
+      "hash": 230916394,
+      "hex": "0x0DC3812A"
+    },
+    {
+      "name": "ATTRRL",
+      "hash": 182653678,
+      "hex": "0x0AE312EE"
+    },
+    {
+      "name": "AXESYM",
+      "hash": 200731528,
+      "hex": "0x0BF6EB88"
+    },
+    {
+      "name": "BASEWL",
+      "hash": 185053763,
+      "hex": "0x0B07B243"
+    },
+    {
+      "name": "BASLIN",
+      "hash": 206449184,
+      "hex": "0x0C4E2A20"
+    },
+    {
+      "name": "BBLOCK",
+      "hash": 160267790,
+      "hex": "0x098D7E0E"
+    },
+    {
+      "name": "BEVSEG",
+      "hash": 104021147,
+      "hex": "0x06333C9B"
+    },
+    {
+      "name": "BLEVEL",
+      "hash": 175812527,
+      "hex": "0x0A7AAFAF"
+    },
+    {
+      "name": "BMFWRL",
+      "hash": 182741699,
+      "hex": "0x0AE46AC3"
+    },
+    {
+      "name": "BNDLIN",
+      "hash": 206438600,
+      "hex": "0x0C4E00C8"
+    },
+    {
+      "name": "BOTEXT",
+      "hash": 300377567,
+      "hex": "0x11E765DF"
+    },
+    {
+      "name": "BOUSUR",
+      "hash": 270361721,
+      "hex": "0x101D6479"
+    },
+    {
+      "name": "BPANEL",
+      "hash": 175652255,
+      "hex": "0x0A783D9F"
+    },
+    {
+      "name": "BPFEAT",
+      "hash": 288144245,
+      "hex": "0x112CBB75"
+    },
+    {
+      "name": "BPFITT",
+      "hash": 298320356,
+      "hex": "0x11C801E4"
+    },
+    {
+      "name": "BPOPEN",
+      "hash": 204399641,
+      "hex": "0x0C2EE419"
+    },
+    {
+      "name": "BRASET",
+      "hash": 290541980,
+      "hex": "0x1151519C"
+    },
+    {
+      "name": "BRIDGE",
+      "hash": 76081844,
+      "hex": "0x0488EAB4"
+    },
+    {
+      "name": "BRNGAP",
+      "hash": 230793869,
+      "hex": "0x0DC1A28D"
+    },
+    {
+      "name": "BUNDLE",
+      "hash": 78742775,
+      "hex": "0x04B184F7"
+    },
+    {
+      "name": "BVHVAL",
+      "hash": 173689220,
+      "hex": "0x0A5A4984"
+    },
+    {
+      "name": "BVNOSE",
+      "hash": 82679402,
+      "hex": "0x04ED966A"
+    },
+    {
+      "name": "BVSTND",
+      "hash": 65775350,
+      "hex": "0x03EBA6F6"
+    },
+    {
+      "name": "CABCOR",
+      "hash": 266843919,
+      "hex": "0x0FE7B70F"
+    },
+    {
+      "name": "CAGSEG",
+      "hash": 104010105,
+      "hex": "0x06331179"
+    },
+    {
+      "name": "CALGRP",
+      "hash": 239826450,
+      "hex": "0x0E4B7612"
+    },
+    {
+      "name": "CALTMP",
+      "hash": 237425124,
+      "hex": "0x0E26D1E4"
+    },
+    {
+      "name": "CALWLD",
+      "hash": 64765848,
+      "hex": "0x03DC3F98"
+    },
+    {
+      "name": "CCHDAT",
+      "hash": 288125670,
+      "hex": "0x112C72E6"
+    },
+    {
+      "name": "CCORSE",
+      "hash": 82738668,
+      "hex": "0x04EE7DEC"
+    },
+    {
+      "name": "CCURVE",
+      "hash": 84337365,
+      "hex": "0x0506E2D5"
+    },
+    {
+      "name": "CEILIN",
+      "hash": 206442003,
+      "hex": "0x0C4E0E13"
+    },
+    {
+      "name": "CESTYL",
+      "hash": 186411999,
+      "hex": "0x0B1C6BDF"
+    },
+    {
+      "name": "CFGGPW",
+      "hash": 339202407,
+      "hex": "0x1437D167"
+    },
+    {
+      "name": "CFGGRP",
+      "hash": 239822940,
+      "hex": "0x0E4B685C"
+    },
+    {
+      "name": "CFGKEY",
+      "hash": 362133102,
+      "hex": "0x1595B66E"
+    },
+    {
+      "name": "CFGSET",
+      "hash": 290546031,
+      "hex": "0x1151616F"
+    },
+    {
+      "name": "CFGSTW",
+      "hash": 341564367,
+      "hex": "0x145BDBCF"
+    },
+    {
+      "name": "CFGVAL",
+      "hash": 173688060,
+      "hex": "0x0A5A44FC"
+    },
+    {
+      "name": "CFLOOR",
+      "hash": 267087540,
+      "hex": "0x0FEB6EB4"
+    },
+    {
+      "name": "CGRDCP",
+      "hash": 231800322,
+      "hex": "0x0DD0FE02"
+    },
+    {
+      "name": "CGRDLP",
+      "hash": 236583291,
+      "hex": "0x0E19F97B"
+    },
+    {
+      "name": "CLNCGR",
+      "hash": 262601436,
+      "hex": "0x0FA6FADC"
+    },
+    {
+      "name": "CLNLAT",
+      "hash": 288287751,
+      "hex": "0x112EEC07"
+    },
+    {
+      "name": "CLNPNG",
+      "hash": 108739425,
+      "hex": "0x067B3B61"
+    },
+    {
+      "name": "CLNTIL",
+      "hash": 177905487,
+      "hex": "0x0A9A9F4F"
+    },
+    {
+      "name": "CMTATT",
+      "hash": 298173018,
+      "hex": "0x11C5C25A"
+    },
+    {
+      "name": "CMTCAP",
+      "hash": 230719377,
+      "hex": "0x0DC07F91"
+    },
+    {
+      "name": "CMTFLD",
+      "hash": 64437393,
+      "hex": "0x03D73C91"
+    },
+    {
+      "name": "CMTLNK",
+      "hash": 166060722,
+      "hex": "0x09E5E2B2"
+    },
+    {
+      "name": "CMTPOS",
+      "hash": 281462151,
+      "hex": "0x10C6C587"
+    },
+    {
+      "name": "CMTPRE",
+      "hash": 82171776,
+      "hex": "0x04E5D780"
+    },
+    {
+      "name": "CMTSTH",
+      "hash": 126340428,
+      "hex": "0x0787CD4C"
+    },
+    {
+      "name": "CMTTHR",
+      "hash": 263471889,
+      "hex": "0x0FB44311"
+    },
+    {
+      "name": "CMTWLD",
+      "hash": 64772004,
+      "hex": "0x03DC57A4"
+    },
+    {
+      "name": "CNGFXD",
+      "hash": 70805235,
+      "hex": "0x043866F3"
+    },
+    {
+      "name": "CNGREQ",
+      "hash": 247479843,
+      "hex": "0x0EC03E23"
+    },
+    {
+      "name": "CNPTIN",
+      "hash": 206604813,
+      "hex": "0x0C508A0D"
+    },
+    {
+      "name": "CNSTYL",
+      "hash": 186412242,
+      "hex": "0x0B1C6CD2"
+    },
+    {
+      "name": "CNTRNG",
+      "hash": 108783219,
+      "hex": "0x067BE673"
+    },
+    {
+      "name": "CNVCOM",
+      "hash": 195114315,
+      "hex": "0x0BA1354B"
+    },
+    {
+      "name": "CNVRTX",
+      "hash": 355904742,
+      "hex": "0x1536ACE6"
+    },
+    {
+      "name": "COATIN",
+      "hash": 206593905,
+      "hex": "0x0C505F71"
+    },
+    {
+      "name": "COCDES",
+      "hash": 275899206,
+      "hex": "0x1071E346"
+    },
+    {
+      "name": "COLMAP",
+      "hash": 230910429,
+      "hex": "0x0DC369DD"
+    },
+    {
+      "name": "COLREL",
+      "hash": 175738980,
+      "hex": "0x0A799064"
+    },
+    {
+      "name": "COMFIX",
+      "hash": 349816161,
+      "hex": "0x14D9C561"
+    },
+    {
+      "name": "COMWLD",
+      "hash": 64766955,
+      "hex": "0x03DC43EB"
+    },
+    {
+      "name": "CONCON",
+      "hash": 209457417,
+      "hex": "0x0C7C1109"
+    },
+    {
+      "name": "CONGRP",
+      "hash": 239828286,
+      "hex": "0x0E4B7D3E"
+    },
+    {
+      "name": "CONITM",
+      "hash": 197883813,
+      "hex": "0x0BCB77A5"
+    },
+    {
+      "name": "CONNCT",
+      "hash": 289390080,
+      "hex": "0x113FBE00"
+    },
+    {
+      "name": "CONSEQ",
+      "hash": 247504656,
+      "hex": "0x0EC09F10"
+    },
+    {
+      "name": "CONVEY",
+      "hash": 362354961,
+      "hex": "0x15991911"
+    },
+    {
+      "name": "CONWLD",
+      "hash": 64767684,
+      "hex": "0x03DC46C4"
+    },
+    {
+      "name": "CORNLP",
+      "hash": 236780337,
+      "hex": "0x0E1CFB31"
+    },
+    {
+      "name": "COUNTR",
+      "hash": 269731866,
+      "hex": "0x1013C81A"
+    },
+    {
+      "name": "CPANBO",
+      "hash": 217104654,
+      "hex": "0x0CF0C10E"
+    },
+    {
+      "name": "CPANEL",
+      "hash": 175652256,
+      "hex": "0x0A783DA0"
+    },
+    {
+      "name": "CPINCR",
+      "hash": 260688648,
+      "hex": "0x0F89CB08"
+    },
+    {
+      "name": "CPINJG",
+      "hash": 106570758,
+      "hex": "0x065A2406"
+    },
+    {
+      "name": "CPINRW",
+      "hash": 340404798,
+      "hex": "0x144A2A3E"
+    },
+    {
+      "name": "CPLANE",
+      "hash": 79745016,
+      "hex": "0x04C0CFF8"
+    },
+    {
+      "name": "CPLANS",
+      "hash": 280629714,
+      "hex": "0x10BA11D2"
+    },
+    {
+      "name": "CPLATE",
+      "hash": 82933662,
+      "hex": "0x04F1779E"
+    },
+    {
+      "name": "CPNISE",
+      "hash": 82561143,
+      "hex": "0x04EBC877"
+    },
+    {
+      "name": "CPOINS",
+      "hash": 280789365,
+      "hex": "0x10BC8175"
+    },
+    {
+      "name": "CPOINT",
+      "hash": 295138272,
+      "hex": "0x119773E0"
+    },
+    {
+      "name": "CPRCUT",
+      "hash": 298742448,
+      "hex": "0x11CE72B0"
+    },
+    {
+      "name": "CPREND",
+      "hash": 65479215,
+      "hex": "0x03E7222F"
+    },
+    {
+      "name": "CPRHOL",
+      "hash": 180860961,
+      "hex": "0x0AC7B821"
+    },
+    {
+      "name": "CPRMRK",
+      "hash": 168204792,
+      "hex": "0x0A0699F8"
+    },
+    {
+      "name": "CPRNOT",
+      "hash": 295770315,
+      "hex": "0x11A118CB"
+    },
+    {
+      "name": "CPROTR",
+      "hash": 269749389,
+      "hex": "0x10140C8D"
+    },
+    {
+      "name": "CRERUL",
+      "hash": 184237014,
+      "hex": "0x0AFB3BD6"
+    },
+    {
+      "name": "CRGCON",
+      "hash": 209452395,
+      "hex": "0x0C7BFD6B"
+    },
+    {
+      "name": "CRMCUR",
+      "hash": 270041043,
+      "hex": "0x10187FD3"
+    },
+    {
+      "name": "CRMPNT",
+      "hash": 295274649,
+      "hex": "0x11998899"
+    },
+    {
+      "name": "CRMREF",
+      "hash": 89646348,
+      "hex": "0x0557E50C"
+    },
+    {
+      "name": "CSCREE",
+      "hash": 75290178,
+      "hex": "0x047CD642"
+    },
+    {
+      "name": "CSTIFF",
+      "hash": 90005772,
+      "hex": "0x055D610C"
+    },
+    {
+      "name": "CSURPX",
+      "hash": 353778384,
+      "hex": "0x15163AD0"
+    },
+    {
+      "name": "CTABLE",
+      "hash": 78693906,
+      "hex": "0x04B0C612"
+    },
+    {
+      "name": "CTBEND",
+      "hash": 65467659,
+      "hex": "0x03E6F50B"
+    },
+    {
+      "name": "CTCOUP",
+      "hash": 241572189,
+      "hex": "0x0E66195D"
+    },
+    {
+      "name": "CTCROS",
+      "hash": 281489313,
+      "hex": "0x10C72FA1"
+    },
+    {
+      "name": "CTFEAT",
+      "hash": 288144354,
+      "hex": "0x112CBBE2"
+    },
+    {
+      "name": "CTJOIN",
+      "hash": 206502186,
+      "hex": "0x0C4EF92A"
+    },
+    {
+      "name": "CTMTRL",
+      "hash": 182687943,
+      "hex": "0x0AE398C7"
+    },
+    {
+      "name": "CTREDU",
+      "hash": 304096332,
+      "hex": "0x1220244C"
+    },
+    {
+      "name": "CTRISE",
+      "hash": 82564167,
+      "hex": "0x04EBD447"
+    },
+    {
+      "name": "CTSTRA",
+      "hash": 24854340,
+      "hex": "0x017B3F44"
+    },
+    {
+      "name": "CTSUPP",
+      "hash": 239044746,
+      "hex": "0x0E3F888A"
+    },
+    {
+      "name": "CTWALL",
+      "hash": 179132610,
+      "hex": "0x0AAD58C2"
+    },
+    {
+      "name": "CURGEO",
+      "hash": 218573724,
+      "hex": "0x0D072B9C"
+    },
+    {
+      "name": "CURWLD",
+      "hash": 64770762,
+      "hex": "0x03DC52CA"
+    },
+    {
+      "name": "CUTSET",
+      "hash": 290555913,
+      "hex": "0x11518809"
+    },
+    {
+      "name": "CWAREA",
+      "hash": 17893200,
+      "hex": "0x01110750"
+    },
+    {
+      "name": "CWBRAN",
+      "hash": 202303956,
+      "hex": "0x0C0EE9D4"
+    },
+    {
+      "name": "CYLCON",
+      "hash": 209456229,
+      "hex": "0x0C7C0C65"
+    },
+    {
+      "name": "CYMGRP",
+      "hash": 239827827,
+      "hex": "0x0E4B7B73"
+    },
+    {
+      "name": "CYMLNK",
+      "hash": 166055943,
+      "hex": "0x09E5D007"
+    },
+    {
+      "name": "CYMWRL",
+      "hash": 182747127,
+      "hex": "0x0AE47FF7"
+    },
+    {
+      "name": "DARULE",
+      "hash": 79079764,
+      "hex": "0x04B6A954"
+    },
+    {
+      "name": "DATDEF",
+      "hash": 89375431,
+      "hex": "0x0553C2C7"
+    },
+    {
+      "name": "DBNDRY",
+      "hash": 368909050,
+      "hex": "0x15FD1AFA"
+    },
+    {
+      "name": "DBRANG",
+      "hash": 108446827,
+      "hex": "0x0676C46B"
+    },
+    {
+      "name": "DBRARA",
+      "hash": 24479149,
+      "hex": "0x017585AD"
+    },
+    {
+      "name": "DBRARB",
+      "hash": 38828056,
+      "hex": "0x02507818"
+    },
+    {
+      "name": "DBRCKT",
+      "hash": 293427661,
+      "hex": "0x117D59CD"
+    },
+    {
+      "name": "DBRTOE",
+      "hash": 80654431,
+      "hex": "0x04CEB05F"
+    },
+    {
+      "name": "DBSTWL",
+      "hash": 185349037,
+      "hex": "0x0B0C33AD"
+    },
+    {
+      "name": "DBVWGR",
+      "hash": 263000659,
+      "hex": "0x0FAD1253"
+    },
+    {
+      "name": "DBVWSE",
+      "hash": 82842160,
+      "hex": "0x04F01230"
+    },
+    {
+      "name": "DBVWWL",
+      "hash": 185410273,
+      "hex": "0x0B0D22E1"
+    },
+    {
+      "name": "DCLONE",
+      "hash": 80020228,
+      "hex": "0x04C50304"
+    },
+    {
+      "name": "DCLREF",
+      "hash": 89645215,
+      "hex": "0x0557E09F"
+    },
+    {
+      "name": "DCLRFL",
+      "hash": 176270098,
+      "hex": "0x0A81AB12"
+    },
+    {
+      "name": "DCLROT",
+      "hash": 295844323,
+      "hex": "0x11A239E3"
+    },
+    {
+      "name": "DCLTRA",
+      "hash": 24848779,
+      "hex": "0x017B298B"
+    },
+    {
+      "name": "DCORNR",
+      "hash": 266617255,
+      "hex": "0x0FE441A7"
+    },
+    {
+      "name": "DCRCUR",
+      "hash": 270044284,
+      "hex": "0x10188C7C"
+    },
+    {
+      "name": "DCRDEX",
+      "hash": 347654353,
+      "hex": "0x14B8C8D1"
+    },
+    {
+      "name": "DCRDGR",
+      "hash": 262623793,
+      "hex": "0x0FA75231"
+    },
+    {
+      "name": "DCRDSY",
+      "hash": 369443434,
+      "hex": "0x1605426A"
+    },
+    {
+      "name": "DCRPNT",
+      "hash": 295277890,
+      "hex": "0x11999542"
+    },
+    {
+      "name": "DCRULE",
+      "hash": 79079818,
+      "hex": "0x04B6A98A"
+    },
+    {
+      "name": "DCSTYL",
+      "hash": 186411946,
+      "hex": "0x0B1C6BAA"
+    },
+    {
+      "name": "DCTOUT",
+      "hash": 298979752,
+      "hex": "0x11D211A8"
+    },
+    {
+      "name": "DEDGBV",
+      "hash": 317411113,
+      "hex": "0x12EB4F29"
+    },
+    {
+      "name": "DEDGCP",
+      "hash": 231849112,
+      "hex": "0x0DD1BC98"
+    },
+    {
+      "name": "DEDGCT",
+      "hash": 289244740,
+      "hex": "0x113D8644"
+    },
+    {
+      "name": "DEDGEX",
+      "hash": 347703250,
+      "hex": "0x14B987D2"
+    },
+    {
+      "name": "DEDGFR",
+      "hash": 262141249,
+      "hex": "0x0F9FF541"
+    },
+    {
+      "name": "DEDGGR",
+      "hash": 262672690,
+      "hex": "0x0FA81132"
+    },
+    {
+      "name": "DEDGRS",
+      "hash": 282867448,
+      "hex": "0x10DC36F8"
+    },
+    {
+      "name": "DEDGSA",
+      "hash": 25118563,
+      "hex": "0x017F4763"
+    },
+    {
+      "name": "DEDGSB",
+      "hash": 39467470,
+      "hex": "0x025A39CE"
+    },
+    {
+      "name": "DEDGSS",
+      "hash": 283398889,
+      "hex": "0x10E452E9"
+    },
+    {
+      "name": "DEDGST",
+      "hash": 297747796,
+      "hex": "0x11BF4554"
+    },
+    {
+      "name": "DEDGTO",
+      "hash": 226534702,
+      "hex": "0x0D80A52E"
+    },
+    {
+      "name": "DEMOPA",
+      "hash": 23688265,
+      "hex": "0x01697449"
+    },
+    {
+      "name": "DEMOSE",
+      "hash": 82678216,
+      "hex": "0x04ED91C8"
+    },
+    {
+      "name": "DEMOWL",
+      "hash": 185246329,
+      "hex": "0x0B0AA279"
+    },
+    {
+      "name": "DENDCT",
+      "hash": 289192981,
+      "hex": "0x113CBC15"
+    },
+    {
+      "name": "DENDFR",
+      "hash": 262089490,
+      "hex": "0x0F9F2B12"
+    },
+    {
+      "name": "DENDTO",
+      "hash": 226482943,
+      "hex": "0x0D7FDAFF"
+    },
+    {
+      "name": "DERDAT",
+      "hash": 288133015,
+      "hex": "0x112C8F97"
+    },
+    {
+      "name": "DESSYM",
+      "hash": 200741224,
+      "hex": "0x0BF71168"
+    },
+    {
+      "name": "DETGRP",
+      "hash": 239832391,
+      "hex": "0x0E4B8D47"
+    },
+    {
+      "name": "DFCPLA",
+      "hash": 21574921,
+      "hex": "0x01493509"
+    },
+    {
+      "name": "DFNRAD",
+      "hash": 58823176,
+      "hex": "0x03819208"
+    },
+    {
+      "name": "DFPPOS",
+      "hash": 281459047,
+      "hex": "0x10C6B967"
+    },
+    {
+      "name": "DGARCL",
+      "hash": 174667864,
+      "hex": "0x0A693858"
+    },
+    {
+      "name": "DGELEV",
+      "hash": 319104634,
+      "hex": "0x1305267A"
+    },
+    {
+      "name": "DGLTYP",
+      "hash": 243802579,
+      "hex": "0x0E8821D3"
+    },
+    {
+      "name": "DGMARK",
+      "hash": 167964709,
+      "hex": "0x0A02F025"
+    },
+    {
+      "name": "DGMLTR",
+      "hash": 269686453,
+      "hex": "0x101316B5"
+    },
+    {
+      "name": "DGPDDD",
+      "hash": 60143422,
+      "hex": "0x0395B73E"
+    },
+    {
+      "name": "DGPOLY",
+      "hash": 365938510,
+      "hex": "0x15CFC74E"
+    },
+    {
+      "name": "DGRAPH",
+      "hash": 123858751,
+      "hex": "0x0761EF3F"
+    },
+    {
+      "name": "DGROUP",
+      "hash": 241582774,
+      "hex": "0x0E6642B6"
+    },
+    {
+      "name": "DGSSYM",
+      "hash": 200741278,
+      "hex": "0x0BF7119E"
+    },
+    {
+      "name": "DGTEXT",
+      "hash": 300377353,
+      "hex": "0x11E76509"
+    },
+    {
+      "name": "DGTXAT",
+      "hash": 288528187,
+      "hex": "0x1132973B"
+    },
+    {
+      "name": "DGTXTU",
+      "hash": 312974473,
+      "hex": "0x12A79C89"
+    },
+    {
+      "name": "DGWELD",
+      "hash": 64419736,
+      "hex": "0x03D6F798"
+    },
+    {
+      "name": "DICECK",
+      "hash": 160064590,
+      "hex": "0x098A644E"
+    },
+    {
+      "name": "DICEDB",
+      "hash": 31455868,
+      "hex": "0x01DFFA7C"
+    },
+    {
+      "name": "DIMGRO",
+      "hash": 225478489,
+      "hex": "0x0D708759"
+    },
+    {
+      "name": "DIMPLI",
+      "hash": 136373548,
+      "hex": "0x0820E52C"
+    },
+    {
+      "name": "DIMPOS",
+      "hash": 281456941,
+      "hex": "0x10C6B12D"
+    },
+    {
+      "name": "DIMPPT",
+      "hash": 296337289,
+      "hex": "0x11A9BF89"
+    },
+    {
+      "name": "DINTER",
+      "hash": 261873085,
+      "hex": "0x0F9BDDBD"
+    },
+    {
+      "name": "DISCIP",
+      "hash": 234970069,
+      "hex": "0x0E015BD5"
+    },
+    {
+      "name": "DISCWL",
+      "hash": 185014615,
+      "hex": "0x0B071957"
+    },
+    {
+      "name": "DISUDT",
+      "hash": 290062786,
+      "hex": "0x114A01C2"
+    },
+    {
+      "name": "DLOCRF",
+      "hash": 96261133,
+      "hex": "0x05BCD40D"
+    },
+    {
+      "name": "DLOCTN",
+      "hash": 212115271,
+      "hex": "0x0CA49F47"
+    },
+    {
+      "name": "DMODRF",
+      "hash": 96280843,
+      "hex": "0x05BD210B"
+    },
+    {
+      "name": "DMSTYL",
+      "hash": 186412216,
+      "hex": "0x0B1C6CB8"
+    },
+    {
+      "name": "DNOTCH",
+      "hash": 117321997,
+      "hex": "0x06FE310D"
+    },
+    {
+      "name": "DOFSTP",
+      "hash": 241121533,
+      "hex": "0x0E5F38FD"
+    },
+    {
+      "name": "DPILLR",
+      "hash": 265432252,
+      "hex": "0x0FD22CBC"
+    },
+    {
+      "name": "DPIPOS",
+      "hash": 281454214,
+      "hex": "0x10C6A686"
+    },
+    {
+      "name": "DPLAMT",
+      "hash": 294447181,
+      "hex": "0x118CE84D"
+    },
+    {
+      "name": "DPLANE",
+      "hash": 79745017,
+      "hex": "0x04C0CFF9"
+    },
+    {
+      "name": "DPLAPO",
+      "hash": 224296969,
+      "hex": "0x0D5E8009"
+    },
+    {
+      "name": "DPLATE",
+      "hash": 82933663,
+      "hex": "0x04F1779F"
+    },
+    {
+      "name": "DPROMT",
+      "hash": 294727117,
+      "hex": "0x11912DCD"
+    },
+    {
+      "name": "DRSSET",
+      "hash": 290555104,
+      "hex": "0x115184E0"
+    },
+    {
+      "name": "DRSYLK",
+      "hash": 165253126,
+      "hex": "0x09D99006"
+    },
+    {
+      "name": "DRTMLB",
+      "hash": 35877496,
+      "hex": "0x02237278"
+    },
+    {
+      "name": "DRTMPL",
+      "hash": 181492330,
+      "hex": "0x0AD15A6A"
+    },
+    {
+      "name": "DSHRNK",
+      "hash": 166170235,
+      "hex": "0x09E78E7B"
+    },
+    {
+      "name": "DSIGRO",
+      "hash": 225475843,
+      "hex": "0x0D707D03"
+    },
+    {
+      "name": "DSINST",
+      "hash": 297889600,
+      "hex": "0x11C16F40"
+    },
+    {
+      "name": "DSIWLD",
+      "hash": 64764148,
+      "hex": "0x03DC38F4"
+    },
+    {
+      "name": "DSLAYE",
+      "hash": 85590949,
+      "hex": "0x051A03A5"
+    },
+    {
+      "name": "DSTADP",
+      "hash": 232274497,
+      "hex": "0x0DD83A41"
+    },
+    {
+      "name": "DSTGRO",
+      "hash": 225483862,
+      "hex": "0x0D709C56"
+    },
+    {
+      "name": "DSTIFF",
+      "hash": 90005773,
+      "hex": "0x055D610D"
+    },
+    {
+      "name": "DSTIPO",
+      "hash": 224460346,
+      "hex": "0x0D60FE3A"
+    },
+    {
+      "name": "DSTMPL",
+      "hash": 181492357,
+      "hex": "0x0AD15A85"
+    },
+    {
+      "name": "DSTWLD",
+      "hash": 64772167,
+      "hex": "0x03DC5847"
+    },
+    {
+      "name": "DSXDST",
+      "hash": 297703705,
+      "hex": "0x11BE9919"
+    },
+    {
+      "name": "DSXGRP",
+      "hash": 239835685,
+      "hex": "0x0E4B9A25"
+    },
+    {
+      "name": "DSXHOM",
+      "hash": 195214324,
+      "hex": "0x0BA2BBF4"
+    },
+    {
+      "name": "DSXMBR",
+      "hash": 260148541,
+      "hex": "0x0F818D3D"
+    },
+    {
+      "name": "DSXOWN",
+      "hash": 213952540,
+      "hex": "0x0CC0A81C"
+    },
+    {
+      "name": "DSXSCH",
+      "hash": 117309010,
+      "hex": "0x06FDFE52"
+    },
+    {
+      "name": "DSXTST",
+      "hash": 298018633,
+      "hex": "0x11C36749"
+    },
+    {
+      "name": "DSXWLD",
+      "hash": 64775083,
+      "hex": "0x03DC63AB"
+    },
+    {
+      "name": "DTADDM",
+      "hash": 189273001,
+      "hex": "0x0B4813A9"
+    },
+    {
+      "name": "DTADRE",
+      "hash": 81921919,
+      "hex": "0x04E2077F"
+    },
+    {
+      "name": "DTASMB",
+      "hash": 36513238,
+      "hex": "0x022D25D6"
+    },
+    {
+      "name": "DTBLDS",
+      "hash": 275524636,
+      "hex": "0x106C2C1C"
+    },
+    {
+      "name": "DTBLSS",
+      "hash": 283496251,
+      "hex": "0x10E5CF3B"
+    },
+    {
+      "name": "DTBLTD",
+      "hash": 68794087,
+      "hex": "0x0419B6E7"
+    },
+    {
+      "name": "DTBLTL",
+      "hash": 183585343,
+      "hex": "0x0AF14A3F"
+    },
+    {
+      "name": "DTBLTS",
+      "hash": 284027692,
+      "hex": "0x10EDEB2C"
+    },
+    {
+      "name": "DTBMFD",
+      "hash": 61373596,
+      "hex": "0x03A87C9C"
+    },
+    {
+      "name": "DTBMFJ",
+      "hash": 147467038,
+      "hex": "0x08CA2B1E"
+    },
+    {
+      "name": "DTBMFL",
+      "hash": 176164852,
+      "hex": "0x0A800FF4"
+    },
+    {
+      "name": "DTBMFP",
+      "hash": 233560480,
+      "hex": "0x0DEBD9A0"
+    },
+    {
+      "name": "DTBMRV",
+      "hash": 326031214,
+      "hex": "0x136ED76E"
+    },
+    {
+      "name": "DTBOLT",
+      "hash": 294184120,
+      "hex": "0x1188E4B8"
+    },
+    {
+      "name": "DTBSPT",
+      "hash": 296388616,
+      "hex": "0x11AA8808"
+    },
+    {
+      "name": "DTCMNT",
+      "hash": 295208365,
+      "hex": "0x119885AD"
+    },
+    {
+      "name": "DTCSDF",
+      "hash": 89127355,
+      "hex": "0x054FF9BB"
+    },
+    {
+      "name": "DTCSTE",
+      "hash": 83281504,
+      "hex": "0x04F6C660"
+    },
+    {
+      "name": "DTFABI",
+      "hash": 130759087,
+      "hex": "0x07CB39AF"
+    },
+    {
+      "name": "DTFCSG",
+      "hash": 111135136,
+      "hex": "0x069FC9A0"
+    },
+    {
+      "name": "DTFDEF",
+      "hash": 89365738,
+      "hex": "0x05539CEA"
+    },
+    {
+      "name": "DTFEAT",
+      "hash": 288144355,
+      "hex": "0x112CBBE3"
+    },
+    {
+      "name": "DTFREF",
+      "hash": 89641300,
+      "hex": "0x0557D154"
+    },
+    {
+      "name": "DTFSET",
+      "hash": 290545681,
+      "hex": "0x11516011"
+    },
+    {
+      "name": "DTGEOM",
+      "hash": 195142909,
+      "hex": "0x0BA1A4FD"
+    },
+    {
+      "name": "DTGINF",
+      "hash": 94247851,
+      "hex": "0x059E1BAB"
+    },
+    {
+      "name": "DTGRID",
+      "hash": 63069979,
+      "hex": "0x03C25F1B"
+    },
+    {
+      "name": "DTHOLE",
+      "hash": 78954889,
+      "hex": "0x04B4C189"
+    },
+    {
+      "name": "DTJDAT",
+      "hash": 288127588,
+      "hex": "0x112C7A64"
+    },
+    {
+      "name": "DTJREL",
+      "hash": 175737658,
+      "hex": "0x0A798B3A"
+    },
+    {
+      "name": "DTLOCA",
+      "hash": 16779208,
+      "hex": "0x010007C8"
+    },
+    {
+      "name": "DTMAIN",
+      "hash": 206228812,
+      "hex": "0x0C4ACD4C"
+    },
+    {
+      "name": "DTNODE",
+      "hash": 74707735,
+      "hex": "0x0473F317"
+    },
+    {
+      "name": "DTPDEF",
+      "hash": 89373028,
+      "hex": "0x0553B964"
+    },
+    {
+      "name": "DTPERS",
+      "hash": 282837235,
+      "hex": "0x10DBC0F3"
+    },
+    {
+      "name": "DTPHSE",
+      "hash": 82543027,
+      "hex": "0x04EB81B3"
+    },
+    {
+      "name": "DTPLAT",
+      "hash": 288289426,
+      "hex": "0x112EF292"
+    },
+    {
+      "name": "DTPLNE",
+      "hash": 79964554,
+      "hex": "0x04C4298A"
+    },
+    {
+      "name": "DTPNCH",
+      "hash": 117204790,
+      "hex": "0x06FC6736"
+    },
+    {
+      "name": "DTPOIN",
+      "hash": 206506561,
+      "hex": "0x0C4F0A41"
+    },
+    {
+      "name": "DTPROF",
+      "hash": 94963000,
+      "hex": "0x05A90538"
+    },
+    {
+      "name": "DTRELA",
+      "hash": 21369721,
+      "hex": "0x01461379"
+    },
+    {
+      "name": "DTSDEF",
+      "hash": 89375215,
+      "hex": "0x0553C1EF"
+    },
+    {
+      "name": "DTSEAM",
+      "hash": 187711483,
+      "hex": "0x0B303FFB"
+    },
+    {
+      "name": "DTSHAP",
+      "hash": 230817253,
+      "hex": "0x0DC1FDE5"
+    },
+    {
+      "name": "DTSHPI",
+      "hash": 138346519,
+      "hex": "0x083F0017"
+    },
+    {
+      "name": "DTSSEC",
+      "hash": 46623739,
+      "hex": "0x02C76BFB"
+    },
+    {
+      "name": "DTSTAT",
+      "hash": 288449077,
+      "hex": "0x11316235"
+    },
+    {
+      "name": "DTSTEL",
+      "hash": 175783585,
+      "hex": "0x0A7A3EA1"
+    },
+    {
+      "name": "DTSTRC",
+      "hash": 53552155,
+      "hex": "0x0331241B"
+    },
+    {
+      "name": "DTSTRU",
+      "hash": 311832481,
+      "hex": "0x12962FA1"
+    },
+    {
+      "name": "DTSUBM",
+      "hash": 188557852,
+      "hex": "0x0B3D2A1C"
+    },
+    {
+      "name": "DTTCON",
+      "hash": 209461927,
+      "hex": "0x0C7C22A7"
+    },
+    {
+      "name": "DTTXTS",
+      "hash": 284277010,
+      "hex": "0x10F1B912"
+    },
+    {
+      "name": "DTWELD",
+      "hash": 64420087,
+      "hex": "0x03D6F8F7"
+    },
+    {
+      "name": "DTWLDD",
+      "hash": 60306340,
+      "hex": "0x039833A4"
+    },
+    {
+      "name": "DTWLDL",
+      "hash": 175097596,
+      "hex": "0x0A6FC6FC"
+    },
+    {
+      "name": "DTWRLD",
+      "hash": 64675966,
+      "hex": "0x03DAE07E"
+    },
+    {
+      "name": "ECADAD",
+      "hash": 58538057,
+      "hex": "0x037D3849"
+    },
+    {
+      "name": "ECADCD",
+      "hash": 59600939,
+      "hex": "0x038D702B"
+    },
+    {
+      "name": "ECADSD",
+      "hash": 68103995,
+      "hex": "0x040F2F3B"
+    },
+    {
+      "name": "ECADSG",
+      "hash": 111150716,
+      "hex": "0x06A0067C"
+    },
+    {
+      "name": "ECANNT",
+      "hash": 295226132,
+      "hex": "0x1198CB14"
+    },
+    {
+      "name": "ECANTB",
+      "hash": 40134452,
+      "hex": "0x02646734"
+    },
+    {
+      "name": "ECAREA",
+      "hash": 17892662,
+      "hex": "0x01110536"
+    },
+    {
+      "name": "ECARET",
+      "hash": 290521895,
+      "hex": "0x11510327"
+    },
+    {
+      "name": "ECASWL",
+      "hash": 185316260,
+      "hex": "0x0B0BB3A4"
+    },
+    {
+      "name": "ECATTS",
+      "hash": 284183969,
+      "hex": "0x10F04DA1"
+    },
+    {
+      "name": "ECBORD",
+      "hash": 67789796,
+      "hex": "0x040A63E4"
+    },
+    {
+      "name": "ECCFGR",
+      "hash": 262652225,
+      "hex": "0x0FA7C141"
+    },
+    {
+      "name": "ECCFWL",
+      "hash": 185061839,
+      "hex": "0x0B07D1CF"
+    },
+    {
+      "name": "ECCIND",
+      "hash": 65546663,
+      "hex": "0x03E829A7"
+    },
+    {
+      "name": "ECCNPD",
+      "hash": 66707960,
+      "hex": "0x03F9E1F8"
+    },
+    {
+      "name": "ECCNPI",
+      "hash": 138452495,
+      "hex": "0x08409E0F"
+    },
+    {
+      "name": "ECCNPT",
+      "hash": 296290472,
+      "hex": "0x11A908A8"
+    },
+    {
+      "name": "ECCONN",
+      "hash": 209153831,
+      "hex": "0x0C776F27"
+    },
+    {
+      "name": "ECCONT",
+      "hash": 295247273,
+      "hex": "0x11991DA9"
+    },
+    {
+      "name": "ECCSSH",
+      "hash": 125796326,
+      "hex": "0x077F7FE6"
+    },
+    {
+      "name": "ECCSYT",
+      "hash": 301171856,
+      "hex": "0x11F38490"
+    },
+    {
+      "name": "ECDFLA",
+      "hash": 21378740,
+      "hex": "0x014636B4"
+    },
+    {
+      "name": "ECDRAW",
+      "hash": 331445039,
+      "hex": "0x13C1732F"
+    },
+    {
+      "name": "ECFUNC",
+      "hash": 51436139,
+      "hex": "0x0310DA6B"
+    },
+    {
+      "name": "ECGRID",
+      "hash": 63069521,
+      "hex": "0x03C25D51"
+    },
+    {
+      "name": "ECGROU",
+      "hash": 310189586,
+      "hex": "0x127D1E12"
+    },
+    {
+      "name": "ECLABE",
+      "hash": 73367375,
+      "hex": "0x045F7F4F"
+    },
+    {
+      "name": "ECLINK",
+      "hash": 165995573,
+      "hex": "0x09E4E435"
+    },
+    {
+      "name": "ECLNKG",
+      "hash": 107104037,
+      "hex": "0x06624725"
+    },
+    {
+      "name": "ECLNKW",
+      "hash": 336686549,
+      "hex": "0x14116DD5"
+    },
+    {
+      "name": "ECMDTS",
+      "hash": 283877789,
+      "hex": "0x10EBA19D"
+    },
+    {
+      "name": "ECMLIN",
+      "hash": 206444867,
+      "hex": "0x0C4E1943"
+    },
+    {
+      "name": "ECMREP",
+      "hash": 233135015,
+      "hex": "0x0DE55BA7"
+    },
+    {
+      "name": "ECOVET",
+      "hash": 290610833,
+      "hex": "0x11525E91"
+    },
+    {
+      "name": "ECREVC",
+      "hash": 55381487,
+      "hex": "0x034D0DEF"
+    },
+    {
+      "name": "ECREVM",
+      "hash": 198870557,
+      "hex": "0x0BDA861D"
+    },
+    {
+      "name": "ECSHEE",
+      "hash": 75104582,
+      "hex": "0x047A0146"
+    },
+    {
+      "name": "ECSMAP",
+      "hash": 230915210,
+      "hex": "0x0DC37C8A"
+    },
+    {
+      "name": "ECSREP",
+      "hash": 233139389,
+      "hex": "0x0DE56CBD"
+    },
+    {
+      "name": "ECSTMP",
+      "hash": 237430283,
+      "hex": "0x0E26E60B"
+    },
+    {
+      "name": "ECSTVA",
+      "hash": 26979647,
+      "hex": "0x019BAD3F"
+    },
+    {
+      "name": "ECSYMP",
+      "hash": 237528698,
+      "hex": "0x0E28667A"
+    },
+    {
+      "name": "ECSYMT",
+      "hash": 294924326,
+      "hex": "0x11943026"
+    },
+    {
+      "name": "ECTABL",
+      "hash": 173815556,
+      "hex": "0x0A5C3704"
+    },
+    {
+      "name": "ECTEXT",
+      "hash": 300377246,
+      "hex": "0x11E7649E"
+    },
+    {
+      "name": "ECTGEO",
+      "hash": 218574698,
+      "hex": "0x0D072F6A"
+    },
+    {
+      "name": "ECTGRP",
+      "hash": 239832338,
+      "hex": "0x0E4B8D12"
+    },
+    {
+      "name": "ECTIND",
+      "hash": 65559056,
+      "hex": "0x03E85A10"
+    },
+    {
+      "name": "ECTMAP",
+      "hash": 230915939,
+      "hex": "0x0DC37F63"
+    },
+    {
+      "name": "ECTSCN",
+      "hash": 203399105,
+      "hex": "0x0C1F9FC1"
+    },
+    {
+      "name": "ECTSHE",
+      "hash": 76916147,
+      "hex": "0x0495A5B3"
+    },
+    {
+      "name": "ECTSOL",
+      "hash": 181078583,
+      "hex": "0x0ACB0A37"
+    },
+    {
+      "name": "ECTYPE",
+      "hash": 81285773,
+      "hex": "0x04D8528D"
+    },
+    {
+      "name": "EDOCMT",
+      "hash": 294488411,
+      "hex": "0x118D895B"
+    },
+    {
+      "name": "EDOCPK",
+      "hash": 166942571,
+      "hex": "0x09F3576B"
+    },
+    {
+      "name": "EDOCWL",
+      "hash": 185011565,
+      "hex": "0x0B070D6D"
+    },
+    {
+      "name": "EDRSET",
+      "hash": 290553998,
+      "hex": "0x1151808E"
+    },
+    {
+      "name": "EDRULE",
+      "hash": 79079846,
+      "hex": "0x04B6A9A6"
+    },
+    {
+      "name": "EDRWLD",
+      "hash": 64770305,
+      "hex": "0x03DC5101"
+    },
+    {
+      "name": "EFMINS",
+      "hash": 280787639,
+      "hex": "0x10BC7AB7"
+    },
+    {
+      "name": "EFMREP",
+      "hash": 233135096,
+      "hex": "0x0DE55BF8"
+    },
+    {
+      "name": "ELCONN",
+      "hash": 209154074,
+      "hex": "0x0C77701A"
+    },
+    {
+      "name": "ELEVLB",
+      "hash": 36043547,
+      "hex": "0x0225FB1B"
+    },
+    {
+      "name": "ELFITT",
+      "hash": 298320251,
+      "hex": "0x11C8017B"
+    },
+    {
+      "name": "ENDATU",
+      "hash": 312510290,
+      "hex": "0x12A08752"
+    },
+    {
+      "name": "ENGCWL",
+      "hash": 185006003,
+      "hex": "0x0B06F7B3"
+    },
+    {
+      "name": "ENGGRP",
+      "hash": 239823158,
+      "hex": "0x0E4B6936"
+    },
+    {
+      "name": "ENGITE",
+      "hash": 83087429,
+      "hex": "0x04F3D045"
+    },
+    {
+      "name": "ENGWLD",
+      "hash": 64762556,
+      "hex": "0x03DC32BC"
+    },
+    {
+      "name": "ENTMSI",
+      "hash": 140039825,
+      "hex": "0x0858D691"
+    },
+    {
+      "name": "ENVDAT",
+      "hash": 288136175,
+      "hex": "0x112C9BEF"
+    },
+    {
+      "name": "ENVLIM",
+      "hash": 192102818,
+      "hex": "0x0B7341A2"
+    },
+    {
+      "name": "ENVLOP",
+      "hash": 238338185,
+      "hex": "0x0E34C089"
+    },
+    {
+      "name": "EQUCOM",
+      "hash": 195113669,
+      "hex": "0x0BA132C5"
+    },
+    {
+      "name": "ESIMGR",
+      "hash": 262794812,
+      "hex": "0x0FA9EE3C"
+    },
+    {
+      "name": "ESIMIN",
+      "hash": 206462066,
+      "hex": "0x0C4E5C72"
+    },
+    {
+      "name": "ETMGRO",
+      "hash": 225478787,
+      "hex": "0x0D708883"
+    },
+    {
+      "name": "ETMODL",
+      "hash": 175149356,
+      "hex": "0x0A70912C"
+    },
+    {
+      "name": "ETMWLD",
+      "hash": 64767092,
+      "hex": "0x03DC4474"
+    },
+    {
+      "name": "EXPCOL",
+      "hash": 180761306,
+      "hex": "0x0AC632DA"
+    },
+    {
+      "name": "EXPFIL",
+      "hash": 177631709,
+      "hex": "0x0A9671DD"
+    },
+    {
+      "name": "EXSTND",
+      "hash": 65775407,
+      "hex": "0x03EBA72F"
+    },
+    {
+      "name": "EXTCNT",
+      "hash": 295024037,
+      "hex": "0x1195B5A5"
+    },
+    {
+      "name": "EXTDAT",
+      "hash": 288134987,
+      "hex": "0x112C974B"
+    },
+    {
+      "name": "EXTFRM",
+      "hash": 196766501,
+      "hex": "0x0BBA6B25"
+    },
+    {
+      "name": "EXTGEO",
+      "hash": 218575265,
+      "hex": "0x0D0731A1"
+    },
+    {
+      "name": "EXTIMG",
+      "hash": 108074903,
+      "hex": "0x06711797"
+    },
+    {
+      "name": "FABASS",
+      "hash": 283279227,
+      "hex": "0x10E27F7B"
+    },
+    {
+      "name": "FACECO",
+      "hash": 217460004,
+      "hex": "0x0CF62D24"
+    },
+    {
+      "name": "FACELB",
+      "hash": 35707182,
+      "hex": "0x0220D92E"
+    },
+    {
+      "name": "FACONN",
+      "hash": 209153778,
+      "hex": "0x0C776EF2"
+    },
+    {
+      "name": "FAFAST",
+      "hash": 297631050,
+      "hex": "0x11BD7D4A"
+    },
+    {
+      "name": "FAFSET",
+      "hash": 290545170,
+      "hex": "0x11515E12"
+    },
+    {
+      "name": "FAITEM",
+      "hash": 190124691,
+      "hex": "0x0B551293"
+    },
+    {
+      "name": "FAWELD",
+      "hash": 64419576,
+      "hex": "0x03D6F6F8"
+    },
+    {
+      "name": "FCUTPL",
+      "hash": 181630437,
+      "hex": "0x0AD375E5"
+    },
+    {
+      "name": "FEBEAM",
+      "hash": 187698687,
+      "hex": "0x0B300DFF"
+    },
+    {
+      "name": "FEFRED",
+      "hash": 60943083,
+      "hex": "0x03A1EAEB"
+    },
+    {
+      "name": "FEMIMG",
+      "hash": 108069288,
+      "hex": "0x067101A8"
+    },
+    {
+      "name": "FEMODL",
+      "hash": 175148952,
+      "hex": "0x0A708F98"
+    },
+    {
+      "name": "FEMWLD",
+      "hash": 64766688,
+      "hex": "0x03DC42E0"
+    },
+    {
+      "name": "FEMZON",
+      "hash": 209909130,
+      "hex": "0x0C82F58A"
+    },
+    {
+      "name": "FESHEL",
+      "hash": 175546986,
+      "hex": "0x0A76A26A"
+    },
+    {
+      "name": "FETRUS",
+      "hash": 284689950,
+      "hex": "0x10F8061E"
+    },
+    {
+      "name": "FILLST",
+      "hash": 297852153,
+      "hex": "0x11C0DCF9"
+    },
+    {
+      "name": "FIXING",
+      "hash": 108608856,
+      "hex": "0x06793D58"
+    },
+    {
+      "name": "FIXTUR",
+      "hash": 270383433,
+      "hex": "0x101DB949"
+    },
+    {
+      "name": "FLRCOV",
+      "hash": 324251511,
+      "hex": "0x1353AF77"
+    },
+    {
+      "name": "FLRLAY",
+      "hash": 360035205,
+      "hex": "0x1575B385"
+    },
+    {
+      "name": "FMBDIM",
+      "hash": 191930748,
+      "hex": "0x0B70A17C"
+    },
+    {
+      "name": "FMBEND",
+      "hash": 65467473,
+      "hex": "0x03E6F451"
+    },
+    {
+      "name": "FMBPLN",
+      "hash": 208110174,
+      "hex": "0x0C67825E"
+    },
+    {
+      "name": "FMBSST",
+      "hash": 297982752,
+      "hex": "0x11C2DB20"
+    },
+    {
+      "name": "FMEDIM",
+      "hash": 191932935,
+      "hex": "0x0B70AA07"
+    },
+    {
+      "name": "FMEDNE",
+      "hash": 79798884,
+      "hex": "0x04C1A264"
+    },
+    {
+      "name": "FMEXTR",
+      "hash": 269916981,
+      "hex": "0x10169B35"
+    },
+    {
+      "name": "FMSSBK",
+      "hash": 159820485,
+      "hex": "0x0986AAC5"
+    },
+    {
+      "name": "FMTRPO",
+      "hash": 224637333,
+      "hex": "0x0D63B195"
+    },
+    {
+      "name": "FMWCON",
+      "hash": 209463927,
+      "hex": "0x0C7C2A77"
+    },
+    {
+      "name": "FMWDIM",
+      "hash": 191946057,
+      "hex": "0x0B70DD49"
+    },
+    {
+      "name": "FMWELD",
+      "hash": 64419900,
+      "hex": "0x03D6F83C"
+    },
+    {
+      "name": "FNCAAR",
+      "hash": 259365462,
+      "hex": "0x0F759A56"
+    },
+    {
+      "name": "FNCARE",
+      "hash": 81864168,
+      "hex": "0x04E125E8"
+    },
+    {
+      "name": "FNCBRN",
+      "hash": 211024014,
+      "hex": "0x0C93F88E"
+    },
+    {
+      "name": "FNCCAR",
+      "hash": 259404828,
+      "hex": "0x0F76341C"
+    },
+    {
+      "name": "FNCCEL",
+      "hash": 175437150,
+      "hex": "0x0A74F55E"
+    },
+    {
+      "name": "FNCGSA",
+      "hash": 25118079,
+      "hex": "0x017F457F"
+    },
+    {
+      "name": "FNCISA",
+      "hash": 25157445,
+      "hex": "0x017FDF45"
+    },
+    {
+      "name": "FNCLIM",
+      "hash": 192088968,
+      "hex": "0x0B730B88"
+    },
+    {
+      "name": "FNCOSA",
+      "hash": 25275543,
+      "hex": "0x0181AC97"
+    },
+    {
+      "name": "FNCPSA",
+      "hash": 25295226,
+      "hex": "0x0181F97A"
+    },
+    {
+      "name": "FNCSSA",
+      "hash": 25354275,
+      "hex": "0x0182E023"
+    },
+    {
+      "name": "FNCTEA",
+      "hash": 17933784,
+      "hex": "0x0111A5D8"
+    },
+    {
+      "name": "FNCTSA",
+      "hash": 25373958,
+      "hex": "0x01832D06"
+    },
+    {
+      "name": "FPFITT",
+      "hash": 298320360,
+      "hex": "0x11C801E8"
+    },
+    {
+      "name": "FPLSET",
+      "hash": 290549949,
+      "hex": "0x115170BD"
+    },
+    {
+      "name": "FPRJIN",
+      "hash": 206409498,
+      "hex": "0x0C4D8F1A"
+    },
+    {
+      "name": "FPRJPL",
+      "hash": 181431771,
+      "hex": "0x0AD06DDB"
+    },
+    {
+      "name": "FPRJPR",
+      "hash": 267525213,
+      "hex": "0x0FF21C5D"
+    },
+    {
+      "name": "FSPDEF",
+      "hash": 89373003,
+      "hex": "0x0553B94B"
+    },
+    {
+      "name": "FSPINS",
+      "hash": 280790178,
+      "hex": "0x10BC84A2"
+    },
+    {
+      "name": "FSPWRL",
+      "hash": 182749155,
+      "hex": "0x0AE487E3"
+    },
+    {
+      "name": "FSTYTB",
+      "hash": 40365249,
+      "hex": "0x0267ECC1"
+    },
+    {
+      "name": "FUNGRP",
+      "hash": 239828451,
+      "hex": "0x0E4B7DE3"
+    },
+    {
+      "name": "FUNITE",
+      "hash": 83092722,
+      "hex": "0x04F3E4F2"
+    },
+    {
+      "name": "FUNWLD",
+      "hash": 64767849,
+      "hex": "0x03DC4769"
+    },
+    {
+      "name": "FURNIT",
+      "hash": 292581807,
+      "hex": "0x117071AF"
+    },
+    {
+      "name": "GBASEW",
+      "hash": 333588274,
+      "hex": "0x13E22732"
+    },
+    {
+      "name": "GBLOCK",
+      "hash": 160267795,
+      "hex": "0x098D7E13"
+    },
+    {
+      "name": "GBRAPN",
+      "hash": 209952061,
+      "hex": "0x0C839D3D"
+    },
+    {
+      "name": "GCOMPT",
+      "hash": 296279539,
+      "hex": "0x11A8DDF3"
+    },
+    {
+      "name": "GCPANE",
+      "hash": 79747585,
+      "hex": "0x04C0DA01"
+    },
+    {
+      "name": "GCURVE",
+      "hash": 84337369,
+      "hex": "0x0506E2D9"
+    },
+    {
+      "name": "GDISCW",
+      "hash": 332531278,
+      "hex": "0x13D2064E"
+    },
+    {
+      "name": "GENCUR",
+      "hash": 270041425,
+      "hex": "0x10188151"
+    },
+    {
+      "name": "GENPKG",
+      "hash": 107144917,
+      "hex": "0x0662E6D5"
+    },
+    {
+      "name": "GENPRI",
+      "hash": 139562818,
+      "hex": "0x08518F42"
+    },
+    {
+      "name": "GENSEC",
+      "hash": 46619692,
+      "hex": "0x02C75C2C"
+    },
+    {
+      "name": "GFCURV",
+      "hash": 326189032,
+      "hex": "0x13713FE8"
+    },
+    {
+      "name": "GICPAN",
+      "hash": 202264945,
+      "hex": "0x0C0E5171"
+    },
+    {
+      "name": "GICPLA",
+      "hash": 21575005,
+      "hex": "0x0149355D"
+    },
+    {
+      "name": "GICSTI",
+      "hash": 140676838,
+      "hex": "0x08628EE6"
+    },
+    {
+      "name": "GIPPAN",
+      "hash": 202274422,
+      "hex": "0x0C0E7676"
+    },
+    {
+      "name": "GISPAN",
+      "hash": 202276609,
+      "hex": "0x0C0E7F01"
+    },
+    {
+      "name": "GLOCWL",
+      "hash": 185011783,
+      "hex": "0x0B070E47"
+    },
+    {
+      "name": "GLOGID",
+      "hash": 62859085,
+      "hex": "0x03BF274D"
+    },
+    {
+      "name": "GLYCIR",
+      "hash": 263672341,
+      "hex": "0x0FB75215"
+    },
+    {
+      "name": "GLYOUT",
+      "hash": 298983643,
+      "hex": "0x11D220DB"
+    },
+    {
+      "name": "GLYREC",
+      "hash": 46608217,
+      "hex": "0x02C72F59"
+    },
+    {
+      "name": "GMATUW",
+      "hash": 342111310,
+      "hex": "0x1464344E"
+    },
+    {
+      "name": "GOBELE",
+      "hash": 78753553,
+      "hex": "0x04B1AF11"
+    },
+    {
+      "name": "GPANEL",
+      "hash": 175652260,
+      "hex": "0x0A783DA4"
+    },
+    {
+      "name": "GPITEM",
+      "hash": 190125097,
+      "hex": "0x0B551429"
+    },
+    {
+      "name": "GPKGFL",
+      "hash": 176053210,
+      "hex": "0x0A7E5BDA"
+    },
+    {
+      "name": "GPKGFT",
+      "hash": 290844466,
+      "hex": "0x1155EF32"
+    },
+    {
+      "name": "GPLANE",
+      "hash": 79745020,
+      "hex": "0x04C0CFFC"
+    },
+    {
+      "name": "GPLATE",
+      "hash": 82933666,
+      "hex": "0x04F177A2"
+    },
+    {
+      "name": "GPOINT",
+      "hash": 295138276,
+      "hex": "0x119773E4"
+    },
+    {
+      "name": "GPRDEW",
+      "hash": 333305800,
+      "hex": "0x13DDD7C8"
+    },
+    {
+      "name": "GPROTR",
+      "hash": 269749393,
+      "hex": "0x10140C91"
+    },
+    {
+      "name": "GRDRLR",
+      "hash": 265546762,
+      "hex": "0x0FD3EC0A"
+    },
+    {
+      "name": "GRIDAX",
+      "hash": 345522436,
+      "hex": "0x14984104"
+    },
+    {
+      "name": "GRIDCY",
+      "hash": 360934225,
+      "hex": "0x15836B51"
+    },
+    {
+      "name": "GRIDEL",
+      "hash": 175461316,
+      "hex": "0x0A7553C4"
+    },
+    {
+      "name": "GRIDFA",
+      "hash": 18154780,
+      "hex": "0x0115051C"
+    },
+    {
+      "name": "GRIDLN",
+      "hash": 207879217,
+      "hex": "0x0C63FC31"
+    },
+    {
+      "name": "GRIDPL",
+      "hash": 181307167,
+      "hex": "0x0ACE871F"
+    },
+    {
+      "name": "GRIDSY",
+      "hash": 369437281,
+      "hex": "0x16052A61"
+    },
+    {
+      "name": "GRIDWL",
+      "hash": 185027254,
+      "hex": "0x0B074AB6"
+    },
+    {
+      "name": "GRSTYL",
+      "hash": 186412354,
+      "hex": "0x0B1C6D42"
+    },
+    {
+      "name": "GSTBRA",
+      "hash": 24500752,
+      "hex": "0x0175DA10"
+    },
+    {
+      "name": "GSTIFF",
+      "hash": 90005776,
+      "hex": "0x055D6110"
+    },
+    {
+      "name": "GSTWLD",
+      "hash": 64772170,
+      "hex": "0x03DC584A"
+    },
+    {
+      "name": "GSUBPN",
+      "hash": 209974390,
+      "hex": "0x0C83F476"
+    },
+    {
+      "name": "GSUPFO",
+      "hash": 219284449,
+      "hex": "0x0D1203E1"
+    },
+    {
+      "name": "GXTRAO",
+      "hash": 216666016,
+      "hex": "0x0CEA0FA0"
+    },
+    {
+      "name": "HANDRA",
+      "hash": 24535259,
+      "hex": "0x017660DB"
+    },
+    {
+      "name": "HBLWLD",
+      "hash": 64765880,
+      "hex": "0x03DC3FB8"
+    },
+    {
+      "name": "HBRABO",
+      "hash": 216860795,
+      "hex": "0x0CED087B"
+    },
+    {
+      "name": "HBRAPN",
+      "hash": 209952062,
+      "hex": "0x0C839D3E"
+    },
+    {
+      "name": "HBRCKT",
+      "hash": 293427665,
+      "hex": "0x117D59D1"
+    },
+    {
+      "name": "HBRFLA",
+      "hash": 21388922,
+      "hex": "0x01465E7A"
+    },
+    {
+      "name": "HBRSTI",
+      "hash": 140687585,
+      "hex": "0x0862B8E1"
+    },
+    {
+      "name": "HCMWLD",
+      "hash": 64766636,
+      "hex": "0x03DC42AC"
+    },
+    {
+      "name": "HCOMPT",
+      "hash": 296279540,
+      "hex": "0x11A8DDF4"
+    },
+    {
+      "name": "HCTOUT",
+      "hash": 298979756,
+      "hex": "0x11D211AC"
+    },
+    {
+      "name": "HCURVE",
+      "hash": 84337370,
+      "hex": "0x0506E2DA"
+    },
+    {
+      "name": "HDOPLA",
+      "hash": 21583619,
+      "hex": "0x01495703"
+    },
+    {
+      "name": "HFLANG",
+      "hash": 108442565,
+      "hex": "0x0676B3C5"
+    },
+    {
+      "name": "HICHOL",
+      "hash": 180849842,
+      "hex": "0x0AC78CB2"
+    },
+    {
+      "name": "HICPAN",
+      "hash": 202264946,
+      "hex": "0x0C0E5172"
+    },
+    {
+      "name": "HICPLA",
+      "hash": 21575006,
+      "hex": "0x0149355E"
+    },
+    {
+      "name": "HICSTI",
+      "hash": 140676839,
+      "hex": "0x08628EE7"
+    },
+    {
+      "name": "HMKWLD",
+      "hash": 64765448,
+      "hex": "0x03DC3E08"
+    },
+    {
+      "name": "HNOTCH",
+      "hash": 117322001,
+      "hex": "0x06FE3111"
+    },
+    {
+      "name": "HOLDEL",
+      "hash": 175463423,
+      "hex": "0x0A755BFF"
+    },
+    {
+      "name": "HOLDFL",
+      "hash": 175994864,
+      "hex": "0x0A7D77F0"
+    },
+    {
+      "name": "HOLDLN",
+      "hash": 207881324,
+      "hex": "0x0C64046C"
+    },
+    {
+      "name": "HOLSET",
+      "hash": 290549924,
+      "hex": "0x115170A4"
+    },
+    {
+      "name": "HOOPSE",
+      "hash": 82699631,
+      "hex": "0x04EDE56F"
+    },
+    {
+      "name": "HPANBI",
+      "hash": 131011217,
+      "hex": "0x07CF1291"
+    },
+    {
+      "name": "HPANBO",
+      "hash": 217104659,
+      "hex": "0x0CF0C113"
+    },
+    {
+      "name": "HPANEL",
+      "hash": 175652261,
+      "hex": "0x0A783DA5"
+    },
+    {
+      "name": "HPATTE",
+      "hash": 83299625,
+      "hex": "0x04F70D29"
+    },
+    {
+      "name": "HPILLR",
+      "hash": 265432256,
+      "hex": "0x0FD22CC0"
+    },
+    {
+      "name": "HPLATE",
+      "hash": 82933667,
+      "hex": "0x04F177A3"
+    },
+    {
+      "name": "HPOINT",
+      "hash": 295138277,
+      "hex": "0x119773E5"
+    },
+    {
+      "name": "HPRCUT",
+      "hash": 298742453,
+      "hex": "0x11CE72B5"
+    },
+    {
+      "name": "HPREND",
+      "hash": 65479220,
+      "hex": "0x03E72234"
+    },
+    {
+      "name": "HPRHOL",
+      "hash": 180860966,
+      "hex": "0x0AC7B826"
+    },
+    {
+      "name": "HPRNOT",
+      "hash": 295770320,
+      "hex": "0x11A118D0"
+    },
+    {
+      "name": "HRDREF",
+      "hash": 89639792,
+      "hex": "0x0557CB70"
+    },
+    {
+      "name": "HRFEAT",
+      "hash": 288144305,
+      "hex": "0x112CBBB1"
+    },
+    {
+      "name": "HRGATE",
+      "hash": 82930076,
+      "hex": "0x04F1699C"
+    },
+    {
+      "name": "HRKPSE",
+      "hash": 82696796,
+      "hex": "0x04EDDA5C"
+    },
+    {
+      "name": "HRPANE",
+      "hash": 79747991,
+      "hex": "0x04C0DB97"
+    },
+    {
+      "name": "HRPNSE",
+      "hash": 82661075,
+      "hex": "0x04ED4ED3"
+    },
+    {
+      "name": "HRPOST",
+      "hash": 297914363,
+      "hex": "0x11C1CFFB"
+    },
+    {
+      "name": "HRTERM",
+      "hash": 196746659,
+      "hex": "0x0BBA1DA3"
+    },
+    {
+      "name": "HSLIST",
+      "hash": 297793376,
+      "hex": "0x11BFF760"
+    },
+    {
+      "name": "HSPOOL",
+      "hash": 180997370,
+      "hex": "0x0AC9CCFA"
+    },
+    {
+      "name": "HSTBRA",
+      "hash": 24500753,
+      "hex": "0x0175DA11"
+    },
+    {
+      "name": "HSTIFF",
+      "hash": 90005777,
+      "hex": "0x055D6111"
+    },
+    {
+      "name": "HSUBPN",
+      "hash": 209974391,
+      "hex": "0x0C83F477"
+    },
+    {
+      "name": "HSVDEF",
+      "hash": 89377379,
+      "hex": "0x0553CA63"
+    },
+    {
+      "name": "HTFEAT",
+      "hash": 288144359,
+      "hex": "0x112CBBE7"
+    },
+    {
+      "name": "HTPELE",
+      "hash": 78763895,
+      "hex": "0x04B1D777"
+    },
+    {
+      "name": "HULCON",
+      "hash": 209456126,
+      "hex": "0x0C7C0BFE"
+    },
+    {
+      "name": "HVACFI",
+      "hash": 132920630,
+      "hex": "0x07EC3536"
+    },
+    {
+      "name": "HVBRCO",
+      "hash": 217715723,
+      "hex": "0x0CFA140B"
+    },
+    {
+      "name": "HVFLAN",
+      "hash": 202188752,
+      "hex": "0x0C0D27D0"
+    },
+    {
+      "name": "HVHACC",
+      "hash": 45198602,
+      "hex": "0x02B1AD0A"
+    },
+    {
+      "name": "HVIDAM",
+      "hash": 187684568,
+      "hex": "0x0B2FD6D8"
+    },
+    {
+      "name": "HVSADD",
+      "hash": 60086969,
+      "hex": "0x0394DAB9"
+    },
+    {
+      "name": "HVSKIR",
+      "hash": 263825702,
+      "hex": "0x0FB9A926"
+    },
+    {
+      "name": "HVSPLR",
+      "hash": 265518440,
+      "hex": "0x0FD37D68"
+    },
+    {
+      "name": "HVSTIF",
+      "hash": 91815965,
+      "hex": "0x0579001D"
+    },
+    {
+      "name": "HVTPPO",
+      "hash": 224598212,
+      "hex": "0x0D6318C4"
+    },
+    {
+      "name": "HYAGHM",
+      "hash": 191457953,
+      "hex": "0x0B696AA1"
+    },
+    {
+      "name": "HYASSA",
+      "hash": 25353116,
+      "hex": "0x0182DB9C"
+    },
+    {
+      "name": "HYBMSF",
+      "hash": 96980282,
+      "hex": "0x05C7CD3A"
+    },
+    {
+      "name": "HYCCIT",
+      "hash": 292354469,
+      "hex": "0x116CF9A5"
+    },
+    {
+      "name": "HYCCTS",
+      "hash": 283851413,
+      "hex": "0x10EB3A95"
+    },
+    {
+      "name": "HYCKGS",
+      "hash": 277100144,
+      "hex": "0x10843670"
+    },
+    {
+      "name": "HYCMPT",
+      "hash": 296271386,
+      "hex": "0x11A8BE1A"
+    },
+    {
+      "name": "HYCOBA",
+      "hash": 16241345,
+      "hex": "0x00F7D2C1"
+    },
+    {
+      "name": "HYCONT",
+      "hash": 295247870,
+      "hex": "0x11991FFE"
+    },
+    {
+      "name": "HYCOTP",
+      "hash": 241040888,
+      "hex": "0x0E5DFDF8"
+    },
+    {
+      "name": "HYCRCU",
+      "hash": 303809975,
+      "hex": "0x121BC5B7"
+    },
+    {
+      "name": "HYCRIC",
+      "hash": 48718295,
+      "hex": "0x02E761D7"
+    },
+    {
+      "name": "HYCSBM",
+      "hash": 188506961,
+      "hex": "0x0B3C6351"
+    },
+    {
+      "name": "HYCTLS",
+      "hash": 279934496,
+      "hex": "0x10AF7620"
+    },
+    {
+      "name": "HYDACO",
+      "hash": 217382651,
+      "hex": "0x0CF4FEFB"
+    },
+    {
+      "name": "HYDMGE",
+      "hash": 76255541,
+      "hex": "0x048B9135"
+    },
+    {
+      "name": "HYDWSC",
+      "hash": 54131849,
+      "hex": "0x0339FC89"
+    },
+    {
+      "name": "HYFORM",
+      "hash": 196933472,
+      "hex": "0x0BBCF760"
+    },
+    {
+      "name": "HYFRTR",
+      "hash": 269799938,
+      "hex": "0x1014D202"
+    },
+    {
+      "name": "HYGCGC",
+      "hash": 47363084,
+      "hex": "0x02D2B40C"
+    },
+    {
+      "name": "HYGEPA",
+      "hash": 23487605,
+      "hex": "0x01666475"
+    },
+    {
+      "name": "HYGRAI",
+      "hash": 130563125,
+      "hex": "0x07C83C35"
+    },
+    {
+      "name": "HYGRCK",
+      "hash": 160323821,
+      "hex": "0x098E58ED"
+    },
+    {
+      "name": "HYGRCO",
+      "hash": 217719449,
+      "hex": "0x0CFA2299"
+    },
+    {
+      "name": "HYGZCU",
+      "hash": 303970355,
+      "hex": "0x121E3833"
+    },
+    {
+      "name": "HYHYST",
+      "hash": 298105550,
+      "hex": "0x11C4BACE"
+    },
+    {
+      "name": "HYISTR",
+      "hash": 269821808,
+      "hex": "0x10152770"
+    },
+    {
+      "name": "HYLOAD",
+      "hash": 58763186,
+      "hex": "0x0380A7B2"
+    },
+    {
+      "name": "HYLOCO",
+      "hash": 217664045,
+      "hex": "0x0CF94A2D"
+    },
+    {
+      "name": "HYLOCS",
+      "hash": 275059673,
+      "hex": "0x106513D9"
+    },
+    {
+      "name": "HYLWDT",
+      "hash": 290097485,
+      "hex": "0x114A894D"
+    },
+    {
+      "name": "HYLWST",
+      "hash": 298069100,
+      "hex": "0x11C42C6C"
+    },
+    {
+      "name": "HYOPST",
+      "hash": 297933506,
+      "hex": "0x11C21AC2"
+    },
+    {
+      "name": "HYPDRE",
+      "hash": 81932993,
+      "hex": "0x04E232C1"
+    },
+    {
+      "name": "HYPGRM",
+      "hash": 196783298,
+      "hex": "0x0BBAACC2"
+    },
+    {
+      "name": "HYPOST",
+      "hash": 297914552,
+      "hex": "0x11C1D0B8"
+    },
+    {
+      "name": "HYPROB",
+      "hash": 37567511,
+      "hex": "0x023D3C17"
+    },
+    {
+      "name": "HYPZON",
+      "hash": 209911859,
+      "hex": "0x0C830033"
+    },
+    {
+      "name": "HYSBDI",
+      "hash": 131851268,
+      "hex": "0x07DBE404"
+    },
+    {
+      "name": "HYSTAB",
+      "hash": 30168890,
+      "hex": "0x01CC573A"
+    },
+    {
+      "name": "HYSTEQ",
+      "hash": 247528259,
+      "hex": "0x0EC0FB43"
+    },
+    {
+      "name": "HYSWLD",
+      "hash": 64771604,
+      "hex": "0x03DC5614"
+    },
+    {
+      "name": "HYSZDA",
+      "hash": 17532404,
+      "hex": "0x010B85F4"
+    },
+    {
+      "name": "HYTANK",
+      "hash": 165844538,
+      "hex": "0x09E2963A"
+    },
+    {
+      "name": "HYTRLI",
+      "hash": 136418453,
+      "hex": "0x08219495"
+    },
+    {
+      "name": "HYWAPA",
+      "hash": 23420537,
+      "hex": "0x01655E79"
+    },
+    {
+      "name": "IBNDRY",
+      "hash": 368909055,
+      "hex": "0x15FD1AFF"
+    },
+    {
+      "name": "IBRCKT",
+      "hash": 293427666,
+      "hex": "0x117D59D2"
+    },
+    {
+      "name": "ICRCUR",
+      "hash": 270044289,
+      "hex": "0x10188C81"
+    },
+    {
+      "name": "ICRPNT",
+      "hash": 295277895,
+      "hex": "0x11999547"
+    },
+    {
+      "name": "ICTOUT",
+      "hash": 298979757,
+      "hex": "0x11D211AD"
+    },
+    {
+      "name": "IDINFO",
+      "hash": 219235932,
+      "hex": "0x0D11465C"
+    },
+    {
+      "name": "IDLSET",
+      "hash": 290549628,
+      "hex": "0x11516F7C"
+    },
+    {
+      "name": "IDLWLD",
+      "hash": 64765935,
+      "hex": "0x03DC3FEF"
+    },
+    {
+      "name": "IENDFR",
+      "hash": 262089495,
+      "hex": "0x0F9F2B17"
+    },
+    {
+      "name": "IENDTO",
+      "hash": 226482948,
+      "hex": "0x0D7FDB04"
+    },
+    {
+      "name": "IFCPLA",
+      "hash": 21574926,
+      "hex": "0x0149350E"
+    },
+    {
+      "name": "IJOINT",
+      "hash": 295138116,
+      "hex": "0x11977344"
+    },
+    {
+      "name": "ILPGRP",
+      "hash": 239829669,
+      "hex": "0x0E4B82A5"
+    },
+    {
+      "name": "ILPOBJ",
+      "hash": 145390635,
+      "hex": "0x08AA7C2B"
+    },
+    {
+      "name": "ILPWRL",
+      "hash": 182748969,
+      "hex": "0x0AE48729"
+    },
+    {
+      "name": "IMGELE",
+      "hash": 78757146,
+      "hex": "0x04B1BD1A"
+    },
+    {
+      "name": "IMSTOR",
+      "hash": 267191253,
+      "hex": "0x0FED03D5"
+    },
+    {
+      "name": "INCFIX",
+      "hash": 349808850,
+      "hex": "0x14D9A8D2"
+    },
+    {
+      "name": "INFITT",
+      "hash": 298320309,
+      "hex": "0x11C801B5"
+    },
+    {
+      "name": "INOTCH",
+      "hash": 117322002,
+      "hex": "0x06FE3112"
+    },
+    {
+      "name": "INSCMG",
+      "hash": 107955810,
+      "hex": "0x066F4662"
+    },
+    {
+      "name": "INSCMP",
+      "hash": 237095973,
+      "hex": "0x0E21CC25"
+    },
+    {
+      "name": "INSLAY",
+      "hash": 360035991,
+      "hex": "0x1575B697"
+    },
+    {
+      "name": "INSMAT",
+      "hash": 288311139,
+      "hex": "0x112F4763"
+    },
+    {
+      "name": "INSURQ",
+      "hash": 254456379,
+      "hex": "0x0F2AB23B"
+    },
+    {
+      "name": "INTATT",
+      "hash": 298173051,
+      "hex": "0x11C5C27B"
+    },
+    {
+      "name": "INTDEF",
+      "hash": 89375787,
+      "hex": "0x0553C42B"
+    },
+    {
+      "name": "INTFRM",
+      "hash": 196766235,
+      "hex": "0x0BBA6A1B"
+    },
+    {
+      "name": "INTLNG",
+      "hash": 108665127,
+      "hex": "0x067A1927"
+    },
+    {
+      "name": "INVELE",
+      "hash": 78768108,
+      "hex": "0x04B1E7EC"
+    },
+    {
+      "name": "INVLST",
+      "hash": 297859581,
+      "hex": "0x11C0F9FD"
+    },
+    {
+      "name": "IPILLR",
+      "hash": 265432257,
+      "hex": "0x0FD22CC1"
+    },
+    {
+      "name": "IPLATE",
+      "hash": 82933668,
+      "hex": "0x04F177A4"
+    },
+    {
+      "name": "ISODEP",
+      "hash": 232861347,
+      "hex": "0x0DE12EA3"
+    },
+    {
+      "name": "ISOREG",
+      "hash": 103996746,
+      "hex": "0x0632DD4A"
+    },
+    {
+      "name": "ISTIFF",
+      "hash": 90005778,
+      "hex": "0x055D6112"
+    },
+    {
+      "name": "ISTRUR",
+      "hash": 270341424,
+      "hex": "0x101D1530"
+    },
+    {
+      "name": "ITSTYL",
+      "hash": 186412410,
+      "hex": "0x0B1C6D7A"
+    },
+    {
+      "name": "JLDATU",
+      "hash": 312510241,
+      "hex": "0x12A08721"
+    },
+    {
+      "name": "JNTBOX",
+      "hash": 352931158,
+      "hex": "0x15094D56"
+    },
+    {
+      "name": "JNTGRP",
+      "hash": 239832640,
+      "hex": "0x0E4B8E40"
+    },
+    {
+      "name": "JWVERT",
+      "hash": 297190603,
+      "hex": "0x11B6C4CB"
+    },
+    {
+      "name": "KICKPL",
+      "hash": 181440335,
+      "hex": "0x0AD08F4F"
+    },
+    {
+      "name": "KSUEDS",
+      "hash": 275400686,
+      "hex": "0x106A47EE"
+    },
+    {
+      "name": "KSUFAS",
+      "hash": 273826046,
+      "hex": "0x105240FE"
+    },
+    {
+      "name": "KSUNDS",
+      "hash": 275577833,
+      "hex": "0x106CFBE9"
+    },
+    {
+      "name": "KSUSVE",
+      "hash": 84357488,
+      "hex": "0x05073170"
+    },
+    {
+      "name": "LABETY",
+      "hash": 369982848,
+      "hex": "0x160D7D80"
+    },
+    {
+      "name": "LABSYM",
+      "hash": 200728731,
+      "hex": "0x0BF6E09B"
+    },
+    {
+      "name": "LABTXT",
+      "hash": 300659322,
+      "hex": "0x11EBB27A"
+    },
+    {
+      "name": "LADDER",
+      "hash": 261550659,
+      "hex": "0x0F96F243"
+    },
+    {
+      "name": "LASIMG",
+      "hash": 108073560,
+      "hex": "0x06711258"
+    },
+    {
+      "name": "LASSET",
+      "hash": 290554653,
+      "hex": "0x1151831D"
+    },
+    {
+      "name": "LAVOIN",
+      "hash": 206510430,
+      "hex": "0x0C4F195E"
+    },
+    {
+      "name": "LAVOST",
+      "hash": 297918282,
+      "hex": "0x11C1DF4A"
+    },
+    {
+      "name": "LAYDEF",
+      "hash": 89379084,
+      "hex": "0x0553D10C"
+    },
+    {
+      "name": "LAYRST",
+      "hash": 297979518,
+      "hex": "0x11C2CE7E"
+    },
+    {
+      "name": "LAYRUL",
+      "hash": 184251144,
+      "hex": "0x0AFB7308"
+    },
+    {
+      "name": "LAYTBL",
+      "hash": 174193131,
+      "hex": "0x0A61F9EB"
+    },
+    {
+      "name": "LBSTYL",
+      "hash": 186411927,
+      "hex": "0x0B1C6B97"
+    },
+    {
+      "name": "LCTIMD",
+      "hash": 65027622,
+      "hex": "0x03E03E26"
+    },
+    {
+      "name": "LCTIML",
+      "hash": 179818878,
+      "hex": "0x0AB7D17E"
+    },
+    {
+      "name": "LDRCAG",
+      "hash": 101577522,
+      "hex": "0x060DF332"
+    },
+    {
+      "name": "LDREXT",
+      "hash": 300375822,
+      "hex": "0x11E75F0E"
+    },
+    {
+      "name": "LDRRUN",
+      "hash": 212943936,
+      "hex": "0x0CB14440"
+    },
+    {
+      "name": "LDRSTR",
+      "hash": 269827806,
+      "hex": "0x10153EDE"
+    },
+    {
+      "name": "LIBGRP",
+      "hash": 239819385,
+      "hex": "0x0E4B5A79"
+    },
+    {
+      "name": "LIBITE",
+      "hash": 83083656,
+      "hex": "0x04F3C188"
+    },
+    {
+      "name": "LIMMDL",
+      "hash": 175109700,
+      "hex": "0x0A6FF644"
+    },
+    {
+      "name": "LINDIM",
+      "hash": 191939394,
+      "hex": "0x0B70C342"
+    },
+    {
+      "name": "LINEST",
+      "hash": 297715836,
+      "hex": "0x11BEC87C"
+    },
+    {
+      "name": "LINKWL",
+      "hash": 185168442,
+      "hex": "0x0B09723A"
+    },
+    {
+      "name": "LNCLAS",
+      "hash": 273930888,
+      "hex": "0x1053DA88"
+    },
+    {
+      "name": "LNDESC",
+      "hash": 53777262,
+      "hex": "0x0334936E"
+    },
+    {
+      "name": "LNFOLD",
+      "hash": 64604370,
+      "hex": "0x03D9C8D2"
+    },
+    {
+      "name": "LNLINK",
+      "hash": 165995877,
+      "hex": "0x09E4E565"
+    },
+    {
+      "name": "LOCMDL",
+      "hash": 175102572,
+      "hex": "0x0A6FDA6C"
+    },
+    {
+      "name": "LOOPTS",
+      "hash": 284115774,
+      "hex": "0x10EF433E"
+    },
+    {
+      "name": "LPVRTX",
+      "hash": 355904805,
+      "hex": "0x1536AD25"
+    },
+    {
+      "name": "LSTDEF",
+      "hash": 89375925,
+      "hex": "0x0553C4B5"
+    },
+    {
+      "name": "LSTGRP",
+      "hash": 239832777,
+      "hex": "0x0E4B8EC9"
+    },
+    {
+      "name": "LSTWLD",
+      "hash": 64772175,
+      "hex": "0x03DC584F"
+    },
+    {
+      "name": "LSTYTB",
+      "hash": 40365255,
+      "hex": "0x0267ECC7"
+    },
+    {
+      "name": "LSWIDD",
+      "hash": 60247272,
+      "hex": "0x03974CE8"
+    },
+    {
+      "name": "LUANCI",
+      "hash": 131542797,
+      "hex": "0x07D72F0D"
+    },
+    {
+      "name": "MANPKG",
+      "hash": 107144815,
+      "hex": "0x0662E66F"
+    },
+    {
+      "name": "MAPLNS",
+      "hash": 280848748,
+      "hex": "0x10BD696C"
+    },
+    {
+      "name": "MARKST",
+      "hash": 297836635,
+      "hex": "0x11C0A05B"
+    },
+    {
+      "name": "MATMDB",
+      "hash": 31625518,
+      "hex": "0x01E2912E"
+    },
+    {
+      "name": "MATUWL",
+      "hash": 185369431,
+      "hex": "0x0B0C8357"
+    },
+    {
+      "name": "MBLOCK",
+      "hash": 160267801,
+      "hex": "0x098D7E19"
+    },
+    {
+      "name": "MBRDEF",
+      "hash": 89374009,
+      "hex": "0x0553BD39"
+    },
+    {
+      "name": "MBRMAP",
+      "hash": 230914462,
+      "hex": "0x0DC3799E"
+    },
+    {
+      "name": "MIAUXI",
+      "hash": 142840516,
+      "hex": "0x088392C4"
+    },
+    {
+      "name": "MIBEVE",
+      "hash": 84067807,
+      "hex": "0x0502C5DF"
+    },
+    {
+      "name": "MIBURN",
+      "hash": 211397134,
+      "hex": "0x0C99AA0E"
+    },
+    {
+      "name": "MICONT",
+      "hash": 295247443,
+      "hex": "0x11991E53"
+    },
+    {
+      "name": "MIECOM",
+      "hash": 195101797,
+      "hex": "0x0BA10465"
+    },
+    {
+      "name": "MIGMRK",
+      "hash": 168196594,
+      "hex": "0x0A0679F2"
+    },
+    {
+      "name": "MIIDLE",
+      "hash": 78738817,
+      "hex": "0x04B17581"
+    },
+    {
+      "name": "MILABE",
+      "hash": 73367545,
+      "hex": "0x045F7FF9"
+    },
+    {
+      "name": "MIMARK",
+      "hash": 167964772,
+      "hex": "0x0A02F064"
+    },
+    {
+      "name": "MIPCON",
+      "hash": 209458723,
+      "hex": "0x0C7C1623"
+    },
+    {
+      "name": "MIPEND",
+      "hash": 65477578,
+      "hex": "0x03E71BCA"
+    },
+    {
+      "name": "MIPLTP",
+      "hash": 240990889,
+      "hex": "0x0E5D3AA9"
+    },
+    {
+      "name": "MIPPRO",
+      "hash": 225657832,
+      "hex": "0x0D7343E8"
+    },
+    {
+      "name": "MIPRTP",
+      "hash": 241108987,
+      "hex": "0x0E5F07FB"
+    },
+    {
+      "name": "MIPUDE",
+      "hash": 74827003,
+      "hex": "0x0475C4FB"
+    },
+    {
+      "name": "MISEGM",
+      "hash": 190899841,
+      "hex": "0x0B60E681"
+    },
+    {
+      "name": "MISEGT",
+      "hash": 291342190,
+      "hex": "0x115D876E"
+    },
+    {
+      "name": "MLABEL",
+      "hash": 175415962,
+      "hex": "0x0A74A29A"
+    },
+    {
+      "name": "MNPATH",
+      "hash": 125983255,
+      "hex": "0x07825A17"
+    },
+    {
+      "name": "MNPROF",
+      "hash": 94962847,
+      "hex": "0x05A9049F"
+    },
+    {
+      "name": "MNRCRE",
+      "hash": 81914476,
+      "hex": "0x04E1EA6C"
+    },
+    {
+      "name": "MNRNSQ",
+      "hash": 254849314,
+      "hex": "0x0F30B122"
+    },
+    {
+      "name": "MNRWRK",
+      "hash": 168401578,
+      "hex": "0x0A099AAA"
+    },
+    {
+      "name": "MNSTQU",
+      "hash": 311300887,
+      "hex": "0x128E1317"
+    },
+    {
+      "name": "MNSTTH",
+      "hash": 126359419,
+      "hex": "0x0788177B"
+    },
+    {
+      "name": "MNTOOL",
+      "hash": 181000156,
+      "hex": "0x0AC9D7DC"
+    },
+    {
+      "name": "MOGOBJ",
+      "hash": 145384159,
+      "hex": "0x08AA62DF"
+    },
+    {
+      "name": "MOGWLD",
+      "hash": 64762591,
+      "hex": "0x03DC32DF"
+    },
+    {
+      "name": "MPANEL",
+      "hash": 175652266,
+      "hex": "0x0A783DAA"
+    },
+    {
+      "name": "MPKGFL",
+      "hash": 176053216,
+      "hex": "0x0A7E5BE0"
+    },
+    {
+      "name": "MPKGFT",
+      "hash": 290844472,
+      "hex": "0x1155EF38"
+    },
+    {
+      "name": "MPLATE",
+      "hash": 82933672,
+      "hex": "0x04F177A8"
+    },
+    {
+      "name": "MPLCQU",
+      "hash": 310961227,
+      "hex": "0x1288E44B"
+    },
+    {
+      "name": "MPLCTH",
+      "hash": 126019759,
+      "hex": "0x0782E8AF"
+    },
+    {
+      "name": "MPLNST",
+      "hash": 297891715,
+      "hex": "0x11C17783"
+    },
+    {
+      "name": "MPLRAW",
+      "hash": 331451230,
+      "hex": "0x13C18B5E"
+    },
+    {
+      "name": "MPLRWI",
+      "hash": 142258234,
+      "hex": "0x087AB03A"
+    },
+    {
+      "name": "MPRNST",
+      "hash": 297896089,
+      "hex": "0x11C18899"
+    },
+    {
+      "name": "MPTBLS",
+      "hash": 279592357,
+      "hex": "0x10AA3DA5"
+    },
+    {
+      "name": "MPTBRN",
+      "hash": 211036468,
+      "hex": "0x0C942934"
+    },
+    {
+      "name": "MPTFAC",
+      "hash": 44242726,
+      "hex": "0x02A31726"
+    },
+    {
+      "name": "MPTFCI",
+      "hash": 131399050,
+      "hex": "0x07D4FD8A"
+    },
+    {
+      "name": "MPTGSD",
+      "hash": 68177254,
+      "hex": "0x04104D66"
+    },
+    {
+      "name": "MPTLAB",
+      "hash": 30011917,
+      "hex": "0x01C9F20D"
+    },
+    {
+      "name": "MPTMRK",
+      "hash": 168206260,
+      "hex": "0x0A069FB4"
+    },
+    {
+      "name": "MRAWQU",
+      "hash": 311346922,
+      "hex": "0x128EC6EA"
+    },
+    {
+      "name": "MRAWTH",
+      "hash": 126405454,
+      "hex": "0x0788CB4E"
+    },
+    {
+      "name": "MRESTH",
+      "hash": 126329638,
+      "hex": "0x0787A326"
+    },
+    {
+      "name": "MRESTQ",
+      "hash": 255469801,
+      "hex": "0x0F3A28E9"
+    },
+    {
+      "name": "MSTYTB",
+      "hash": 40365256,
+      "hex": "0x0267ECC8"
+    },
+    {
+      "name": "MTPBLS",
+      "hash": 279589549,
+      "hex": "0x10AA32AD"
+    },
+    {
+      "name": "MTPBRN",
+      "hash": 211033660,
+      "hex": "0x0C941E3C"
+    },
+    {
+      "name": "MTPGSD",
+      "hash": 68174446,
+      "hex": "0x0410426E"
+    },
+    {
+      "name": "MTPLAB",
+      "hash": 30009109,
+      "hex": "0x01C9E715"
+    },
+    {
+      "name": "MTPMRK",
+      "hash": 168203452,
+      "hex": "0x0A0694BC"
+    },
+    {
+      "name": "MVICBX",
+      "hash": 346034308,
+      "hex": "0x14A01084"
+    },
+    {
+      "name": "MVICPL",
+      "hash": 181287598,
+      "hex": "0x0ACE3AAE"
+    },
+    {
+      "name": "MVIDEF",
+      "hash": 89367988,
+      "hex": "0x0553A5B4"
+    },
+    {
+      "name": "MVIDWL",
+      "hash": 185027368,
+      "hex": "0x0B074B28"
+    },
+    {
+      "name": "MVIDWS",
+      "hash": 285469717,
+      "hex": "0x1103EC15"
+    },
+    {
+      "name": "MVIFLD",
+      "hash": 64429627,
+      "hex": "0x03D71E3B"
+    },
+    {
+      "name": "MVIMCT",
+      "hash": 289366951,
+      "hex": "0x113F63A7"
+    },
+    {
+      "name": "MVIPOS",
+      "hash": 281454385,
+      "hex": "0x10C6A731"
+    },
+    {
+      "name": "MVISEL",
+      "hash": 175756675,
+      "hex": "0x0A79D583"
+    },
+    {
+      "name": "MVIWLD",
+      "hash": 64764238,
+      "hex": "0x03DC394E"
+    },
+    {
+      "name": "MWLDJT",
+      "hash": 292912105,
+      "hex": "0x11757BE9"
+    },
+    {
+      "name": "MWLDTB",
+      "hash": 39946189,
+      "hex": "0x026187CD"
+    },
+    {
+      "name": "MWLWLD",
+      "hash": 64766452,
+      "hex": "0x03DC41F4"
+    },
+    {
+      "name": "MWPART",
+      "hash": 297107500,
+      "hex": "0x11B5802C"
+    },
+    {
+      "name": "NAMINF",
+      "hash": 94251722,
+      "hex": "0x059E2ACA"
+    },
+    {
+      "name": "NAMRUL",
+      "hash": 184242398,
+      "hex": "0x0AFB50DE"
+    },
+    {
+      "name": "NAMSEQ",
+      "hash": 247503560,
+      "hex": "0x0EC09AC8"
+    },
+    {
+      "name": "NASWLD",
+      "hash": 64770962,
+      "hex": "0x03DC5392"
+    },
+    {
+      "name": "NBRWLD",
+      "hash": 64770260,
+      "hex": "0x03DC50D4"
+    },
+    {
+      "name": "NCMGRP",
+      "hash": 239827244,
+      "hex": "0x0E4B792C"
+    },
+    {
+      "name": "NOMINB",
+      "hash": 36856472,
+      "hex": "0x02326298"
+    },
+    {
+      "name": "NOMTAB",
+      "hash": 30164252,
+      "hex": "0x01CC451C"
+    },
+    {
+      "name": "NOTIFB",
+      "hash": 32610047,
+      "hex": "0x01F196FF"
+    },
+    {
+      "name": "NOTIFD",
+      "hash": 61307861,
+      "hex": "0x03A77BD5"
+    },
+    {
+      "name": "NOTIFW",
+      "hash": 333937094,
+      "hex": "0x13E779C6"
+    },
+    {
+      "name": "NOTSET",
+      "hash": 290555762,
+      "hex": "0x11518772"
+    },
+    {
+      "name": "NPOLYH",
+      "hash": 128856299,
+      "hex": "0x07AE30EB"
+    },
+    {
+      "name": "NRULPT",
+      "hash": 296264642,
+      "hex": "0x11A8A3C2"
+    },
+    {
+      "name": "NSTPLA",
+      "hash": 21587675,
+      "hex": "0x014966DB"
+    },
+    {
+      "name": "NSTPRO",
+      "hash": 225661019,
+      "hex": "0x0D73505B"
+    },
+    {
+      "name": "OBJELE",
+      "hash": 78759042,
+      "hex": "0x04B1C482"
+    },
+    {
+      "name": "OBJELH",
+      "hash": 121805763,
+      "hex": "0x07429BC3"
+    },
+    {
+      "name": "OLINES",
+      "hash": 276100341,
+      "hex": "0x1074F4F5"
+    },
+    {
+      "name": "OPENFE",
+      "hash": 75744276,
+      "hex": "0x0483C414"
+    },
+    {
+      "name": "OPENSP",
+      "hash": 240490986,
+      "hex": "0x0E5599EA"
+    },
+    {
+      "name": "ORDWLD",
+      "hash": 64760487,
+      "hex": "0x03DC2AA7"
+    },
+    {
+      "name": "PANSET",
+      "hash": 290551012,
+      "hex": "0x115174E4"
+    },
+    {
+      "name": "PARVAL",
+      "hash": 173695957,
+      "hex": "0x0A5A63D5"
+    },
+    {
+      "name": "PBSCRT",
+      "hash": 297148489,
+      "hex": "0x11B62049"
+    },
+    {
+      "name": "PBSOBN",
+      "hash": 202788187,
+      "hex": "0x0C164D5B"
+    },
+    {
+      "name": "PBSTPL",
+      "hash": 181628962,
+      "hex": "0x0AD37022"
+    },
+    {
+      "name": "PBSTXN",
+      "hash": 214578304,
+      "hex": "0x0CCA3480"
+    },
+    {
+      "name": "PBSWLD",
+      "hash": 64770991,
+      "hex": "0x03DC53AF"
+    },
+    {
+      "name": "PDAELE",
+      "hash": 78752536,
+      "hex": "0x04B1AB18"
+    },
+    {
+      "name": "PDATAB",
+      "hash": 30155209,
+      "hex": "0x01CC21C9"
+    },
+    {
+      "name": "PFCRVS",
+      "hash": 285209035,
+      "hex": "0x10FFF1CB"
+    },
+    {
+      "name": "PFCURV",
+      "hash": 326189041,
+      "hex": "0x13713FF1"
+    },
+    {
+      "name": "PFDEFI",
+      "hash": 132961759,
+      "hex": "0x07ECD5DF"
+    },
+    {
+      "name": "PFEDGE",
+      "hash": 76078618,
+      "hex": "0x0488DE1A"
+    },
+    {
+      "name": "PFFACE",
+      "hash": 73894534,
+      "hex": "0x04678A86"
+    },
+    {
+      "name": "PFILOO",
+      "hash": 223979596,
+      "hex": "0x0D59A84C"
+    },
+    {
+      "name": "PFOUTC",
+      "hash": 54631438,
+      "hex": "0x03419C0E"
+    },
+    {
+      "name": "PFPOIN",
+      "hash": 206506195,
+      "hex": "0x0C4F08D3"
+    },
+    {
+      "name": "PILSET",
+      "hash": 290549770,
+      "hex": "0x1151700A"
+    },
+    {
+      "name": "PLAFAC",
+      "hash": 44228770,
+      "hex": "0x02A2E0A2"
+    },
+    {
+      "name": "PLASOL",
+      "hash": 181064986,
+      "hex": "0x0ACAD51A"
+    },
+    {
+      "name": "PLDATU",
+      "hash": 312510247,
+      "hex": "0x12A08727"
+    },
+    {
+      "name": "PLFEAT",
+      "hash": 288144151,
+      "hex": "0x112CBB17"
+    },
+    {
+      "name": "PLNEST",
+      "hash": 297715921,
+      "hex": "0x11BEC8D1"
+    },
+    {
+      "name": "PLOPEN",
+      "hash": 204399547,
+      "hex": "0x0C2EE3BB"
+    },
+    {
+      "name": "PLPLDA",
+      "hash": 17254312,
+      "hex": "0x010747A8"
+    },
+    {
+      "name": "PLTACT",
+      "hash": 289138507,
+      "hex": "0x113BE74B"
+    },
+    {
+      "name": "PLTFRM",
+      "hash": 196766188,
+      "hex": "0x0BBA69EC"
+    },
+    {
+      "name": "PLTGRD",
+      "hash": 67645708,
+      "hex": "0x0408310C"
+    },
+    {
+      "name": "PLTSTY",
+      "hash": 370271833,
+      "hex": "0x1611E659"
+    },
+    {
+      "name": "PNTWLD",
+      "hash": 64772044,
+      "hex": "0x03DC57CC"
+    },
+    {
+      "name": "POINSP",
+      "hash": 240493876,
+      "hex": "0x0E55A534"
+    },
+    {
+      "name": "POINTR",
+      "hash": 269723131,
+      "hex": "0x1013A5FB"
+    },
+    {
+      "name": "POINUV",
+      "hash": 327650200,
+      "hex": "0x13878B98"
+    },
+    {
+      "name": "POLFAC",
+      "hash": 44236870,
+      "hex": "0x02A30046"
+    },
+    {
+      "name": "POLOOP",
+      "hash": 238389982,
+      "hex": "0x0E358ADE"
+    },
+    {
+      "name": "POLPTL",
+      "hash": 183671242,
+      "hex": "0x0AF299CA"
+    },
+    {
+      "name": "POLYHE",
+      "hash": 77028748,
+      "hex": "0x04975D8C"
+    },
+    {
+      "name": "POSMDL",
+      "hash": 175114240,
+      "hex": "0x0A700800"
+    },
+    {
+      "name": "POSRLR",
+      "hash": 265557625,
+      "hex": "0x0FD41679"
+    },
+    {
+      "name": "POSTSE",
+      "hash": 82781287,
+      "hex": "0x04EF2467"
+    },
+    {
+      "name": "PPIECE",
+      "hash": 73975723,
+      "hex": "0x0468C7AB"
+    },
+    {
+      "name": "PPLIST",
+      "hash": 297793303,
+      "hex": "0x11BFF717"
+    },
+    {
+      "name": "PRADIS",
+      "hash": 278023606,
+      "hex": "0x10924DB6"
+    },
+    {
+      "name": "PRBASL",
+      "hash": 182837347,
+      "hex": "0x0AE5E063"
+    },
+    {
+      "name": "PRDEFD",
+      "hash": 61217548,
+      "hex": "0x03A61B0C"
+    },
+    {
+      "name": "PRDEFM",
+      "hash": 190357711,
+      "hex": "0x0B58A0CF"
+    },
+    {
+      "name": "PRDEWL",
+      "hash": 185043301,
+      "hex": "0x0B078965"
+    },
+    {
+      "name": "PRDISL",
+      "hash": 182996269,
+      "hex": "0x0AE84D2D"
+    },
+    {
+      "name": "PRIGEO",
+      "hash": 218567095,
+      "hex": "0x0D0711B7"
+    },
+    {
+      "name": "PRNEST",
+      "hash": 297716083,
+      "hex": "0x11BEC973"
+    },
+    {
+      "name": "PROCRO",
+      "hash": 225401470,
+      "hex": "0x0D6F5A7E"
+    },
+    {
+      "name": "PROCUR",
+      "hash": 270042514,
+      "hex": "0x10188592"
+    },
+    {
+      "name": "PROTRC",
+      "hash": 53549197,
+      "hex": "0x0331188D"
+    },
+    {
+      "name": "PRPLDA",
+      "hash": 17254474,
+      "hex": "0x0107484A"
+    },
+    {
+      "name": "PRTELE",
+      "hash": 78766765,
+      "hex": "0x04B1E2AD"
+    },
+    {
+      "name": "PRTWLD",
+      "hash": 64772152,
+      "hex": "0x03DC5838"
+    },
+    {
+      "name": "PRTYPE",
+      "hash": 81286189,
+      "hex": "0x04D8542D"
+    },
+    {
+      "name": "PSLIST",
+      "hash": 297793384,
+      "hex": "0x11BFF768"
+    },
+    {
+      "name": "PSPOOL",
+      "hash": 180997378,
+      "hex": "0x0AC9CD02"
+    },
+    {
+      "name": "PSTYTB",
+      "hash": 40365259,
+      "hex": "0x0267ECCB"
+    },
+    {
+      "name": "PTHCUR",
+      "hash": 270037465,
+      "hex": "0x101871D9"
+    },
+    {
+      "name": "RAILSE",
+      "hash": 82616157,
+      "hex": "0x04EC9F5D"
+    },
+    {
+      "name": "RAWPLA",
+      "hash": 21589380,
+      "hex": "0x01496D84"
+    },
+    {
+      "name": "RAWPRM",
+      "hash": 196964910,
+      "hex": "0x0BBD722E"
+    },
+    {
+      "name": "RDFDAT",
+      "hash": 288124254,
+      "hex": "0x112C6D5E"
+    },
+    {
+      "name": "RDFGRA",
+      "hash": 24588567,
+      "hex": "0x01773117"
+    },
+    {
+      "name": "RDFNSD",
+      "hash": 68304510,
+      "hex": "0x04123E7E"
+    },
+    {
+      "name": "RDFRES",
+      "hash": 276176673,
+      "hex": "0x10761F21"
+    },
+    {
+      "name": "RDFWLD",
+      "hash": 64761570,
+      "hex": "0x03DC2EE2"
+    },
+    {
+      "name": "REFDAT",
+      "hash": 288124281,
+      "hex": "0x112C6D79"
+    },
+    {
+      "name": "REFGAR",
+      "hash": 259485516,
+      "hex": "0x0F776F4C"
+    },
+    {
+      "name": "REFGLN",
+      "hash": 207935739,
+      "hex": "0x0C64D8FB"
+    },
+    {
+      "name": "REFGRD",
+      "hash": 67635315,
+      "hex": "0x04080873"
+    },
+    {
+      "name": "REFPOS",
+      "hash": 281451744,
+      "hex": "0x10C69CE0"
+    },
+    {
+      "name": "REGION",
+      "hash": 209570157,
+      "hex": "0x0C7DC96D"
+    },
+    {
+      "name": "RESDEF",
+      "hash": 89374824,
+      "hex": "0x0553C068"
+    },
+    {
+      "name": "RESGRO",
+      "hash": 225482769,
+      "hex": "0x0D709811"
+    },
+    {
+      "name": "RESTGP",
+      "hash": 234241704,
+      "hex": "0x0DF63EA8"
+    },
+    {
+      "name": "RESTRI",
+      "hash": 139645206,
+      "hex": "0x0852D116"
+    },
+    {
+      "name": "REVBLD",
+      "hash": 64359918,
+      "hex": "0x03D60DEE"
+    },
+    {
+      "name": "REVCGP",
+      "hash": 233909280,
+      "hex": "0x0DF12C20"
+    },
+    {
+      "name": "REVCON",
+      "hash": 209462994,
+      "hex": "0x0C7C26D2"
+    },
+    {
+      "name": "REVCWL",
+      "hash": 185016708,
+      "hex": "0x0B072184"
+    },
+    {
+      "name": "REVISS",
+      "hash": 283451391,
+      "hex": "0x10E51FFF"
+    },
+    {
+      "name": "REVLKS",
+      "hash": 279258912,
+      "hex": "0x10A52720"
+    },
+    {
+      "name": "REVLNK",
+      "hash": 166061979,
+      "hex": "0x09E5E79B"
+    },
+    {
+      "name": "REVLWL",
+      "hash": 185193855,
+      "hex": "0x0B09D57F"
+    },
+    {
+      "name": "REVNOD",
+      "hash": 66190437,
+      "hex": "0x03F1FC65"
+    },
+    {
+      "name": "REVNOP",
+      "hash": 238377321,
+      "hex": "0x0E355969"
+    },
+    {
+      "name": "REVSTD",
+      "hash": 68946057,
+      "hex": "0x041C0889"
+    },
+    {
+      "name": "RLADDR",
+      "hash": 261017334,
+      "hex": "0x0F8ECEF6"
+    },
+    {
+      "name": "RLCAGE",
+      "hash": 76018275,
+      "hex": "0x0487F263"
+    },
+    {
+      "name": "RLCNTR",
+      "hash": 269718678,
+      "hex": "0x10139496"
+    },
+    {
+      "name": "RLGATE",
+      "hash": 82929924,
+      "hex": "0x04F16904"
+    },
+    {
+      "name": "RLOGIC",
+      "hash": 48510189,
+      "hex": "0x02E434ED"
+    },
+    {
+      "name": "RNGRUL",
+      "hash": 184238379,
+      "hex": "0x0AFB412B"
+    },
+    {
+      "name": "RNGWLD",
+      "hash": 64762569,
+      "hex": "0x03DC32C9"
+    },
+    {
+      "name": "RPLTAB",
+      "hash": 30163554,
+      "hex": "0x01CC4262"
+    },
+    {
+      "name": "RPRTAB",
+      "hash": 30167928,
+      "hex": "0x01CC5378"
+    },
+    {
+      "name": "RSFINS",
+      "hash": 280782900,
+      "hex": "0x10BC6834"
+    },
+    {
+      "name": "RSOWLD",
+      "hash": 64768536,
+      "hex": "0x03DC4A18"
+    },
+    {
+      "name": "RSTARE",
+      "hash": 81876708,
+      "hex": "0x04E156E4"
+    },
+    {
+      "name": "RTFEAT",
+      "hash": 288144369,
+      "hex": "0x112CBBF1"
+    },
+    {
+      "name": "RULCND",
+      "hash": 65435625,
+      "hex": "0x03E677E9"
+    },
+    {
+      "name": "RULELE",
+      "hash": 78761016,
+      "hex": "0x04B1CC38"
+    },
+    {
+      "name": "RULGRP",
+      "hash": 239827005,
+      "hex": "0x0E4B783D"
+    },
+    {
+      "name": "RULWLD",
+      "hash": 64766403,
+      "hex": "0x03DC41C3"
+    },
+    {
+      "name": "RUNGSE",
+      "hash": 82521927,
+      "hex": "0x04EB2F47"
+    },
+    {
+      "name": "RUTVOL",
+      "hash": 181138131,
+      "hex": "0x0ACBF2D3"
+    },
+    {
+      "name": "RVALUE",
+      "hash": 83673774,
+      "hex": "0x04FCC2AE"
+    },
+    {
+      "name": "SBRTAB",
+      "hash": 30167551,
+      "hex": "0x01CC51FF"
+    },
+    {
+      "name": "SBSTYL",
+      "hash": 186411934,
+      "hex": "0x0B1C6B9E"
+    },
+    {
+      "name": "SCACTU",
+      "hash": 312547186,
+      "hex": "0x12A11772"
+    },
+    {
+      "name": "SCAREA",
+      "hash": 17892676,
+      "hex": "0x01110544"
+    },
+    {
+      "name": "SCBRAN",
+      "hash": 202303432,
+      "hex": "0x0C0EE7C8"
+    },
+    {
+      "name": "SCCORE",
+      "hash": 82139446,
+      "hex": "0x04E55936"
+    },
+    {
+      "name": "SCCRVS",
+      "hash": 285208957,
+      "hex": "0x10FFF17D"
+    },
+    {
+      "name": "SCCURV",
+      "hash": 326188963,
+      "hex": "0x13713FA3"
+    },
+    {
+      "name": "SCDIAG",
+      "hash": 101685394,
+      "hex": "0x060F9892"
+    },
+    {
+      "name": "SCDUCT",
+      "hash": 289520263,
+      "hex": "0x1141BA87"
+    },
+    {
+      "name": "SCELCO",
+      "hash": 217599310,
+      "hex": "0x0CF84D4E"
+    },
+    {
+      "name": "SCEQUI",
+      "hash": 141170221,
+      "hex": "0x086A162D"
+    },
+    {
+      "name": "SCFITT",
+      "hash": 298320022,
+      "hex": "0x11C80096"
+    },
+    {
+      "name": "SCGROU",
+      "hash": 310189600,
+      "hex": "0x127D1E20"
+    },
+    {
+      "name": "SCHVAC",
+      "hash": 44548561,
+      "hex": "0x02A7C1D1"
+    },
+    {
+      "name": "SCHVFI",
+      "hash": 133299208,
+      "hex": "0x07F1FC08"
+    },
+    {
+      "name": "SCILIN",
+      "hash": 206441965,
+      "hex": "0x0C4E0DED"
+    },
+    {
+      "name": "SCINST",
+      "hash": 297889183,
+      "hex": "0x11C16D9F"
+    },
+    {
+      "name": "SCLOOP",
+      "hash": 238389661,
+      "hex": "0x0E35899D"
+    },
+    {
+      "name": "SCMCAB",
+      "hash": 29829322,
+      "hex": "0x01C728CA"
+    },
+    {
+      "name": "SCNOZZ",
+      "hash": 387726040,
+      "hex": "0x171C3AD8"
+    },
+    {
+      "name": "SCOINS",
+      "hash": 280789030,
+      "hex": "0x10BC8026"
+    },
+    {
+      "name": "SCOPCI",
+      "hash": 131591890,
+      "hex": "0x07D7EED2"
+    },
+    {
+      "name": "SCOPCO",
+      "hash": 217685332,
+      "hex": "0x0CF99D54"
+    },
+    {
+      "name": "SCPAGE",
+      "hash": 76027510,
+      "hex": "0x04881676"
+    },
+    {
+      "name": "SCPDES",
+      "hash": 275908375,
+      "hex": "0x10720717"
+    },
+    {
+      "name": "SCPLIN",
+      "hash": 206447068,
+      "hex": "0x0C4E21DC"
+    },
+    {
+      "name": "SCREED",
+      "hash": 60695911,
+      "hex": "0x039E2567"
+    },
+    {
+      "name": "SCSTEN",
+      "hash": 204480955,
+      "hex": "0x0C3021BB"
+    },
+    {
+      "name": "SCSUBE",
+      "hash": 73766152,
+      "hex": "0x04659508"
+    },
+    {
+      "name": "SCSURF",
+      "hash": 96618115,
+      "hex": "0x05C24683"
+    },
+    {
+      "name": "SCTEMP",
+      "hash": 237135781,
+      "hex": "0x0E2267A5"
+    },
+    {
+      "name": "SCVALV",
+      "hash": 322620508,
+      "hex": "0x133ACC5C"
+    },
+    {
+      "name": "SDAFIX",
+      "hash": 349807132,
+      "hex": "0x14D9A21C"
+    },
+    {
+      "name": "SDAOPT",
+      "hash": 296308738,
+      "hex": "0x11A95002"
+    },
+    {
+      "name": "SEGSEQ",
+      "hash": 247499299,
+      "hex": "0x0EC08A23"
+    },
+    {
+      "name": "SEQWOR",
+      "hash": 267248638,
+      "hex": "0x0FEDE3FE"
+    },
+    {
+      "name": "SETATT",
+      "hash": 298172818,
+      "hex": "0x11C5C192"
+    },
+    {
+      "name": "SETPAR",
+      "hash": 259672870,
+      "hex": "0x0F7A4B26"
+    },
+    {
+      "name": "SETSTA",
+      "hash": 25897879,
+      "hex": "0x018B2B97"
+    },
+    {
+      "name": "SFTREF",
+      "hash": 89651143,
+      "hex": "0x0557F7C7"
+    },
+    {
+      "name": "SHTMPL",
+      "hash": 181492075,
+      "hex": "0x0AD1596B"
+    },
+    {
+      "name": "SIMGRP",
+      "hash": 239827411,
+      "hex": "0x0E4B79D3"
+    },
+    {
+      "name": "SIMITE",
+      "hash": 83091682,
+      "hex": "0x04F3E0E2"
+    },
+    {
+      "name": "SIMSRC",
+      "hash": 53527816,
+      "hex": "0x0330C508"
+    },
+    {
+      "name": "SIMWLD",
+      "hash": 64766809,
+      "hex": "0x03DC4359"
+    },
+    {
+      "name": "SKINFO",
+      "hash": 219236131,
+      "hex": "0x0D114723"
+    },
+    {
+      "name": "SKSYMB",
+      "hash": 36644230,
+      "hex": "0x022F2586"
+    },
+    {
+      "name": "SLADDR",
+      "hash": 261017335,
+      "hex": "0x0F8ECEF7"
+    },
+    {
+      "name": "SLOELE",
+      "hash": 78762961,
+      "hex": "0x04B1D3D1"
+    },
+    {
+      "name": "SLOTAB",
+      "hash": 30165634,
+      "hex": "0x01CC4A82"
+    },
+    {
+      "name": "SLRAIL",
+      "hash": 177534442,
+      "hex": "0x0A94F5EA"
+    },
+    {
+      "name": "SLSTYL",
+      "hash": 186412204,
+      "hex": "0x0B1C6CAC"
+    },
+    {
+      "name": "SLTDEF",
+      "hash": 89375743,
+      "hex": "0x0553C3FF"
+    },
+    {
+      "name": "SLTGRP",
+      "hash": 239832595,
+      "hex": "0x0E4B8E13"
+    },
+    {
+      "name": "SLTPHA",
+      "hash": 19461727,
+      "hex": "0x0128F65F"
+    },
+    {
+      "name": "SNOTAB",
+      "hash": 30165688,
+      "hex": "0x01CC4AB8"
+    },
+    {
+      "name": "SOLEXT",
+      "hash": 300371752,
+      "hex": "0x11E74F28"
+    },
+    {
+      "name": "SORELE",
+      "hash": 78765229,
+      "hex": "0x04B1DCAD"
+    },
+    {
+      "name": "SPBSET",
+      "hash": 290542672,
+      "hex": "0x11515450"
+    },
+    {
+      "name": "SPLDRG",
+      "hash": 110627659,
+      "hex": "0x06980B4B"
+    },
+    {
+      "name": "SPLTMP",
+      "hash": 237425545,
+      "hex": "0x0E26D389"
+    },
+    {
+      "name": "SPMBAA",
+      "hash": 15461083,
+      "hex": "0x00EBEADB"
+    },
+    {
+      "name": "SPMBFA",
+      "hash": 18118288,
+      "hex": "0x01147690"
+    },
+    {
+      "name": "SPMBOX",
+      "hash": 352926118,
+      "hex": "0x150939A6"
+    },
+    {
+      "name": "SPMBSA",
+      "hash": 25027021,
+      "hex": "0x017DE1CD"
+    },
+    {
+      "name": "SPMCAA",
+      "hash": 15480766,
+      "hex": "0x00EC37BE"
+    },
+    {
+      "name": "SPMCAD",
+      "hash": 58527487,
+      "hex": "0x037D0EFF"
+    },
+    {
+      "name": "SPMCEL",
+      "hash": 175444507,
+      "hex": "0x0A75121B"
+    },
+    {
+      "name": "SPMCFA",
+      "hash": 18137971,
+      "hex": "0x0114C373"
+    },
+    {
+      "name": "SPMCFB",
+      "hash": 32486878,
+      "hex": "0x01EFB5DE"
+    },
+    {
+      "name": "SPMCNE",
+      "hash": 79785127,
+      "hex": "0x04C16CA7"
+    },
+    {
+      "name": "SPMCON",
+      "hash": 209456731,
+      "hex": "0x0C7C0E5B"
+    },
+    {
+      "name": "SPMCSA",
+      "hash": 25046704,
+      "hex": "0x017E2EB0"
+    },
+    {
+      "name": "SPMCYL",
+      "hash": 186073327,
+      "hex": "0x0B1740EF"
+    },
+    {
+      "name": "SPMDIV",
+      "hash": 321079024,
+      "hex": "0x132346F0"
+    },
+    {
+      "name": "SPMFAC",
+      "hash": 44237629,
+      "hex": "0x02A3033D"
+    },
+    {
+      "name": "SPMGAA",
+      "hash": 15559498,
+      "hex": "0x00ED6B4A"
+    },
+    {
+      "name": "SPMGFA",
+      "hash": 18216703,
+      "hex": "0x0115F6FF"
+    },
+    {
+      "name": "SPMGOB",
+      "hash": 37348579,
+      "hex": "0x0239E4E3"
+    },
+    {
+      "name": "SPMGPB",
+      "hash": 37880020,
+      "hex": "0x024200D4"
+    },
+    {
+      "name": "SPMGSA",
+      "hash": 25125436,
+      "hex": "0x017F623C"
+    },
+    {
+      "name": "SPMGSB",
+      "hash": 39474343,
+      "hex": "0x025A54A7"
+    },
+    {
+      "name": "SPMHSB",
+      "hash": 39494026,
+      "hex": "0x025AA18A"
+    },
+    {
+      "name": "SPMLAA",
+      "hash": 15657913,
+      "hex": "0x00EEEBB9"
+    },
+    {
+      "name": "SPMLFA",
+      "hash": 18315118,
+      "hex": "0x0117776E"
+    },
+    {
+      "name": "SPMLSA",
+      "hash": 25223851,
+      "hex": "0x0180E2AB"
+    },
+    {
+      "name": "SPMMRG",
+      "hash": 110805535,
+      "hex": "0x069AC21F"
+    },
+    {
+      "name": "SPMOPE",
+      "hash": 81084205,
+      "hex": "0x04D53F2D"
+    },
+    {
+      "name": "SPMOPR",
+      "hash": 267619996,
+      "hex": "0x0FF38E9C"
+    },
+    {
+      "name": "SPMPAA",
+      "hash": 15736645,
+      "hex": "0x00F01F45"
+    },
+    {
+      "name": "SPMPFA",
+      "hash": 18393850,
+      "hex": "0x0118AAFA"
+    },
+    {
+      "name": "SPMPFB",
+      "hash": 32742757,
+      "hex": "0x01F39D65"
+    },
+    {
+      "name": "SPMPOI",
+      "hash": 137968075,
+      "hex": "0x083939CB"
+    },
+    {
+      "name": "SPMPRG",
+      "hash": 110864584,
+      "hex": "0x069BA8C8"
+    },
+    {
+      "name": "SPMPSA",
+      "hash": 25302583,
+      "hex": "0x01821637"
+    },
+    {
+      "name": "SPMRCB",
+      "hash": 31187800,
+      "hex": "0x01DBE358"
+    },
+    {
+      "name": "SPMRSB",
+      "hash": 39690856,
+      "hex": "0x025DA268"
+    },
+    {
+      "name": "SPMSPC",
+      "hash": 52465123,
+      "hex": "0x03208DE3"
+    },
+    {
+      "name": "SPMSPH",
+      "hash": 124209658,
+      "hex": "0x076749FA"
+    },
+    {
+      "name": "SPMZAA",
+      "hash": 15933475,
+      "hex": "0x00F32023"
+    },
+    {
+      "name": "SPMZFA",
+      "hash": 18590680,
+      "hex": "0x011BABD8"
+    },
+    {
+      "name": "SPMZSA",
+      "hash": 25499413,
+      "hex": "0x01851715"
+    },
+    {
+      "name": "SPRDEW",
+      "hash": 333305812,
+      "hex": "0x13DDD7D4"
+    },
+    {
+      "name": "SRCELE",
+      "hash": 78754375,
+      "hex": "0x04B1B247"
+    },
+    {
+      "name": "SRCNTR",
+      "hash": 269718841,
+      "hex": "0x10139539"
+    },
+    {
+      "name": "SRFCGR",
+      "hash": 262595782,
+      "hex": "0x0FA6E4C6"
+    },
+    {
+      "name": "SRFCUR",
+      "hash": 270035956,
+      "hex": "0x10186BF4"
+    },
+    {
+      "name": "SRFDEF",
+      "hash": 89365699,
+      "hex": "0x05539CC3"
+    },
+    {
+      "name": "SRFLIM",
+      "hash": 192091276,
+      "hex": "0x0B73148C"
+    },
+    {
+      "name": "SRFRFL",
+      "hash": 176266144,
+      "hex": "0x0A819BA0"
+    },
+    {
+      "name": "SRFSUR",
+      "hash": 270350884,
+      "hex": "0x101D3A24"
+    },
+    {
+      "name": "SRFTRA",
+      "hash": 24844825,
+      "hex": "0x017B1A19"
+    },
+    {
+      "name": "SRFTRT",
+      "hash": 297474058,
+      "hex": "0x11BB180A"
+    },
+    {
+      "name": "SRLSTY",
+      "hash": 370266166,
+      "hex": "0x1611D036"
+    },
+    {
+      "name": "SSBRTA",
+      "hash": 25865452,
+      "hex": "0x018AACEC"
+    },
+    {
+      "name": "SSNOTA",
+      "hash": 25815151,
+      "hex": "0x0189E86F"
+    },
+    {
+      "name": "SSOWLD",
+      "hash": 64768537,
+      "hex": "0x03DC4A19"
+    },
+    {
+      "name": "SSREFE",
+      "hash": 75576691,
+      "hex": "0x04813573"
+    },
+    {
+      "name": "SSSBRT",
+      "hash": 297129268,
+      "hex": "0x11B5D534"
+    },
+    {
+      "name": "STADEF",
+      "hash": 89362108,
+      "hex": "0x05538EBC"
+    },
+    {
+      "name": "STAGRP",
+      "hash": 239818960,
+      "hex": "0x0E4B58D0"
+    },
+    {
+      "name": "STAHIS",
+      "hash": 278102395,
+      "hex": "0x1093817B"
+    },
+    {
+      "name": "STALNK",
+      "hash": 166047076,
+      "hex": "0x09E5AD64"
+    },
+    {
+      "name": "STAVAL",
+      "hash": 173684080,
+      "hex": "0x0A5A3570"
+    },
+    {
+      "name": "STAWLD",
+      "hash": 64758358,
+      "hex": "0x03DC2256"
+    },
+    {
+      "name": "STBASE",
+      "hash": 82395055,
+      "hex": "0x04E93FAF"
+    },
+    {
+      "name": "STBOOL",
+      "hash": 180987202,
+      "hex": "0x0AC9A542"
+    },
+    {
+      "name": "STCONN",
+      "hash": 209154304,
+      "hex": "0x0C777100"
+    },
+    {
+      "name": "STCSET",
+      "hash": 290543509,
+      "hex": "0x11515795"
+    },
+    {
+      "name": "STCVER",
+      "hash": 261904744,
+      "hex": "0x0F9C5968"
+    },
+    {
+      "name": "STDWLD",
+      "hash": 64760545,
+      "hex": "0x03DC2AE1"
+    },
+    {
+      "name": "STGROU",
+      "hash": 310190059,
+      "hex": "0x127D1FEB"
+    },
+    {
+      "name": "STISET",
+      "hash": 290547883,
+      "hex": "0x115168AB"
+    },
+    {
+      "name": "STLNKS",
+      "hash": 279291394,
+      "hex": "0x10A5A602"
+    },
+    {
+      "name": "STLNKW",
+      "hash": 336687022,
+      "hex": "0x14116FAE"
+    },
+    {
+      "name": "STLSTR",
+      "hash": 269823871,
+      "hex": "0x10152F7F"
+    },
+    {
+      "name": "STRCNG",
+      "hash": 108486694,
+      "hex": "0x06776026"
+    },
+    {
+      "name": "STRFLT",
+      "hash": 294018652,
+      "hex": "0x11865E5C"
+    },
+    {
+      "name": "STRLNG",
+      "hash": 108663841,
+      "hex": "0x067A1421"
+    },
+    {
+      "name": "STRRUL",
+      "hash": 184246561,
+      "hex": "0x0AFB6121"
+    },
+    {
+      "name": "STRSET",
+      "hash": 290554444,
+      "hex": "0x1151824C"
+    },
+    {
+      "name": "STRSTR",
+      "hash": 269828245,
+      "hex": "0x10154095"
+    },
+    {
+      "name": "STRTWR",
+      "hash": 271442251,
+      "hex": "0x102DE14B"
+    },
+    {
+      "name": "STRWEL",
+      "hash": 175841920,
+      "hex": "0x0A7B2280"
+    },
+    {
+      "name": "STRWLD",
+      "hash": 64770751,
+      "hex": "0x03DC52BF"
+    },
+    {
+      "name": "STWALL",
+      "hash": 179132626,
+      "hex": "0x0AAD58D2"
+    },
+    {
+      "name": "STWELD",
+      "hash": 64420102,
+      "hex": "0x03D6F906"
+    },
+    {
+      "name": "STWSET",
+      "hash": 290558089,
+      "hex": "0x11519089"
+    },
+    {
+      "name": "STYLWL",
+      "hash": 185196448,
+      "hex": "0x0B09DFA0"
+    },
+    {
+      "name": "SUBCNV",
+      "hash": 323708662,
+      "hex": "0x134B66F6"
+    },
+    {
+      "name": "SUBCOM",
+      "hash": 195099940,
+      "hex": "0x0BA0FD24"
+    },
+    {
+      "name": "SUBDAT",
+      "hash": 288121798,
+      "hex": "0x112C63C6"
+    },
+    {
+      "name": "SUBSCD",
+      "hash": 59897413,
+      "hex": "0x0391F645"
+    },
+    {
+      "name": "SUBSCW",
+      "hash": 332526646,
+      "hex": "0x13D1F436"
+    },
+    {
+      "name": "SUPNFO",
+      "hash": 219241504,
+      "hex": "0x0D115C20"
+    },
+    {
+      "name": "SWECON",
+      "hash": 209451088,
+      "hex": "0x0C7BF850"
+    },
+    {
+      "name": "SYCNPT",
+      "hash": 296291080,
+      "hex": "0x11A90B08"
+    },
+    {
+      "name": "SYGPAR",
+      "hash": 259663933,
+      "hex": "0x0F7A283D"
+    },
+    {
+      "name": "SYGPWL",
+      "hash": 185262193,
+      "hex": "0x0B0AE071"
+    },
+    {
+      "name": "SYMSTY",
+      "hash": 370267084,
+      "hex": "0x1611D3CC"
+    },
+    {
+      "name": "SYSCDA",
+      "hash": 17079706,
+      "hex": "0x01049D9A"
+    },
+    {
+      "name": "SYSGRP",
+      "hash": 239832217,
+      "hex": "0x0E4B8C99"
+    },
+    {
+      "name": "SYSMDA",
+      "hash": 17276536,
+      "hex": "0x01079E78"
+    },
+    {
+      "name": "TABGRO",
+      "hash": 225470270,
+      "hex": "0x0D70673E"
+    },
+    {
+      "name": "TABHEA",
+      "hash": 17696522,
+      "hex": "0x010E070A"
+    },
+    {
+      "name": "TABHQU",
+      "hash": 311051954,
+      "hex": "0x128A46B2"
+    },
+    {
+      "name": "TABITE",
+      "hash": 83083448,
+      "hex": "0x04F3C0B8"
+    },
+    {
+      "name": "TABQUE",
+      "hash": 83772353,
+      "hex": "0x04FE43C1"
+    },
+    {
+      "name": "TABWLD",
+      "hash": 64758575,
+      "hex": "0x03DC232F"
+    },
+    {
+      "name": "TAFCCO",
+      "hash": 217422839,
+      "hex": "0x0CF59BF7"
+    },
+    {
+      "name": "TAFCEL",
+      "hash": 175439000,
+      "hex": "0x0A74FC98"
+    },
+    {
+      "name": "TAFLCH",
+      "hash": 117157637,
+      "hex": "0x06FBAF05"
+    },
+    {
+      "name": "TASDEF",
+      "hash": 89374718,
+      "hex": "0x0553BFFE"
+    },
+    {
+      "name": "TASKLB",
+      "hash": 35836958,
+      "hex": "0x0222D41E"
+    },
+    {
+      "name": "TDIWLD",
+      "hash": 64763759,
+      "hex": "0x03DC376F"
+    },
+    {
+      "name": "TESTEX",
+      "hash": 347970080,
+      "hex": "0x14BD9A20"
+    },
+    {
+      "name": "THUMBN",
+      "hash": 202750445,
+      "hex": "0x0C15B9ED"
+    },
+    {
+      "name": "TKPARA",
+      "hash": 24477950,
+      "hex": "0x017580FE"
+    },
+    {
+      "name": "TMRPSE",
+      "hash": 82701776,
+      "hex": "0x04EDEDD0"
+    },
+    {
+      "name": "TMRREL",
+      "hash": 175743317,
+      "hex": "0x0A79A155"
+    },
+    {
+      "name": "TMSCFG",
+      "hash": 104235707,
+      "hex": "0x063682BB"
+    },
+    {
+      "name": "TNASPE",
+      "hash": 81154136,
+      "hex": "0x04D65058"
+    },
+    {
+      "name": "TOOSTR",
+      "hash": 269825924,
+      "hex": "0x10153784"
+    },
+    {
+      "name": "TOOSTS",
+      "hash": 284174831,
+      "hex": "0x10F029EF"
+    },
+    {
+      "name": "TOPEXT",
+      "hash": 300374669,
+      "hex": "0x11E75A8D"
+    },
+    {
+      "name": "TOPICD",
+      "hash": 59710628,
+      "hex": "0x038F1CA4"
+    },
+    {
+      "name": "TRANCI",
+      "hash": 131542724,
+      "hex": "0x07D72EC4"
+    },
+    {
+      "name": "TREADS",
+      "hash": 275310272,
+      "hex": "0x1068E6C0"
+    },
+    {
+      "name": "TRFAIL",
+      "hash": 177525857,
+      "hex": "0x0A94D461"
+    },
+    {
+      "name": "TRFLST",
+      "hash": 297848036,
+      "hex": "0x11C0CCE4"
+    },
+    {
+      "name": "TRINCO",
+      "hash": 217641998,
+      "hex": "0x0CF8F40E"
+    },
+    {
+      "name": "TRMESS",
+      "hash": 283366451,
+      "hex": "0x10E3D433"
+    },
+    {
+      "name": "TRMLST",
+      "hash": 297853139,
+      "hex": "0x11C0E0D3"
+    },
+    {
+      "name": "TRMONT",
+      "hash": 295254983,
+      "hex": "0x11993BC7"
+    },
+    {
+      "name": "TRMSGW",
+      "hash": 334660349,
+      "hex": "0x13F282FD"
+    },
+    {
+      "name": "TRNCEL",
+      "hash": 175445291,
+      "hex": "0x0A75152B"
+    },
+    {
+      "name": "TRNCLC",
+      "hash": 50025215,
+      "hex": "0x02FB52FF"
+    },
+    {
+      "name": "TRNCLG",
+      "hash": 107420843,
+      "hex": "0x06671CAB"
+    },
+    {
+      "name": "TRNCLS",
+      "hash": 279607727,
+      "hex": "0x10AA79AF"
+    },
+    {
+      "name": "TRNCUC",
+      "hash": 54808184,
+      "hex": "0x03444E78"
+    },
+    {
+      "name": "TRNCUR",
+      "hash": 270041789,
+      "hex": "0x101882BD"
+    },
+    {
+      "name": "TRNCUS",
+      "hash": 284390696,
+      "hex": "0x10F37528"
+    },
+    {
+      "name": "TRNDEF",
+      "hash": 89371532,
+      "hex": "0x0553B38C"
+    },
+    {
+      "name": "TRNMOD",
+      "hash": 66165275,
+      "hex": "0x03F19A1B"
+    },
+    {
+      "name": "TRNPRI",
+      "hash": 139563182,
+      "hex": "0x085190AE"
+    },
+    {
+      "name": "TRNSLD",
+      "hash": 64689050,
+      "hex": "0x03DB139A"
+    },
+    {
+      "name": "TRNSUR",
+      "hash": 270356717,
+      "hex": "0x101D50ED"
+    },
+    {
+      "name": "TRNWLD",
+      "hash": 64767782,
+      "hex": "0x03DC4726"
+    },
+    {
+      "name": "TROPER",
+      "hash": 261795341,
+      "hex": "0x0F9AAE0D"
+    },
+    {
+      "name": "TROUCO",
+      "hash": 217784153,
+      "hex": "0x0CFB1F59"
+    },
+    {
+      "name": "TRREDU",
+      "hash": 304096295,
+      "hex": "0x12202427"
+    },
+    {
+      "name": "TRSLST",
+      "hash": 297857513,
+      "hex": "0x11C0F1E9"
+    },
+    {
+      "name": "TRSUCC",
+      "hash": 45600185,
+      "hex": "0x02B7CDB9"
+    },
+    {
+      "name": "TRUNNI",
+      "hash": 137403155,
+      "hex": "0x08309B13"
+    },
+    {
+      "name": "TRUSER",
+      "hash": 261858764,
+      "hex": "0x0F9BA5CC"
+    },
+    {
+      "name": "TRYEAR",
+      "hash": 259460354,
+      "hex": "0x0F770D02"
+    },
+    {
+      "name": "TSTDTL",
+      "hash": 183440990,
+      "hex": "0x0AEF165E"
+    },
+    {
+      "name": "TTFONT",
+      "hash": 295249934,
+      "hex": "0x1199280E"
+    },
+    {
+      "name": "TTSKEL",
+      "hash": 175606454,
+      "hex": "0x0A778AB6"
+    },
+    {
+      "name": "TTSKGP",
+      "hash": 234064964,
+      "hex": "0x0DF38C44"
+    },
+    {
+      "name": "TWFLEL",
+      "hash": 175616741,
+      "hex": "0x0A77B2E5"
+    },
+    {
+      "name": "TWFLGP",
+      "hash": 234075251,
+      "hex": "0x0DF3B473"
+    },
+    {
+      "name": "TWRSTL",
+      "hash": 183734885,
+      "hex": "0x0AF39265"
+    },
+    {
+      "name": "TXSTYL",
+      "hash": 186412529,
+      "hex": "0x0B1C6DF1"
+    },
+    {
+      "name": "TYPITE",
+      "hash": 83094302,
+      "hex": "0x04F3EB1E"
+    },
+    {
+      "name": "TYPMAP",
+      "hash": 230913632,
+      "hex": "0x0DC37660"
+    },
+    {
+      "name": "UCONFI",
+      "hash": 133146849,
+      "hex": "0x07EFA8E1"
+    },
+    {
+      "name": "UDETGR",
+      "hash": 262929288,
+      "hex": "0x0FABFB88"
+    },
+    {
+      "name": "UDETWL",
+      "hash": 185338902,
+      "hex": "0x0B0C0C16"
+    },
+    {
+      "name": "UDTCLA",
+      "hash": 21331398,
+      "hex": "0x01457DC6"
+    },
+    {
+      "name": "UDTELE",
+      "hash": 78766392,
+      "hex": "0x04B1E138"
+    },
+    {
+      "name": "UDTINT",
+      "hash": 295141611,
+      "hex": "0x119780EB"
+    },
+    {
+      "name": "UDYLIM",
+      "hash": 192104751,
+      "hex": "0x0B73492F"
+    },
+    {
+      "name": "ULIMIT",
+      "hash": 292555335,
+      "hex": "0x11700A47"
+    },
+    {
+      "name": "ULOGID",
+      "hash": 62859099,
+      "hex": "0x03BF275B"
+    },
+    {
+      "name": "UMACHI",
+      "hash": 133983282,
+      "hex": "0x07FC6C32"
+    },
+    {
+      "name": "UNKNOW",
+      "hash": 338811897,
+      "hex": "0x1431DBF9"
+    },
+    {
+      "name": "UNTSTG",
+      "hash": 111991566,
+      "hex": "0x06ACDB0E"
+    },
+    {
+      "name": "UNTSTU",
+      "hash": 312876264,
+      "hex": "0x12A61CE8"
+    },
+    {
+      "name": "UNTSTW",
+      "hash": 341574078,
+      "hex": "0x145C01BE"
+    },
+    {
+      "name": "UPANEL",
+      "hash": 175652274,
+      "hex": "0x0A783DB2"
+    },
+    {
+      "name": "UVALID",
+      "hash": 62947578,
+      "hex": "0x03C080FA"
+    },
+    {
+      "name": "VERCON",
+      "hash": 209460082,
+      "hex": "0x0C7C1B72"
+    },
+    {
+      "name": "VLAYER",
+      "hash": 261962122,
+      "hex": "0x0F9D398A"
+    },
+    {
+      "name": "VLYSET",
+      "hash": 290559334,
+      "hex": "0x11519566"
+    },
+    {
+      "name": "VMCOMP",
+      "hash": 237320491,
+      "hex": "0x0E25392B"
+    },
+    {
+      "name": "VMSUBV",
+      "hash": 317697844,
+      "hex": "0x12EFAF34"
+    },
+    {
+      "name": "VSINLB",
+      "hash": 35889205,
+      "hex": "0x0223A035"
+    },
+    {
+      "name": "VVALUE",
+      "hash": 83673778,
+      "hex": "0x04FCC2B2"
+    },
+    {
+      "name": "VWSTYL",
+      "hash": 186412504,
+      "hex": "0x0B1C6DD8"
+    },
+    {
+      "name": "WESTYL",
+      "hash": 186412019,
+      "hex": "0x0B1C6BF3"
+    },
+    {
+      "name": "WGSTYL",
+      "hash": 186412073,
+      "hex": "0x0B1C6C29"
+    },
+    {
+      "name": "WINDOW",
+      "hash": 338617121,
+      "hex": "0x142EE321"
+    },
+    {
+      "name": "WKPACK",
+      "hash": 159995408,
+      "hex": "0x09895610"
+    },
+    {
+      "name": "WKPKWL",
+      "hash": 185169965,
+      "hex": "0x0B09782D"
+    },
+    {
+      "name": "WKSWLD",
+      "hash": 64771241,
+      "hex": "0x03DC54A9"
+    },
+    {
+      "name": "WLCOMP",
+      "hash": 237320465,
+      "hex": "0x0E253911"
+    },
+    {
+      "name": "WLDGRP",
+      "hash": 239820935,
+      "hex": "0x0E4B6087"
+    },
+    {
+      "name": "WLFEAT",
+      "hash": 288144158,
+      "hex": "0x112CBB1E"
+    },
+    {
+      "name": "WLFITT",
+      "hash": 298320269,
+      "hex": "0x11C8018D"
+    },
+    {
+      "name": "WLJNTS",
+      "hash": 284072693,
+      "hex": "0x10EE9AF5"
+    },
+    {
+      "name": "WLJOIN",
+      "hash": 206501990,
+      "hex": "0x0C4EF866"
+    },
+    {
+      "name": "WLOPEN",
+      "hash": 204399554,
+      "hex": "0x0C2EE3C2"
+    },
+    {
+      "name": "WLPANE",
+      "hash": 79747844,
+      "hex": "0x04C0DB04"
+    },
+    {
+      "name": "WLPROF",
+      "hash": 94962803,
+      "hex": "0x05A90473"
+    },
+    {
+      "name": "WLPRSE",
+      "hash": 82739660,
+      "hex": "0x04EE81CC"
+    },
+    {
+      "name": "WOSTYL",
+      "hash": 186412289,
+      "hex": "0x0B1C6D01"
+    },
+    {
+      "name": "WSBART",
+      "hash": 297097196,
+      "hex": "0x11B557EC"
+    },
+    {
+      "name": "WSERST",
+      "hash": 297965435,
+      "hex": "0x11C2977B"
+    },
+    {
+      "name": "WSERUL",
+      "hash": 184237061,
+      "hex": "0x0AFB3C05"
+    },
+    {
+      "name": "WSPORT",
+      "hash": 297382964,
+      "hex": "0x11B9B434"
+    },
+    {
+      "name": "WSRELB",
+      "hash": 35718620,
+      "hex": "0x022105DC"
+    },
+    {
+      "name": "WTHELE",
+      "hash": 78758078,
+      "hex": "0x04B1C0BE"
+    },
+    {
+      "name": "WTHTAB",
+      "hash": 30160751,
+      "hex": "0x01CC376F"
+    },
+    {
+      "name": "XPIFLD",
+      "hash": 64429476,
+      "hex": "0x03D71DA4"
+    },
+    {
+      "name": "XPITEM",
+      "hash": 190125114,
+      "hex": "0x0B55143A"
+    },
+    {
+      "name": "XPIWLD",
+      "hash": 64764087,
+      "hex": "0x03DC38B7"
+    },
+    {
+      "name": "XPOSNO",
+      "hash": 223590588,
+      "hex": "0x0D53B8BC"
+    },
+    {
+      "name": "XPPROX",
+      "hash": 353243238,
+      "hex": "0x150E1066"
+    },
+    {
+      "name": "XPRDWL",
+      "hash": 185033778,
+      "hex": "0x0B076432"
+    },
+    {
+      "name": "XSCOPE",
+      "hash": 81077001,
+      "hex": "0x04D52309"
+    },
+    {
+      "name": "XSPROX",
+      "hash": 353243319,
+      "hex": "0x150E10B7"
+    },
+    {
+      "name": "UNKNOWN",
+      "hash": 1467731447,
+      "hex": "0x577BCDF7"
+    }
+  ]
+}
