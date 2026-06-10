@@ -137,6 +137,10 @@ pub struct PdmsIO {
     pub ses_data_map: HashMap<u32, SessionPageData>,
     pub ses_range_map: BTreeMap<i32, RangeInclusive<u32>>,
     pub sesno_pgno_map: BTreeMap<i32, u32>,
+
+    /// specs/002 T204：经 `e3d_io` `PagedFile` 页源的持久只读视图（B 树点查委托）。
+    /// 文件增长（增量写入）按页数失配自动重建。私有实现细节，不入 C1 冻结面。
+    rdb: Option<e3d_io::read_view::Rdb<e3d_io::page_source::PagedFile>>,
 }
 
 /// RefNo -> 该 RefNo 的所有历史版本“绝对偏移”（升序，last() 为最新）。
@@ -202,6 +206,7 @@ impl PdmsIO {
             ses_data_map: HashMap::new(),
             ses_range_map: BTreeMap::new(),
             sesno_pgno_map: BTreeMap::new(),
+            rdb: None,
         }
     }
 
@@ -219,6 +224,7 @@ impl PdmsIO {
             self.page_size = detected_page_size;
             self.page_cache = PageManager::new(1024, self.page_size);
             self.ses_data_map.clear();
+            self.rdb = None; // 页大小变更 ⇒ 只读视图按新 ps 重建（specs/002 T204）
         }
 
         // 尽早初始化 ses 映射，便于 parse_element 设置 sesno 等信息
@@ -244,6 +250,28 @@ impl PdmsIO {
         let detected = e3d_io::page_source::probe_page_size(file, &probes)
             .context("probe page size via e3d_io")?;
         Ok(detected.unwrap_or(PAGE_SIZE_2K))
+    }
+
+    /// specs/002 T204：持久只读视图（经 `e3d_io::PagedFile` 页源,LRU 1024 页与
+    /// v1 `PageManager` 同容量）。文件增长（增量场景）按"完整页数失配"自动重建,
+    /// 与 v1"每次按需读最新文件"语义对齐;页大小以已探测的 `self.page_size` 为准。
+    fn rdb(&mut self) -> anyhow::Result<&mut e3d_io::read_view::Rdb<e3d_io::page_source::PagedFile>> {
+        let cur_pages =
+            (std::fs::metadata(&self.file_path)?.len() / self.page_size as u64) as usize;
+        let stale = match &self.rdb {
+            Some(r) => r.n_pages() != cur_pages,
+            None => true,
+        };
+        if stale {
+            let src = e3d_io::page_source::PagedFile::open_with_page_size(
+                &self.file_path,
+                self.page_size,
+                1024,
+            )
+            .context("open paged source for read view")?;
+            self.rdb = Some(e3d_io::read_view::Rdb::new(src, cur_pages));
+        }
+        Ok(self.rdb.as_mut().unwrap())
     }
 
     /// 获取数据库文件句柄（惰性打开）。
@@ -1101,8 +1129,17 @@ impl PdmsIO {
             basic_info.latest_ses_data.index_root_pageno
         };
 
-        // 使用修复后的B+树搜索
-        self.btree_search_fixed(latest_index_pgno, refno)
+        // specs/002 T204：descent 委托 e3d_io（Rdb::btree_find,"最右 separator<=key"
+        // 同式语义;v1 的去重/哨兵特判/选最后条目启发式是 null 终止读取的补偿,
+        // word6 界定下不再需要）。会话归属与字节偏移换算仍是门面职责。
+        let (data_pg, word_off) = self
+            .rdb()
+            .ok()?
+            .btree_find(latest_index_pgno as usize, (refno.get_0(), refno.get_1()))
+            .ok()??;
+        let byte_off = data_pg as u64 * self.page_size as u64 + word_off as u64 * 2;
+        let loc_sesno = self.get_sesno(data_pg as u32).unwrap_or_default();
+        Some((loc_sesno, byte_off))
     }
 
     /// 在叶子节点中搜索目标参考号
@@ -1168,6 +1205,9 @@ impl PdmsIO {
     }
 
     /// 修复后的B+树搜索算法 - 使用优化策略
+    /// specs/002 T204：已被 `e3d_io::read_view::Rdb::btree_find` 委托取代,零调用方;
+    /// 保留至 Phase 3 孤岛退役时随 `search_latest_refno_interal_single_path` 一并删除。
+    #[allow(dead_code)]
     fn btree_search_fixed(&mut self, root_pgno: u32, target_refno: RefU64) -> Option<(u32, u64)> {
         let (target_r0, target_r1) = (target_refno.get_0(), target_refno.get_1());
 
@@ -1188,6 +1228,8 @@ impl PdmsIO {
     /// 2. 去重索引条目，避免重复条目导致错误路径
     /// 3. 超出范围时选择最后一个条目继续搜索
     /// 4. 支持回溯机制确保完整搜索
+    /// specs/002 T204：随 `btree_search_fixed` 退役,保留至 Phase 3 一并删除。
+    #[allow(dead_code)]
     fn btree_search_optimized_recursive(
         &mut self,
         page_no: u32,
