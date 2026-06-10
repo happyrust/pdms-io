@@ -3483,103 +3483,26 @@ impl PdmsIO {
         if verbose {
             println!("latest_index_pgno: {:#4X}", latest_index_pgno);
         }
-
-        // 估计项目数量，用于内存预分配
-        let estimated_size = std::cmp::min(100_000, latest_index_pgno as usize * 10);
-
-        // 创建 refno 映射表，用于保存所有 refno 到位置(绝对偏移)的映射
-        let mut refno_map: IndexMap = HashMap::with_capacity(estimated_size);
-
-        // 统计信息
-        let mut total_nodes = 0;
-        let mut total_leaf_nodes = 0;
-        let mut total_index_nodes = 0;
-        let mut total_entries = 0;
-
-        // 使用广度优先遍历算法遍历索引树
-        let mut queue: VecDeque<(u32, u32)> = VecDeque::new();
-        // 添加根节点到队列
-        queue.push_back((latest_index_pgno, 0));
-
-        // 跟踪已经访问过的节点
-        let mut visited_nodes = HashSet::new();
-
-        // 记录起始时间，用于计算性能
         let start_time = std::time::Instant::now();
 
-        // 批量处理，提高性能
-        let mut batch_size = 0;
-        let mut level = 0;
+        // specs/002 T204：整树枚举委托 e3d_io（word6 界定 walk + 哨兵左子下降,
+        // 经持久 `Rdb<PagedFile>` 页源;v1 BFS + null 终止 deku 读取退役）。
+        // 叶项过滤与偏移换算保持 v1 `process_leaf_node` 语义：跳过 (0,0) 键、
+        // pgno==0、offset==0;offset = pgno*ps + word_off*2;逐 refno 升序去重。
+        let ps = self.page_size;
+        let leaves = self
+            .rdb()?
+            .leaves(latest_index_pgno as usize)
+            .map_err(|e| anyhow!("enumerate index leaves via e3d_io: {e}"))?;
 
-        // 广度优先遍历索引树
-        while !queue.is_empty() {
-            // 每批次处理100个同级别节点
-            let mut batch = Vec::with_capacity(100);
-            while !queue.is_empty() && batch.len() < 100 {
-                if let Some((pgno, node_level)) = queue.pop_front() {
-                    if node_level > level {
-                        level = node_level;
-                        if verbose {
-                            println!("Processing level {} of index tree", level);
-                        }
-                    }
-                    batch.push(pgno);
-                }
+        let mut refno_map: IndexMap = HashMap::with_capacity(leaves.len());
+        for (r0, r1, pg, off) in &leaves {
+            if (*r0 == 0 && *r1 == 0) || *pg == 0 || *off == 0 {
+                continue;
             }
-
-            batch_size += batch.len();
-
-            // 按批次并行处理节点
-            for &pgno in &batch {
-                // 跳过已经访问过的节点
-                if visited_nodes.contains(&pgno) {
-                    continue;
-                }
-
-                // 标记为已访问
-                visited_nodes.insert(pgno);
-
-                // 读取并解析索引页数据
-                let Ok(index_data) = self.read_index_data(pgno) else {
-                    println!("error pgno: {:#4X}", pgno);
-                    continue;
-                };
-                total_nodes += 1;
-
-                // 根据页面类型和级别判断处理方式
-                if index_data.level == 0 {
-                    // 叶子节点 (level = 0)
-                    total_leaf_nodes += 1;
-                    // RefnoDataLoc::get_att_offset() 固定用 2K 页大小；这里必须使用动态 page_size。
-                    Self::process_leaf_node(&index_data, &mut refno_map, self.page_size);
-                    total_entries += index_data.refno_locs.len();
-                } else {
-                    // 非叶子节点 (level > 0)
-                    total_index_nodes += 1;
-
-                    // 遍历子节点引用
-                    for loc in &index_data.refno_locs {
-                        if loc.pgno > 0 {
-                            if loc.pgno == 0x1564 {
-                                dbg!(&index_data.refno_locs);
-                            }
-                            queue.push_back((loc.pgno, level + 1));
-                        }
-                    }
-                }
-            }
-
-            // 每处理1000个节点输出一次进度信息
-            if verbose && batch_size % 1000 < 100 {
-                println!(
-                    "Processed {} index nodes ({} leaf nodes, {} index nodes), found {} entries, elapsed: {:?}",
-                    total_nodes,
-                    total_leaf_nodes,
-                    total_index_nodes,
-                    total_entries,
-                    start_time.elapsed()
-                );
-            }
+            let refno = RefU64::from_two_nums(*r0, *r1);
+            let offset = *pg as u64 * ps as u64 + *off as u64 * 2;
+            refno_map.entry(refno).or_default().push(offset);
         }
 
         // 构建完成后统一排序去重，保证 offsets 升序且无重复
@@ -3591,12 +3514,9 @@ impl PdmsIO {
         // 输出最终统计信息
         if verbose {
             println!(
-                "Index build completed: {} nodes ({} leaf, {} index), {} unique refnos, {} total entries, elapsed: {:?}",
-                total_nodes,
-                total_leaf_nodes,
-                total_index_nodes,
+                "Index build completed: {} unique refnos, {} leaf entries, elapsed: {:?}",
                 refno_map.len(),
-                total_entries,
+                leaves.len(),
                 start_time.elapsed()
             );
         }
@@ -3605,6 +3525,9 @@ impl PdmsIO {
     }
 
     // 处理叶子节点，提取refno和对应的位置信息
+    /// specs/002 T204：随 v1 BFS 枚举退役（过滤语义已并入 `build_index_map_verbose`
+    /// 的 e3d_io 委托路径）,保留至 Phase 3 一并删除。
+    #[allow(dead_code)]
     fn process_leaf_node(index_data: &IndexPageData, refno_map: &mut IndexMap, page_size: usize) {
         // 遍历叶子节点中的所有位置记录
         for loc in &index_data.refno_locs {
