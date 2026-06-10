@@ -121,7 +121,7 @@ class Schema:
 
 class SchemaSet:
     def __init__(self, folder):
-        self.schemas, self.noun2schema = [], {}
+        self.schemas, self.noun2schema, self.by_templ = [], {}, {}
         for p in sorted(glob.glob(os.path.join(folder, '*vir.dat'))):
             try:
                 s = Schema(p)
@@ -129,12 +129,23 @@ class SchemaSet:
                 continue
             if s.ok and s.index:
                 self.schemas.append(s)
+                self.by_templ.setdefault(s.templ, s)   # template_id -> schema (db header 0x20)
                 for noun in s.index:
                     self.noun2schema.setdefault(noun, s)
 
     def typedef(self, noun):
         s = self.noun2schema.get(noun)
         return (s, s.typedef(noun)) if s else (None, None)
+
+    def schema_for_db(self, db_buf):
+        """Pick a db's primary schema library from its header word8 (0x20 = schema/
+        template type id), per format spec §2 / db2_open_db. Returns the Schema or None.
+        Avoids guessing/loading-all: e.g. design db (0xB0692)->desvir, catalogue
+        (0x8A1E6)->catvir, system (0xE567E)->sysvir."""
+        if len(db_buf) < 0x24:
+            return None
+        templ = struct.unpack_from('>I', db_buf, 0x20)[0]
+        return self.by_templ.get(templ)
 
 
 def _f32(w):

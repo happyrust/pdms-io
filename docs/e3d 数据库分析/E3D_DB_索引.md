@@ -21,7 +21,13 @@
 | `e3d_tree.py` | 由 owner refno **重建模型层级树**(ZONE→STRU→…/EQUI→NOZZ) |
 | `type_enum_probe.py` | 全库统计 type-def 描述符 `type` 枚举分布 + 示例(支撑 §7.7.7 type 表;只读) |
 | `uda_probe.py` | 巡检元素 UDA 存储(hash>0x171FAD39):类型/原始值/结构 + 直方图(支撑 §7.10;只读) |
-| `e3d_write.py` | **写侧**:安全就地编辑定长内联值(实/整/引用;仅副本;基于"页无校验和"§12) |
+| `uda_expr_probe.py` | 解码 `0xFFF` 族**派生/表达式 UDA**→可读 PDMS 表达式(RPN + DORTXT 几何字面量;sam7200 98.8%;支撑 §7.10.5;只读) |
+| `e3d_write.py` | **写侧(在位)**:安全就地编辑定长内联值(实/整/引用;仅副本;基于"页无校验和"§12) |
+| `e3d_write_full.py` | **写侧(完整 COW + 新会话 CRUD)**:S1 内联 / S2·S6 DA 文本(同页·跨页·链式) / S3 新增 / S4 删除 / S5 任意键插入+分裂/长高 / S7 成员列表 / S8 UDA·DA 条目;多版本 + 仅副本(§12.6);**14 自检 demo 全 PASS**(S1–S9,含 Slice 9 `verify_commit` + `batch`) |
+| `tools/e3d_decode_rs/`(Rust) | std-only **读取/导出 CLI**(`--json`/`--cat`),现为 `crates/e3d_io` 的**薄消费者**(已消除重复解码器,解码单一真源);输出与改前逐项一致(10392/1209/145) |
+| `../../crates/e3d_io/`(Rust crate) | 独立 std-only crate:**读**(全属性/NAME/`resolve_refs`)+ **写**(S1–S8 COW CRUD,含 S4 delete);+ **安全事务层**(`verify_commit` 写后自校验 / `batch` 多笔合一会话 / `dry_run`·`element_diff` / `delete_guards` 护栏);稳定 `EdbWriter` API + 类型化 `E3dError`;`cargo test` **24 测试**;`pdms_io` 经 `pub use e3d_io as e3d_decode` 复用 |
+| `../../crates/e3d_io` `e3d-io`(CLI) | std-only 命令行(基于 `EdbWriter`):读 `show`/`refs`;写(COW)`rename`/`set-pos`/`delete`/`insert`(`--out`/`--cat`/`--inplace`) + 批量 `plan`/`apply`(护栏 `--force`/`--yes`);端到端 smoke 验证 |
+| **`../../specs/001-e3d-data-format/`** ⭐ | **spec-kit 规范**(格式的 WHAT/WHY + 字节级模型 + 契约 + 任务):`spec.md`(US1–US5 / FR-001..022 / SC-001..010)·`data-model.md`·`contracts/decode-contract.md`·`plan.md`·`tasks.md`。本索引 ↔ specs/001 互为入口 |
 
 ## 关键已验证结论（含三大纠错）
 
@@ -54,15 +60,13 @@ Page0 头部(latest_ses_pgno) → 会话页(type 3, index_root) → B-树(type5/
 | db5 访问 | open_read_db@0x105E4940, close_db@0x105E4D60, save_work@0x105E9C80 |
 | attlib | DB_Noun::internalGetField@0x1084F7C0, DB_Attribute::internalGetField@0x10850888, ATGTIX 加载@0x10852A64, 编排器@0x10851210 |
 
-## 待办（按价值排序）
+## 待办（状态;大多已收口）
 
-1. **离线复刻 attlib 读取器** → 稳定产出"命名属性 + 物理 offset"。**机制已逆清(解析指导 §11.4),但经验闭环未完成**:
-   - 已知:`ATFIND`(线性查找)、`ATRDRC`(LRU 页缓存)、公式 `offset = attlib页[record(attr)][disp + noun_index − 2]`;POS 的 ATGTIX `combined=0x83787→rec1051/disp391`;noun 表在 ~file_page 2233。
-   - 难点:`internalGetField` 含**跨页链式回退**(单步公式仅无冲突直读);noun 表**交错布局**(WELD 在 noun 表区而非 ATGTSX,故按 noun_hash 直接分组取不到其属性)。
-   - 收尾路径:忠实实现链式查找 + 交错 noun 表索引提取 + 以 WELD-POS@word13 闭环验证。属独立聚焦实现工程。
-2. ~~写入/保存路径(`db5_save_work`)~~ **✅ 已完成**(解析指导 §12:COW + 会话 + 批量刷脏页 + page0 重指向)。
-3. **跨页拼接**:`EleMembers`/属性数据跨页(`defines.rs` 标注 TODO)。
-4. 修正 `detect_page_size`(×4)、用 `noun_hash_table_base27.json` 替换旧表。
+1. ~~离线复刻 attlib 读取器(产出"命名属性 + 物理 offset")~~ **✅ 已完成 / 路线更正**:offset 的磁盘来源**不是 attlib**,而是模式库 `*vir.dat` 的 type-def(结论 #5,§7.7)。早期 attlib 公式启发式作废;读侧已全链闭环(隐式/DA/NAME/owner/引用/UDA),Python + Rust 双实现。
+2. ~~写入/保存路径(`db5_save_work`)~~ **✅ 已实现 + 验证**:离线 COW + 新会话 CRUD(改内联值/变长 DA/成员/UDA + 新增/删除 + B 树插入分裂长高),`e3d_write_full.py`(13 demo)+ `src/e3d_decode.rs`(S1–S8,15 测试);§12.6。
+3. ~~跨页拼接(`EleMembers`/属性数据跨页)~~ **✅ 已完成**:DA/成员链式遍历(`decode_da_list`,node word3/4),读写双向(写侧 S6/S7 多页 COW relocation)。
+4. ~~`detect_page_size`(×4)+ `noun_hash_table_base27.json`~~ **✅ 已修**(`src/defines.rs::detect_page_size`、reader 头部字段正名 §13;生产 `io.rs` 本就用 `detect_page_size_by_probe`)。
+5. **剩余(阻塞/范围外)**:① 真 running-E3D round-trip 取证(需真 E3D)② 并入整 `pdms_io` crate(待 rs-core↔surrealdb-3.1 兼容,项目外)③ `0xFFF` UDA AST 级语义编辑 + UDA 真名(字典库)—— 均非阻塞当前能力。
 
 ---
 

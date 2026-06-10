@@ -264,3 +264,257 @@ schema/template db: DB_SchemaMngr::openAllSchemas 0x10498BE0 / DB_DBSchema::open
 - `db3_insert_page_entry`(0x1061B5C0,"3.2.4"):二分定位(`sub_1061B1B0`)→ 空间够则右移腾位+写 key/data+`word6-=占用`;不够置 `*out_split=1`;重复 key 报 529。
 - `db3_split_node`(0x1061BA50,"3.2.6"):`db1_get_new_page` 分配新兄弟页 → 分裂点 `(容量−word6−7)/2+7`,搬上半条目、修两页 `word6`、向父递归(最深 50,否则 533);校验 type5/表名/层级(659/660/661)。
 - ⇒ 在位定长写(§12.1–12.3)不改 key/不动框架,故不触碰 B 树(安全性来源)。**写侧机制(页完整性+COW+刷页+B树插入分裂+会话提交/page0重指)全部权威分析完成**;实现为独立高风险里程碑。
+
+## 13. Page 0 头部两个 [存疑] 字段收口 + 多处误标更正(2026-06-06,IDA `db2_create_master`/`db2_open_db`/`db5_save_work` + 4 样本)
+> 收口格式规范 §8 row2(`stored_page_count`)/ row3(`session_page_no`)两个历史 [存疑];并据创建函数逐字段反编译更正 page0 头若干误标。证据:`db2_create_master`(0x1062B510,写 page0 缓冲 `v26[0..16]`)、`db2_open_db`(0x1062F8F0,"2.1.3")、`db5_save_work`(0x105E9C80)、4 样本(sam7200/acp7002/ams1112/amssys)交叉验证。脚本 `_hdr_probe.py`(临时,已删)。
+
+### 13.1 `0x38`(原 `stored_page_count`)= **DBNO(refno_0)** —— 非页计数
+- 4 样本 `field@0x38 = db_num | 0x2000` 恒成立(sam7200 0x3C20、acp7002 0x3B5A、ams1112 0x2458、amssys 0x3FFF);而 ams1112 实际 50677 页 ≠ 9304 ⇒ **绝非页计数**。
+- `db2_create_master` 权威:`v26[14] = (a1 & 0x1FFF) | (((a1 & 0x3E000) | 1) << 13)`(a1=db_num)。`|1` 强制类型位 0x2000。4 样本公式逐一吻合。
+- `db2_open_db` 校验 `db_num ∈ (0, 0x1FFF]`(否则 err 512)⇒ db 号占低 13 位,bit13–17 为**库类型码**。
+- `db5_save_work` 在每次提交时 `v35[14]=v53[0]; v35[15]=v53[1]`,`v53` 来自 **db-block 属性 7**(2 字)⇒ `(0x38,0x3C)` = db **根/world 引用 refno**(dbno,refseq)。
+- 元素 refno_0(DBNO)实测:设计库 `db_num|0x4000`(sam7200 0x5C20、ams1112 0x4458)、目录库 `db_num|0x2000`(acp7002 0x3B5A=头0x38)、系统库 0x5FFF/0x7FFF。⇒ 头 0x38 用主引用空间(类型位含 bit0),设计元素另在 0x4000 空间。
+
+### 13.2 `0x3C`(原 `unknown_3`=恒2)= **refseq(refno_1)**
+- 创建初值 0(`v26[15]=0`);`db5_save_work` 由 db-block 属性 7 刷新。实测 sam7200=2 / acp7002=39268 / ams1112=3 / amssys=0 ⇒ **非恒 2**;与 0x38 合为根引用 refno。
+
+### 13.3 `0x30`(原 `session_page_no`)= **extract/extent 分配计数** —— 非会话页号
+- `db2_create_master`:`v26[12] = a3 + 1`(a3=ext_no)⇒ 创建初值 `ext_no+1`。实测 acp7002=2(=ext_no+1)、sam7200=3、ams1112/amssys=4。
+- 反证"会话页":sam7200 的 w12=3 指向的页 3 是 **type 5**(非会话);首会话(sesno=1)恒在页 4。
+- `db5_save_work` 全程不写 `v35[12]`;`db2_open_db` 不校验 ⇒ 创建/admin 期设定的静态计数,非活跃指针。
+
+### 13.4 顺带更正(创建函数逐字段)
+- `0x20`(原 `creation_time`)= **schema_type_id**(模式库类型 id):`v26[8]=a6`;`db2_open_db` 用其在 `dword_11599778` schema 注册表查对应 `*vir.dat`。实测 db word8 ↔ vir.dat 头 w2 一一对应:desvir=0xB0692、catvir=0x8A1E6、sysvir=0xE567E(sam7200/ams1112→desvir、acp7002→catvir、amssys→sysvir)。**真正的创建元数据是 0x44+ 的 ASCII**(`"bill.housley at 07:49:34 on Tue, 25 Jun 2013 … AVEVA PDMS Admin Mk12.1.SP4.0"`)。⇒ 解析器可**从头部 0x20 自动选定模式库**(无需载全部 20 库)。
+- `0x24`(原 `unknown_2`)= **schema_version**(`v26[9]=-ver`,`db2_open_db` 取 abs 校验)。
+- `0x0C`/`0x10`:= ext_no 副本 / 创建标志(a3 / a7),非"恒1 unknown"。
+- **结构认知更正**:page 0 是整页(2048B)**DABACON db-control-block**(前 0x40 定长头 + 0x40 起创建信息 ASCII + db-block 属性记录);会话指针/索引根(属性 0xCC47DF)/claim(属性 7618377)/sesno(属性 1)的**权威源是 db-block 属性**,头部前 16 字为缓存镜像。
+- 文档:格式规范 §2(头表重写)+ 新增 §2.1(DBNO 编码 + db-control-block)+ §8 row2/3/3b 更新。
+- **剩余**:`0x30` 的精确"增量语义"(每 extract 是否 +1)未逐函数确认(`db2_create_extract` 未反编译);属低优先。`src/defines.rs::PdmsHeader` 字段名仍为旧误称(改名有跨文件波及,留作独立工程项)。
+
+## 14. `0xFFF` 族 UDA = 序列化 PDMS 表达式(派生属性)—— 收口 §10.2 "令牌语义待解"(2026-06-06)
+> 把 UDA 线索的最后一块(§10.3 两族中的 `0xFFF?xxxx` 族)从"令牌语义待解"推进到"已解码"。
+
+### 14.1 结论
+- `0xFFF` 族(top nibble=0xF)UDA 的**值是一段序列化 PDMS 表达式**(派生/计算属性规则),**非字面量**;与普通表达式属性(PHEI 等)**同一 opcode 语法**(仓库已有 `docs/expression_opcode_table.md` + `crates/parse_pdms_db/src/parser/attribute/expression_payload.rs`)。
+- **UDA 表达式外层封装**(DA 条目 value 字):`[len][0][count][sublen=len-2][1] <RPN...>`。RPN = 后缀:`0x65`数值、`0x66/0x76`串、`0x67`布尔、`0x6A`属性引用(5 字 `[_,hash,low,high,suffix]` + 限定符 `2100`/`2200`/`1601-1602`=OF/`1701-1703`=WRT)、运算符 `80x/90x/100x/130x`(`802`+`804`*`1007`ABS`1005`INT`1009`MIN…)。
+- **`0x6B/0x6C/0x6D/0x73`=DORTXT 几何值字面量**(方向/取向/位置/坐标,`0x73`=AT)[IDA `EXRTPD` 0x10080F62 switch `'k'/'l'/'m'/'s'`→`DORTXT`]:**计数前缀** `count=words[i+1]`,推进 `i+1+count`;对派生 UDA 即"一个参数化几何值(分量=子表达式)"。
+
+### 14.2 实测(`uda_expr_probe.py`,sam7200,只读)
+- 17 distinct `0xFFF` hash / 655 条:**647/655(98.8%)完整解出**(加入 DORTXT 几何字面量分支后,从 193 跃升)。典型:
+  - `ATTRIB HEIG OF CYLI WRT`、`ATTRIB DIAM OF CYLI WRT`(取所属 CYLI 的尺寸)
+  - `ATTRIB CDPR FTHK OF WRT * 2 + ATTRIB CDPR GTHK OF WRT + 37.5`(壁厚派生)
+  - `GEOM_K( ... / SQRT ( POW ( ATTRIB CDPR DE OF WRT , 2 ) + POW ( ATTRIB CDPR DN OF WRT , 2 ) ) * ATTRIB CDPR DN OF WRT )`(参数化型材几何)
+  - `MIN ( ABS ( 300*N − INT ( ATTRIB LDPR OLEN OF TMPL WRT / 300 ) * 300 − ... ) , 12 )`(分段取整)
+- body 首 opcode:`0x6A/0x65/0x76`(标量)、`0x6B/0x6C/0x6D`(几何字面量,含最高频 `0xFFF7AC4F ×312`,其 count=97=整条 body ⇒ 单一参数化几何值)。余 8 条为几何字面量内分量未逐一美化(消费正确)。
+- 表达式**引用**的目标属性名经 `db1_dehash` 可读(多为目录 `CDPR/LDPR.*` 参数);UDA **自身名**仍需字典库(§10.4 定论)。
+- **跨库验证**(2026-06-06):`acp7002`(catalogue)**34475/36141(95.4%)解出**(35 distinct hash;目录库大量参数化几何 UDA);`ams1112`(大设计)/`amssys`(系统)**无 `0xFFF` UDA**。⇒ 派生表达式 UDA 主要存在于设计库元素(引用目录参数)与目录库本身,解码器规模化通过。
+
+### 14.3 落地
+- 新增只读工具 `docs/e3d 数据库分析/uda_expr_probe.py`(`decode_uda_expr(value_words)` → 表达式串;`expression_payload.rs::decode_words` 的 Python 端口 + DORTXT 几何字面量分支)。
+- 文档:格式规范新增 **§7.10.5**、更新 §7.10.3 / §8 row8 / §9(EXRTPD)。
+- **剩余**(非阻塞):8 条几何字面量内分量的精确美化(DORTXT 单位/分量分隔);生产级可复用仓库 `expression_payload.rs`(剥 5 字头 + 补 `0x6B/0x6C/0x6D` 几何分支)。
+
+## 15. 写侧**实现** Slice 1:离线 COW + 新会话提交（2026-06-07,已实现 + 多版本验证 + 开库契约 IDA 确证）
+> 把 §12 写侧机制(`db5_save_work`)落地为可运行离线实现。工具 `docs/e3d 数据库分析/e3d_write_full.py`(只对副本)。
+
+### 15.1 实现(持久化 / COW B 树)
+- 绝不就地改旧页;所有改动追加到文件尾:**COW 数据页**(`set_inline_value` 改值)→ **COW B 树路径**(叶条目改指新数据页,逐祖先改子指针到根 → 新根 `R'`)→ **追加新会话页**(`sesno+1`/`index_root=R'`/`last_ses=旧会话`/`end=新会话页`)→ **重指 page0 `w10`(0x28)**。兄弟子树与旧版本共享,仅新增 O(深度) 页。
+- 关键坑(已修):元素 refno 可有**多条叶项**(主记录 + 二级/成员结构,实测 `/WB1` refno=(23584,5656) 在 pg2799 `w0=0xD270BB71` 无 POS、pg807 `w0=0x2E` 为主记录)。提交按**精确(数据页,字偏移)**匹配主记录条目;读回按 **refno + `is_main`**(`w0` 为干净 u16 impl 计数 + noun 可 dehash)过滤。
+
+### 15.2 多版本验证(纯离线,sam7200_0001 副本,WELD /WB1)
+- 连提两次 POS:`sesno 36→37→38`,`index_root 3377→3387→3392`,数据页 `807→3384→3389`,每次 COW 路径深度 3、追加 5 页。
+- 沿会话链读回:**sesno38=新值2 / sesno37=新值1 / sesno36=原值 (9630,8072,5282.5)** —— 旧版本零改动、完全可读。
+- **字节 diff vs 原文件**:原页范围内**仅 page0 会话指针字 0x28..0x2B** 变(`3383→3388` 仅低字节 0x2B)⇒ COW "旧数据不可变"逐字节坐实。`set_inline_value` 已覆盖 real/int/ref(§后续仅类型透传)。
+
+### 15.3 开库读取契约(IDA 确证 → Slice 1 对真机机制完备)
+- `db2_get_db_int_att`(0x10622F20)从内存 **db-block 条目**(40 字节/extract)取属性:`case0=+12(字3)=sesno`、`case2=+20(字5)=end`、`case10=+28(字7)=index_root`、`case15=+36(字9)=claim`;`db2_find_current_db_block`(0x10622DC0)= `v11+40*v8`(跳过 `*(v9-2)==-1||!*v9` 的空 extract,最多 5)。
+- 这些偏移**与会话页字布局逐一对齐**(会话页 字3=sesno/字5=end/字7=index_root/字9=claim)⇒ **内存 db-block 即开库时从 `page0[w10]` 所指会话页装入**。
+- ⇒ "改会话页字段 + 重指 page0 `w10`" 正是 `db2_open_db` 重建 db-block 的来源 ⇒ Slice 1 指针更新对真实 E3D **机制完备**(`page0[w11]`=次字保持原 1,语义未定,保守不改;待真机 round-trip 实测)。
+- 校正:findings 早期/§12.4 把"索引根=属性 13387743(0xCC47DF)、claim=7618377"作"属性 id"系**措辞不准**;实际访问用小 case id(index_root=case10),`0xCC47DF` 是索引页 noun 魔数巧合。
+
+### 15.4 Slice 2:变长 DA/显式文本改写(已实现 + 多版本验证)
+- `cow_commit_da_text`:复用 Slice 1 的 COW 提交核心(`_commit_edited_data_page`),仅"产出改后数据页"不同——**同页单 DA 节点重建**(解析 payload 词表 → 按 hash 定位目标条目 → `[byte_len][UTF-8 4字符/字,高字节在前]` 重编码文本 → 拼回词表 → 更新节点头 `w0=(payload+5)|1<<16` + 记录 `rec[10]` DA 字数)。**允许增长**:COW 页仅被改后元素引用,页尾即空闲(上界=页尾/同页成员区起点;超出→relocation slice 2b,已拒绝)。
+- **关键修正(记录自包含)**:提交核心通用——COW 后把记录页内指针 DA=`word6`/成员=`word8` 由旧页号改指**新页号**(否则改后记录 DA 仍指旧页 → 读回旧文本;实测此 bug 已修)。
+- 验证(sam7200 副本,`/WB1` 改名 `/WB1-COW-RENAMED`,增长):DA 字数 38→41;**新会话=新名+POS不变 / 旧会话=旧名+POS不变**;字节 diff 仅 page0 会话指针。
+
+### 15.5 Slice 3:新增元素(B 树键插入,已实现 + 验证)
+- `cow_insert_element`:克隆既有元素(新 refno=当前最大+1、新 NAME)→ 在**最右(最大键)叶**追加索引项 → COW 提交。
+- **数据页**:克隆源页 → 改记录 refno(word1/2)+ NAME(复用 `_rewrite_da_text_in_page`)→ 追加 + 自包含修正(word6/word8)。
+- **B 树最大键追加(无分裂)**:`_rightmost_path` 每层取最后一个内部条目子页(避开 `word7` 的 `0x80000001` 哨兵=最左/最小键子树)到最右叶;在 `word7+4*nent` 写 `[r0,r1,新数据页,(off<<12)|1]`、`word6-=4`。**最大键追加不改任何分隔键**(=子树最小键),故祖先仅 COW 重接最右子指针到根。
+- **关键发现:索引页条目数由 `word6`(空闲字数)界定,非空终止** —— 有效条目 `=(512−7−word6)/4`(根实测 `(512−7−493)/4=3` ✓;pg3264 `=40` 而非空终止扫到的 123)。追加项写在 word6 末尾(其后旧脏条目被截断)。
+- **读取器缺陷(记录)**:`E3DDb.walk_index` 用空终止扫描会**越读** word6 之后的脏条目 → **原始条目计数不可信**(下游 `is_main`/`looks_like_noun` 过滤,故 6536 元素解码数不受影响)。验证改用 `word6` 界定(最右叶 word6 457→453=+1 条目)。权威实现应改 `word6` 界定(§12.5),留作读取器改进项。
+- 验证(sam7200 副本,克隆 `/WB1`→`/NEW-ELEM-COW`,新 refno `(0x5C20,0x3D8F)`):新会话解出新元素(noun=WELD/owner 同源/NAME 新);旧会话无此 refno;最右叶 word6 457→453;字节 diff 仅 page0 指针。
+
+### 15.6 Slice 4:元素删除(已实现 + CRUD 闭环验证)
+- `cow_delete_element`:从 B 树移除该元素**主记录叶项**(`find_leaf_path` 按 refno+`is_main` 定位)→ 叶内**左移压实**后续条目 + `word6 += 4` → COW 路径到根 → 新会话。数据页保留(旧会话仍解析=多版本);不做下溢合并(PDMS 容忍欠满节点)。
+- **CRUD 闭环验证**(sam7200 副本,创建临时元素后删除):跨 3 会话 `原始=无 / 插入后=有 / 删除后=无`;最右叶空闲字 `457→453→457` **完美 round-trip**;字节 diff 仅 page0 指针。
+- **里程碑:写侧 CRUD 离线打通** —— 改内联值 / 改变长 DA 文本 / 新增元素 / 删除元素,全部 COW + 新会话提交,多版本可读、原文件不可变、开库契约 IDA 确证。
+
+### 15.7 落地与遗留
+- 工具:`e3d_write_full.py`(核心 `_commit_edited_data_page`/`_append_session`/`_rewrite_da_text_in_page`/`_rightmost_path` + `cow_commit`(S1)/`cow_commit_da_text`(S2)/`cow_insert_element`(S3)/`cow_delete_element`(S4) + `find_leaf_path`/`is_main_record`/`read_attr_via_root`/`read_name_via_root`/`commit_file`(_da/_insert/_delete) + **四 slice 自检 demo 全 PASS**,无 lint;temp 已清)。文档:格式规范 **§12.6**。
+- **遗留**(更新见 §16):① B 树**节点分裂** + 中间键插入 → **§16 已完成**(节点**合并**刻意不做)② 跨页/链式 DA + 成员重排(多页 COW)③ UDA 容器改写 ④ 真 running-E3D round-trip 取证 ⑤ 移植进 Rust `src/e3d_decode.rs`(并把 `walk_index` 改 `word6` 界定)。
+
+## 16. 写侧 Slice 5:任意键 B 树插入 + 节点分裂/长高(已实现 + 合成/真实多版本验证)
+> 把 Slice 3(仅最右最大键、最右叶不满)推广为**任意键插入 + 满则分裂 + 必要时长高新根**。复刻 `db3_change_table_entry`(3.3.1 递归插入)+ `db3_split_node`(3.2.6,字中点 `(PW−word6−7)/2+7` 按条目边界对半、两半同 `level`)+ `db3_split_root`(3.2.7,根溢出→新根、`++level`、entry0=哨兵 `0x80000001`→旧根、entry1=分隔键→新兄弟)。工具:`e3d_write_full.py::_btree_insert`/`cow_insert_leaf`/`cow_insert_element_split` + 校验器 `_btree_check`/`_btree_descend`/`_idx_entries`/`_emit_index_page`。
+
+### 16.1 B+ 树写侧模型
+- 数据只在**叶**(条目 `off!=0` 指数据页);内部节点 = **分隔键(=子树最小键)+ 子页指针(`off==0`)**;哨兵 `0x80000001`(−∞)仅作每节点最左分隔键,且**只在最左脊**出现。
+- 插入(COW、`word2` 层级驱动):叶按键序插(拒重复键);内部节点二分定位→递归→重接 COW'd 子页、子分裂则其后插 `[sep,新兄弟]`。**溢出**(条目 > `(PW−7)/4`)→ 条目边界对半切、**分隔键 = 上半首(最小)键**、向父递归;根溢出→长高一层。兄弟子树共享,仅 +O(深度) 页。
+
+### 16.2 关键认知:分隔键"宽松"约定 —— `nav_ok` 才是正确性判据(非"sep == 子树最小")
+- 起因:验证中曾疑"插入后分隔键 ≠ 子树最小"是 bug。诊断(临时 `_btree_probe.py`,已删)**原始 sam7200 树**:发现它本就含**宽松分隔键** —— 如 `pg3264 entry39 sep=0x3D08 < 子树最小 0x3D75`。
+- 根因:PDMS **删除时不收紧分隔键**(`cow_delete` 同),留下"低于子树最小"的分界仍能正确分流(二分下降只需 `sep <= key` 单调)。
+- ⇒ 正确性判据改为 **`nav_ok`**:对树中**每个键**做 PDMS 二分下降(每层取最后一个 `sep <= key` 的子,哨兵=−∞)都能到达其叶。`_btree_check` 校验 `nav_ok + balanced(全叶同深) + sorted(叶序非降) + 无重复键`,**不强求** sep 严格等于子树最小。这是与真实 PDMS 行为一致的弱不变式。
+
+### 16.3 节点合并(删后下溢)刻意不做
+- PDMS 容忍欠满节点(`db3` 删除不做下溢合并/再平衡);`cow_delete_element`(Slice 4)即"压实叶 + `word6+=4`",删除已正确。故"合并"**非缺口**,刻意对齐真实行为不实现。
+
+### 16.4 验证(demo 5a/5b/5c 全 PASS,sam7200 副本 + 合成)
+- **5a 合成**(`_demo_btree_synthetic`,cap=3、60 随机序键):递归分裂 + 根**长高 4 次**、`height=4`、`index_pages=47`/`leaf_pages=27`/`entries=60`、`balanced/sorted/nav_ok/无重复/keyset 全齐`——覆盖真实库(单节点 ~126 条)难触及的递归 + 根分裂路径。
+- **5b 真实**(`_demo_insert_split`,120 最大键插入溢出最右叶):**真实叶分裂** `leaf_pages 166→167`(`height 2→2`、`index_pages 170→171`)、新会话 `entries 10392+120=10512`、**原条目全保留 + 新键全在**、`balanced/nav_ok/sorted`、**前一会话不变**、字节 diff 仅 page0(`0x2a,0x2b`)。
+- **5c 真实**(`_demo_insert_mid`,中间空位键 `new=(0x5C20,0x158F) < max=(0x5C20,0x3D8E)`):新会话解出新元素(noun=WELD/owner 同源/NAME=`/MID-INSERT-COW`)、旧会话无、`entries +1`、`balanced/nav_ok/sorted`、diff 仅 page0。
+
+### 16.5 落地与遗留
+- 工具:`e3d_write_full.py` 增 `_btree_insert`/`cow_insert_leaf`/`cow_insert_element_split` + `_btree_check`/`_btree_descend`/`_idx_entries`/`_emit_index_page`/`_key_le` + demo `_demo_btree_synthetic`/`_demo_insert_split`/`_demo_insert_mid`;**七个自检 demo(S1–S5c)全 PASS**,`py_compile` OK,无 lint;临时 `_btree_probe.py` 已删。文档:格式规范 **§12.6**(Slice 5)。
+- **写侧离线全打通(CRUD + B 树分裂/长高)**;剩余遗留(更新见 §17):② 跨页/链式 DA → **§17 已完成**(成员重排仍待)③ UDA 容器改写 ④ 真 running-E3D round-trip 取证 ⑤ 移植写侧进 Rust。
+
+## 17. 写侧 Slice 6:跨页/链式 DA 文本改写(多页 COW relocation,已实现 + 真实多版本验证)
+> 推广 Slice 2(同页/单节点/受同页边界约束),用 **DA 整体重定位**统一覆盖三类:DA 已在别页、DA 本就跨页链式、改写超出同页空闲(增长)。工具:`e3d_write_full.py::cow_commit_da_text_xpage` + `_da_payload_words`/`_replace_text_in_payload`/`_emit_da_chain`/`_da_node_chain_len`。
+
+### 17.1 DA 链式框架(db4_get_list,写侧确认)
+- 记录头:`rec[6]`=DA 页、`off=(rec[7]>>13)&0xFFF`、总载荷字数 `=(rec[10]>>14)&0x3FFF`(与成员 `rec[8]/rec[9]/rec[10]&0x3FFF` 对称)。
+- 每节点:`[w0=(载荷字数+5)|(类型<<16)][w1][w2][w3=下一页][w4=(下一偏移)<<13][载荷…]`;类型 1=DA、2=成员。
+- 读取(`decode_da_list`):沿 `w3/w4` 走链,`take=min(plen,remaining)`、`remaining-=plen`,**先拼接全部节点载荷,再** `_parse_attr_words`。⇒ 文本值可跨节点切分(先拼后解),这正是 relocation 可任意分块的依据。
+
+### 17.2 重定位算法(统一覆盖跨页/链式/增长)
+1. `_da_payload_words` 链式拼出**完整载荷**(镜像 reader)。
+2. `_replace_text_in_payload` 在扁平载荷里按 hash 定位文本条目(`type∈{10,14,15}`),用 `[byte_len][UTF-8 4字/字,高字节在前]` 替换。
+3. `_emit_da_chain` 把新载荷**重写为全新节点链**追加到新页:单节点(载荷+5≤PW−7);或按 `force_chunk`/页容量(载荷/节点 ≤ `PW−12`)分块多节点,节点间 `w3=下一页`/`w4=(off<<13)`,末节点链指针=0;节点置于 off=7,复用 7 字数据页头(装饰)。
+4. 改写记录页 `rec[6]`=新 DA 页、`rec[7]`=`(rec7 & ~(0xFFF<<13))|(off<<13)`、`rec[10]`=`(rec10 & ~(0x3FFF<<14))|(total<<14)`(保留成员位)。
+5. 复用 `_commit_edited_data_page`(COW 记录页 + B 树路径 + 新会话)。
+
+### 17.3 关键点 / 正确性
+- **专用 DA 页机制合法**:读取器抵达 DA **只经 `rec[6]`+节点头**,从不校验 DA 页的页头;且 DA 页绝不会被 B 树遍历(叶只指记录数据页、内部只指索引页)⇒ 不会被误判为索引页/记录页。新页完整 PDMS 页型保真留待真机 round-trip(④)。
+- **自包含修正不误伤**:重定位后 `rec[6]≠旧数据页`,故提交核心"`rec[6]/rec[8]==旧数据页才改指新记录页"`的自包含修正对 `rec[6]` 是 no-op(保住跨页 DA 指针),对 `rec[8]`(成员在旧数据页时)仍正确改指新记录页。
+
+### 17.4 验证(demo 6a/6b 全 PASS,sam7200 副本)
+- **6a 跨页重定位**(`/WB1`→`/WB1-XPAGE-COW`):DA 载荷 38→41 字、**DA 页 3384 ≠ 记录页 3385(cross-page=True)**、单节点;新会话读回新名 + POS 不变、旧会话旧名、diff 仅 page0、sessions+1。
+- **6b 强制多节点链**(`force_chunk=4`,`/WB1`→`/WB1-CHAINED-DA`):41 字载荷拆成 **11 节点跨 11 页链**,沿 `w3` 走链实测长度=11;**链式读取器仍读回新名**(证写侧分块链 ↔ 读侧链走一致)、POS 不变、旧会话旧名、diff 仅 page0。
+
+### 17.5 落地与遗留
+- 工具:`e3d_write_full.py` 增 `cow_commit_da_text_xpage`/`_da_payload_words`/`_replace_text_in_payload`/`_emit_da_chain`/`_da_node_chain_len` + demo `_demo_da_xpage`/`_demo_da_chained`;**九个自检 demo(S1–S6b)全 PASS**,`py_compile` OK、无 lint、demo 自清。文档:格式规范 **§12.6**(Slice 6)。
+- 剩余遗留(更新见 §18):**成员区(member word8 链)重排** → **§18 已完成**;UDA 容器改写、真 running-E3D round-trip 取证、移植写侧进 Rust。
+
+## 18. 写侧 Slice 7:成员(子 refno)列表改写(type-2 节点链,复用 S6 重定位,已实现 + 真实多版本验证)
+> 成员区与 DA **同构**(type-2 节点链,平行于 DA 的 type-1),故 S6 的 relocation 核心几乎全复用,仅 `list_type=2` + 载荷语义不同。工具:`e3d_write_full.py::cow_members_set` + `read_members`/`_list_payload_words`/`_emit_node_chain`(由 S6 `_emit_da_chain` 泛化而来)。
+
+### 18.1 成员区格式(真实数据探针确证,sam7200 只读)
+- 定位:`rec[8]`=成员页、`off=(rec[9]>>13)&0xFFF`、成员字数 `=rec[10]&0x3FFF`(与 DA `rec[6]/rec[7]/(rec[10]>>14)&0x3FFF` 对称)。
+- 节点:`[w0=(载荷字数+5)|(2<<16)][w1..2=本元素 refno][w3=下一页][w4=(下一偏移)<<13][载荷]`;**载荷 = 扁平 `(r0,r1)` 子 refno 数组**(成员字数 = 2×子元素数)。实测 `WORL(0x3C20,0x0)` hdr=`0x00020015`(type2、plen=16=8 子)、`w1..2=(0x3C20,0)`。
+- 探针统计:10392 主记录 **2864 带成员**(分布:1 子×1308、3 子×398、2 子×374…);**30 个成员区本就在别页**(真实跨页样本);每个子元素 **owner==本元素 refno**(8/8)⇒ 成员载荷确为「子 refno 列表」(与 owner 链冗余,读侧此前只给 `member_count`)。
+
+### 18.2 改写算法(复用 S6,`list_type=2`)
+- 泛化:`_da_payload_words`→`_list_payload_words(...,which)`(1=DA / 2=members);`_emit_da_chain`→`_emit_node_chain(...,list_type,refno,...)`(节点 `w1..2` 现置本元素 refno,DA 端也回填,更忠实;reader 不读 w1..2 故 S6 demo 不受影响)。
+- `cow_members_set(buf, db, record_bo, children)`:把成员列表设为 `children`(`(r0,r1)` 列表)→ 重写为全新 type-2 节点链追加新页 → 改写 `rec[8]/rec[9]` + `rec[10]` **成员位(低 14 位 `(rec10 & ~0x3FFF)|total`,保 DA 位/sel)**→ 复用 `_commit_edited_data_page`(COW 记录页+B 树+新会话)。**统一覆盖重定位/加子/删子**(空列表→页 0/0 字)。新增读侧 `read_members`。
+- 自包含修正同 S6:重定位后 `rec[8]≠旧数据页` ⇒ 提交核心对 `rec[8]` no-op(保住跨页成员指针),`rec[6]`(DA 在旧数据页时)仍正确改指新记录页。
+
+### 18.3 验证(demo 7a/7b 全 PASS,sam7200 副本)
+- **7a 重定位+加子**(WORL 8 子,`force_chunk=2`=1 子/节点):成员字数 16→18、**成员页 3384≠记录页 3393(cross-page=True)**、**9 节点 type-2 链**(走链实测 9);新会话子列表=原 8+`(0xABCD,0x1234)`、旧会话 8 子、diff 仅 page0。
+- **7b 增删 round-trip**(加 marker 再删):跨 3 会话 `8→9(含 marker)→8`、成员字数 `16→18→16` round-trip、diff 仅 page0。
+
+### 18.4 落地与遗留
+- 工具:`e3d_write_full.py` 增 `cow_members_set`/`read_members`/`_list_payload_words`/`_emit_node_chain` + demo `_demo_members_xpage`/`_demo_members_roundtrip`;**十一个自检 demo(S1–S7b)全 PASS**,`py_compile` OK、无 lint、demo 自清、临时 `_member_probe.py` 已删。文档:格式规范 **§12.6**(Slice 7)。
+- **写侧离线 = CRUD + B 树分裂/长高 + 跨页/链式 DA + 成员列表 全打通**。剩余(更新见 §19):**UDA 容器改写** → **§19 已完成**;真 running-E3D round-trip 取证(需用户 E3D)、移植写侧进 Rust。
+
+## 19. 写侧 Slice 8:UDA / DA 区条目值改写(通用 set/add/remove,复用 S6 重定位)
+> UDA 值即 **DA 区普通条目**(hash > `0x171FAD39`=`UDA_THRESHOLD`,`PDMS_Hash::IsUDA`),框架同任何 DA 条目 `[hash][ctrl=type<<26|n][value]`。故"UDA 容器改写"= 在 DA 区按 hash 改/增/删条目,直接复用 S6 的 DA 重定位核心。工具:`e3d_write_full.py::cow_da_set_entry`/`cow_da_remove_entry`/`read_uda` + 抽出的共享 `_relocate_da_payload`。
+
+### 19.1 UDA 值编码(真实数据探针确证,sam7200 只读)
+- 58 主记录带强类型 UDA;ctrl 类型分布 `{6:14, 10:49, 4:48, 2:1}`(另 type-7=§7.10.5 派生表达式 `0xFFF` 族)。
+- 值编码(`[hash][ctrl][value]` 的 value 字):**type 4=ref `(db,seq)` 2 字**(实测 `0x2C00D55A=(15195,2418)`)、**type 10=text** `[len][packed 4字/字]`(`0x2C00D566='D'`)、**type 2=real 2 字 IEEE 双精度低字在前**(`0x2C00D564=[0x66666666,0x40566666]≈89.6`)、type 6=多字结构(`[2,0,double,...]`)。
+- 两族 hash:`0x2C00xxxx`(强类型,可直接编辑值)/ `0xFFFxxxx`(type-7 序列化表达式,§7.10.5;原始字可重写,AST 语义编辑不在范围)。元素 `HANG(0x5C20,0x1D2A)` 同时带 ref+text UDA(理想的"改一个保另一个"验证点)。
+
+### 19.2 改写算法(复用 S6)
+- 重构:抽出 `cow_commit_da_text_xpage` 的重定位尾为共享 `_relocate_da_payload(record_bo,new_payload)`(重写 DA 节点链 + 改 rec[6]/rec[7]/rec[10]-DA 位 + 提交);S6/S8 共用。
+- `read_uda`:链式取 DA 区 hash>阈值的条目(`{hash,type,value 原始字}`)。`_set_entry_in_payload`(改;缺则在有效条目串尾增)/`_remove_entry_in_payload`(删)在扁平载荷操作,**其余条目逐字保留**。`cow_da_set_entry(record_bo,attr_hash,type_code,value_words)` 算 `ctrl=(type<<26)|len` → `_relocate_da_payload`;透明继承 S6 跨页/增长。
+- 通用性:这些函数对**任何 DA 条目**有效(不止 UDA);UDA 只是 motivating use(按 hash>阈值识别)。
+
+### 19.3 验证(demo 8a/8b 全 PASS,sam7200 副本)
+- **8a 改强类型 UDA 值**(HANG type-4 ref `0x2C00D55A` `(15195,2418)→(99,12345)`):新会话该 UDA=新值、**同元素另一 UDA(text `0x2C00D566`)逐字保留**、旧会话原值、`is_uda=True`、diff 仅 page0。
+- **8b UDA 增删 round-trip**(`/WB1` 加合成 UDA `0x2C00FFFF`=type4 `(0xAAAA,0xBBBB)` 再删):跨 3 会话 `0→1→0` UDA、原 UDA 集不变、diff 仅 page0。
+
+### 19.4 落地与遗留
+- 工具:`e3d_write_full.py` 增 `cow_da_set_entry`/`cow_da_remove_entry`/`read_uda`/`read_uda_via_root`/`_set_entry_in_payload`/`_remove_entry_in_payload`/`_relocate_da_payload`(共享)+ demo `_demo_uda_edit`/`_demo_uda_add_remove`;**十三个自检 demo(S1–S8b)全 PASS**,`py_compile` OK、无 lint、demo 自清、临时探针已删。文档:格式规范 **§12.6**(Slice 8)。
+- **写侧离线 = CRUD + B 树分裂/长高 + 跨页/链式 DA + 成员列表 + UDA/DA 条目 全打通**。剩余(更新见 §20):真 running-E3D round-trip 取证(需用户 E3D)、移植写侧进 Rust → **§20 已起步(S1 COW)**;`0xFFF` 族表达式 UDA 的 AST 级语义编辑(原始字重写可,语义编辑不在范围)。
+
+## 20. 写侧 Slice 9:Rust 移植起步——COW 提交核心 + Slice 1 内联值(`src/e3d_decode.rs`)
+> 把 Python 的 COW 全量写侧移植进 pdms_io 的 std-only 模块 `src/e3d_decode.rs`(此前该模块=读 + 安全在位 `set_inline_value`,无 COW)。本轮落地**基础层**:COW 提交核心(`db5_save_work`)+ Slice 1 内联值 COW 提交,多版本验证。
+
+### 20.1 已移植
+- `commit_edited_data_page(&mut Edb, record_off, edited_page)`:共享提交核心——追加改后数据页 → 自包含修正(rec[6]/rec[8] 旧页→新页)→ 自叶到根 COW B 树路径(`find_leaf_path_by_loc` 按 (data_pg,data_off) 精确匹配)→ 追加新会话页(`sesno+1`/`root=新根`/`last_ses`/`end`)→ 重指 page0 `0x28`。返回 `CowReport`。
+- `cow_commit_inline(&mut Edb, ss, record_off, attr_hash, &Val)`:Slice 1——复制数据页 → `set_inline_value` 改值 → 提交核心。
+- 读回辅助:`session_roots`(会话根链,新→旧)、`record_off_via_root`(按指定会话根 + refno 定位主记录)、`Edb::{latest_root,append_page,n_pages}`。
+- `Edb` 持有 `Vec<u8>`,COW = `append_page`(extend buf);除最后重指 page0 `0x28` 外不改任何既有页。
+
+### 20.2 `walk` 早已 word6 界定(遗留⑤的"walk_index 改 word6"在 Rust 端本就完成)
+- `src/e3d_decode.rs::walk` 的条目数 `= (pw−7−word6)/4` 且下降哨兵最左子树(findings §16),测试 `read_counts_and_weld_pos` 断言 **10392 元素**(旧空终止版为 6536)。Python `e3d_db_reader_v2.walk_index` 亦早已 word6 界定。⇒ 该遗留项实为已完成。
+
+### 20.3 验证(edition-2024 临时 `_modcheck` crate `cargo test`,**6 passed**,无 warning,crate 已删)
+- 既有 5 测试(dehash/uda/read_counts_and_weld_pos/inline_write_roundtrip/inline_write_int_and_ref)继续通过。
+- 新增 `cow_inline_commit_multiversion`:对 `/WB1` 连提两次 POS(`v1=(1000.25,-2000.5,3000.75)`、`v2=(11,22,33)`)→ 会话根链 `read_pos`:**新会话=v2 / 前会话=v1 / 原始会话=原值(9630,8072,5282.5)**;`session_roots` 数 +2;**原 db 字节区仅 page0 `0x28..0x2C` 改动**(COW 不动既有页),文件增长(追加新页)。与 Python S1 demo 等价。
+- 全 crate `cargo build` 仍受 rs-core↔surrealdb-3.1 阻塞(项目外),故沿用 edition-2024 临时 crate 验证(`[lib] path=../src/e3d_decode.rs`),rustc 1.98-nightly。
+
+### 20.4 遗留
+- Rust 端 S2–S8 移植(DA 文本/relocation、B 树插入/分裂、成员、UDA)后续推进(Python 端已全部实现 + 验证,可逐一对照移植)。真 running-E3D round-trip 取证仍需用户侧 E3D。
+
+## 21. 写侧 Slice 10:Rust 移植续——DA 重定位核心 + S2/S6 DA 文本 + S8 UDA(`src/e3d_decode.rs`)
+> 续 §20(S1 COW),把 Python 的 **DA 区重定位**全套移植进 Rust。一次覆盖 S2(同页 DA 文本)、S6(跨页/链式/增长 DA 文本)、S8(UDA / DA 条目 set/add/remove)——三者共用同一 relocation 核心。
+
+### 21.1 已移植(对照 `e3d_write_full.py`)
+- 共享核心:`list_payload_words(buf,rec_off,ps,which)`(链式取原始载荷,1=DA/2=members,泛化自 `decode_da_list`)、`emit_node_chain(db,header7,payload,list_type,refno,force_chunk)`(新页节点链:`w0=(payload+5)|type<<16`、`w1..2=refno`、`w3/w4=链接`、节点在 off=7)、`relocate_da_payload`(emit + 改 rec[6]/rec[7]/rec[10]-DA 位 + 复用 §20 `commit_edited_data_page`)。
+- 条目编辑:`find_entry_span`/`entries_end`/`set_entry_in_payload`(改;缺则尾增)/`remove_entry_in_payload`(删)/`pack_text`(`[len][UTF-8 4字/字 MSB-first]`)。
+- 公共 API:`cow_commit_da_text`(S2/S6,text 类型 10/14/15)、`read_uda`(hash>`UDA_THRESHOLD` 条目)、`cow_da_set_entry`/`cow_da_remove_entry`(S8,通用 DA 条目)。`CowReport` 增 `da_page_new`/`da_nodes`。
+
+### 21.2 验证(edition-2024 临时 `_modcheck` crate `cargo test`,**9 passed**,无 warning,crate 已删)
+- §20 的 6 测试续过 + 新增 3:
+  - `cow_da_text_rename_multiversion`:`/WB1`→`/WB1-RS-RENAMED`,新会话=新名、旧会话=`/WB1`、**POS 不变**、**DA 跨页**(新记录 rec[6]≠记录页)、原字节仅 page0 `0x28`。
+  - `cow_da_text_chained`:`force_chunk=4` 强制多节点链,链长 ≥2,链式 reader 读回 `/WB1-CHAIN`(写侧分块链 ↔ 读侧链走一致)。
+  - `cow_uda_add_remove_roundtrip`:`/WB1` 加合成 UDA `0x2C00FFFF`=type4 `(0xAAAA,0xBBBB)` → 读回存在 → 删 → 读回不存在。
+- 全 crate 仍受 rs-core↔surrealdb 阻塞;`da_node_chain_len`(仅测试用)标 `#[cfg(test)]` 避免 lib 构建 dead-code 警告。
+
+### 21.3 遗留
+- Rust 端剩 **S3/S5(B 树插入/分裂/长高)+ S7(成员 type-2 列表)** 移植(Python 已实现验证,B 树需 `_btree_insert`/`cow_insert_leaf`、成员复用 `emit_node_chain(list_type=2)`)。真 running-E3D round-trip 取证需用户侧 E3D。
+
+## 22. 写侧 Slice 11:Rust 移植完成——B 树插入/分裂/长高(S3/S5)+ 成员列表(S7)(`src/e3d_decode.rs`)
+> 续 §21,把 Python 写侧**最后两块**(B+ 树键插入/节点分裂/根长高 + 成员 type-2 列表改写)移植进 Rust。至此 Rust 端与 Python `e3d_write_full.py` 写侧 **S1–S8 全部对齐**。
+
+### 22.1 已移植(对照 `e3d_write_full.py`)
+- **共享会话尾**:抽出 `append_session(db,new_root)→(old_sesno,new_sesno,new_ses_pg)`(`db5_save_work` 尾:克隆最新会话页、`sesno+1`、`root=new_root`、链回、重指 page0 `0x28`),`commit_edited_data_page` 重构为复用它(消除重复)。
+- **S7 成员**(复用 §21 `emit_node_chain(list_type=2)`):`read_members`(链式取 type-2 载荷 → `(r0,r1)` 子 refno 列表)、`cow_members_set(db,record_off,children,force_chunk)`(重写成员链 → 改 `rec[8]/rec[9]` + `rec[10]` 成员低 14 位 → 复用 `commit_edited_data_page`;空列表→页0/0字;统一覆盖重定位/加子/删子)。
+- **S3/S5 B+ 树**:`idx_entries(db,pg)→(entries,level)`(word6 界定 + word2 层级)、`emit_index_page`(克隆模板页头 + 写 level/word6/条目)、`key_le`(哨兵=−∞)、`btree_insert`(递归:叶有序插/拒重复键;内部二分下降→重接 COW 子→吸收子分裂;溢出对半切、分隔键=上半最小键)、`cow_insert_leaf`(根溢出长高新根 + 哨兵 `0x80000001`→旧根)、`rightmost_path`、`rewrite_da_text_in_page`(同页 DA NAME 重写,clone 用)、`clone_element_page`(克隆源页+改 refno/NAME+自包含修正)。公共 API:`cow_insert_element`(S3 最大键无分裂)、`cow_insert_element_split`(S5 任意键+分裂)。`CowReport` 增 `tree_grew`。
+
+### 22.2 关键移植决策
+- **借用**:`idx_entries` 返回 owned `Vec<[u32;4]>`(读完即释放 `&Edb` 借用),故 `btree_insert` 可递归持 `&mut Edb` + 调 `emit_index_page`/`append_page` 而不冲突(Rust 端比 Python 更需注意:无独立 `buf`,COW 追加直接 extend `db.buf`,新页对后续读立即可见)。
+- **内部分隔键 v=1**:内部条目/哨兵/分隔键 `v=(off<<12)|flag` 取 `v=1`(对齐 Python)⇒ `off=v>>13... 实为 v>>12=0` ⇒ 既有 reader(`walk`/`rightmost_path` 按 `off==0` 判内部)与新写侧(按 `word2` level 判内部)**两套判据一致**;叶条目 `v=(off<<12)|1`(off≠0)。
+- **`nav_ok` 才是正确性判据**(非"分隔键==子树最小"):移植校验器 `btree_check`(`BChk` 递归 + `btree_descend`),`balanced`/`sorted`/`nav_ok`/无重复;与 §16 一致(PDMS 删除不收紧分隔键)。
+
+### 22.3 验证(edition-2024 临时 `_modcheck` crate `cargo test --release`,**14 passed**,无 warning,crate 已删)
+- §21 的 9 测试续过 + 新增 5:
+  - `btree_synthetic_split_grow`(**无需数据**,cap=3、60 键 37-coprime 乱序):递归分裂 + 根长高 ≥1、`height≥2`、`count=60`/无重复/`balanced`/`sorted`/`nav_ok`/keyset 全齐——覆盖真实库单节点 ~126 条难触及的递归+根分裂。
+  - `cow_insert_split_real`(sam7200,溢出最右叶):**真实叶分裂** `leaf_pages` 增、新会话 `count=orig+N`、原键全留+新键全在、`balanced/nav_ok/sorted/无重复`、前会话不变、字节 diff 仅 page0 `0x28`。
+  - `cow_insert_mid_real`(sam7200,中间空位键 `<max`):新会话解出新元素(noun/owner 同源 + `/MID-INSERT-RS`)、旧会话无、`count+1`、`balanced/nav_ok/sorted`、diff 仅 page0。
+  - `cow_members_add_remove_roundtrip`(sam7200,加子再删):跨 3 会话 `原始→+marker→原始`、成员字数 round-trip、diff 仅 page0。
+  - `cow_members_xpage_chain`(`force_chunk=2`):成员重定位**跨页**(`rec[8]`≠记录页)+ **≥2 节点 type-2 链**、新会话列出原子+marker、前会话不变。
+- 测试辅助 `da_node_chain_len`→`node_chain_len(...,which)`(泛化 DA/成员链长);`btree_descend`/`btree_check`/`BChk`/`BtreeReport`/`find_member_element` 均 `#[cfg(test)]`。
+
+### 22.4 状态:Rust 写侧 = Python S1/S2/S3/S5/S6/S7/S8(**S4 当时遗漏,后补**)
+> ⚠ 更正(2026-06-07,后续生产化计划):本节原写"S1–S8 全对齐"**措辞不准** —— 当时 Rust 端实有 S1/S2/S3/S5/S6/S7/S8,**独缺 S4(delete)**。S4(`cow_delete_element`)已在后续 `2026-06-07-e3d-offline-rw-productionization` 计划中补齐(连同代码迁入 `crates/e3d_io` + CLI),Rust CRUD 至此真正完整。
+- Rust 写侧(`src/e3d_decode.rs`):读 + 安全在位写 + **S1 内联值 COW / S2·S6 DA 文本重定位 / S7 成员列表 / S8 UDA·DA 条目 / S3·S5 元素新增(最大键 + 任意键分裂/长高)**;`walk` word6 界定。**14 模块测试通过**(edition-2024)。(注:本列表本就未含 S4,见上更正。)
+- 整 crate `cargo build` 仍受 **rs-core↔surrealdb-3.1** 阻塞(项目外兄弟 crate API 漂移,§续31),与本模块无关;故沿用 edition-2024 临时 crate 验证。
+- **剩余遗留(均非阻塞)**:④ 真 running-E3D round-trip 取证(需用户侧 E3D);`0xFFF` 表达式 UDA 的 AST 级语义编辑(原始字重写可,语义编辑不在范围)。节点**合并**(删后下溢)刻意不做(对齐 PDMS 容忍欠满)。**写侧 Python↔Rust 移植里程碑完成。**
+
+### 22.5 模块读侧补齐:跨库引用解析 `resolve_refs`(与标准工具/Python 对齐)
+- 收口 `src/e3d_decode.rs` 读侧最后一处与独立 crate `tools/e3d_decode_rs` / Python `e3d_export.py --cat` 的差距:模块此前 `index_db` 已建 refmap(refno→(noun,name)),但缺把元素**引用属性**(隐式 type 4/8/16 = `(dbno,refseq)`)解析为目标名的 `resolve_refs`。
+- 移植自独立 crate `resolve_refs`(逐字一致):遍历元素隐式 type 4/8/16 → 对每个 `(dbno,seq)` 查 refmap → 命中返回目标名、未命中回退 PDMS `=dbno/refseq`。跨库用法:对设计库 `index_db(collect=true)` + 各 catalogue 库 `index_db(collect=false)` 灌同一 refmap,再 `resolve_refs`(§8.12/§8.13)。
+- 验证:新增测试 `resolve_refs_in_db`(sam7200,仅本库)断言 **≥100 条引用解析到 `/`-名**(本库 CREF/HREF/TREF 连通,对应 Python 实测 776);**15 模块测试通过**(edition-2024,无 warning)。文档示例标 `ignore`(doctest 不实跑)。
+- ⇒ `src/e3d_decode.rs` 现为**完整离线 读(全属性/NAME/引用解析)+ 写(S1–S8 CRUD+B 树+DA/成员/UDA)** 模块,与独立 crate / Python 工具链读写均对齐(待 rs-core↔surrealdb 就绪并入 pdms_io)。

@@ -1,5 +1,10 @@
 # E3D 数据库文件分析总结
 
+> ⚠️ **本文为早期分析快照（部分结论如"页大小 512"已被后续更正为 2048）。最新权威入口:**
+> - 📑 总索引: [`E3D_DB_索引.md`](./E3D_DB_索引.md)
+> - 📐 spec-kit 规范: [`../../specs/001-e3d-data-format/spec.md`](../../specs/001-e3d-data-format/spec.md)（US1–US5 / FR / SC + `data-model.md` + 契约 + 任务）
+> - 🧰 离线读写库: [`../../crates/e3d_io`](../../crates/e3d_io)（std-only;读 + COW 写 + 安全事务层 `verify_commit`/`batch`/`dry_run`/护栏;`cargo test` 24 绿）
+
 ## 项目概述
 
 本项目成功分析了 AVEVA E3D/PDMS 数据库文件的物理架构，并创建了相应的读取工具。

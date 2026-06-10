@@ -74,15 +74,23 @@ class E3DDb:
         b = self.blob
         self.version = self.u32(0x04)
         self.db_num = self.u32(0x08)
-        self.creation_time = self.u32(0x20)
+        # 0x20 = schema/template type id(选定 *vir.dat),非创建时间;0x24 = schema 版本(见 §2 更正)
+        self.schema_type_id = self.u32(0x20)
+        self.schema_version = self.u32(0x24)
         self.latest_ses_pgno = self.u32(0x28)
         self.ext_no = self.u32(0x2C)
-        self.session_page_no = self.u32(0x30)
+        self.extent_counter = self.u32(0x30)        # 0x30 = extract/extent 计数,非会话页号(见 §2)
         self.page_size = self.u32(0x34) * 4         # <-- 关键修正: *4
         if self.page_size not in (512, 2048, 4096):
             self.page_size = 2048
-        self.stored_page_count = self.u32(0x38)
+        # 0x38/0x3C = db 根引用 refno (dbno, refseq);非存储页计数/恒2(见 §2 / §2.1)
+        self.dbno = self.u32(0x38)
+        self.dbno_refseq = self.u32(0x3C)
         self.n_pages = len(b) // self.page_size
+        # 向后兼容别名(旧误称字段名,保留以免破坏调用方)
+        self.creation_time = self.schema_type_id
+        self.session_page_no = self.extent_counter
+        self.stored_page_count = self.dbno
 
     def page_off(self, pgno: int) -> int:
         return pgno * self.page_size
@@ -135,35 +143,44 @@ class E3DDb:
 
     # ---- B-树索引枚举: refno -> (pgno, offset_words) ----
     def walk_index(self, root_pgno: int, max_entries=4_000_000) -> list:  # generous: large dbs (ams1112) exceed 300k leaves
+        """枚举 B+ 树叶子条目 (refno -> 数据位置)。
+
+        权威遍历 (对齐 db3_split_node/db3_change_table_entry 反编译):
+          1. 条目数由页头 **word6**(空闲字数)界定 = (page_words-7-word6)/4;
+             **不是空终止**(空终止会越读 word6 之后的脏槽)。
+          2. 内部节点最左子页的分隔键是哨兵 0x80000001(= −∞),其子树是
+             **最小键子树**(WORLD/SITE/ZONE… 低 refno 元素),必须**下降**。
+        旧版"空终止 + 跳过哨兵"会**漏掉最左脊**(sam7200 约 38% 叶条目:
+        6536→10392 主元素)且越读脏槽,二者部分相互掩盖。详见 findings §16。
+        """
         result = []
         visited = set()
+        pw = self.page_size // 4
 
         def is_index_page(pg):
             return 0 < pg < self.n_pages and self.u32(self.page_off(pg) + 4) == INDEX_NOUN
 
         def recurse(pg, depth=0):
-            if pg in visited or depth > 32 or len(result) >= max_entries:
+            if pg in visited or depth > 40 or len(result) >= max_entries:
                 return
             visited.add(pg)
             if not is_index_page(pg):
                 return
             base = self.page_off(pg)
-            # 条目从 +0x1C 起, 每条 16 字节 [r0,r1,pgno, off20|flag12]
-            w = 0x1C
-            while w + 16 <= self.page_size and len(result) < max_entries:
-                r0 = self.u32(base + w)
-                r1 = self.u32(base + w + 4)
-                cpg = self.u32(base + w + 8)
-                v = self.u32(base + w + 12)
-                w += 16
-                if r0 == 0:
+            # 条目自 word7(+0x1C)起, 每条 4 字 [r0,r1,pgno, off20|flag12];
+            # word6 = 空闲字数 -> 有效条目数 = (pw-7-word6)/4
+            nent = (pw - 7 - self.u32(base + 24)) // 4
+            for k in range(nent):
+                if len(result) >= max_entries:
                     break
-                if r0 == 0x80000001 and r1 == 0x80000001:
-                    continue  # 起始页哨兵
-                off = v >> 12
+                wo = base + (7 + 4 * k) * 4
+                r0 = self.u32(wo)
+                r1 = self.u32(wo + 4)
+                cpg = self.u32(wo + 8)
+                off = self.u32(wo + 12) >> 12
                 if off == 0 and is_index_page(cpg):
-                    recurse(cpg, depth + 1)   # 内部节点 -> 子索引页
-                else:
+                    recurse(cpg, depth + 1)   # 内部节点 -> 子索引页(含哨兵最左子页)
+                elif (r0, r1) != (0x80000001, 0x80000001):
                     result.append((r0, r1, cpg, off))  # 叶子 -> 元素位置
 
         recurse(root_pgno)
@@ -225,7 +242,8 @@ def main():
     print(f"== 文件头 ==")
     print(f"  version={db.version} db_num={db.db_num} ext_no={db.ext_no}")
     print(f"  page_size={db.page_size} (header[0x34]*4)  n_pages={db.n_pages}")
-    print(f"  latest_ses_pgno={db.latest_ses_pgno} stored_page_count={db.stored_page_count}")
+    print(f"  latest_ses_pgno={db.latest_ses_pgno}")
+    print(f"  dbno(0x38)=0x{db.dbno:X} refseq(0x3C)={db.dbno_refseq}  schema_type_id(0x20)=0x{db.schema_type_id:X}  extent_counter(0x30)={db.extent_counter}")
 
     print(f"\n== 页类型直方图 ==")
     hist = {}
@@ -293,7 +311,10 @@ def main():
             print(f"\n[--attrs] schema 目录不存在: {exe_dir}(用 --exe <dir> 指定)")
         else:
             ss = SchemaSet(exe_dir)
-            print(f"\n== 命名属性解码 (schema={len(ss.schemas)} 库/{len(ss.noun2schema)} 类型; 每种 noun 取一个元素, 上限 {max_el}) ==")
+            primary = ss.schema_for_db(db.blob)
+            print(f"\n== 命名属性解码 (schema={len(ss.schemas)} 库/{len(ss.noun2schema)} 类型; "
+                  f"本库主 schema(由 header 0x20=0x{db.schema_type_id:X} 自动选定)={primary.name if primary else '?'}; "
+                  f"每种 noun 取一个元素, 上限 {max_el}) ==")
             seen = set()
             for r0, r1, pgno, off in leaf:
                 if len(seen) >= max_el:
@@ -329,7 +350,9 @@ def main():
             "header": {
                 "version": db.version, "db_num": db.db_num, "ext_no": db.ext_no,
                 "page_size": db.page_size, "n_pages": db.n_pages,
-                "latest_ses_pgno": db.latest_ses_pgno, "stored_page_count": db.stored_page_count,
+                "latest_ses_pgno": db.latest_ses_pgno,
+                "dbno": db.dbno, "dbno_refseq": db.dbno_refseq,
+                "schema_type_id": db.schema_type_id, "extent_counter": db.extent_counter,
             },
             "sessions": [
                 {"pgno": s["pgno"], "sesno": s["sesno"], "date": s["date"],
