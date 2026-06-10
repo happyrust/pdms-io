@@ -40,6 +40,8 @@
 - 禁止：公共签名变更、公共类型字段删改（`EleData`/`PdmsHeader`/`SessionPageData`/`IndexPageData`/`RefnoDataLoc` 等被调用方直接消费的类型）。
 - `EleData` 若改为 `e3d_io` 类型适配产生（FR-003），MUST 保持字段级兼容。
 
+**冻结落地（T201,2026-06-10）**：`tests/api_freeze_c1.rs` 把本清单全部签名以"调用 + 显式类型绑定"锁死——任一冻结签名变更（参数/返回/接收者可变性/async 性）即编译失败;泛型项以具体类型实例化锁定（`read_bytes<u64>/<i64>`、`build_noun_attr_map<&Path>`）,生命周期项独立函数锁定（`fast_lookup_*`）。**盘点备注**：`io.rs` 实际 pub 面更大（~80 fn,另含 `fast_get_*` 异步族、`parse_element`/`parse_incr_element`、`collect_latest_eles`、`sync_history`、`store_all_refno_sesno_map` 及模块级 demo/benchmark）;本清单为换芯委托核心,其余 pub 项同受"禁止签名变更"约束,由 workspace 既有测试(C3.1 oracle)与编译保障。
+
 ## C2. `PageSource` trait 契约（`crates/e3d_io`）
 
 ```rust

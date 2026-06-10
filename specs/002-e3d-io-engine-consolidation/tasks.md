@@ -20,7 +20,7 @@
 
 ## Phase 2 — `PdmsIO` 换芯（API 冻结）
 
-- [ ] T201 [P1] 按契约 C1 冻结公共 API 清单（编译期核查：保留签名的门面骨架先行）
+- [x] T201 [P1] 按契约 C1 冻结公共 API 清单（编译期核查：保留签名的门面骨架先行）— `tests/api_freeze_c1.rs`:C1 全清单签名"调用+显式类型绑定"编译期锁(泛型具体化/生命周期独立锁/async 性经 Future 断言),`cargo test --test api_freeze_c1` 链接+运行通过;契约 C1 回填冻结落地与全 pub 面盘点备注(~80 fn,清单外项由 workspace 测试+编译保障)
 - [ ] T202 [P1] 头部/页大小探测委托：`read_pdms_header`/`detect_page_size_by_probe` → `e3d_io`（删除 `io.rs` 内私有重复实现）
 - [ ] T203 [P1] 会话链委托：`init_ses_maps`/`read_ses_data`/`get_sesno*` 族 → `e3d_io` 会话解析（契约 C3.3 语义等价）
 - [ ] T204 [P1] B 树/查找委托：`read_index_data`/`search_in_leaf_node`/`build_index_map*`/`search_latest_refno` 族 → `e3d_io` B 树（经 `PagedFile` 页源）
