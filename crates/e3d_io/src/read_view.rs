@@ -15,10 +15,21 @@
 use std::collections::HashSet;
 
 use crate::page_source::{InMemory, PagedFile, PageSource};
-use crate::{E3dError, HDR_LATEST, INDEX_NOUN, SES_LAST, SES_ROOT, looks_like_noun};
+use crate::{E3dError, HDR_LATEST, INDEX_NOUN, SES_LAST, SES_ROOT, SES_SESNO, SES_END, looks_like_noun};
 
 /// B 树叶项：`(refno0, refno1, data_pgno, word_off)`（与 lib.rs `walk` 输出同构）。
 pub type LeafEntry = (u32, u32, usize, u32);
+
+/// 会话页元数据（字段偏移与 `pdms_io` 的 `SessionPageData` 同源：
+/// last@0x04 / sesno@0x0C / end@0x14 / root@0x1C；spec 002 T203）。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SesInfo {
+    pub pgno: u32,
+    pub sesno: u32,
+    pub last_ses_pgno: u32,
+    pub end_pgno: u32,
+    pub root_pgno: u32,
+}
 
 /// 只读格式视图：泛型于页源。
 pub struct Rdb<S: PageSource> {
@@ -123,6 +134,27 @@ impl<S: PageSource> Rdb<S> {
         while pg != 0 && pg < self.n_pages && seen.insert(pg) && out.len() < 256 {
             out.push(self.u(pg * self.ps + SES_ROOT)? as usize);
             pg = self.u(pg * self.ps + SES_LAST)? as usize;
+        }
+        Ok(out)
+    }
+
+    /// 完整会话链（newest-first;spec 002 T203 单源,供 `PdmsIO::init_ses_maps` 委托）。
+    /// 终止条件与 v1 等价：`pg==0` 停;负 `last_ses_pageno`（按 u32 读为巨值）由
+    /// `pg < n_pages` 界止;环由 `seen` 防;无 256 上限（v1 同样无界,逐页唯一访问有自然上界）。
+    pub fn session_chain(&mut self) -> Result<Vec<SesInfo>, E3dError> {
+        let (mut out, mut seen) = (Vec::new(), HashSet::new());
+        let mut pg = self.u(HDR_LATEST)? as usize;
+        while pg != 0 && pg < self.n_pages && seen.insert(pg) {
+            let base = pg * self.ps;
+            let last = self.u(base + SES_LAST)?;
+            out.push(SesInfo {
+                pgno: pg as u32,
+                sesno: self.u(base + SES_SESNO)?,
+                last_ses_pgno: last,
+                end_pgno: self.u(base + SES_END)?,
+                root_pgno: self.u(base + SES_ROOT)?,
+            });
+            pg = last as usize;
         }
         Ok(out)
     }
@@ -280,6 +312,27 @@ mod tests {
             }
         }
         assert!(checked >= 400, "expected to byte-check hundreds of records, got {checked}");
+    }
+
+    /// T203：会话链双源等值 + 与 session_roots 互证 + 链自洽（newest-first、
+    /// sesno 严格递减、last 指针指向下一项）。
+    #[test]
+    fn rdb_session_chain_consistent() {
+        if !sam_present() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let mut mem = Rdb::open_in_memory(SAM).unwrap();
+        let mut pf = Rdb::open(SAM).unwrap();
+        let (ca, cb) = (mem.session_chain().unwrap(), pf.session_chain().unwrap());
+        assert_eq!(ca, cb, "session chain must match across page sources");
+        assert!(!ca.is_empty());
+        let roots: Vec<usize> = ca.iter().map(|s| s.root_pgno as usize).collect();
+        assert_eq!(roots, mem.session_roots().unwrap(), "roots projection must agree");
+        for w in ca.windows(2) {
+            assert!(w[0].sesno > w[1].sesno, "newest-first sesno order");
+            assert_eq!(w[0].last_ses_pgno, w[1].pgno, "chain pointer integrity");
+        }
     }
 
     /// SC-006（导航口径）：点状导航（会话链 + 根定位）只触达少量页。

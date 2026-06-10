@@ -271,25 +271,31 @@ impl PdmsIO {
     }
 
     /// 初始化 sesno_pgno_map / ses_range_map。
+    ///
+    /// specs/002 T203：会话链回溯已收敛至 `e3d_io::read_view::Rdb::session_chain`
+    /// （newest-first 单源；终止/环防语义与原实现等价——`pg==0` 停、负/越界
+    /// `last_ses_pgno` 由页数界止、`seen` 防环）。本函数保留 v1 的编排职责：
+    /// oldest→newest 重放 + 范围推导 `start=prev_end+1` / `end=end_pgno.max(start)`
+    /// （契约 C3.3，增量归属语义零漂移）。
     fn init_ses_maps(&mut self) -> anyhow::Result<()> {
         self.sesno_pgno_map.clear();
         self.ses_range_map.clear();
 
-        let header = self.read_pdms_header()?;
-        let mut cur = header.latest_ses_pgno;
-        let mut seen = HashSet::new();
-        let mut sessions: Vec<(i32, u32, u32)> = Vec::new(); // (sesno, ses_pgno, end_pgno)
+        let src = e3d_io::page_source::PagedFile::open_with_page_size(
+            &self.file_path,
+            self.page_size,
+            64,
+        )
+        .context("open paged source for session chain")?;
+        let n_pages = src.n_pages().context("paged source page count")?;
+        let mut rv = e3d_io::read_view::Rdb::new(src, n_pages);
+        let chain = rv.session_chain().context("walk session chain via e3d_io")?;
 
-        while cur != 0 && seen.insert(cur) {
-            let ses = self.read_ses_data(cur)?.clone();
-            sessions.push((ses.sesno, cur, ses.end_pgno));
-
-            if ses.last_ses_pageno <= 0 {
-                break;
-            }
-            cur = ses.last_ses_pageno as u32;
-        }
-
+        // (sesno, ses_pgno, end_pgno), oldest -> newest（v1 同构数据）
+        let mut sessions: Vec<(i32, u32, u32)> = chain
+            .iter()
+            .map(|s| (s.sesno as i32, s.pgno, s.end_pgno))
+            .collect();
         sessions.reverse(); // oldest -> newest
 
         let mut prev_end: u32 = 0;
