@@ -80,6 +80,11 @@ impl InMemory {
     pub fn bytes(&self) -> &[u8] {
         &self.buf
     }
+
+    /// 取回整文件字节（`Edb` 等 flat-buffer 消费者的下沉接线用，spec 002 T102）。
+    pub fn into_bytes(self) -> Vec<u8> {
+        self.buf
+    }
 }
 
 impl PageSource for InMemory {

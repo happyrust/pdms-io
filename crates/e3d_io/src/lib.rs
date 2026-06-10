@@ -19,6 +19,7 @@ use std::fs;
 
 /// 页源抽象（spec 002 Phase 1）：`PageSource` trait + `InMemory`/`PagedFile` 双实现。
 pub mod page_source;
+use page_source::PageSource as _;
 
 const SCHEMA_PAGE: usize = 2048;
 const DATA_WORDS: usize = 511;
@@ -386,12 +387,14 @@ impl Edb {
     pub fn open(path: &str) -> std::io::Result<Edb> {
         Ok(Edb::from_bytes(fs::read(path)?))
     }
+    /// 整文件 buffer 路径已下沉至 [`page_source::InMemory`]（spec 002 T102）：
+    /// 页大小推断单源于 `page_source::page_size_from_header`，`Edb` 仅消费其
+    /// 字节作为 COW 写所需的 flat buffer（行为零变化；短于头部的退化输入由
+    /// 兜底 2048 取代旧实现的越界 panic）。
     pub fn from_bytes(buf: Vec<u8>) -> Edb {
-        let mut ps = (be_u32(&buf, 0x34) as usize) * 4;
-        if ![512usize, 2048, 4096].contains(&ps) {
-            ps = 2048;
-        }
-        Edb { buf, ps }
+        let src = page_source::InMemory::from_bytes(buf);
+        let ps = src.page_size();
+        Edb { buf: src.into_bytes(), ps }
     }
     pub fn page_size(&self) -> usize {
         self.ps
