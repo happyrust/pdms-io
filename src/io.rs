@@ -232,41 +232,18 @@ impl PdmsIO {
     /// 通过“探测页面类型”来识别真实 page_size。
     ///
     /// 背景：部分 PDMS/E3D 文件头的 `header.page_size` 字段并不可靠（例如 `ams1112_0001` 为 512，
-    /// 但真实页面仍是 2048）。因此这里优先用 `session_page_no`/`latest_ses_pgno` 做一次最小读取验证：
-    /// - 对候选 page_size 计算 `pgno * page_size` 的偏移
-    /// - 读取该页的 `page_type`（大端 i32）
-    /// - 若为 Session(=3)，则认为命中
+    /// 但真实页面仍是 2048）。
+    ///
+    /// specs/002 T202：探测核心已收敛至 `e3d_io::page_source::probe_page_size`
+    /// （候选顺序 2K→4K→512 外层 × 探测点 `session_page_no`→`latest_ses_pgno` 内层,
+    /// 命中条件 `page_type == Session(3)`,语义与原私有实现逐项一致;契约 C3.2）。
+    /// 全部未命中按 v1 语义兜底 2K。
     fn detect_page_size_by_probe(&mut self, header: &PdmsHeader) -> anyhow::Result<usize> {
-        let candidates = [PAGE_SIZE_2K, PAGE_SIZE_4K, PAGE_SIZE_512];
+        let probes = [header.session_page_no, header.latest_ses_pgno];
         let file = self.get_file()?;
-        let file_len = file
-            .metadata()
-            .context("failed to read file metadata")?
-            .len();
-
-        // 优先探测 session_page_no（通常很小，偏移也小，最稳妥）。
-        let probe_pgnos = [header.session_page_no, header.latest_ses_pgno]
-            .into_iter()
-            .filter(|&pgno| pgno > 0);
-
-        for page_size in candidates {
-            for pgno in probe_pgnos.clone() {
-                let off = pgno as u64 * page_size as u64;
-                if off + 4 > file_len {
-                    continue;
-                }
-                file.seek(SeekFrom::Start(off))?;
-                let mut buf = [0u8; 4];
-                file.read_exact(&mut buf)?;
-                let page_type = i32::from_be_bytes(buf);
-                if page_type == PageType::Session as i32 {
-                    return Ok(page_size);
-                }
-            }
-        }
-
-        // 最终兜底：大多数 E3D/PDMS 均为 2K。
-        Ok(PAGE_SIZE_2K)
+        let detected = e3d_io::page_source::probe_page_size(file, &probes)
+            .context("probe page size via e3d_io")?;
+        Ok(detected.unwrap_or(PAGE_SIZE_2K))
     }
 
     /// 获取数据库文件句柄（惰性打开）。

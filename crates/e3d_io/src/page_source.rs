@@ -22,6 +22,9 @@ use crate::E3dError;
 const HDR_PAGE_WORDS: usize = 0x34;
 /// 头部 word：latest session pgno（与 lib.rs `HDR_LATEST` 同值；探测用）。
 const HDR_LATEST_SES: usize = 0x28;
+/// 头部 word 0x30：历史名 `session_page_no`，实为 extract/extent 分配计数（001 字段校正）。
+/// v1 `PdmsIO` 的探测顺序把它列为第一探测点（小页号、最稳妥），C3.2 保留该语义。
+const HDR_EXT_COUNT: usize = 0x30;
 /// 合法页大小集合。
 const VALID_PAGE_SIZES: [usize; 3] = [512, 2048, 4096];
 /// 页大小探测候选顺序（contracts C3.2：2K → 4K → 512，兜底 2K）。
@@ -39,6 +42,37 @@ pub trait PageSource {
     fn page_size(&self) -> usize;
     /// 取第 `pgno` 页的完整字节（长度 == `page_size()`）。`ext_no` 现阶段恒 0。
     fn page(&mut self, ext_no: u32, pgno: u32) -> Result<&[u8], E3dError>;
+}
+
+/// C3.2 页大小探测核心（spec 002 T202 单源；取代 v1 `io.rs::detect_page_size_by_probe`
+/// 与 engine_v2 `db5/open.rs` 的逐行重复实现）：
+/// 候选页大小 {2048, 4096, 512}（**按此顺序,外层**）× `probe_pgnos`（按给定顺序,内层,
+/// 0 跳过,越界跳过），探测 `pgno * ps` 处页型为 Session(3) 即命中。
+/// 全部未命中返回 `Ok(None)` —— 兜底策略由调用方决定（`PdmsIO` 兜 2048；
+/// [`PagedFile`] 先回退头部声明值再兜 2048）。
+pub fn probe_page_size(
+    file: &mut File,
+    probe_pgnos: &[u32],
+) -> Result<Option<usize>, E3dError> {
+    let file_len = file.metadata()?.len();
+    for ps in PROBE_ORDER {
+        for &pgno in probe_pgnos {
+            if pgno == 0 {
+                continue;
+            }
+            let off = pgno as u64 * ps as u64;
+            if off + 4 > file_len {
+                continue;
+            }
+            file.seek(SeekFrom::Start(off))?;
+            let mut buf = [0u8; 4];
+            file.read_exact(&mut buf)?;
+            if i32::from_be_bytes(buf) == PAGE_TYPE_SESSION {
+                return Ok(Some(ps));
+            }
+        }
+    }
+    Ok(None)
 }
 
 /// 从 64B 头部字节推断页大小：`word(0x34)*4`，非法值兜底 2048（与 `Edb::from_bytes` 一致）。
@@ -205,29 +239,16 @@ impl PagedFile {
     }
 
     fn detect_page_size(file: &mut File) -> Result<usize, E3dError> {
-        let file_len = file.metadata()?.len();
         let mut header = [0u8; 64];
         file.seek(SeekFrom::Start(0))?;
         let n = file.read(&mut header)?;
         if n < 64 {
             return Ok(2048);
         }
-        let probe_pgno = be_u32_at(&header, HDR_LATEST_SES);
-        if probe_pgno > 0 {
-            for ps in PROBE_ORDER {
-                let off = probe_pgno as u64 * ps as u64;
-                if off + 4 > file_len {
-                    continue;
-                }
-                file.seek(SeekFrom::Start(off))?;
-                let mut buf = [0u8; 4];
-                if file.read_exact(&mut buf).is_err() {
-                    continue;
-                }
-                if i32::from_be_bytes(buf) == PAGE_TYPE_SESSION {
-                    return Ok(ps);
-                }
-            }
+        // C3.2 双探测点（与 v1 `PdmsIO` 同序）：0x30（历史名 session_page_no）优先,0x28 兜后。
+        let probes = [be_u32_at(&header, HDR_EXT_COUNT), be_u32_at(&header, HDR_LATEST_SES)];
+        if let Some(ps) = probe_page_size(file, &probes)? {
+            return Ok(ps);
         }
         Ok(page_size_from_header(&header))
     }

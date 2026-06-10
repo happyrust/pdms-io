@@ -21,7 +21,7 @@
 ## Phase 2 — `PdmsIO` 换芯（API 冻结）
 
 - [x] T201 [P1] 按契约 C1 冻结公共 API 清单（编译期核查：保留签名的门面骨架先行）— `tests/api_freeze_c1.rs`:C1 全清单签名"调用+显式类型绑定"编译期锁(泛型具体化/生命周期独立锁/async 性经 Future 断言),`cargo test --test api_freeze_c1` 链接+运行通过;契约 C1 回填冻结落地与全 pub 面盘点备注(~80 fn,清单外项由 workspace 测试+编译保障)
-- [ ] T202 [P1] 头部/页大小探测委托：`read_pdms_header`/`detect_page_size_by_probe` → `e3d_io`（删除 `io.rs` 内私有重复实现）
+- [x] T202 [P1] 头部/页大小探测委托：`read_pdms_header`/`detect_page_size_by_probe` → `e3d_io`（删除 `io.rs` 内私有重复实现）— 探测核心收敛为 `e3d_io::page_source::probe_page_size` 单源（候选 2K→4K→512 外层 × 探测点 0x30→0x28 内层,page_type==Session(3),与原 v1 实现逐项同语义;`PagedFile` 同步改用同一单源+双探测点）;`io.rs` 私有探测循环已删,兜底 2K 语义保留。**注**:`read_pdms_header` 保留 deku 类型化解析(它是门面冻结 API 的 `PdmsHeader` 类型视图,非逻辑重复;页大小权威=探测,已单源)。验证:e3d_io 36+1 全绿 + pdms_io check 过 + `test_open_smoke`(ams1112 说谎头,探测 2K)实跑通过
 - [ ] T203 [P1] 会话链委托：`init_ses_maps`/`read_ses_data`/`get_sesno*` 族 → `e3d_io` 会话解析（契约 C3.3 语义等价）
 - [ ] T204 [P1] B 树/查找委托：`read_index_data`/`search_in_leaf_node`/`build_index_map*`/`search_latest_refno` 族 → `e3d_io` B 树（经 `PagedFile` 页源）
 - [ ] T205 [P1] 元素读取委托：`parse_raw_element`/`auto_get_raw_element`/`read_element_record_cached` → `e3d_io` 记录解码；`EleData` 适配策略落地（FR-003：评估 `parse_pdms_db` 保留为类型适配层 or 并入）
