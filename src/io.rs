@@ -1,5 +1,4 @@
 use crate::defines::*;
-use crate::element_record_reader::ElementRecordReader;
 use crate::page_manager::PageManager;
 use crate::paged_reader::PagedReader;
 #[cfg(feature = "surrealdb")]
@@ -255,7 +254,7 @@ impl PdmsIO {
     /// specs/002 T204：持久只读视图（经 `e3d_io::PagedFile` 页源,LRU 1024 页与
     /// v1 `PageManager` 同容量）。文件增长（增量场景）按"完整页数失配"自动重建,
     /// 与 v1"每次按需读最新文件"语义对齐;页大小以已探测的 `self.page_size` 为准。
-    fn rdb(&mut self) -> anyhow::Result<&mut e3d_io::read_view::Rdb<e3d_io::page_source::PagedFile>> {
+    pub(crate) fn rdb(&mut self) -> anyhow::Result<&mut e3d_io::read_view::Rdb<e3d_io::page_source::PagedFile>> {
         let cur_pages =
             (std::fs::metadata(&self.file_path)?.len() / self.page_size as u64) as usize;
         let stale = match &self.rdb {
@@ -409,10 +408,12 @@ impl PdmsIO {
             self.open()?;
         }
 
-        let ext_no = self.local_file_ext_no();
-        let page_size = self.page_size;
-        let file = self.file.as_mut().unwrap();
-        ElementRecordReader::read(file, &mut self.page_cache, ext_no, page_size, start_offset)
+        // specs/002 T205：变长记录读取委托 e3d_io（`Rdb::element_record`,
+        // 自适应 16K→64K 窗口与记录定界语义自 v1 `ElementRecordReader` 同式移植,
+        // 经持久 `PagedFile` 页源;parity 见 `test_element_record_parity`）。
+        self.rdb()?
+            .element_record(start_offset)
+            .map_err(|e| anyhow!("read element record via e3d_io: {e}"))
     }
 
     /// 获取缓存命中率

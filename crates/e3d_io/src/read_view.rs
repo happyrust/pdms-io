@@ -287,6 +287,209 @@ impl<S: PageSource> Rdb<S> {
         let impl_words = ((w0 & 0xFFFF) as usize).clamp(11, 256);
         Ok(self.slice(bo, impl_words * 4)?.to_vec())
     }
+
+    /// 变长元素记录读取（specs/002 T205;v1 `ElementRecordReader` 语义同式移植）：
+    /// 自适应窗口 16K→64K,按记录结构定界截断——隐式区(word0 声明长度+padding 顺延)、
+    /// `0x0001` 显式块 / `0x0002` 成员块及其 `0x07` 追加段、`00000000+00000007`
+    /// 双词终止、孤立 `00000007` 终止启发、相邻记录起始启发。
+    /// 注:v1 以真实文件长度为界(可触及尾部不完整页),本视图以完整页数为界——
+    /// 真实 E3D 库 COW 整页追加,二者无差;损坏/截尾文件上的差异已档。
+    pub fn element_record(&mut self, start_offset: u64) -> Result<Vec<u8>, E3dError> {
+        const INITIAL: usize = 16 * 1024;
+        const MAX: usize = 64 * 1024;
+
+        let file_len = (self.n_pages * self.ps) as u64;
+        let initial_available = file_len.saturating_sub(start_offset) as usize;
+        if initial_available == 0 {
+            return Err(E3dError::Write(format!(
+                "element record start_offset beyond EOF (start_offset={start_offset:#X}, file_len={file_len:#X})"
+            )));
+        }
+
+        let mut target = INITIAL.min(initial_available);
+        loop {
+            let data = self.slice(start_offset as usize, target)?;
+            if let Some(end) = record_end(data)? {
+                return Ok(data[..end].to_vec());
+            }
+            if target >= MAX {
+                return Ok(data.to_vec());
+            }
+            let grown = (target * 2).min(MAX);
+            let available = file_len.saturating_sub(start_offset) as usize;
+            let next = grown.min(available);
+            if next == target {
+                let data = self.slice(start_offset as usize, target)?;
+                return Ok(data.to_vec());
+            }
+            target = next;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 元素记录定界（v1 ElementRecordReader::find_record_end 一族的同式移植,纯函数）
+// ---------------------------------------------------------------------------
+
+const PADDING_ZERO: [u8; 4] = [0x00, 0x00, 0x00, 0x00];
+const PADDING_SEVEN: [u8; 4] = [0x00, 0x00, 0x00, 0x07];
+
+fn record_end(data: &[u8]) -> Result<Option<usize>, E3dError> {
+    let prefix = skip_padding_len(data);
+    if prefix + 4 > data.len() {
+        return Ok(None);
+    }
+
+    let impl_len_words = i32::from_be_bytes(data[prefix..prefix + 4].try_into().unwrap());
+    if impl_len_words <= 0 {
+        return Err(E3dError::Write(format!("impl_len 非法: {impl_len_words}")));
+    }
+
+    let declared_impl_len = impl_len_words as usize * 4;
+    if prefix + declared_impl_len > data.len() {
+        return Ok(None);
+    }
+
+    let actual_impl_len = extend_impl_len(declared_impl_len, &data[prefix..]);
+    let mut pos = prefix + actual_impl_len;
+    let mut saw_explicit_block = false;
+
+    while pos + 4 <= data.len() {
+        // 优先识别“明确”的结束标记：00 00 00 00 + 00 00 00 07
+        if pos + 8 <= data.len()
+            && data[pos..pos + 4] == PADDING_ZERO
+            && data[pos + 4..pos + 8] == PADDING_SEVEN
+        {
+            return Ok(Some(pos + 8));
+        }
+
+        // 单独的 0x00000007：可能是 padding，也可能是 0x07 追加段的起始。
+        // 只有在它“看起来不像追加段”时，才当作结束标记。
+        if data[pos..pos + 4] == PADDING_SEVEN {
+            let looks_like_segment = pos + 6 <= data.len()
+                && data[pos + 4] == 0x00
+                && (data[pos + 5] == 0x01 || data[pos + 5] == 0x02);
+            if !looks_like_segment {
+                return Ok(Some(pos + 4));
+            }
+            pos += 4;
+            continue;
+        }
+
+        if data[pos..pos + 4] == PADDING_ZERO {
+            pos += 4;
+            continue;
+        }
+
+        if saw_explicit_block && looks_like_element_record_start(data, pos) {
+            return Ok(Some(pos));
+        }
+
+        let flag = u16::from_be_bytes([data[pos], data[pos + 1]]);
+        let len_words = u16::from_be_bytes([data[pos + 2], data[pos + 3]]) as usize;
+
+        if flag == 0x0001 || flag == 0x0002 {
+            if len_words == 0 {
+                pos += 4;
+                continue;
+            }
+            let block_len = len_words * 4;
+            if pos + block_len > data.len() {
+                return Ok(None);
+            }
+            pos += block_len;
+            if flag == 0x0001 {
+                saw_explicit_block = true;
+            }
+
+            pos = match advance_over_segments(data, pos, flag as u8) {
+                Some(p) => p,
+                None => return Ok(None),
+            };
+            continue;
+        }
+
+        // 有些 E3D 记录在 implicit/member 区和后续显式块之间夹着当前解析器
+        // 尚不认识的 word。不能在第一个未知 word 就截断，否则会丢掉后面的
+        // explicit block（例如 PHEI 可能在十几 KB 之后）。
+        pos += 4;
+    }
+
+    Ok(None)
+}
+
+fn looks_like_element_record_start(data: &[u8], pos: usize) -> bool {
+    if pos + 16 > data.len() {
+        return false;
+    }
+
+    let impl_len_words = i32::from_be_bytes(data[pos..pos + 4].try_into().unwrap());
+    if impl_len_words <= 0 {
+        return false;
+    }
+
+    let Some(impl_len) = (impl_len_words as usize).checked_mul(4) else {
+        return false;
+    };
+    let Some(end) = pos.checked_add(impl_len) else {
+        return false;
+    };
+    if impl_len < 16 || end > data.len() {
+        return false;
+    }
+
+    let refno = &data[pos + 4..pos + 12];
+    if refno.iter().all(|&b| b == 0) {
+        return false;
+    }
+
+    let noun_hash = i32::from_be_bytes(data[pos + 12..pos + 16].try_into().unwrap());
+    noun_hash != 0
+}
+
+fn skip_padding_len(input: &[u8]) -> usize {
+    let mut pos = 0;
+    while pos + 4 <= input.len() {
+        let next = &input[pos..pos + 4];
+        if next == PADDING_ZERO || next == PADDING_SEVEN {
+            pos += 4;
+        } else {
+            break;
+        }
+    }
+    pos
+}
+
+fn extend_impl_len(declared: usize, input: &[u8]) -> usize {
+    let mut actual = declared;
+    while actual + 4 <= input.len() {
+        let next = &input[actual..actual + 4];
+        if next == PADDING_ZERO || next == PADDING_SEVEN {
+            actual += 4;
+        } else {
+            break;
+        }
+    }
+    actual
+}
+
+fn advance_over_segments(data: &[u8], mut pos: usize, flag: u8) -> Option<usize> {
+    while pos + 8 <= data.len()
+        && data[pos..pos + 4] == PADDING_SEVEN
+        && data[pos + 4] == 0x00
+        && data[pos + 5] == flag
+    {
+        let seg_len_words = u16::from_be_bytes([data[pos + 6], data[pos + 7]]) as usize;
+        if seg_len_words == 0 {
+            return None;
+        }
+        let seg_total = seg_len_words * 4 + 4;
+        if pos + seg_total > data.len() {
+            return None;
+        }
+        pos += seg_total;
+    }
+    Some(pos)
 }
 
 // ---------------------------------------------------------------------------
