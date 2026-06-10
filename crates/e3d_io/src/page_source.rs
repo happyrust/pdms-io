@@ -392,4 +392,99 @@ mod tests {
 
         let _ = std::fs::remove_file(&path);
     }
+
+    // -----------------------------------------------------------------------
+    // 真实样本测试（specs/002 T105/T106；缺样本优雅跳过，沿用 001 惯例）
+    // -----------------------------------------------------------------------
+
+    const SAM: &str = r"D:\work\plant\pdms-io\pdms-test-data\sam7200_0001";
+    const AMS: &str = r"D:\work\plant\pdms-io\test-file\ams1112_0001";
+
+    /// T105（页级，SC-003 前半）：sam7200 经 `InMemory` 与 `PagedFile` 全文件
+    /// 逐页字节一致；越界两源同判错。元素级枚举一致性依赖 T103 取页点改造，
+    /// 落地后升级本测试为全库枚举对比。
+    #[test]
+    fn real_sample_dual_source_page_consistency() {
+        if !std::path::Path::new(SAM).exists() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let buf = std::fs::read(SAM).unwrap();
+        let mut mem = InMemory::from_bytes(buf.clone());
+        let mut pf = PagedFile::open(SAM).unwrap();
+        assert_eq!(pf.page_size(), mem.page_size(), "probe vs header page size");
+        let ps = mem.page_size();
+        let full_pages = (buf.len() / ps) as u32;
+        assert!(full_pages > 0);
+        for pgno in 0..full_pages {
+            let a = mem.page(0, pgno).unwrap().to_vec();
+            let b = pf.page(0, pgno).unwrap().to_vec();
+            assert_eq!(a, b, "page {pgno} mismatch");
+        }
+        assert!(mem.page(0, full_pages).is_err());
+        assert!(pf.page(0, full_pages).is_err());
+    }
+
+    /// T105（探测样本，契约 C3.2）：ams1112 头部 page_size 不可信；以探测出的
+    /// 页大小取 latest-session 页，其 page_type 必须真是 Session(3)（自洽校验，
+    /// 不依赖外部先验）。
+    #[test]
+    fn real_sample_ams1112_probe_lands_session_page() {
+        if !std::path::Path::new(AMS).exists() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let mut pf = PagedFile::open(AMS).unwrap();
+        assert!(VALID_PAGE_SIZES.contains(&pf.page_size()));
+        let probe_pgno = {
+            let p0 = pf.page(0, 0).unwrap();
+            be_u32_at(p0, HDR_LATEST_SES)
+        };
+        if probe_pgno == 0 {
+            eprintln!("[skip] no latest-session pointer");
+            return;
+        }
+        let sp = pf.page(0, probe_pgno).unwrap();
+        assert_eq!(
+            i32::from_be_bytes([sp[0], sp[1], sp[2], sp[3]]),
+            PAGE_TYPE_SESSION,
+            "probed page size must land a real Session page"
+        );
+    }
+
+    /// T106（SC-006）：增量式点查（头页 + 最新会话邻域，反复访问）的物理读页数
+    /// 远小于全文件页数，且缓存命中可观测。
+    #[test]
+    fn real_sample_incremental_reads_fewer_pages() {
+        if !std::path::Path::new(SAM).exists() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let file_len = std::fs::metadata(SAM).unwrap().len();
+        let mut pf = PagedFile::open(SAM).unwrap();
+        let total_pages = file_len / pf.page_size() as u64;
+        let ses = {
+            let p0 = pf.page(0, 0).unwrap();
+            be_u32_at(p0, HDR_LATEST_SES)
+        };
+        for _ in 0..3 {
+            pf.page(0, 0).unwrap();
+            if ses > 0 {
+                pf.page(0, ses).unwrap();
+                for d in 1..=4u32 {
+                    if ses > d {
+                        pf.page(0, ses - d).unwrap();
+                    }
+                }
+            }
+        }
+        let s = pf.stats();
+        assert!(
+            (s.reads as u64) < total_pages,
+            "incremental access must read fewer pages than file total ({} >= {})",
+            s.reads,
+            total_pages
+        );
+        assert!(s.hits > 0, "repeated access must hit cache");
+    }
 }

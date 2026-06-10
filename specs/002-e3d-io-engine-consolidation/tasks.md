@@ -10,12 +10,12 @@
 
 ## Phase 1 — `PageSource` 页源抽象（`crates/e3d_io`）
 
-- [ ] T101 [P1] 新建 `crates/e3d_io/src/page_source.rs`：`PageSource` trait（契约 C2：`page_size()` + `page(ext_no, pgno)`，std-only）
-- [ ] T102 [P1] `InMemory` 实现：现有整文件 buffer 路径下沉为该实现；`Edb::from_bytes` 等入口改走 trait（行为零变化）
+- [x] T101 [P1] 新建 `crates/e3d_io/src/page_source.rs`：`PageSource` trait（契约 C2：`page_size()` + `page(ext_no, pgno)`，std-only）— 提交 `997dbd49`
+- [ ] T102 [P1] `InMemory` 实现：现有整文件 buffer 路径下沉为该实现；`Edb::from_bytes` 等入口改走 trait（行为零变化）—（`InMemory` 类型已落 `997dbd49`；`Edb` 入口改线待做）
 - [ ] T103 [P1] 格式核心取页点改造：lib.rs 内所有直接 `&buf[off..]` 按页访问处统一经 `PageSource`（保持 chain()/B 树/记录解码逻辑不动，只换取字节的方式）
-- [ ] T104 [P2] `PagedFile` 实现：移植 `src/page_manager.rs` 的 LRU（容量/驱逐/脏页语义读侧裁剪/CacheStats 命中统计），含页大小探测（契约 C3.2）
-- [ ] T105 [P2] 双页源一致性测试：`sam7200_0001` 经 `InMemory` vs `PagedFile` 全库枚举逐项一致（SC-003）；`ams1112_0001` 探测样本测试（有则跑、缺则优雅跳过，沿用 001 测试惯例）
-- [ ] T106 [P2] 缓存可观测测试：`PagedFile` 增量式读取的读页计数 < 全文件页数（SC-006）
+- [x] T104 [P2] `PagedFile` 实现：移植 `src/page_manager.rs` 的 LRU（容量/驱逐/脏页语义读侧裁剪/CacheStats 命中统计），含页大小探测（契约 C3.2）— 提交 `997dbd49`
+- [ ] T105 [P2] 双页源一致性测试：`sam7200_0001` 经 `InMemory` vs `PagedFile` 全库枚举逐项一致（SC-003）；`ams1112_0001` 探测样本测试（有则跑、缺则优雅跳过，沿用 001 测试惯例）—（已落:sam7200 全文件**页级**双源一致 + ams1112 探测自洽〔探测页大小取 latest-session 页验 page_type==3,实测通过非跳过〕;**元素级**全库枚举对比待 T103 后升级）
+- [x] T106 [P2] 缓存可观测测试：`PagedFile` 增量式读取的读页计数 < 全文件页数（SC-006）— 合成 + sam7200 真实样本双覆盖,命中/驱逐计数断言
 - [ ] T107 GATE：`cd crates/e3d_io && cargo test` 全绿；无第三方依赖引入（`cargo tree` 核查）
 
 ## Phase 2 — `PdmsIO` 换芯（API 冻结）
