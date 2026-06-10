@@ -197,6 +197,61 @@ impl<S: PageSource> Rdb<S> {
         Ok(())
     }
 
+    /// B+ 树**目标式点查**（spec 002 T204 单源；与 lib.rs `btree_descend` 同式：
+    /// 每个内部节点取"最右一个 separator <= key"的孩子下降——含 `ci=0` 默认
+    /// （首项 > key 时仍降首子）与哨兵 `0x80000001` = -inf 语义,深度上限 40）。
+    /// 叶命中返回原始数据位置 `(data_pgno, word_off)`（不做主记录过滤,过滤语义
+    /// 见 [`Self::record_off_via_root`]）;未命中 `None`。O(log n),为 `PdmsIO`
+    /// `search_latest_refno` 族的换芯素材。
+    pub fn btree_find(
+        &mut self,
+        root: usize,
+        key: (u32, u32),
+    ) -> Result<Option<(usize, u32)>, E3dError> {
+        fn key_le(a: (u32, u32), b: (u32, u32)) -> bool {
+            if a == (crate::SENTINEL, crate::SENTINEL) {
+                return true;
+            }
+            if b == (crate::SENTINEL, crate::SENTINEL) {
+                return false;
+            }
+            a <= b
+        }
+        let mut pg = root;
+        for _ in 0..40 {
+            let base = pg * self.ps;
+            let pw = self.ps / 4;
+            let level = self.u(base + 8)?;
+            let nent = (pw - 7).saturating_sub(self.u(base + 24)? as usize) / 4;
+            if level == 0 {
+                for k in 0..nent {
+                    let eo = base + (7 + 4 * k) * 4;
+                    if (self.u(eo)?, self.u(eo + 4)?) == key {
+                        let cpg = self.u(eo + 8)? as usize;
+                        let off = self.u(eo + 12)? >> 12;
+                        return Ok(Some((cpg, off)));
+                    }
+                }
+                return Ok(None);
+            }
+            let mut ci = 0usize;
+            for k in 0..nent {
+                let eo = base + (7 + 4 * k) * 4;
+                let e = (self.u(eo)?, self.u(eo + 4)?);
+                if key_le(e, key) {
+                    ci = k;
+                } else {
+                    break;
+                }
+            }
+            if nent == 0 {
+                return Ok(None);
+            }
+            pg = self.u(base + (7 + 4 * ci) * 4 + 8)? as usize;
+        }
+        Ok(None)
+    }
+
     /// `refno` 在指定会话 `root` 下的主记录字节偏移（与 lib.rs `record_off_via_root`
     /// 同式过滤：word0 高 16 位为 0、impl 字数 8..=512、noun 可反哈希）。
     pub fn record_off_via_root(
@@ -333,6 +388,40 @@ mod tests {
             assert!(w[0].sesno > w[1].sesno, "newest-first sesno order");
             assert_eq!(w[0].last_ses_pgno, w[1].pgno, "chain pointer integrity");
         }
+    }
+
+    /// T204：`btree_find` 点查 == 全树枚举（10392 键穷举,双源等值;含缺席键 None）。
+    #[test]
+    fn rdb_btree_find_matches_walk_enumeration() {
+        if !sam_present() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let mut mem = Rdb::open_in_memory(SAM).unwrap();
+        let mut pf = Rdb::open(SAM).unwrap();
+        let root = mem.latest_root().unwrap();
+
+        let leaves = mem.leaves(root).unwrap();
+        let mut bykey: std::collections::HashMap<(u32, u32), Vec<(usize, u32)>> =
+            std::collections::HashMap::new();
+        for (r0, r1, pg, off) in &leaves {
+            bykey.entry((*r0, *r1)).or_default().push((*pg, *off));
+        }
+
+        let mut checked = 0usize;
+        for (key, locs) in &bykey {
+            let a = mem.btree_find(root, *key).unwrap();
+            let b = pf.btree_find(root, *key).unwrap();
+            assert_eq!(a, b, "btree_find must agree across page sources for {key:?}");
+            let got = a.unwrap_or_else(|| panic!("walk key {key:?} must be findable by descent"));
+            assert!(locs.contains(&got), "descent loc {got:?} not among walk locs for {key:?}");
+            checked += 1;
+        }
+        assert!(checked >= 10_000, "expected to verify >=10k keys, got {checked}");
+
+        // 缺席键：低于全树最小 / 不存在的随机键均必须 None。
+        assert_eq!(mem.btree_find(root, (0, 0)).unwrap(), None);
+        assert_eq!(mem.btree_find(root, (0xDEAD_0000, 0xBEEF)).unwrap(), None);
     }
 
     /// SC-006（导航口径）：点状导航（会话链 + 根定位）只触达少量页。
