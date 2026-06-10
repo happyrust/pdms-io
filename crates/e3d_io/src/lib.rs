@@ -17,6 +17,9 @@
 use std::collections::{HashMap, HashSet};
 use std::fs;
 
+/// 页源抽象（spec 002 Phase 1）：`PageSource` trait + `InMemory`/`PagedFile` 双实现。
+pub mod page_source;
+
 const SCHEMA_PAGE: usize = 2048;
 const DATA_WORDS: usize = 511;
 const BASE27: u32 = 0x81BF1;
