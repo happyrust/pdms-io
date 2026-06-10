@@ -7,6 +7,11 @@ edition = "2021"
 # missing `dpc-sync` path dependency and cannot build in this environment).
 [workspace]
 
+# Shared offline decoder (single source of truth); this CLI is now a thin consumer of it
+# rather than carrying a duplicate decoder.
+[dependencies]
+e3d_io = { path = "../../crates/e3d_io" }
+
 [[bin]]
 name = "e3d_decode_rs"
 path = "src/main.rs"

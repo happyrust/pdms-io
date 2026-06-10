@@ -1,0 +1,16 @@
+[package]
+name = "e3d_io"
+version = "0.1.0"
+edition = "2024"
+description = "Fully-offline E3D / PDMS DABACON element read + write (std-only, no extra deps). See docs/e3d 数据库分析/."
+
+# std-only: NO third-party dependencies. This crate builds + tests on its own inside the
+# workspace, independently of the rs-core <-> surrealdb-3.1 integration blocker that keeps the
+# parent `pdms_io` crate from building. `pdms_io` re-exports the lib as `pdms_io::e3d_decode`.
+# (No [workspace] table — same pattern as crates/parse_pdms_db; pdms_io is not a workspace.)
+[dependencies]
+
+# Offline read+write CLI (read: show/refs; write: rename/set-pos/delete/insert via COW).
+[[bin]]
+name = "e3d-io"
+path = "src/main.rs"

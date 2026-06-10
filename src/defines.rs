@@ -40,40 +40,48 @@ pub fn detect_page_size(header: &PdmsHeader) -> usize {
 
 #[derive(Default, Clone, Debug, PartialEq, DekuRead, DekuWrite, Serialize, Deserialize)]
 #[deku(endian = "big")]
+// ⚠ 字段名校正说明（2026-06-06,IDA db2_create_master/db2_open_db/db5_save_work + 4 样本;
+//   详见 docs/e3d 数据库分析/E3D_DB_文件格式规范.md §2/§2.1/§8）:
+//   下列字段名为历史误称,因跨文件引用众多暂未改名,仅在注释标注真实语义:
+//     creation_time(0x20)   实为 schema/template 类型 id(选定 *vir.dat,非创建时间)
+//     unknown_2(0x24)       实为 schema 版本
+//     session_page_no(0x30) 实为 extract/extent 分配计数(非会话页号;页 3 为 type5)
+//     stored_page_count(0x38) 实为 DBNO=refno_0 = (db_num&0x1FFF)|(((db_num&0x3E000)|1)<<13)(非页计数)
+//     unknown_3(0x3C)       实为 refseq=refno_1(与 0x38 组成 db 根引用 refno;非恒 2)
+//   另:真正的创建信息是 0x44+ 的 ASCII;page0 是整页 db-control-block(头+ASCII+db-block 属性)。
 pub struct PdmsHeader {
-    // 偏移 0x00 - 0x03: 未知值
+    // 偏移 0x00 - 0x03: 恒 0
     pub unknown_0_0: i32,
     // 偏移 0x04 - 0x07: 版本号（值 = 2）
     pub version: i32,
-    // 偏移 0x08 - 0x0B: 数据库编号
+    // 偏移 0x08 - 0x0B: 数据库编号（raw, ≤ 0x1FFF）
     pub db_num: i32,
-    // 偏移 0x0C - 0x0F: 未知值（值 = 1）
+    // 偏移 0x0C - 0x0F: ext_no 副本（创建参数 a3,与 0x2C 同值）
     pub unknown_1_0: i32,
-    // 偏移 0x10 - 0x13: 未知值（值 = 1）
+    // 偏移 0x10 - 0x13: 创建标志参数（a7,值 = 1）
     pub unknown_1_1: i32,
-    // 偏移 0x14 - 0x17: 未知值（值 = 0）
+    // 偏移 0x14 - 0x17: 恒 0
     pub unknown_1_2: i32,
     // 偏移 0x18 - 0x1B: 标志位（值 = 0xFFFFFFFF）
     pub flags: i32,
-    // 偏移 0x1C - 0x1F: 未知值（值 = 0）
+    // 偏移 0x1C - 0x1F: 恒 0
     pub unknown_1_4: i32,
-    // 偏移 0x20 - 0x23: 创建时间（值 = 722578）
+    // 偏移 0x20 - 0x23: 【实为 schema/template 类型 id,选定 *vir.dat;非创建时间】
     pub creation_time: u32,
-    // 偏移 0x24 - 0x27: 标志位（值 = 0xFFFFFFFF）
+    // 偏移 0x24 - 0x27: 【实为 schema 版本(创建时写 -ver)】
     pub unknown_2: i32,
-    // 偏移 0x28 - 0x2B: 最新会话页号（值 = 643）
+    // 偏移 0x28 - 0x2B: 最新会话页号（解析入口;与 0x2C 配对=当前会话 pgid）
     pub latest_ses_pgno: u32,
-    // 偏移 0x2C - 0x2F: 未知值（值 = 1）
+    // 偏移 0x2C - 0x2F: extract/扩展号（ext_no）
     pub ext_no: u32,
 
-    // 新增字段 ✅
-    // 偏移 0x30 - 0x33: 会话页面号（值 = 3）
+    // 偏移 0x30 - 0x33: 【实为 extract/extent 分配计数(创建初值 ext_no+1);非会话页号】
     pub session_page_no: u32,
-    // 偏移 0x34 - 0x37: 页面大小（头部字段，可能为 0/512/2048）
+    // 偏移 0x34 - 0x37: 页面大小（**字数**,×4 = 字节;实测 512 字 = 2048 字节,见 detect_page_size）
     pub page_size: u32,
-    // 偏移 0x38 - 0x3B: 存储页数（值 = 15522）
+    // 偏移 0x38 - 0x3B: 【实为 DBNO=refno_0 =(db_num&0x1FFF)|(((db_num&0x3E000)|1)<<13);非存储页数】
     pub stored_page_count: u32,
-    // 偏移 0x3C - 0x3F: 未知值（值 = 2）
+    // 偏移 0x3C - 0x3F: 【实为 refseq=refno_1,与 0x38 组成 db 根引用 refno;非恒 2】
     pub unknown_3: u32,
 }
 

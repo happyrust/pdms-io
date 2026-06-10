@@ -5,3 +5,10 @@ version = 4
 [[package]]
 name = "e3d_decode_rs"
 version = "0.1.0"
+dependencies = [
+ "e3d_io",
+]
+
+[[package]]
+name = "e3d_io"
+version = "0.1.0"

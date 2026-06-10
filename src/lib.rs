@@ -22,10 +22,11 @@ pub mod dblist;
 pub mod engine_v2;
 pub mod io_log;
 
-/// Fully-offline E3D/PDMS DABACON element decoder (std-only; see docs/e3d 数据库分析/).
-/// Standalone module, no extra deps; ported from the validated `tools/e3d_decode_rs`.
-#[allow(dead_code)]
-pub mod e3d_decode;
+/// Fully-offline E3D/PDMS DABACON element read + write (std-only; see docs/e3d 数据库分析/).
+/// Now lives in the standalone `crates/e3d_io` crate so it builds + tests inside the workspace
+/// independently of the rs-core <-> surrealdb integration blocker; re-exported here as
+/// `pdms_io::e3d_decode` so existing call sites keep resolving.
+pub use e3d_io as e3d_decode;
 
 // 重新导出常用函数，使其可以直接从crate根访问
 pub use io::{PdmsIO, benchmark_increment_eles};

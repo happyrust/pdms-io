@@ -24,6 +24,8 @@ memchr = "2.7.2"
 aios_core = { path = "../rs-core", default-features = false }
 # parse_pdms_db = { git = "https://github.com/happyrust/aios-parse-pdms" }
 parse_pdms_db = { path = "crates/parse_pdms_db" }
+# Fully-offline E3D/PDMS read+write decoder (std-only); re-exported as `pdms_io::e3d_decode`.
+e3d_io = { path = "crates/e3d_io" }
 nom = "8"
 notify = "8.0.0"
 futures = "0.3.28"
