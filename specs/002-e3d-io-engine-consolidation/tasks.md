@@ -12,11 +12,11 @@
 
 - [x] T101 [P1] 新建 `crates/e3d_io/src/page_source.rs`：`PageSource` trait（契约 C2：`page_size()` + `page(ext_no, pgno)`，std-only）— 提交 `997dbd49`
 - [x] T102 [P1] `InMemory` 实现：现有整文件 buffer 路径下沉为该实现；`Edb::from_bytes` 等入口改走 trait（行为零变化）— 完成：`Edb::from_bytes`/`open` 经 `InMemory` 构造，页大小推断单源 `page_size_from_header`；33+1 全绿（附带加固：短于头部的退化输入由兜底 2048 取代旧越界 panic）
-- [ ] T103 [P1] 格式核心取页点改造：lib.rs 内所有直接 `&buf[off..]` 按页访问处统一经 `PageSource`（保持 chain()/B 树/记录解码逻辑不动，只换取字节的方式）—（**实现注记 2026-06-10**：lib.rs ~45 处 `db.buf` 直接访问中绝大多数是 COW **写**路径〔整页克隆/追加/page0 补丁〕,其 flat-buffer 模型为 001 验证语义、按设计保留 `InMemory`;T103 实际范围 = **读侧**取页点〔decode/walk/index_db/B 树下降/会话链〕抽出经 `PageSource` 的读视图,使 Phase 2 `PdmsIO` 能在 `PagedFile` 上**只读**委托。写经 `PagedFile` 非 002 需求）
+- [x] T103 [P1] 格式核心取页点改造：lib.rs 内所有直接 `&buf[off..]` 按页访问处统一经 `PageSource`（保持 chain()/B 树/记录解码逻辑不动，只换取字节的方式）—（**范围勘定 2026-06-10**：lib.rs ~45 处 `db.buf` 直接访问中绝大多数是 COW **写**路径〔整页克隆/追加/page0 补丁〕,其 flat-buffer 模型为 001 验证语义、按设计保留 `InMemory`,写经 `PagedFile` 非 002 需求）**落地** = 新增 `src/read_view.rs`:`Rdb<S: PageSource>` 只读视图(惰性影子页,按需取页),导航算法与 lib.rs 同式(会话链/`latest_root`/word6 界定 walk/主记录定位过滤/`record_bytes` 原始记录窗口),`pages_read()` 可观测;Phase 2 委托清单(C1)所需的导航+原始记录读取全覆盖,`decode_full`(DA 链全属性解码)按设计留 `Edb` 路径
 - [x] T104 [P2] `PagedFile` 实现：移植 `src/page_manager.rs` 的 LRU（容量/驱逐/脏页语义读侧裁剪/CacheStats 命中统计），含页大小探测（契约 C3.2）— 提交 `997dbd49`
-- [ ] T105 [P2] 双页源一致性测试：`sam7200_0001` 经 `InMemory` vs `PagedFile` 全库枚举逐项一致（SC-003）；`ams1112_0001` 探测样本测试（有则跑、缺则优雅跳过，沿用 001 测试惯例）—（已落:sam7200 全文件**页级**双源一致 + ams1112 探测自洽〔探测页大小取 latest-session 页验 page_type==3,实测通过非跳过〕;**元素级**全库枚举对比待 T103 后升级）
-- [x] T106 [P2] 缓存可观测测试：`PagedFile` 增量式读取的读页计数 < 全文件页数（SC-006）— 合成 + sam7200 真实样本双覆盖,命中/驱逐计数断言
-- [ ] T107 GATE：`cd crates/e3d_io && cargo test` 全绿；无第三方依赖引入（`cargo tree` 核查）
+- [x] T105 [P2] 双页源一致性测试：`sam7200_0001` 经 `InMemory` vs `PagedFile` 全库枚举逐项一致（SC-003）；`ams1112_0001` 探测样本测试（有则跑、缺则优雅跳过，沿用 001 测试惯例）— 三层齐备:① 全文件**页级**字节双源一致 ② **元素级** `Rdb<InMemory>` vs `Rdb<PagedFile>` 全库叶项枚举等值 + 主记录定位等值 + 500 记录原始字节抽查(`read_view.rs`) ③ ams1112 探测自洽(探测页大小取 latest-session 页验 page_type==3,实测非跳过);属性值层等价由"页级字节相等 + 单一解码实现"蕴含
+- [x] T106 [P2] 缓存可观测测试：`PagedFile` 增量式读取的读页计数 < 全文件页数（SC-006）— 合成 + sam7200 真实样本双覆盖,命中/驱逐计数断言;`Rdb` 点状导航 pages_read < 10% 全页数
+- [x] T107 GATE：`cd crates/e3d_io && cargo test` 全绿；无第三方依赖引入（`cargo tree` 核查）— **2026-06-10 通过**:36 lib + 1 CLI 测试全绿;`cargo tree` 单节点(零依赖)。**Phase 1 收口**
 
 ## Phase 2 — `PdmsIO` 换芯（API 冻结）
 

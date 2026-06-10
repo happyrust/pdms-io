@@ -19,6 +19,8 @@ use std::fs;
 
 /// 页源抽象（spec 002 Phase 1）：`PageSource` trait + `InMemory`/`PagedFile` 双实现。
 pub mod page_source;
+/// 只读格式视图（spec 002 T103 读侧）：`Rdb<S: PageSource>` 导航 + 原始记录读取。
+pub mod read_view;
 use page_source::PageSource as _;
 
 const SCHEMA_PAGE: usize = 2048;

@@ -85,6 +85,11 @@ impl InMemory {
     pub fn into_bytes(self) -> Vec<u8> {
         self.buf
     }
+
+    /// 完整页数（截尾不足一页的部分不计；与 `Edb::n_pages` 同口径）。
+    pub fn n_pages(&self) -> usize {
+        self.buf.len() / self.ps
+    }
 }
 
 impl PageSource for InMemory {
@@ -192,6 +197,11 @@ impl PagedFile {
 
     pub fn stats(&self) -> &CacheStats {
         &self.stats
+    }
+
+    /// 完整页数（按打开时文件长度；截尾不计）。
+    pub fn n_pages(&self) -> Result<usize, E3dError> {
+        Ok((self.file.metadata()?.len() / self.ps as u64) as usize)
     }
 
     fn detect_page_size(file: &mut File) -> Result<usize, E3dError> {
