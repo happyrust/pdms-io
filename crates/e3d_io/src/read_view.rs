@@ -350,6 +350,94 @@ impl<S: PageSource> Rdb<S> {
             target = next;
         }
     }
+
+    /// 链式重组的元素记录(specs/005 T102,契约 F1-I1;F4 白名单项):
+    /// `[隐式区 bo..impl_words*4] ++ adjacentize(members 链) ++ adjacentize(DA 链)`。
+    ///
+    /// 与 [`Self::element_record`](窗口邻接读取)的区别:DA/members 区不靠"物理上恰好
+    /// 紧随记录"的邻接假设,而是按 rec[6]/[7](DA,which=1)与 rec[8]/[9](members,which=2)
+    /// 的链指针逐节点取回、以 PDMS 原生邻接形态重组(节点 5 词头+payload 原样字节,
+    /// 节点间 `0x00000007` 分隔字)——e3d_io 重定位到远页的 DA/members 对下游窗口
+    /// 解析器(parse_pdms_db)就此可见(R5 修复)。
+    ///
+    /// 链跟随有界(≤128 节点)+ 环防;节点类型/长度非法 ⇒ 类型化错误(F1-I3)。
+    pub fn element_record_chained(&mut self, start_offset: u64) -> Result<Vec<u8>, E3dError> {
+        let bo = start_offset as usize;
+        let w0 = self.u(bo)?;
+        let impl_words = (w0 & 0xFFFF) as usize;
+        if !(8..=4096).contains(&impl_words) {
+            return Err(E3dError::Write(format!(
+                "element record impl_words 非法: {impl_words} @ {bo:#x}"
+            )));
+        }
+        let mut out = self.slice(bo, impl_words * 4)?.to_vec();
+
+        let w10 = self.u(bo + 40)?;
+        let (da_pg, da_loc) = (self.u(bo + 24)?, self.u(bo + 28)?);
+        let (mb_pg, mb_loc) = (self.u(bo + 32)?, self.u(bo + 36)?);
+        let da_words = ((w10 >> 14) & 0x3FFF) as i64;
+        let mb_words = (w10 & 0x3FFF) as i64;
+
+        // PDMS 邻接顺序:members 紧随隐式区,explicit/DA 在其后(T101 实测)。
+        self.adjacentize(mb_pg, mb_loc, mb_words, 2, &mut out)?;
+        self.adjacentize(da_pg, da_loc, da_words, 1, &mut out)?;
+        Ok(out)
+    }
+
+    /// 把一条 DA/members 链按 PDMS 原生邻接形态重组进 `out`(契约 F1-I1)。
+    fn adjacentize(
+        &mut self,
+        mut page: u32,
+        loc: u32,
+        total_words: i64,
+        which: u32,
+        out: &mut Vec<u8>,
+    ) -> Result<(), E3dError> {
+        if total_words == 0 || page == 0 {
+            return Ok(());
+        }
+        let mut off = (loc >> 13) & 0xFFF;
+        let mut remaining = total_words;
+        let mut seen: HashSet<(u32, u32)> = HashSet::new();
+        let mut first = true;
+
+        while page != 0 && remaining > 0 {
+            if !seen.insert((page, off)) {
+                return Err(E3dError::Write(format!(
+                    "list chain cycle at (page {page}, off {off}) which={which}"
+                )));
+            }
+            if seen.len() > 128 {
+                return Err(E3dError::Write(format!("list chain too long (which={which})")));
+            }
+            let node = page as usize * self.ps + off as usize * 4;
+            let hdr = self.u(node)?;
+            if ((hdr >> 16) & 0xF) != which {
+                return Err(E3dError::Write(format!(
+                    "list node type mismatch @ {node:#x}: hdr={hdr:#x}, want which={which}"
+                )));
+            }
+            let total = (hdr & 0xFFFF) as i64;
+            if total <= 5 {
+                return Err(E3dError::Write(format!(
+                    "list node total_words 非法 @ {node:#x}: {total}"
+                )));
+            }
+            if !first {
+                out.extend_from_slice(&7u32.to_be_bytes()); // 节点间分隔字(v1"追加段"marker)
+            }
+            let node_bytes = self.slice(node, total as usize * 4)?.to_vec();
+            out.extend_from_slice(&node_bytes);
+
+            remaining -= total - 5;
+            let next_pg = self.u(node + 12)?;
+            let next_loc = self.u(node + 16)?;
+            page = next_pg;
+            off = (next_loc >> 13) & 0xFFF;
+            first = false;
+        }
+        Ok(())
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -650,6 +738,117 @@ mod tests {
         // 缺席键：低于全树最小 / 不存在的随机键均必须 None。
         assert_eq!(mem.btree_find(root, (0, 0)).unwrap(), None);
         assert_eq!(mem.btree_find(root, (0xDEAD_0000, 0xBEEF)).unwrap(), None);
+    }
+
+    /// T102/F1-I2(邻接等价):PDMS 原生库上,链式重组的 members 节点区
+    /// 与窗口邻接区逐字节一致(节点本就物理紧随记录)。
+    #[test]
+    fn chained_record_equals_adjacent_layout_on_native() {
+        if !sam_present() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let mut rv = Rdb::open_in_memory(SAM).unwrap();
+        let root = rv.latest_root().unwrap();
+        let leaves = rv.leaves(root).unwrap();
+
+        let mut checked = 0;
+        for (_r0, _r1, pg, off) in leaves.iter().take(4000) {
+            if *off == 0 {
+                continue;
+            }
+            let bo = pg * rv.page_size() + (*off as usize) * 2;
+            let w0 = match rv.u(bo) {
+                Ok(v) => v,
+                Err(_) => continue,
+            };
+            let impl_words = (w0 & 0xFFFF) as usize;
+            if !(8..=4096).contains(&impl_words) || (w0 >> 16) != 0 {
+                continue;
+            }
+            let w10 = rv.u(bo + 40).unwrap();
+            let mb_words = (w10 & 0x3FFF) as i64;
+            let mb_pg = rv.u(bo + 32).unwrap();
+            if mb_words == 0 || mb_pg == 0 {
+                continue;
+            }
+            // 原生邻接假设下,members 节点应紧随隐式区(+padding)——逐字节对比重组区段。
+            let chained = rv.element_record_chained(bo as u64).unwrap();
+            let node = mb_pg as usize * rv.page_size()
+                + (((rv.u(bo + 36).unwrap() >> 13) & 0xFFF) as usize) * 4;
+            let hdr = rv.u(node).unwrap();
+            let total_bytes = ((hdr & 0xFFFF) as usize) * 4;
+            let window_node = rv.slice(node, total_bytes).unwrap().to_vec();
+            let chained_node = &chained[impl_words * 4..impl_words * 4 + total_bytes];
+            assert_eq!(chained_node, &window_node[..], "node bytes identical (bo={bo:#x})");
+            checked += 1;
+            if checked >= 50 {
+                break;
+            }
+        }
+        assert!(checked >= 20, "expected to check dozens of member elements, got {checked}");
+    }
+
+    /// T102/R5 核心证明:e3d_io 把 DA 重定位到远页后,窗口读取(element_record)
+    /// 看不见新 NAME 字节,链式重组(element_record_chained)看得见。
+    #[test]
+    fn chained_record_sees_relocated_da_window_does_not() {
+        if !sam_present() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let exe = r"D:\AVEVA\Everything3D2.10";
+        if !std::path::Path::new(&format!(r"{exe}\desvir.dat")).exists() {
+            eprintln!("[skip] schema absent");
+            return;
+        }
+        let ss = crate::SchemaSet::load(exe);
+        let mut w = crate::EdbWriter::open(SAM, &ss).unwrap();
+        let target = w
+            .element("/WB1")
+            .map(|e| e.refno)
+            .expect("/WB1 present");
+        // 改名 ⇒ DA 重定位到文件尾新页(R5 场景)。
+        w.batch(|w| {
+            w.rename_at(target, "/WB1-CHAINSEE")?;
+            Ok(())
+        })
+        .unwrap();
+        let edited = w.into_bytes();
+
+        let mut rv = Rdb::from_bytes(edited);
+        let root = rv.latest_root().unwrap();
+        let bo = rv.record_off_via_root(root, target).unwrap().expect("record");
+
+        let needle = b"WB1-CHAINSEE";
+        let window = rv.element_record(bo as u64).unwrap();
+        let chained = rv.element_record_chained(bo as u64).unwrap();
+        let contains = |hay: &[u8]| hay.windows(needle.len()).any(|w| w == needle);
+        assert!(
+            !contains(&window),
+            "window read must NOT see far-page DA (R5 blind spot reproduced)"
+        );
+        assert!(contains(&chained), "chained read MUST see far-page DA (R5 fixed)");
+    }
+
+    /// T102/F1-I3:坏链(类型错位/超长)报类型化错误,不静默截断。
+    #[test]
+    fn chained_record_bad_chain_errors() {
+        let ps = 2048usize;
+        // 合成:页1 放一条"记录",rec[8]/[9] 指向页2 的"members 节点",但节点类型故意写错。
+        let mut buf = vec![0u8; ps * 3];
+        let put = |b: &mut [u8], o: usize, v: u32| b[o..o + 4].copy_from_slice(&v.to_be_bytes());
+        put(&mut buf, 0x34, (ps / 4) as u32); // 头部声明页大小
+        let bo = ps; // 记录在页1 起点
+        put(&mut buf, bo, 11); // w0: impl_words=11
+        put(&mut buf, bo + 32, 2); // rec8: members 页=2
+        put(&mut buf, bo + 36, 0 << 13); // rec9: off=0
+        put(&mut buf, bo + 40, 8); // w10: memb_words=8
+        let node = ps * 2;
+        put(&mut buf, node, (1u32 << 16) | 10); // 节点类型=1(DA)≠which=2 ⇒ 类型错位
+        let mut rv = Rdb::from_bytes(buf);
+        let err = rv.element_record_chained(bo as u64).unwrap_err();
+        assert!(format!("{err}").contains("type mismatch"), "typed bad-chain error: {err}");
     }
 
     /// SC-006（导航口径）：点状导航（会话链 + 根定位）只触达少量页。
