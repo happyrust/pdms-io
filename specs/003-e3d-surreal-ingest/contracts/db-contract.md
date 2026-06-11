@@ -16,6 +16,12 @@
 - 存量库兼容:既有 `INSERT IGNORE` 写入的旧记录,id 形态 MUST 兼容或经一次性核对说明(实现期回填)。
 - 禁止:删除/重命名存量表与字段;`SECOND_SUL_DB`/`KV_DB` 路由(范围外)。
 
+**实现期回填(2026-06-11,T201)**:
+1. 记录 ID 取**字符串复合键**(`ses: {dbnum}_{sesno}`、`pe_ses_h: {dbnum}_{r0}_{r1}_{sesno}`、`pe: {dbnum}_{r0}_{r1}`、`ingest_watermark: {dbnum}`)——数组键在 3.x SDK 的 `RecordIdKey` 类型面更绕,确定性等同;
+2. `pe_ses_h` 以 `op`(add/modify/delete/none)字段取代 offset——增量载荷 `EleOperationData` 不含物理 offset(offset 属 `store_all_refno_sesno_map` 历史回填路径的字段);
+3. `pe` 为**最新态 upsert**(Deleted ⇒ `deleted: true` 墓碑行);`VERSION` 版本化留给历史回填入口(T302 盘点时一并决策);
+4. 物理写为**逐记录 upsert**(幂等优先;3.x SDK 无批量 upsert content 原语)——D3 A1 的"分块"体现为处理批次粒度。
+
 ## D2. 记录 ID 与幂等判据
 
 - **I1**: 全部记录 ID 由 `(dbnum, refno, sesno)`(主数据为 `(dbnum, refno)`)**确定性**生成——同一输入任意次重放产生同一 ID 集。
