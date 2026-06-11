@@ -16,10 +16,10 @@
 
 ## Phase 2 — 入口真实化
 
-- [ ] T201 [P1] `EleOperationData` → 强类型落库构造(serde 序列化;ID=(dbnum,refno,sesno)/主数据 (dbnum,refno);禁字符串拼接,D2 I4)
-- [ ] T202 [P1] `update_elements_to_database` 实现 D3 A1~A4:sesno 升序、ses→pe_ses_h(分块 100)→pe VERSION(skip_main_data 跳过)、块失败上抛、未连接明确报错
-- [ ] T203 [P1] `ingest_watermark` 水位:单调升、`sesno ≤ 水位` 跳过 + 跳过计数可观测(D2 I3)
-- [ ] T204 [P1] 幂等重放测试:同增量 3 次,逐表 count+内容等值(SC-002);水位跳过断言(SC-003)
+- [x] T201 [P1] `EleOperationData` → 强类型落库构造(serde 序列化;ID=(dbnum,refno,sesno)/主数据 (dbnum,refno);禁字符串拼接,D2 I4)— `src/surreal_ingest.rs`:SesRow/PeSesHRow/PeRow/WatermarkRow(`SurrealValue` 派生,含 `NamedAttrMap`/`RefU64` 复用 rs-core 既有 impl);**契约 D1 回填项 ×3**:① ID 取字符串复合键(`{dbnum}_{r0}_{r1}_{sesno}` 等,数组键在 3.x SDK 类型面更绕)② `pe_ses_h` 以 `op`(add/modify/delete/none)取代 offset(增量载荷不含物理 offset,offset 属历史回填路径)③ `pe` 为最新态 upsert,VERSION 留给历史回填入口;Deleted ⇒ `pe` 墓碑行(`deleted: true`)
+- [x] T202 [P1] `update_elements_to_database` 实现 D3 A1~A4:sesno 升序、ses→pe_ses_h→pe(skip_main_data 跳过)、写失败上抛、未连接明确报错 — no-op 真实化(签名冻结不变;feature 关闭时维持 no-op);门面组装 `SesRow` 会话元数据(时间/end_pgno,缺则 minimal)后委托纯函数 `ingest_increments`(不依赖 PdmsIO,测试可直接驱动);回执经 log 输出。**注**:物理写为逐记录 upsert(幂等优先;3.x SDK 无批量 upsert content 原语,D3"分块"体现为处理批次)
+- [x] T203 [P1] `ingest_watermark` 水位:单调升、`sesno ≤ 水位` 跳过 + 跳过计数可观测(D2 I3)— `IngestReport{sessions_written/skipped/ses_rows/pe_ses_h_rows/pe_rows}`;水位 NotFound 按"无水位"(3.x select 对不存在表报错而非 None,陷阱同 T101)
+- [x] T204 [P1] 幂等重放测试:同增量重放,逐表 count+内容等值(SC-002);水位跳过断言(SC-003)— `surreal_ingest_test.rs`:合成两会话四操作(Add/None/Modified/Deleted)→ ① 首写 report{2,0,2,4,3} + 内容读回(/SYN-A 字段 + 墓碑)② 重放=水位全跳、库不变(SC-003)③ 清水位重放=纯 upsert 幂等、计数不变(SC-002)④ skip_main_data ⇒ pe 0 行(FR-006)。4 测试 0.91s 全绿
 - [ ] T205 [P1] 真实样本端到端:sam7200 增量 → kv-mem 逐项对应(SC-001);ams1112 一段增量入库,计数/耗时报告(SC-004);skip_main_data 语义测试(FR-006)
 - [ ] T206 GATE:`--features surrealdb` workspace 构建+测试全绿;D3 契约逐条核对;api_freeze 锁未触发
 

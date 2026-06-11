@@ -342,15 +342,59 @@ impl PdmsIO {
         self.init_ses_maps()
     }
 
-    /// 将元素与会话数据写入数据库（兼容旧接口）。
+    /// 将元素与会话数据写入 SurrealDB（specs/003 T202:no-op 真实化,签名冻结不变）。
     ///
-    /// 该仓库目前仍在迭代落库逻辑；为避免影响解析与测试链路，这里保留接口并默认 no-op。
+    /// `surrealdb` feature 下委托 [`crate::surreal_ingest::ingest_increments`]
+    /// （确定性 ID 幂等 upsert + 水位跳过,契约 D2/D3）;无该 feature 时维持 no-op。
+    /// 本入口绝不隐式建立连接（契约 D3 A3）——`SUL_DB` 未连接时由首个写操作报错。
     pub async fn update_elements_to_database(
         &mut self,
-        _range_eles: &BTreeMap<u32, Vec<EleOperationData>>,
-        _skip_main_data: bool,
+        range_eles: &BTreeMap<u32, Vec<EleOperationData>>,
+        skip_main_data: bool,
     ) -> anyhow::Result<()> {
-        Ok(())
+        #[cfg(feature = "surrealdb")]
+        {
+            let dbnum = self.dbnum;
+            // 组装会话元数据(时间/end_pgno);查不到的会话写 minimal 行。
+            let mut ses_meta = BTreeMap::new();
+            for &sesno in range_eles.keys() {
+                if let Some(pgno) = self.get_ses_pageno(sesno as i32) {
+                    if let Ok(ses) = self.read_ses_data(pgno) {
+                        ses_meta.insert(
+                            sesno,
+                            crate::surreal_ingest::SesRow {
+                                sesno,
+                                dbnum,
+                                date_time: ses.get_utc_dt().to_rfc3339(),
+                                end_pgno: ses.end_pgno,
+                            },
+                        );
+                    }
+                }
+            }
+            let report = crate::surreal_ingest::ingest_increments(
+                dbnum,
+                &ses_meta,
+                range_eles,
+                skip_main_data,
+            )
+            .await?;
+            log::info!(
+                "surreal ingest: dbnum={} written={} skipped={} ses={} pe_ses_h={} pe={}",
+                dbnum,
+                report.sessions_written,
+                report.sessions_skipped,
+                report.ses_rows,
+                report.pe_ses_h_rows,
+                report.pe_rows
+            );
+            return Ok(());
+        }
+        #[cfg(not(feature = "surrealdb"))]
+        {
+            let _ = (range_eles, skip_main_data);
+            Ok(())
+        }
     }
 
     /// 从缓存读取跨页的数据 (对齐 db4 logic)

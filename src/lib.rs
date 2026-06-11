@@ -16,6 +16,10 @@ pub mod dblist;
 
 pub mod io_log;
 
+/// specs/003:E3D 增量 → SurrealDB 落库核心(强类型构造/幂等 upsert/水位)。
+#[cfg(feature = "surrealdb")]
+pub mod surreal_ingest;
+
 // specs/002 Phase 3（2026-06-11）：三引擎收敛后退役删除——
 // `engine_v2`(39 文件)、`writer`/`element_serializer`(v1 写路径)、
 // `page_manager`/`paged_reader`/`element_record_reader`(v1 读取辅助)。
