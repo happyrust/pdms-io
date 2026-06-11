@@ -1,0 +1,45 @@
+# Tasks: 增量 DA 链式解析（R5）+ 首次命名
+
+**Spec**: [spec.md](./spec.md) | **Plan**: [plan.md](./plan.md) | **Date**: 2026-06-11
+
+> `[P1]`=US1/US2;`[P2]`=US3;每 Phase 末 GATE。e3d_io 触碰仅限契约 F4 白名单,白名单外停下上报。范围外冲动记 006 候选。
+
+## Phase 0 — Research(已完成)
+
+- [x] T000 R5 机理证据链 + grill Q1~Q6 决策入档 → `research.md`、`contracts/chain-decode-contract.md`
+
+## Phase 1 — e3d_io 扩展(F4 白名单)
+
+- [ ] T101 [P1] 先读后写:核对 `parse_pdms_db` 对记录后 DA/members 区的布局假设(邻接形态/终止条件),确定重组流精确形状,回填契约 F1-I1
+- [ ] T102 [P1] `Rdb` 链式记录重组(F1-I1~I3:DA rec[6]/[7] + members rec[8]/[9] 链跟随,有界 128 + 环防,坏链类型化错误)+ 测试:邻接库等价(F1-I2)/ e3d_io 改写元素重组含远页 payload / 坏链报错
+- [ ] T103 [P2] `EdbWriter::set_name_at`(F3-A1:无名新增/已名改写,内部复用 pack_text+cow_da_set_entry)+ 测试:无名命名 batch 单会话 round-trip / 已名改写与 rename_at 殊途同归 / rename_at 同构语义不变
+- [ ] T104 GATE:e3d_io 独立套件全绿;cargo tree 单节点;diff 仅白名单项
+
+## Phase 2 — 门面接线(R5 修复本体)
+
+- [ ] T201 [P1] 增量路径换链式重组流(`parse_raw_element` 一族;公共签名零变更,C1/api_freeze 为闸)
+- [ ] T202 [P1] 双实现对齐测试(F1-I4):sam7200 抽样 ≥200 + e3d_io 改写元素,重组流 parse == `decode_full`(DA/显式逐项)
+- [ ] T203 GATE:默认特性全套件绿(含 `diag_ams1112` 5 测试不回归)
+
+## Phase 3 — 写回侧收口
+
+- [ ] T301 [P2] `EditOp::SetName` + 写回核心/队列/CLI 沿 004 形态接入
+- [ ] T302 [P1] 回声转正:Rename(及 SetName)回声进库测试——增量含 Modified、`pe.name` 收敛;**解除 004 回声测试的 R5 限定注记**(SC-001/SC-004)
+- [ ] T303 GATE:`--features surrealdb` workspace 全量绿;api_freeze 未触发
+
+## Phase 4 — 文书
+
+- [ ] T401 ARCHITECTURE R5 注记更新 + CHANGELOG;004 research R5 回填"已修复(005)"
+- [ ] T402 GATE:SC-001~SC-005 逐条核销;spec Status → Implemented
+
+## 依赖关系
+
+```
+T101→T102→T104(GATE);T103→T104
+T104→T201→T202→T203(GATE)
+T203→T301/T302→T303(GATE)→T401→T402(GATE)
+```
+
+## 范围外提醒(FR-008)
+
+store_all 历史回填强类型化、UDA 编辑面、真机联动(001-T039)、并发、白名单外 e3d_io 改动、C1 变更——**本清单不含以上任何项**。
