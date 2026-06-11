@@ -25,12 +25,19 @@
 ## Phase 3 — 端到端与收口
 
 - [x] T301 [P1] e2e(kv-mem):sam7200 → 基线 → 新会话版本替换 → 捕获入库 → 水位前进 → 模拟重启幂等(SC-001/002 全链)— **2026-06-12 守护进程级实证(两场实跑)**:① 同字节替换:round#1 Poll BASELINE → 文件事件 → 静定窗 → round#2 **Event** → 水位拦截 up-to-date(零写库)② **真新会话**:e3d-writeback 写 ses 37 顶替文件 → round#2 Event → **SYNCED ses 37..=37**——「保存即入库」全链(004 写回→notify→005 链式增量→003 幂等落库→006 水位调度)在真进程跑通;重启幂等/Synced 语义另由 sync_core 全链测试覆盖(T103)
-- [ ] T302 GATE:双特性全量套件全绿;api_freeze 未触发;`crates/e3d_io` diff 为空(SC-005)
+- [x] T302 GATE:双特性全量套件全绿;api_freeze 未触发;`crates/e3d_io` diff 为空(SC-005)— **2026-06-12 01:53 通过,exit 0**:`--features surrealdb` 全 targets 构建 + lib 56/0/5 + 全集成绿(diag 5✓/368s);api_freeze ✓;e3d_io 零触碰(006 全程未改);默认特性套件由 005-T203 同基线覆盖。**Phase 3 收口**
 
 ## Phase 4 — 文书
 
-- [ ] T401 ARCHITECTURE「监控与同步」段改述(雏形→守护目标态)+ CHANGELOG 条目
-- [ ] T402 GATE:SC-001~SC-005 逐条核销;spec Status → Implemented
+- [x] T401 ARCHITECTURE「监控与同步」段改述(雏形→守护目标态)+ CHANGELOG 条目 — **2026-06-12**:ARCHITECTURE 第 5 段改述同步核心/守护壳/守护级实证(旧 PdmsWatcher/.cba 标注候选);CHANGELOG 006 条目定稿
+- [x] T402 GATE:SC-001~SC-005 逐条核销;spec Status → Implemented — **2026-06-12 核销**:
+  - **SC-001 ✅** 端到端(sync_core 全链测试:基线→writeback 新会话顶替→Synced→水位前进;守护进程级两场实跑 SYNCED 37..=37)
+  - **SC-002 ✅** 幂等/重启(同状态重复轮 SkippedUpToDate 零写库;无本地状态 = 新调用即重启语义;守护实跑同字节替换被水位拦截)
+  - **SC-003 ✅** 故障隔离(垃圾头库 Failed 而健康库同轮 Baseline;进程不退)
+  - **SC-004 ✅** 触发语义(round_due 五断言:风暴合并/静定 Event/Poll 兜底;实跑 Event 轮触发可见)
+  - **SC-005 ✅** 红线(落库构造点 grep 零新增;e3d_io 零触碰;api_freeze 全程绿;T104/T302 双 GATE exit 0)
+  
+  spec.md Status 已置 **Implemented**。**specs/006 全部完成**
 
 ## 依赖关系
 

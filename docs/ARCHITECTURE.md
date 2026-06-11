@@ -96,9 +96,11 @@ parse_pdms_db(crate)= EleData 类型适配层(FR-003 决策):消费门面给的�
   - **回声闭环**:写回产物经增量提取 → 落库入口 → `pe` 收敛于写回意图(幂等;Q4 决策实证)。~~已知盲区 R5~~ **已修复(specs/005,2026-06-12)**:增量记录读取改经 e3d_io 链式重组流(`element_record_chained`,预算导向),DA 编辑(改名/首次命名)的回声全收敛——`pe.name` 跟随写回意图。
   - 编辑操作面:六原语 + `SetName`(005 增补,无名元素首次命名)。
   - CLI `e3d-writeback`:`plan`(dry-run 预览)/`apply`(edits JSON)/`queue-apply`(连库执行队列)。
-5. **监控与同步**
-  - `PdmsWatcher::init_local_watcher` 扫描工程目录，缓存各数据库文件的最新会话信息，预留 `.cba` 压缩任务用于后续分发。
-  - `sync::files::sync_e3d_files`/`sync::sync::compress_archive` 作为远端同步与压缩的起点（尚未串联）。
+5. **监控与同步（specs/006,2026-06-12:e3d-syncd 常驻守护）**
+  - **同步核心** `sync_core`:`scan_targets`(目录识别 `*_0001` + 读头 dbnum + 白名单)→ `sync_db`(**纯水位驱动**:latest ≤ 水位跳过 / 范围增量经唯一入口 ingest / 初见库最新会话立基线 / 错误折叠 Failed 隔离);无本地状态 ⇒ 重启安全;`bootstrap_db` 显式初灌。
+  - **守护壳** `e3d-syncd`:notify(递归)置脏标记 + **静定窗**(默认 500ms,事件风暴合并)+ **轮询兜底**(默认 30s,最终一致);单任务顺序轮 = 单飞;Ctrl-C 优雅退出;`--once` 单轮模式;每轮 trigger/逐库 outcome/累计计数可观测。
+  - 守护级实证:「保存(写回新会话)→ notify → Event 轮 → SYNCED」全链真进程跑通。
+  - 旧雏形 `PdmsWatcher` 与 `sync/*`(.cba 远端分发)保留为后续候选,不在守护链路上。
 
 ## 状态与缓存
 

@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-11
 
-**Status**: Draft（grill Q0=A + Q1~Q6 全按推荐拍板;决策记录见 research.md）
+**Status**: Implemented（2026-06-12;SC-001~005 全核销,见 tasks.md T402。grill Q0=A + Q1~Q6 全按推荐拍板;决策记录见 research.md）
 
 **Input**: User description: "使用 grill-me 分析,然后编写 spec kit——006 = 把 watch.rs 雏形升级为可运行同步守护"
 
