@@ -688,7 +688,6 @@ pub fn parse_raw_ele_data_with_info(
     implicit_attmap.insert("OWNER".into(), NamedAttrValue::RefU64Type(owner));
     implicit_attmap.insert("TYPE".into(), NamedAttrValue::StringType(noun_name));
     implicit_attmap.insert("REFNO".into(), NamedAttrValue::RefU64Type(refno));
-    let name = implicit_attmap.get_name_or_default();
 
     let explicit_attrs =
         match parse_raw_explicit_attrs(&final_explicit_data, &cur_type_info_map, refno) {
@@ -708,6 +707,14 @@ pub fn parse_raw_ele_data_with_info(
             explicit_attmap.insert(attr.name, attr.value.into());
         }
     }
+
+    // specs/005 T201 附带修正:NAME 物理上是 DA/显式区属性——name 必须在显式解析
+    // **之后**取(显式优先,implicit 兜底),否则增量路径 EleData.name 恒为空
+    // (R5 修复后 DA 字节可见,此处才能真正读到改名结果)。
+    let name = {
+        let n = explicit_attmap.get_name_or_default();
+        if n.is_empty() { implicit_attmap.get_name_or_default() } else { n }
+    };
 
     // 创建基础 EleData，包含UDA属性列表
     let ele_data = EleData {

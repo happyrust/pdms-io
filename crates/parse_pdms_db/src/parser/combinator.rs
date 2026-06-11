@@ -11,7 +11,11 @@ use nom::bytes::complete::take;
 use nom::error::{ErrorKind, make_error};
 
 /// 默认 members 主段 payload 起始偏移（flag+len+self_ref 共 12 字节）
-const MEMBERS_BASE_PAYLOAD_OFFSET: usize = 12;
+// specs/005 T201 修正(契约 F1-I1 字节裁决):members/显式主段是标准 5 词链节点
+// `[(which<<16)|len][refno0][refno1][next_pg][next_loc]`+payload——载荷自 **+20** 起;
+// 旧值 12 把 w3/w4 链指针计入载荷:单节点时混入 (0,0) 伪成员,多节点链时混入
+// `(next_pg, next_loc)` 伪成员(sam7200 (23584,5443) 实测暴露)。追加段 +24(=4+20)一直正确。
+const MEMBERS_BASE_PAYLOAD_OFFSET: usize = 20;
 /// 追加段（0x00000007）payload 起始偏移（标记+flag+len+self_ref+保留 16 字节 共 24 字节）
 const SEGMENT_PAYLOAD_OFFSET: usize = 24;
 
@@ -326,12 +330,15 @@ mod tests {
 
     #[test]
     fn test_collect_segmented_payload() {
-        // 主段：flag 0x02，len=5 words（20 bytes），payload=8 bytes
+        // 主段 = 标准 5 词节点 + payload(specs/005 T101 字节裁决):
+        // flag|len(4) + refno(8) + 链指针(8) + payload(8) = 7 words(28 bytes)
         let mut data = Vec::new();
         data.extend_from_slice(&MEMBERS_FLAG.to_be_bytes());
-        data.extend_from_slice(&(5u16).to_be_bytes()); // 20 bytes
+        data.extend_from_slice(&(7u16).to_be_bytes()); // 28 bytes
         data.extend_from_slice(&1u32.to_be_bytes()); // refno high
         data.extend_from_slice(&2u32.to_be_bytes()); // refno low
+        data.extend_from_slice(&0u32.to_be_bytes()); // next_pg(链指针,非载荷)
+        data.extend_from_slice(&0u32.to_be_bytes()); // next_loc
         data.extend_from_slice(&[0xAA, 0xBB, 0xCC, 0xDD]); // payload 1
         data.extend_from_slice(&[0x11, 0x22, 0x33, 0x44]); // payload 2
 
@@ -345,7 +352,7 @@ mod tests {
         data.extend_from_slice(&[0x55, 0x66, 0x77, 0x88]); // payload 3
         data.extend_from_slice(&[0x99, 0xAA, 0xBB, 0xCC]); // payload 4
 
-        let (rest, payload) = collect_segmented_payload(&data, 20, MEMBERS_FLAG as u8).unwrap();
+        let (rest, payload) = collect_segmented_payload(&data, 28, MEMBERS_FLAG as u8).unwrap();
         assert!(rest.is_empty());
         assert_eq!(
             payload,

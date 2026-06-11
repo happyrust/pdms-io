@@ -18,11 +18,12 @@ pub const MEMBERS_FLAG: u16 = 0x0002;
 
 /// 解析 members 块
 ///
-/// # 格式
+/// # 格式(specs/005 T101 字节裁决:标准 5 词链节点)
 /// - bytes[0..2]: 标志位 (0x0002)
-/// - bytes[2..4]: 总长度 (word 数)
+/// - bytes[2..4]: 总长度 (word 数,含 5 词节点头)
 /// - bytes[4..12]: 自身 refno (用于校验)
-/// - bytes[12..]: 成员 RefU64 列表
+/// - bytes[12..20]: 链指针 next_pg/next_loc(非载荷)
+/// - bytes[20..]: 成员 RefU64 列表
 ///
 /// # 参数
 /// - `input`: 输入数据
@@ -145,9 +146,9 @@ pub fn count_members(input: &[u8]) -> Option<usize> {
     let len_words = u16::from_be_bytes(membs_data[2..4].try_into().ok()?) as usize;
     let total_bytes = len_words * 4;
 
-    // 减去头部 (4+8=12 字节)，剩余为成员数据
-    if total_bytes >= 12 {
-        Some((total_bytes - 12) / 8)
+    // 减去 5 词节点头 (flag|len + refno×2 + 链指针×2 = 20 字节)，剩余为成员数据
+    if total_bytes >= 20 {
+        Some((total_bytes - 20) / 8)
     } else {
         Some(0)
     }
@@ -163,14 +164,18 @@ mod tests {
         // flag = 0x0002
         data.extend_from_slice(&MEMBERS_FLAG.to_be_bytes());
 
-        // len_words = (4 + 8 + members.len() * 8) / 4
-        let total_bytes = 4 + 8 + members.len() * 8;
+        // 5 词节点头 + 成员载荷(specs/005 T101 布局):len = (4 + 8 + 8 + n*8) / 4
+        let total_bytes = 4 + 8 + 8 + members.len() * 8;
         let len_words = total_bytes / 4;
         data.extend_from_slice(&(len_words as u16).to_be_bytes());
 
         // self refno
         data.extend_from_slice(&(refno.get_0() as i32).to_be_bytes());
         data.extend_from_slice(&(refno.get_1() as i32).to_be_bytes());
+
+        // 链指针 next_pg/next_loc(单节点 = 0)
+        data.extend_from_slice(&0u32.to_be_bytes());
+        data.extend_from_slice(&0u32.to_be_bytes());
 
         // members
         for m in members {

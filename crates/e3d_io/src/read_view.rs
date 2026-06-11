@@ -426,10 +426,20 @@ impl<S: PageSource> Rdb<S> {
             if !first {
                 out.extend_from_slice(&7u32.to_be_bytes()); // 节点间分隔字(v1"追加段"marker)
             }
-            let node_bytes = self.slice(node, total as usize * 4)?.to_vec();
-            out.extend_from_slice(&node_bytes);
+            // 预算导向重组(契约 F1-I1 注 2026-06-12):链尾节点可能带 slack 词
+            // (节点头声明长度 > 记录 rec[10] 预算的剩余,sam7200 (23584,5535) 实测)。
+            // e3d_io 解码以预算截取;重组流照同一语义——payload 只取 take 词,
+            // 头部 low16 改写为 take+5,下游按头长前进即不会吞入 slack。
+            let plen = total - 5;
+            let take = plen.min(remaining).max(0) as usize;
+            let hdr_w = (which << 16) | ((take as u32 + 5) & 0xFFFF);
+            out.extend_from_slice(&hdr_w.to_be_bytes());
+            let mid = self.slice(node + 4, 16)?.to_vec(); // refno×2 + 链指针×2 原样
+            out.extend_from_slice(&mid);
+            let payload = self.slice(node + 20, take * 4)?.to_vec();
+            out.extend_from_slice(&payload);
 
-            remaining -= total - 5;
+            remaining -= plen;
             let next_pg = self.u(node + 12)?;
             let next_loc = self.u(node + 16)?;
             page = next_pg;
@@ -772,15 +782,27 @@ mod tests {
             if mb_words == 0 || mb_pg == 0 {
                 continue;
             }
-            // 原生邻接假设下,members 节点应紧随隐式区(+padding)——逐字节对比重组区段。
+            // 原生邻接假设下,members 节点应紧随隐式区——对比重组区段与磁盘节点
+            // (预算导向:payload 取 min(节点声明, rec[10] 预算),头 low16 相应收紧;
+            //  无 slack 的节点 = 逐字节一致)。
             let chained = rv.element_record_chained(bo as u64).unwrap();
             let node = mb_pg as usize * rv.page_size()
                 + (((rv.u(bo + 36).unwrap() >> 13) & 0xFFF) as usize) * 4;
             let hdr = rv.u(node).unwrap();
-            let total_bytes = ((hdr & 0xFFFF) as usize) * 4;
-            let window_node = rv.slice(node, total_bytes).unwrap().to_vec();
-            let chained_node = &chained[impl_words * 4..impl_words * 4 + total_bytes];
-            assert_eq!(chained_node, &window_node[..], "node bytes identical (bo={bo:#x})");
+            let plen = ((hdr & 0xFFFF) as i64 - 5).max(0);
+            let take = plen.min(mb_words) as usize;
+            let expect_hdr = (2u32 << 16) | (take as u32 + 5);
+            let disk_mid = rv.slice(node + 4, 16).unwrap().to_vec();
+            let disk_payload = rv.slice(node + 20, take * 4).unwrap().to_vec();
+            let base = impl_words * 4;
+            let chained_node = &chained[base..base + (5 + take) * 4];
+            assert_eq!(
+                u32::from_be_bytes(chained_node[0..4].try_into().unwrap()),
+                expect_hdr,
+                "node hdr budget-trimmed (bo={bo:#x})"
+            );
+            assert_eq!(&chained_node[4..20], &disk_mid[..], "refno+link words identical");
+            assert_eq!(&chained_node[20..], &disk_payload[..], "payload identical (bo={bo:#x})");
             checked += 1;
             if checked >= 50 {
                 break;

@@ -17,9 +17,9 @@
 
 ## Phase 2 — 门面接线(R5 修复本体)
 
-- [ ] T201 [P1] 增量路径换链式重组流(`parse_raw_element` 一族;公共签名零变更,C1/api_freeze 为闸)
-- [ ] T202 [P1] 双实现对齐测试(F1-I4):sam7200 抽样 ≥200 + e3d_io 改写元素,重组流 parse == `decode_full`(DA/显式逐项)
-- [ ] T203 GATE:默认特性全套件绿(含 `diag_ams1112` 5 测试不回归)
+- [x] T201 [P1] 增量路径换链式重组流(`parse_raw_element` 一族;公共签名零变更,C1/api_freeze 为闸)— **2026-06-12 落地**:`read_element_record_cached` 改经 `element_record_chained`(前导 0/7 padding 先跳,链式流以 w0 为锚)。**附带两项同根修正(对齐契约逮出的 v1 长期隐性 bug)**:① `EleData.name` 提取挪到显式解析之后(显式优先,implicit 兜底)——原先在显式解析**之前**取 implicit "NAME" ⇒ 增量管道 name 恒空 ② `MEMBERS_BASE_PAYLOAD_OFFSET` 12→20——主段载荷把 w3/w4 链指针计入 ⇒ 单节点混入 (0,0) 伪成员、多节点链混入 `(next_pg,next_loc)` 伪成员(sam7200 (23584,5443) 实测);合成夹具/count_members 同步修正
+- [x] T202 [P1] 双实现对齐测试(F1-I4):sam7200 抽样 ≥200 + e3d_io 改写元素,重组流 parse == `decode_full`(DA/显式逐项)— `tests/chained_incr_sam7200.rs`:① 具名 150+无名 60 抽样,门面(链式流)refno/name/children 与 e3d_io 真相逐项一致 ② **R5 门面级终证**:writeback 改名后门面解析读出新名。**对齐又逮出第三个隐性 bug**:链尾节点带 **slack 词**(节点声明长度 > rec[10] 预算余量,(23584,5535) 实测)⇒ v1 合并载荷 %8 失败 ⇒ children 静默为空——修复=重组器预算导向(payload 取 min(声明,预算),头 low16 收紧;e3d_io 解码同语义),契约 F1-I1 已回填。三测全绿
+- [x] T203 GATE:默认特性全套件绿(含 `diag_ams1112` 5 测试不回归)— **2026-06-12 00:34 通过,exit 0**:lib 47/0/5 + 全部集成绿;`diag_ams1112_full_parse` 5✓(342s,103MB 全库跑在链式流+三项修正上零回归);api_freeze 未触发。**Phase 2 收口,Phase 3(写回侧收口)解锁**
 
 ## Phase 3 — 写回侧收口
 

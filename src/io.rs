@@ -430,13 +430,30 @@ impl PdmsIO {
             self.open()?;
         }
 
-        // specs/002 T205：变长记录读取委托 e3d_io（`Rdb::element_record`,
-        // 自适应 16K→64K 窗口与记录定界语义自 v1 `ElementRecordReader` 同式移植,
-        // 经持久 `PagedFile` 页源;迁移期 parity 闸已随 v1 对照在 Phase 3 退役,
-        // 等值保障由 diag_ams1112_full_parse / desp / bend_angl 集成测试承接）。
-        self.rdb()?
-            .element_record(start_offset)
-            .map_err(|e| anyhow!("read element record via e3d_io: {e}"))
+        // specs/005 T201(R5 修复;契约 F2-A1,公共签名不变):记录读取换**链式重组流**
+        // (`Rdb::element_record_chained`)——DA/members 区不再依赖"物理上恰好紧随记录"
+        // 的窗口邻接假设,而按 rec[6]/[7](DA)与 rec[8]/[9](members)链指针逐节点重组;
+        // e3d_io 重定位到远页的 DA 编辑(改名等)对下游解析就此可见。
+        // (002 T205 的窗口读取 `element_record` 保留在 e3d_io 供对照/诊断。)
+        // 链式重组以记录 w0 为锚:先跳过可能的前导 0/7 填充。
+        let rdb = self.rdb()?;
+        let mut off = start_offset as usize;
+        let mut guard = 0usize;
+        loop {
+            let w = rdb
+                .slice(off, 4)
+                .map_err(|e| anyhow!("skip record padding via e3d_io: {e}"))?;
+            if w != [0x00, 0x00, 0x00, 0x00] && w != [0x00, 0x00, 0x00, 0x07] {
+                break;
+            }
+            off += 4;
+            guard += 1;
+            if guard > 16 * 1024 {
+                return Err(anyhow!("excessive padding before record @ {start_offset:#X}"));
+            }
+        }
+        rdb.element_record_chained(off as u64)
+            .map_err(|e| anyhow!("read element record (chained) via e3d_io: {e}"))
     }
 
     /// 获取缓存命中率
