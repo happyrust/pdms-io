@@ -1,6 +1,5 @@
 use crate::defines::*;
 use crate::page_manager::PageManager;
-use crate::paged_reader::PagedReader;
 #[cfg(feature = "surrealdb")]
 use aios_core::SUL_DB;
 use aios_core::pdms_data::DataOperation;
@@ -184,6 +183,10 @@ impl RefnoAdjacentChangeStats {
 impl PdmsIO {
     // ... (其他代码保持不变)
 
+    /// specs/002 T206：随 v1 字节路径（PageManager/PagedReader 直读）退役,
+    /// 语义已由 `e3d_io` `PageSource` 的 `ext_no` 恒 0 约定（契约 C2 I4）承接;
+    /// 保留至 Phase 3 一并删除。
+    #[allow(dead_code)]
     #[inline]
     fn local_file_ext_no(&self) -> u32 {
         // `PdmsIO` 当前以单个扩展文件为输入，物理页号按本文件本地偏移读取。
@@ -285,16 +288,19 @@ impl PdmsIO {
         Ok(self.file.as_mut().unwrap())
     }
 
-    /// 获取指定页号的完整页面数据（会走 PageManager 缓存）。
+    /// 获取指定页号的完整页面数据。
+    /// specs/002 T206：经 e3d_io 只读视图取页（v1 `PageManager` 自读路径退役）。
     fn get_page_cached(&mut self, pgno: u32) -> anyhow::Result<Vec<u8>> {
         if self.file.is_none() {
             self.open()?;
         }
 
-        let ext_no = self.local_file_ext_no();
-        let file = self.file.as_mut().unwrap();
-        let data = self.page_cache.get_page(file, ext_no, pgno)?;
-        Ok(data.to_vec())
+        let ps = self.page_size;
+        Ok(self
+            .rdb()?
+            .slice(pgno as usize * ps, ps)
+            .map_err(|e| anyhow!("page {pgno} via e3d_io: {e}"))?
+            .to_vec())
     }
 
     /// 初始化 sesno_pgno_map / ses_range_map。
@@ -375,17 +381,11 @@ impl PdmsIO {
             self.open()?;
         }
 
-        let ext_no = self.local_file_ext_no();
-        let page_size = self.page_size;
-        let file = self.file.as_mut().unwrap();
-        PagedReader::read(
-            file,
-            &mut self.page_cache,
-            ext_no,
-            page_size,
-            start_offset,
-            length,
-        )
+        // specs/002 T206：跨页读取委托 e3d_io 只读视图（v1 `PagedReader` 退役）。
+        self.rdb()?
+            .slice(start_offset as usize, length)
+            .map(|b| b.to_vec())
+            .map_err(|e| anyhow!("read {length}B @ {start_offset:#X} via e3d_io: {e}"))
     }
 
     /// 读取任意偏移的原始字节（兼容旧测试代码）。
@@ -417,8 +417,10 @@ impl PdmsIO {
     }
 
     /// 获取缓存命中率
+    /// specs/002 T206：统计源切换为 e3d_io 只读视图（影子页命中语义,承接 v1
+    /// `PageManager::hit_rate` 含义;未打开时为 0.0,与空 PageManager 一致）。
     pub fn cache_hit_rate(&self) -> f64 {
-        self.page_cache.stats().hit_rate()
+        self.rdb.as_ref().map(|r| r.cache_hit_rate()).unwrap_or(0.0)
     }
 
     /// 根据页号获取会话号

@@ -70,6 +70,7 @@ pub trait PageSource {
 - **C3.2 页大小探测**：保持"header `page_size` 不可信"语义——以 `session_page_no`/`latest_ses_pgno` 在候选 {2048, 4096, 512}（按此顺序）探测 `page_type==Session(3)`，全失败兜底 2048。`ams1112_0001` 为本条的必测样本。
 - **C3.3 会话范围**：`init_ses_maps` 的范围推导（沿 `last_ses_pageno` 回溯、oldest→newest 重放、`start = prev_end+1`、`end = end_pgno.max(start)`）MUST 语义等价，增量归属不得漂移。
 - **C3.4 索引缓存文件**：`cache_index_map`/`load_cached_index_map` 二选一并写死：(a) 磁盘格式逐字节兼容；或 (b) 格式版本号失配时静默重建。选择结果在实现 PR 中回填本契约。
+  **已落 (a)（2026-06-11,T207）**：换芯仅改变 `IndexMap` 的**构建来源**（`e3d_io` 枚举），磁盘缓存 `PIM1` 格式（magic+version+page_size+count+entries）与旧无 magic 格式的读取兼容逻辑均未动 = 逐字节兼容；版本/页大小失配维持**既有显式报错要求重建**（非静默重建）。持续护栏：`test_index_map_cache_roundtrip_pim1`。
 - **C3.5 双页源一致性**：同一库经 `InMemory` 与 `PagedFile` 全库枚举，元素计数+属性值逐项一致（spec SC-003）。
 
 ## C4. 退役清单（Phase 3 验收）

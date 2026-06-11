@@ -38,6 +38,9 @@ pub struct Rdb<S: PageSource> {
     n_pages: usize,
     shadow: Vec<u8>,
     loaded: Vec<bool>,
+    /// 影子页命中/取页计数（承接 v1 `PageManager` 命中率语义,spec 002 T206）。
+    hits: u64,
+    misses: u64,
 }
 
 impl Rdb<InMemory> {
@@ -66,7 +69,26 @@ impl<S: PageSource> Rdb<S> {
     /// 自定义页源构造；`n_pages` 为完整页数（trait 保持最小，长度由调用方提供）。
     pub fn new(mut src: S, n_pages: usize) -> Rdb<S> {
         let ps = src.page_size();
-        Rdb { src, ps, n_pages, shadow: vec![0u8; ps * n_pages], loaded: vec![false; n_pages] }
+        Rdb {
+            src,
+            ps,
+            n_pages,
+            shadow: vec![0u8; ps * n_pages],
+            loaded: vec![false; n_pages],
+            hits: 0,
+            misses: 0,
+        }
+    }
+
+    /// 借用底层页源（如读取 `PagedFile` 的 `CacheStats`）。
+    pub fn src(&self) -> &S {
+        &self.src
+    }
+
+    /// 命中率：已加载页的重复访问 / 全部页访问（与 v1 `PageManager::hit_rate` 同义）。
+    pub fn cache_hit_rate(&self) -> f64 {
+        let total = self.hits + self.misses;
+        if total == 0 { 0.0 } else { self.hits as f64 / total as f64 }
     }
 
     pub fn page_size(&self) -> usize {
@@ -90,9 +112,12 @@ impl<S: PageSource> Rdb<S> {
             )));
         }
         if !self.loaded[pg] {
+            self.misses += 1;
             let bytes = self.src.page(0, pg as u32)?;
             self.shadow[pg * self.ps..(pg + 1) * self.ps].copy_from_slice(bytes);
             self.loaded[pg] = true;
+        } else {
+            self.hits += 1;
         }
         Ok(())
     }
