@@ -10,9 +10,9 @@
 
 ## Phase 1 — kv-mem 测试基建
 
-- [ ] T101 [P1] 测试工具模块:`mem://` 连接、每测试独立 ns/db、D1 表初始化(`--features surrealdb` + `#[cfg(test)]`)
-- [ ] T102 [P1] 幂等冒烟(合成):确定性 ID upsert 重放 ≥3 次,count/内容不变(D2 I1/I2 最小例)
-- [ ] T103 GATE:kv-mem 冒烟绿;无外部服务依赖;`e3d_io` 零改动
+- [x] T101 [P1] 测试工具模块:`mem://` 连接、每测试独立 ns/db、D1 表初始化(`--features surrealdb` + `#[cfg(test)]`)— `src/tests/surreal_mem.rs`:共享静态运行时 `rt()`(**实测陷阱 ×2 入档**:① surrealdb 3.x 内嵌引擎在单线程 tokio rt 上**卡死**〔上轮 20 分钟无输出根因〕② 全局 `SUL_DB` 连接绑定首个连接所在运行时,`#[tokio::test]` 每测私有 rt 会拖死连接"closed channel"→ 共享 rt + 串行锁 + 独立 ns/db 解决)+ `isolated()` 守卫 + `table_count`(3.x 对不存在表报 NotFound 按 0 处理);表 schemaless 无需 DEFINE。新增直接依赖 `surrealdb-types`(SurrealValue 派生宏要求 `::surrealdb_types` 路径,与 rs-core 同款,feature 门控)
+- [x] T102 [P1] 幂等冒烟(合成):确定性 ID upsert 重放 ≥3 次,count/内容不变(D2 I1/I2 最小例)— `kv_mem_upsert_replay_is_idempotent`(重放 3 次 count 恒 1 + 同 ID 改值 = 覆盖非跳过,区别于旧 INSERT IGNORE)+ `kv_mem_isolation_between_test_dbs`(隔离自检)
+- [x] T103 GATE:kv-mem 冒烟绿;无外部服务依赖;`e3d_io` 零改动 — **2026-06-11 通过**:2 测试绿(0.98s,纯 mem://);默认特性套件 39/0/5 不受影响;`crates/e3d_io` 未触碰
 
 ## Phase 2 — 入口真实化
 
