@@ -42,5 +42,3 @@ pub mod test_refno_status;
 pub mod test_ses_data;
 #[cfg(test)]
 pub mod test_ses_validate;
-#[cfg(test)]
-pub mod test_write_integration;

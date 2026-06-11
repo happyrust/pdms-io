@@ -1,16 +1,11 @@
 pub mod common;
 pub mod config;
 pub mod defines;
-pub mod element_record_reader;
-pub mod element_serializer;
 #[allow(warnings)]
 pub mod io;
-pub mod page_manager;
-pub mod paged_reader;
 #[cfg(feature = "meilisearch")]
 pub mod search;
 pub mod test;
-pub mod writer;
 
 #[cfg(feature = "sync-archive")]
 pub mod sync;
@@ -19,8 +14,12 @@ pub mod watch;
 
 pub mod dblist;
 
-pub mod engine_v2;
 pub mod io_log;
+
+// specs/002 Phase 3（2026-06-11）：三引擎收敛后退役删除——
+// `engine_v2`(39 文件)、`writer`/`element_serializer`(v1 写路径)、
+// `page_manager`/`paged_reader`/`element_record_reader`(v1 读取辅助)。
+// 能力去向与逆向知识归档见 docs/engine-v2-archaeology.md;字节真相单源 = crates/e3d_io。
 
 /// Fully-offline E3D/PDMS DABACON element read + write (std-only; see docs/e3d 数据库分析/).
 /// Now lives in the standalone `crates/e3d_io` crate so it builds + tests inside the workspace

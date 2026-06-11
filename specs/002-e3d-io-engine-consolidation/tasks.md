@@ -31,11 +31,11 @@
 
 ## Phase 3 — 孤岛退役（仅在 T208 通过后执行）
 
-- [ ] T301 [P2] 删除 `src/engine_v2/**` + `src/bin/verify_engine_v2.rs` + `Cargo.toml` 对应 `[[bin]]`；`lib.rs` 摘除声明
-- [ ] T302 [P2] 删除 `src/writer.rs` + `src/element_serializer.rs` + `src/test/test_write_integration.rs`；`lib.rs` 摘除声明
-- [ ] T303 [P2] 删除 `src/page_manager.rs` + `src/paged_reader.rs` + `src/element_record_reader.rs`（确认 Phase 1/2 已吸收其全部在用能力）
-- [ ] T304 [P2] 知识归档 `docs/engine-v2-archaeology.md`：db1~db5 ↔ core.dll 函数对照、`INDEX_PAGE_HEADER_SIZE=0x1C`、`START_MARKER 0x80000001` 等陷阱（来源：engine_v2 注释 + writer.rs 注释 + research.md §1.4）
-- [ ] T305 GATE：workspace 构建通过；`grep` 无残留引用（契约 C4 验收）
+- [x] T301 [P2] 删除 `src/engine_v2/**` + `src/bin/verify_engine_v2.rs` + `Cargo.toml` 对应 `[[bin]]`；`lib.rs` 摘除声明 — **2026-06-11 执行**(39 文件 + bin + [[bin]] 块 + 声明,lib.rs 留退役注记指向归档)
+- [x] T302 [P2] 删除 `src/writer.rs` + `src/element_serializer.rs` + `src/test/test_write_integration.rs`；`lib.rs` 摘除声明 — **2026-06-11 执行**(随删 `src/test/mod.rs` 注册;v1 写路径基线红灯 `test_dirty_eviction_writes_back` 随退役消失)
+- [x] T303 [P2] 删除 `src/page_manager.rs` + `src/paged_reader.rs` + `src/element_record_reader.rs`（确认 Phase 1/2 已吸收其全部在用能力）— **2026-06-11 执行**:`PdmsIO` 删除 `page_cache: PageManager` pub 字段(grep 证零外部消费;C1 冻结面为 pub fn 清单,未涉)与 `local_file_ext_no`(C2 I4 承接);T205 的 v1↔新芯 parity 闸随对照退役,改置 `test_element_record_smoke` 自洽闸(非空+合法 impl_len),等值保障由 diag/desp/bend_angl 集成测试承接
+- [x] T304 [P2] 知识归档 `docs/engine-v2-archaeology.md`：db1~db5 ↔ core.dll 函数对照、`INDEX_PAGE_HEADER_SIZE=0x1C`、`START_MARKER 0x80000001` 等陷阱（来源：engine_v2 注释 + writer.rs 注释 + research.md §1.4）— **2026-06-11 落盘**:§1 六层 core.dll 函数对照抢救、§2 七项必保陷阱(含 claim 字段 0x24/0x28、会话范围推导、记录定界)、§3 旧实现已知缺陷防复活、§4 能力去向 C4 对照
+- [x] T305 GATE：workspace 构建通过；`grep` 无残留引用（契约 C4 验收）— **2026-06-11 通过**:workspace 构建 1m12s 成功;C4 grep(`engine_v2|ElementWriter|element_serializer|PageManager::|PagedReader::|ElementRecordReader::`)仅余 2 处文档注释命中(lib.rs 退役注记 + cache_hit_rate 语义沿革),零代码引用;全量测试 **exit 0 历史首次全绿**——lib 39 过/0 失/5 忽略(v1 孤岛测试随删除移除,基线红灯消失),集成测试全绿(api_freeze ✓ diag_ams1112_full_parse 5✓/390s ✓ desp ✓ bend_angl ✓ dblist ✓ trim_lowcase 4✓ ptcd ✓)
 
 ## Phase 4 — 清理与文档
 

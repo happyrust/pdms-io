@@ -1,5 +1,4 @@
 use crate::defines::*;
-use crate::page_manager::PageManager;
 #[cfg(feature = "surrealdb")]
 use aios_core::SUL_DB;
 use aios_core::pdms_data::DataOperation;
@@ -120,7 +119,8 @@ fn convert_to_operation_data(
 
 /// PDMS 数据库读取与解析入口。
 ///
-/// 当前以单文件（如 `ams1112_0001`）为输入，内部通过 `PageManager + PagedReader` 实现跨页读取。
+/// 当前以单文件（如 `ams1112_0001`）为输入;字节读取经 `e3d_io` 只读视图
+/// （`Rdb<PagedFile>`,specs/002 换芯;v1 `PageManager + PagedReader` 已退役）。
 pub struct PdmsIO {
     pub project: String,
     pub file_path: PathBuf,
@@ -130,7 +130,6 @@ pub struct PdmsIO {
     pub page_size: usize,
 
     pub file: Option<File>,
-    pub page_cache: PageManager,
 
     pub ses_data_map: HashMap<u32, SessionPageData>,
     pub ses_range_map: BTreeMap<i32, RangeInclusive<u32>>,
@@ -183,17 +182,6 @@ impl RefnoAdjacentChangeStats {
 impl PdmsIO {
     // ... (其他代码保持不变)
 
-    /// specs/002 T206：随 v1 字节路径（PageManager/PagedReader 直读）退役,
-    /// 语义已由 `e3d_io` `PageSource` 的 `ext_no` 恒 0 约定（契约 C2 I4）承接;
-    /// 保留至 Phase 3 一并删除。
-    #[allow(dead_code)]
-    #[inline]
-    fn local_file_ext_no(&self) -> u32 {
-        // `PdmsIO` 当前以单个扩展文件为输入，物理页号按本文件本地偏移读取。
-        // 数据库 dbnum 仍用于属性语义，不能作为 PageManager 的物理扩展号。
-        0
-    }
-
     pub fn new(project: impl Into<String>, file_path: impl AsRef<Path>, detail: bool) -> Self {
         let file_path = file_path.as_ref().to_path_buf();
         let page_size = PAGE_SIZE_2K;
@@ -204,7 +192,6 @@ impl PdmsIO {
             dbnum: 0,
             page_size,
             file: None,
-            page_cache: PageManager::new(1024, page_size),
             ses_data_map: HashMap::new(),
             ses_range_map: BTreeMap::new(),
             sesno_pgno_map: BTreeMap::new(),
@@ -224,7 +211,6 @@ impl PdmsIO {
         let detected_page_size = self.detect_page_size_by_probe(&header)?;
         if detected_page_size != self.page_size {
             self.page_size = detected_page_size;
-            self.page_cache = PageManager::new(1024, self.page_size);
             self.ses_data_map.clear();
             self.rdb = None; // 页大小变更 ⇒ 只读视图按新 ps 重建（specs/002 T204）
         }
@@ -410,7 +396,8 @@ impl PdmsIO {
 
         // specs/002 T205：变长记录读取委托 e3d_io（`Rdb::element_record`,
         // 自适应 16K→64K 窗口与记录定界语义自 v1 `ElementRecordReader` 同式移植,
-        // 经持久 `PagedFile` 页源;parity 见 `test_element_record_parity`）。
+        // 经持久 `PagedFile` 页源;迁移期 parity 闸已随 v1 对照在 Phase 3 退役,
+        // 等值保障由 diag_ams1112_full_parse / desp / bend_angl 集成测试承接）。
         self.rdb()?
             .element_record(start_offset)
             .map_err(|e| anyhow!("read element record via e3d_io: {e}"))
@@ -1914,7 +1901,7 @@ impl PdmsIO {
     /// # 错误
     /// * 如果文件读取或解析失败,将返回错误
     pub async fn parse_element(&mut self, refno_offset: u64) -> anyhow::Result<EleData> {
-        // 使用 ElementRecordReader 跨页读取完整记录，避免 impl_len+1024 这类启发式截断导致丢属性（如 DESP）。
+        // 跨页读取完整变长记录（e3d_io `Rdb::element_record`），避免 impl_len+1024 这类启发式截断导致丢属性（如 DESP）。
         let data = self.read_element_record_cached(refno_offset)?;
 
         // 兼容记录前导的 0/7 填充（页对齐/段分隔），一直跳过直到遇到真正的 impl_len。

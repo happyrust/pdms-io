@@ -19,12 +19,12 @@ fn test_open_smoke() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// specs/002 T205：e3d_io 变长记录读取与 v1 `ElementRecordReader` 逐字节等值（抽样,
-/// 含 >16K 增量扩窗记录;ams1112 真实库）。v1 实现保留至 Phase 3,此测试即 parity 闸。
+/// specs/002 T205 的 v1↔e3d_io 逐字节 parity 闸已于 Phase 3（T303,2026-06-11）随
+/// v1 `ElementRecordReader` 退役删除——迁移期使命完成（ams1112 抽样 430 条全等）;
+/// 记录读取的持续等值保障由 `diag_ams1112_full_parse`/`desp`/`bend_angl` 集成测试承接。
+/// 此处保留记录定界的自洽 smoke：抽样记录可读、非空、以合法 impl_len 开头。
 #[test]
-fn test_element_record_parity() -> anyhow::Result<()> {
-    use crate::element_record_reader::ElementRecordReader;
-
+fn test_element_record_smoke() -> anyhow::Result<()> {
     let db_filepath = match resolve_test_db_path("ams1112_0001") {
         Some(path) => path,
         None => {
@@ -39,20 +39,25 @@ fn test_element_record_parity() -> anyhow::Result<()> {
     let mut offsets: Vec<u64> = map.values().filter_map(|v| v.last().copied()).collect();
     offsets.sort_unstable();
 
-    let ext_no = 0u32;
-    let ps = io.page_size;
     let mut checked = 0usize;
     for off in offsets.into_iter().step_by(997) {
-        let v1 = {
-            let file = io.file.as_mut().expect("file opened");
-            ElementRecordReader::read(file, &mut io.page_cache, ext_no, ps, off)?
-        };
-        let new = io
-            .rdb()
-            .expect("read view available")
-            .element_record(off)
-            .map_err(|e| anyhow::anyhow!("e3d_io element_record: {e}"))?;
-        assert_eq!(v1, new, "record bytes mismatch at {off:#X}");
+        let rec = io.read_element_record_cached(off)?;
+        assert!(!rec.is_empty(), "empty record at {off:#X}");
+        // 跳过 0/7 前导填充后应以合法 impl_len(低 16 位 8..=512,高 16 位 0)开头。
+        let mut p = 0usize;
+        while p + 4 <= rec.len() {
+            let w = &rec[p..p + 4];
+            if w == [0, 0, 0, 0] || w == [0, 0, 0, 7] {
+                p += 4;
+            } else {
+                break;
+            }
+        }
+        if p + 4 <= rec.len() {
+            let w0 = u32::from_be_bytes([rec[p], rec[p + 1], rec[p + 2], rec[p + 3]]);
+            assert_eq!(w0 >> 16, 0, "impl_len 高位非零 at {off:#X}");
+            assert!((8..=512).contains(&(w0 & 0xFFFF)), "impl_len 越界 at {off:#X}");
+        }
         checked += 1;
     }
     assert!(checked >= 100, "expected >=100 sampled records, got {checked}");
