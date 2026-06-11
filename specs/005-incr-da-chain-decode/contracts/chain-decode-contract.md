@@ -35,7 +35,7 @@
 | 项 | 内容 |
 |---|---|
 | `Rdb` 链式记录读取面 | DA/members 链跟随 + 重组(具体命名实现期定,如 `element_record_chained`);仅读,不解释属性语义 |
-| `EdbWriter::set_name_at` | 内部复用既有 `pack_text`/`cow_da_set_entry`,不新增其它 pub 面 |
+| `EdbWriter::set_name_at` | 内部复用既有 `pack_text`/`cow_da_set_entry`,不新增其它 pub 面 — **落地回填(2026-06-11)**:实际为私有机件组装(`pack_text`+`set_entry_in_payload`+`relocate_da_payload`),支持 DA 首链创建;`cow_da_set_entry` 公共语义零变化(优于预想) |
 
 - 白名单之外的任何 e3d_io 改动仍为红线(停下上报)。
 - std-only 不变(cargo tree 单节点);e3d_io 既有测试全绿为闸。

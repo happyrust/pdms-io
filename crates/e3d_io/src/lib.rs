@@ -1745,6 +1745,23 @@ impl<'a> EdbWriter<'a> {
         self.offset_of_refno(refno)?;
         cow_delete_element(&mut self.db, refno).map_err(E3dError::Write)
     }
+    /// NAME 设置(specs/005 T103,契约 F3/F4 白名单项):**无 NAME 条目则新增**
+    /// (含 DA 区从无到有的首链创建),已有则改写——与 [`Self::rename_at`]
+    /// (严格要求已有 NAME)分工,本方法是无名元素「首次命名」的安全入口。
+    /// 实现为既有私有机件组装(`pack_text` + `set_entry_in_payload` +
+    /// `relocate_da_payload`),`cow_da_set_entry` 的空 DA 区拒绝语义不受影响。
+    pub fn set_name_at(&mut self, refno: (u32, u32), name: &str) -> Result<CowReport, E3dError> {
+        let bo = self.offset_of_refno(refno)?;
+        let payload = list_payload_words(self.db.bytes(), bo, self.db.page_size(), 1);
+        if find_entry_span(&payload, NAME_HASH).is_some() {
+            return cow_commit_da_text(&mut self.db, bo, NAME_HASH, name, None)
+                .map_err(E3dError::Write);
+        }
+        let (ctrl, value) = pack_text(10, name);
+        let new_payload = set_entry_in_payload(&payload, NAME_HASH, ctrl, &value);
+        relocate_da_payload(&mut self.db, bo, &new_payload, None).map_err(E3dError::Write)
+    }
+
     /// [`Self::insert_clone`] 的 refno 导向同构变体(新 refno 同规则:该 dbno 最大 refseq+1)。
     pub fn insert_clone_at(&mut self, src_refno: (u32, u32), new_name: &str) -> Result<(CowReport, (u32, u32)), E3dError> {
         let bo = self.offset_of_refno(src_refno)?;
@@ -2574,6 +2591,56 @@ mod tests {
             children[0],
             "payload (member refno pairs) starts at node+20"
         );
+    }
+
+    /// specs/005 T103:set_name_at——无名元素(DA 区为空)首次命名 = DA 首链创建;
+    /// 已名元素 = 改写(与 rename_at 殊途同归);rename_at 同构语义不受影响。
+    #[test]
+    fn set_name_at_first_naming_and_overwrite() {
+        if !data_present() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let ss = SchemaSet::load(EXE);
+        let mut w = EdbWriter::open(DBF, &ss).unwrap();
+
+        // 找一个无名且 DA 区为空的元素(首次命名主场景:从无到有建 DA 链)。
+        let mut rm = HashMap::new();
+        let elems = index_db(w.db(), &ss, true, &mut rm);
+        let bare = elems
+            .iter()
+            .find(|e| e.name.is_none() && e.da.is_empty())
+            .expect("sam7200 has unnamed elements without DA")
+            .refno;
+        let named = elems.iter().find(|e| e.name.as_deref() == Some("/WB1")).unwrap().refno;
+        let sesno0 = w.db().u(w.db().latest_ses() * w.db().page_size() + SES_SESNO);
+
+        // 首次命名仍可与其它编辑同批(单会话原子)。
+        let sesno1 = w
+            .batch(|w| {
+                w.set_name_at(bare, "/T103-FIRSTNAME")?;
+                w.set_name_at(named, "/WB1-T103")?; // 已名 ⇒ 改写路径
+                Ok(())
+            })
+            .unwrap();
+        assert_eq!(sesno1, sesno0 + 1);
+
+        let e = w.element_at(bare).unwrap();
+        assert_eq!(e.name.as_deref(), Some("/T103-FIRSTNAME"), "first naming readable");
+        assert_eq!(e.refno, bare);
+        assert_eq!(w.element_at(named).unwrap().name.as_deref(), Some("/WB1-T103"));
+
+        // rename_at 同构语义不变:对(另一个)无名元素仍拒绝。
+        let other_bare = elems
+            .iter()
+            .filter(|e| e.name.is_none() && e.da.is_empty())
+            .nth(1)
+            .expect("second bare element")
+            .refno;
+        assert!(w.rename_at(other_bare, "/NOPE").is_err());
+
+        // 首次命名后的元素可被 name 路径寻址(完全融入既有 NAME 生态)。
+        assert_eq!(w.element("/T103-FIRSTNAME").unwrap().refno, bare);
     }
 
     #[test]

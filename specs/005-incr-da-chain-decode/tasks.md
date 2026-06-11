@@ -12,8 +12,8 @@
 
 - [x] T101 [P1] 先读后写:核对 `parse_pdms_db` 对记录后 DA/members 区的布局假设(邻接形态/终止条件),确定重组流精确形状,回填契约 F1-I1 — **2026-06-11 完成,真实字节裁决**:读通 `parse_raw_ele_data_with_info`/`parse_members_block`/`collect_segmented_payload`(+12 主载荷/+24 追加段/0x07 marker)与 e3d_io `list_payload_words`/`decode_da_list`(+20 payload/5 词头)两套假设的表面冲突后,以 sam7200 实测字节裁决:**邻接布局 = 同一 5 词节点形状的物理邻接摆放**(rec[8]/[9] 节点 == 窗口 membs_pos,逐词核对)。重组规范定稿入契约 F1-I1;锚点测试 `members_node_layout_anchor` 固化结论(e3d_io 40+1 全绿)
 - [x] T102 [P1] `Rdb` 链式记录重组(F1-I1~I3:DA rec[6]/[7] + members rec[8]/[9] 链跟随,有界 128 + 环防,坏链类型化错误)+ 测试:邻接库等价(F1-I2)/ e3d_io 改写元素重组含远页 payload / 坏链报错 — **2026-06-11 落地**:`Rdb::element_record_chained`(隐式区 ++ adjacentize(members) ++ adjacentize(DA),节点 5 词头+payload 原样字节、节点间 0x07 分隔字,按 F1-I1 规范)。测试三类:① 原生库 50 元素抽查重组节点区与磁盘节点逐字节一致 ② **R5 核心证明**:改名重定位后窗口流不含新名字节、链式流含(盲区复现+修复双断言)③ 合成坏链(节点类型错位)类型化报错。e3d_io **43+1 全绿**
-- [ ] T103 [P2] `EdbWriter::set_name_at`(F3-A1:无名新增/已名改写,内部复用 pack_text+cow_da_set_entry)+ 测试:无名命名 batch 单会话 round-trip / 已名改写与 rename_at 殊途同归 / rename_at 同构语义不变
-- [ ] T104 GATE:e3d_io 独立套件全绿;cargo tree 单节点;diff 仅白名单项
+- [x] T103 [P2] `EdbWriter::set_name_at`(F3-A1:无名新增/已名改写,内部复用 pack_text+cow_da_set_entry)+ 测试:无名命名 batch 单会话 round-trip / 已名改写与 rename_at 殊途同归 / rename_at 同构语义不变 — **2026-06-11 落地**:实现为既有私有机件组装(`pack_text`+`set_entry_in_payload`+`relocate_da_payload`),**支持 DA 区从无到有的首链创建**;`cow_da_set_entry` 的空区拒绝语义未动(比契约预想更干净,零 pub 行为变化)。测试:DA 全空无名元素首次命名(与已名改写同批单会话)/ 读回 / rename_at 对无名仍拒 / 首次命名后可被 name 路径寻址
+- [x] T104 GATE:e3d_io 独立套件全绿;cargo tree 单节点;diff 仅白名单项 — **2026-06-11 通过**:**44+1 全绿**;cargo tree 单节点;白名单审计=`element_record_chained`/`adjacentize`(T102)+`set_name_at`(T103)+锚点/链式/命名测试,无其它触碰。**Phase 1 收口,Phase 2(门面接线)解锁**
 
 ## Phase 2 — 门面接线(R5 修复本体)
 
