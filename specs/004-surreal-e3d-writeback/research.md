@@ -29,7 +29,7 @@
   
   **T102 核查结论(2026-06-11)= 缺口实锤**:`cow_*` 全 pub 且 refno/offset 导向,但**单会话原子语义只存在于 `EdbWriter::batch`**(私有 `collapse_session` 收敛 + 私有 `buf` 回滚,外部不可复刻),而 batch 闭包内只有 name 导向修改方法、`db()` 只读 ⇒ 无名元素(真实库 ~88%)无法单会话编辑,E1-I1 不可满足。
   
-  **决策选项(已上报用户)**:
+  **决策结果:A 已批准并落地(2026-06-11,用户"按推荐继续")**——六薄变体 + `offset_of_refno`/`element_at` 入 e3d_io,无名元素 batch 单会话测试通过(39+1 全绿);契约 E4/spec FR-010/SC-006 同步修订。语义澄清:`rename_at` 要求已有 NAME 条目(严格同构);首次命名留 005。原选项记录如下:
   - **A(推荐)**:e3d_io 增 6 个 refno 导向薄变体(`rename_at`/`set_pos_at`/`set_inline_at`/`set_members_at`/`delete_at`/`insert_clone_at`,各 = `record_off_via_root` 解析 + 既有 `cow_*`,与 name 方法同构对称,~40 行 + 无名元素测试)。红线条款(E4/SC-006)相应修订为"e3d_io 仅含本决策批准的寻址扩展"。红线本意是防"顺手改格式核心";经正式决策的最小对称扩展=合规路径。
   - B:pub `db_mut()` 逃生舱(1 个方法,但把绕过 EdbWriter 语义的口子开给所有下游,封装受损,不推荐)。
   - C:004 砍无名元素支持(named-only;`pe` 表以 refno 为键、name 可空,砍掉即管道残废,不推荐)。

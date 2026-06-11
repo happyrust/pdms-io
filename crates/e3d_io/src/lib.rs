@@ -1703,6 +1703,60 @@ impl<'a> EdbWriter<'a> {
         Ok((rep, new_refno))
     }
 
+    // ------------------------------------------------------------------
+    // refno 导向薄变体(specs/004 决策 A,2026-06-11 用户批准的红线扩展):
+    // 与上方 name 导向方法严格同构——仅把 NAME 解析换成 refno 解析,寻址后
+    // 走完全相同的 cow_* 路径;使无名元素(真实库 ~88%)可进入 batch 单会话编辑。
+    // 除此六变体 + 两个解析助手外,format/事务核心零改动。
+    // ------------------------------------------------------------------
+
+    /// Resolve a refno to its main-record byte offset under the latest session.
+    pub fn offset_of_refno(&self, refno: (u32, u32)) -> Result<usize, E3dError> {
+        record_off_via_root(&self.db, self.db.latest_root(), refno).ok_or_else(|| {
+            E3dError::ElementNotFound(format!("refno ({:#x},{:#x})", refno.0, refno.1))
+        })
+    }
+    /// Decode the element at `refno` (latest session).
+    pub fn element_at(&self, refno: (u32, u32)) -> Result<Element, E3dError> {
+        Ok(decode_at(&self.db, self.ss, self.offset_of_refno(refno)?))
+    }
+    /// [`Self::set_inline`] 的 refno 导向同构变体。
+    pub fn set_inline_at(&mut self, refno: (u32, u32), attr_hash: u32, val: &Val) -> Result<CowReport, E3dError> {
+        let bo = self.offset_of_refno(refno)?;
+        cow_commit_inline(&mut self.db, self.ss, bo, attr_hash, val).map_err(E3dError::Write)
+    }
+    /// [`Self::set_pos`] 的 refno 导向同构变体。
+    pub fn set_pos_at(&mut self, refno: (u32, u32), xyz: [f64; 3]) -> Result<CowReport, E3dError> {
+        self.set_inline_at(refno, POS_HASH, &Val::Reals(xyz.to_vec()))
+    }
+    /// [`Self::rename`] 的 refno 导向同构变体。与 name 路径同语义:目标须**已有**
+    /// NAME 条目(改写);无名元素首次命名属 DA 新增条目,走 [`cow_da_set_entry`]。
+    pub fn rename_at(&mut self, refno: (u32, u32), new_name: &str) -> Result<CowReport, E3dError> {
+        let bo = self.offset_of_refno(refno)?;
+        cow_commit_da_text(&mut self.db, bo, NAME_HASH, new_name, None).map_err(E3dError::Write)
+    }
+    /// [`Self::set_members`] 的 refno 导向同构变体。
+    pub fn set_members_at(&mut self, refno: (u32, u32), children: &[(u32, u32)]) -> Result<CowReport, E3dError> {
+        let bo = self.offset_of_refno(refno)?;
+        cow_members_set(&mut self.db, bo, children, None).map_err(E3dError::Write)
+    }
+    /// [`Self::delete`] 的 refno 导向同构变体(同语义:目标不存在 ⇒ `ElementNotFound`)。
+    pub fn delete_at(&mut self, refno: (u32, u32)) -> Result<CowReport, E3dError> {
+        self.offset_of_refno(refno)?;
+        cow_delete_element(&mut self.db, refno).map_err(E3dError::Write)
+    }
+    /// [`Self::insert_clone`] 的 refno 导向同构变体(新 refno 同规则:该 dbno 最大 refseq+1)。
+    pub fn insert_clone_at(&mut self, src_refno: (u32, u32), new_name: &str) -> Result<(CowReport, (u32, u32)), E3dError> {
+        let bo = self.offset_of_refno(src_refno)?;
+        let dbno = src_refno.0;
+        let mut rm = HashMap::new();
+        let elems = index_db(&self.db, self.ss, true, &mut rm);
+        let maxseq = elems.iter().filter(|e| e.refno.0 == dbno).map(|e| e.refno.1).max().unwrap_or(0);
+        let new_refno = (dbno, maxseq + 1);
+        let rep = cow_insert_element_split(&mut self.db, bo, new_refno, new_name, None).map_err(E3dError::Write)?;
+        Ok((rep, new_refno))
+    }
+
     /// Apply several edits as ONE atomic "save" (`db5_save_work` batch semantics, FR-020 / SC-008).
     /// Each edit inside `edits` commits as usual (appending an intermediate session); on success
     /// they are collapsed into a single new session (`sesno` only +1) whose root carries every
@@ -2413,6 +2467,72 @@ mod tests {
             pos0,
             "/WB1 must be unchanged after a rolled-back batch"
         );
+    }
+
+    /// specs/004 决策 A:refno 导向薄变体让**无名元素**(sam7200 ~88%)可进入
+    /// batch 单会话编辑——这是 name 导向 API 无法表达的能力。
+    #[test]
+    fn edbwriter_refno_oriented_unnamed() {
+        if !data_present() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let ss = SchemaSet::load(EXE);
+        let mut w = EdbWriter::open(DBF, &ss).unwrap();
+
+        // 找一个无名且带 POS 的元素(写回管道的典型目标)。
+        let mut rm = HashMap::new();
+        let elems = index_db(w.db(), &ss, true, &mut rm);
+        let target = elems
+            .iter()
+            .find(|e| e.name.is_none() && e.pos().is_some())
+            .expect("sam7200 has unnamed elements with POS")
+            .refno;
+        let named = elems
+            .iter()
+            .find(|e| e.name.as_deref() == Some("/WB1"))
+            .expect("/WB1 present")
+            .refno;
+        let sesno0 = w.db().u(w.db().latest_ses() * w.db().page_size() + SES_SESNO);
+
+        // 混合两笔 refno 导向编辑,batch 单会话:无名元素改 POS(headline 能力)
+        // + 具名元素经 refno 改名(rename_at 同构性)。
+        let new_pos = [111.0, 222.0, 333.5];
+        let sesno1 = w
+            .batch(|w| {
+                w.set_pos_at(target, new_pos)?;
+                w.rename_at(named, "/WB1-T102A")?;
+                Ok(())
+            })
+            .unwrap();
+        assert_eq!(sesno1, sesno0 + 1, "batch must collapse to a single new session");
+
+        // 读回:无名元素位置生效且仍无名、refno 不变;具名元素新名生效。
+        let e = w.element_at(target).unwrap();
+        assert_eq!(e.refno, target);
+        assert_eq!(e.pos(), Some(&new_pos[..]));
+        assert_eq!(e.name, None, "unnamed stays unnamed");
+        assert_eq!(w.element_at(named).unwrap().name.as_deref(), Some("/WB1-T102A"));
+
+        // 严格同构语义:rename_at 要求已有 NAME 条目——无名元素首次命名不在其面内。
+        assert!(w.rename_at(target, "/NOPE").is_err());
+
+        // 不存在的 refno ⇒ 类型化 ElementNotFound(与 name 路径同语义)。
+        assert!(matches!(
+            w.set_pos_at((0x5C20, 0xFFFF_FFF0), [0.0; 3]),
+            Err(E3dError::ElementNotFound(_))
+        ));
+        // 错误编辑混入批 ⇒ 整批回滚(原子性延续到 refno 变体)。
+        let len_before = w.bytes().len();
+        let r = w.batch(|w| {
+            w.set_pos_at(target, [1.0, 2.0, 3.0])?;
+            w.delete_at((0x5C20, 0xFFFF_FFF0))?;
+            Ok(())
+        });
+        assert!(r.is_err());
+        assert_eq!(w.bytes().len(), len_before, "failed batch must roll back appended pages");
+        let e2 = w.element_at(target).unwrap();
+        assert_eq!(e2.pos(), Some(&new_pos[..]), "rolled-back edit must not stick");
     }
 
     #[test]

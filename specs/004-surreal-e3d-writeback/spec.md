@@ -61,7 +61,7 @@
 - **FR-009**: 同一批次重复 apply MUST 幂等跳过(可观测计数;文件 sesno 不增长)。
 
 **范围外(明确不做)**
-- **FR-010**: MUST NOT 触及:真机 E3D 联动(001-T039)、并发/分布式写、多 extent、跨库 refno 重映射、UI/服务化、Meilisearch、`crates/e3d_io` 任何改动、`PdmsIO` C1 冻结面变更。
+- **FR-010**: MUST NOT 触及:真机 E3D 联动(001-T039)、并发/分布式写、多 extent、跨库 refno 重映射、UI/服务化、Meilisearch、`crates/e3d_io` 决策 A 范围外的任何改动(范围见契约 E4;2026-06-11 修订)、`PdmsIO` C1 冻结面变更。
 
 ### Key Entities
 
@@ -76,7 +76,7 @@
 - **SC-003**: verify 强制:构造坏提交场景,写回失败且零文件变更。
 - **SC-004**: 队列幂等:同批次重放 apply,文件 sesno 不增长、状态不漂移(kv-mem)。
 - **SC-005**: 回声收敛:写回 → 增量提取 → ingest 后,`pe` 表内容 == 写回意图;再 ingest 幂等。
-- **SC-006**: 红线:`crates/e3d_io` diff 为空;C1 冻结锁未触发;默认与 `--features surrealdb` 套件全绿。
+- **SC-006**: 红线:`crates/e3d_io` 改动仅限决策 A 批准范围(契约 E4,diff 可审计;std-only/cargo tree 单节点不变);C1 冻结锁未触发;默认与 `--features surrealdb` 套件全绿。
 
 ## Assumptions
 

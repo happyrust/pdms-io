@@ -56,6 +56,8 @@ pub fn apply_writeback(
 
 ## E4. 红线(violations = 收敛失败)
 
-- `crates/e3d_io` diff MUST 为空(API 缺口 ⇒ 停下上报,留决策记录,禁止顺手改)。
+- `crates/e3d_io` 改动 MUST 仅限 **2026-06-11 决策 A 批准的寻址扩展**:`EdbWriter` 六个 refno 导向薄变体(`set_inline_at`/`set_pos_at`/`rename_at`/`set_members_at`/`delete_at`/`insert_clone_at`)+ 两个解析助手(`offset_of_refno`/`element_at`),各为既有 name 方法的严格同构(寻址换 refno,后接相同 `cow_*` 路径);格式/事务核心零改动,std-only 红线不变(cargo tree 单节点)。**其余任何 e3d_io 改动仍为红线**(缺口 ⇒ 停下上报)。
 - `PdmsIO` C1 冻结面零变更(`tests/api_freeze_c1.rs` 全程不触发)。
 - 同一文件并发写回不支持(调用方互斥;契约声明而非实现)。
+
+**决策 A 落地注记(2026-06-11)**:薄变体 + 无名元素 batch 测试已入 e3d_io(39+1 全绿);语义澄清——`rename_at` 与 name 路径同构,要求目标**已有** NAME 条目(改写);无名元素**首次命名**属 DA 新增条目(`cow_da_set_entry` 面),不在 E1 `Rename` 范围内,如需求出现记 005 新 EditOp。
