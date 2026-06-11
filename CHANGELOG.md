@@ -2,6 +2,14 @@
 
 ## [未发布]
 
+### 进行中 — 增量 DA 链式解析(R5 盲区修复)+ 首次命名(specs/005,2026-06-11 起)
+
+> 004 实测发现的 R5:e3d_io 把 DA 文本重定位到远页后,v1 窗口邻接解析看不见 ⇒ 改名等 DA 编辑进不了增量/落不了库。005 修复这最后一个双向流水线缺口;grill Q1~Q6 全按推荐(修在 e3d_io read_view/仅 DA·members 区改链式/独立 SetName/白名单红线 v2)。
+
+- **T101 布局裁决(真实字节)**:PDMS 邻接布局 = 链式 5 词节点(`[(which<<16)|total][refno×2][next_pg][next_loc]`+payload)的物理邻接摆放;v1"0x07 追加段"= 分隔字+下一节点。重组规范入契约 F1-I1;锚点测试 `members_node_layout_anchor` 固化。
+- **T102 链式重组**:`Rdb::element_record_chained`——隐式区 ++ adjacentize(members) ++ adjacentize(DA),节点原样字节+0x07 分隔,有界 128+环防+坏链类型化报错。测试:邻接库 50 元素逐字节等价 / **R5 双断言**(窗口流看不见重定位 DA、链式流看得见)/ 坏链报错;e3d_io 43+1 全绿。
+- 待续:T103 `set_name_at`(首次命名)→ T104 GATE → Phase 2 门面接线(增量路径换链式流 + decode_full 对齐)→ Phase 3 回声转正。
+
 ### 新增 — SurrealDB → E3D 写回管道(specs/004,2026-06-11)
 
 > 在 001 验证过的写能力与 003 落库形态之间架安全写回管道;grill Q1~Q6 全按推荐拍板(纯函数入口→队列两层 / 001 原语全集 / 默认副本+verify 强制 / 接受回声 / kv-mem+sam7200 验收 / 严格管道范围)。**「文件 ⇄ 库」双向数据流就此闭环**(SC-001~006 全核销)。
