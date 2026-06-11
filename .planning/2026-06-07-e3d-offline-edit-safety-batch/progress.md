@@ -33,3 +33,7 @@
 - **实测验收**:`cargo check`(默认 / `--features surrealdb`)均 0 错误;`crates/e3d_io` `cargo test --release` **25+1 全过**复验;全并行 `cargo build` 首轮因**内存+页面文件耗尽**假性失败(`memory allocation failed` + mmap os error 1455,12 bin 并行 codegen 所致,非代码问题),**`cargo build -j2` 默认 1m41s + surrealdb 特性 2m27s 均 Finished** ⇒ **T040 [X]**(tasks.md 已同步)。建议用户调大 Windows 页面文件根治全并行 OOM。
 - 清理临时文件 `_t040_build.log`/`_t040_build2.log`/`_t040_default.log`/`_tmp_cmp.py`(`e3d_sam7200_export.json` 为 T047/SC-007 证据、可再生,保留未提交)。
 - **余 gated**:T039(真机 E3D)/ T041(udalib 字典库)/ T042(更多 catalogue 库);rs-core 修改授权已获、当前无需改动。工作区尚有未提交变更,待用户确认后提交。
+
+## 2026-06-11 — 后记:specs/002 三引擎收敛完成(本计划成果成为全仓唯一核心)
+- 6-10 起新工作经 spec-kit `specs/002-e3d-io-engine-consolidation` 推进(不再用 `.planning` 跟踪),至 6-11 **Phase 0–4 全清、SC-001~006 核销、spec 置 Implemented**:`e3d_io` 增 `PageSource`(InMemory/PagedFile LRU)+ `Rdb` 只读视图(点查/枚举/会话链/变长记录),`PdmsIO` 换芯为门面(API 冻结锁),`engine_v2`(39 文件)+ v1 写路径 + 读取辅助全部退役删除,知识归档 `docs/engine-v2-archaeology.md`;全套测试历史首次全绿。`e3d_io` 测试 25+1 → **38+1**。
+- 本计划(001/US5 事务安全层)交付物在 002 中升格为**全仓唯一格式核心**;`.planning` 三计划至此全部闭环,后续以 specs/00N 为单位推进。

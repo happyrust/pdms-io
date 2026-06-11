@@ -25,9 +25,10 @@
 | `e3d_write.py` | **写侧(在位)**:安全就地编辑定长内联值(实/整/引用;仅副本;基于"页无校验和"§12) |
 | `e3d_write_full.py` | **写侧(完整 COW + 新会话 CRUD)**:S1 内联 / S2·S6 DA 文本(同页·跨页·链式) / S3 新增 / S4 删除 / S5 任意键插入+分裂/长高 / S7 成员列表 / S8 UDA·DA 条目;多版本 + 仅副本(§12.6);**14 自检 demo 全 PASS**(S1–S9,含 Slice 9 `verify_commit` + `batch`) |
 | `tools/e3d_decode_rs/`(Rust) | std-only **读取/导出 CLI**(`--json`/`--cat`),现为 `crates/e3d_io` 的**薄消费者**(已消除重复解码器,解码单一真源);输出与改前逐项一致(10392/1209/145) |
-| `../../crates/e3d_io/`(Rust crate) | 独立 std-only crate:**读**(全属性/NAME/`resolve_refs`)+ **写**(S1–S8 COW CRUD,含 S4 delete);+ **安全事务层**(`verify_commit` 写后自校验 / `batch` 多笔合一会话 / `dry_run`·`element_diff` / `delete_guards` 护栏);稳定 `EdbWriter` API + 类型化 `E3dError`;`cargo test` **24 测试**;`pdms_io` 经 `pub use e3d_io as e3d_decode` 复用 |
+| `../../crates/e3d_io/`(Rust crate) | 独立 std-only crate:**读**(全属性/NAME/`resolve_refs`)+ **写**(S1–S8 COW CRUD,含 S4 delete);+ **安全事务层**(`verify_commit` 写后自校验 / `batch` 多笔合一会话 / `dry_run`·`element_diff` / `delete_guards` 护栏);+ **页源/读视图**(specs/002:`PageSource` trait,`InMemory`/`PagedFile` LRU,`Rdb` 惰性影子页——`btree_find` 点查/`leaves`/`session_chain`/`element_record`);稳定 `EdbWriter` API + 类型化 `E3dError`;`cargo test` **38+1 测试**;现为**全仓唯一格式核心**(`PdmsIO` 门面整体委托) |
 | `../../crates/e3d_io` `e3d-io`(CLI) | std-only 命令行(基于 `EdbWriter`):读 `show`/`refs`;写(COW)`rename`/`set-pos`/`delete`/`insert`(`--out`/`--cat`/`--inplace`) + 批量 `plan`/`apply`(护栏 `--force`/`--yes`);端到端 smoke 验证 |
 | **`../../specs/001-e3d-data-format/`** ⭐ | **spec-kit 规范**(格式的 WHAT/WHY + 字节级模型 + 契约 + 任务):`spec.md`(US1–US5 / FR-001..022 / SC-001..010)·`data-model.md`·`contracts/decode-contract.md`·`plan.md`·`tasks.md`。本索引 ↔ specs/001 互为入口 |
+| **`../../specs/002-e3d-io-engine-consolidation/`**(已 Implemented) | **三引擎收敛规范**:v1 `PdmsIO` 自带解析 / `engine_v2` / `e3d_io` → 单核心+门面;`PageSource`/`Rdb`、API 冻结契约、孤岛退役(`engine_v2` 39 文件 + v1 写路径,知识归档 `../engine-v2-archaeology.md`);2026-06-11 Phase 0–4 全清,SC-001..006 核销 |
 
 ## 关键已验证结论（含三大纠错）
 
