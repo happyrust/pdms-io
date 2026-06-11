@@ -1,5 +1,6 @@
 #![cfg(feature = "surrealdb")]
 
+use aios_core::RefU64;
 use anyhow::{Context, Result, anyhow};
 use pdms_io::io::PdmsIO;
 use std::collections::{BTreeMap, BTreeSet};
