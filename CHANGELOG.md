@@ -2,6 +2,15 @@
 
 ## [未发布]
 
+### 进行中 — SurrealDB → E3D 写回管道(specs/004,2026-06-11 起)
+
+> 在 001 验证过的写能力与 003 落库形态之间架安全写回管道;grill Q1~Q6 全按推荐拍板(纯函数入口→队列两层 / 001 原语全集 / 默认副本+verify 强制 / 接受回声 / kv-mem+sam7200 验收 / 严格管道范围)。
+
+- **e3d_io 决策 A 扩展**(红线经正式决策放行):`EdbWriter` 增 refno 导向薄变体 ×6(`set_inline_at`/`set_pos_at`/`rename_at`/`set_members_at`/`delete_at`/`insert_clone_at`)+ 解析助手 ×2,各为既有 name 方法严格同构 ⇒ **无名元素(真实库 ~88%)可入 batch 单会话编辑**;格式/事务核心零改动,std-only 不变(39+1 全绿)。
+- **写回核心 Phase 1**:`src/writeback_core.rs`——强类型 `EditOp` 六原语(serde + schema_version)+ `apply_writeback`(batch 单会话原子 + `delete_guards` force 分级 + `verify_commit` 强制 + 逐笔 refno 读回核验 + `element_diff` 摘要;任何失败 = 零输出字节)+ 文件包装(默认副本 `.e3dout`,未确认 in-place 拒绝)。sam7200 四测试全过(含护栏+verify 双闸拦危险删除);T106 GATE exit 0。
+- **实测钉住的语义边界**:同批内 `InsertClone` 须排在其模板编辑之前(契约 E3-A1 注);`rename` = 改写既有 NAME 条目,无名元素首次命名留 005。
+- 待续:Phase 2 队列层(`writeback_queue`,kv-mem)→ Phase 3 回声闭环 + CLI → Phase 4 文书。
+
 ### 变更 — E3D 增量落库收敛为单一强类型入口(specs/003,2026-06-11)
 
 > `update_elements_to_database` 从 no-op 占位真实化为唯一增量落库入口;字符串拼接 SQL 时代落幕。
