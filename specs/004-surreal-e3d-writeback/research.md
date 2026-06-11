@@ -26,6 +26,13 @@
 ### 1.3 已知风险/缺口(实现期重点核查)
 
 - **R1 无名元素寻址**:`EdbWriter` 高层为 name 导向;refno 寻址需经 `record_off_via_root` → 底层 `cow_*` 组合,或 batch 闭包内自行解析。**若组合面不足以覆盖六原语 refno 寻址 = e3d_io 红线决策点,停下上报**(禁止顺手改 e3d_io)。
+  
+  **T102 核查结论(2026-06-11)= 缺口实锤**:`cow_*` 全 pub 且 refno/offset 导向,但**单会话原子语义只存在于 `EdbWriter::batch`**(私有 `collapse_session` 收敛 + 私有 `buf` 回滚,外部不可复刻),而 batch 闭包内只有 name 导向修改方法、`db()` 只读 ⇒ 无名元素(真实库 ~88%)无法单会话编辑,E1-I1 不可满足。
+  
+  **决策选项(已上报用户)**:
+  - **A(推荐)**:e3d_io 增 6 个 refno 导向薄变体(`rename_at`/`set_pos_at`/`set_inline_at`/`set_members_at`/`delete_at`/`insert_clone_at`,各 = `record_off_via_root` 解析 + 既有 `cow_*`,与 name 方法同构对称,~40 行 + 无名元素测试)。红线条款(E4/SC-006)相应修订为"e3d_io 仅含本决策批准的寻址扩展"。红线本意是防"顺手改格式核心";经正式决策的最小对称扩展=合规路径。
+  - B:pub `db_mut()` 逃生舱(1 个方法,但把绕过 EdbWriter 语义的口子开给所有下游,封装受损,不推荐)。
+  - C:004 砍无名元素支持(named-only;`pe` 表以 refno 为键、name 可空,砍掉即管道残废,不推荐)。
 - **R2 InsertClone 的新 refno 分配**:001 语义 = 该 dbno 最大 refseq+1 自动分配;写回回执必须把新 refno 带回队列行(库侧后续才能引用)。
 - **R3 SetInline 值类型面**:inline 值有 real/int/ref 等型;EditOp payload 用强类型枚举,禁止裸字节。
 - **R4 回声时序**:写回后若 watcher 在副本(而非原文件)上不可见 → 回声仅在 inplace/换文件场景发生;测试用"读副本再 ingest"模拟。

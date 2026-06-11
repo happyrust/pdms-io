@@ -11,7 +11,7 @@
 ## Phase 1 — 写回核心(纯函数,默认特性可测)
 
 - [ ] T101 [P1] `EditOp` 强类型枚举(契约 E1:六原语 + InlineValue + schema_version,serde)— 新模块 `src/writeback_core.rs`(默认特性;不依赖 surrealdb)
-- [ ] T102 [P1] refno 寻址映射核查(R1):六原语逐一确认 refno→寻址组合面(`record_off_via_root`+`EdbWriter`/`cow_*` pub API);缺口即停上报 — 核查结论回填本行
+- [x] T102 [P1] refno 寻址映射核查(R1):六原语逐一确认 refno→寻址组合面(`record_off_via_root`+`EdbWriter`/`cow_*` pub API);缺口即停上报 — **核查结论 2026-06-11(证据=lib.rs 实读)**:① 低层 `cow_*` 全 pub 且 offset/refno 导向(inline@915/da_text@1112/members@1182/insert@1459,1514/delete@1531 refno 原生),`record_off_via_root`@767 pub,组合面在"裸 Edb"上充分 ② **但单会话原子只能经 `EdbWriter::batch`**(@1712:base 快照→闭包→私有 `collapse_session` 收敛/私有 `buf` 回滚),闭包内仅 `&mut EdbWriter`,其全部修改方法 name 导向(@1669~1704),`db()` 只读 ③ ⇒ **无名元素(sam7200 10392 中 9183 个,~88%)在现有 pub 面上无法进入 batch 单会话编辑 = E1-I1 不可满足**。**已停,红线决策上报用户**(选项 A=e3d_io 增 6 个 refno 导向 `*_at` 薄变体〔推荐〕/ B=pub db_mut 逃生舱 / C=004 砍无名支持);决策记录见 research.md R1
 - [ ] T103 [P1] `apply_writeback(db_bytes, ss, edits)`(契约 E3-A1~A4):batch 单会话原子 + verify_commit 强制 + element_diff 摘要 + InsertClone 新 refno 回带
 - [ ] T104 [P1] 文件包装:默认副本 `<db>.e3dout`(原文件零字节变化)/ inplace 显式 opt-in(E3-A5)
 - [ ] T105 [P1] 测试(sam7200,缺样本跳过):六原语逐一 round-trip(SC-001)/ 混合 ≥3 笔单会话 sesno+1(SC-002 前半)/ 坏批整批回滚字节不变(SC-002 后半)/ verify 拦截零产出(SC-003)/ 无名元素编辑(E1-I1)
