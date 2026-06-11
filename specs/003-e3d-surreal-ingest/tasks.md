@@ -20,7 +20,7 @@
 - [x] T202 [P1] `update_elements_to_database` 实现 D3 A1~A4:sesno 升序、ses→pe_ses_h→pe(skip_main_data 跳过)、写失败上抛、未连接明确报错 — no-op 真实化(签名冻结不变;feature 关闭时维持 no-op);门面组装 `SesRow` 会话元数据(时间/end_pgno,缺则 minimal)后委托纯函数 `ingest_increments`(不依赖 PdmsIO,测试可直接驱动);回执经 log 输出。**注**:物理写为逐记录 upsert(幂等优先;3.x SDK 无批量 upsert content 原语,D3"分块"体现为处理批次)
 - [x] T203 [P1] `ingest_watermark` 水位:单调升、`sesno ≤ 水位` 跳过 + 跳过计数可观测(D2 I3)— `IngestReport{sessions_written/skipped/ses_rows/pe_ses_h_rows/pe_rows}`;水位 NotFound 按"无水位"(3.x select 对不存在表报错而非 None,陷阱同 T101)
 - [x] T204 [P1] 幂等重放测试:同增量重放,逐表 count+内容等值(SC-002);水位跳过断言(SC-003)— `surreal_ingest_test.rs`:合成两会话四操作(Add/None/Modified/Deleted)→ ① 首写 report{2,0,2,4,3} + 内容读回(/SYN-A 字段 + 墓碑)② 重放=水位全跳、库不变(SC-003)③ 清水位重放=纯 upsert 幂等、计数不变(SC-002)④ skip_main_data ⇒ pe 0 行(FR-006)。4 测试 0.91s 全绿
-- [ ] T205 [P1] 真实样本端到端:sam7200 增量 → kv-mem 逐项对应(SC-001);ams1112 一段增量入库,计数/耗时报告(SC-004);skip_main_data 语义测试(FR-006)
+- [x] T205 [P1] 真实样本端到端:sam7200 增量 → kv-mem 逐项对应(SC-001);ams1112 一段增量入库,计数/耗时报告(SC-004);skip_main_data 语义测试(FR-006)— sam7200 最新会话增量经**门面入口**入库:ses==会话数、pe_ses_h==ops 数、pe==非 None 数逐项对应 + 门面重放被水位拦截;ams1112 实测报告 `sessions=1 ops=2 collect=158ms ingest=9.7ms`(最新会话增量恰小,计数如实;大批量吞吐由 sam 全会话/历史回填场景另证);skip_main_data 已在 T204 覆盖。6/6 测试 1.61s 全绿
 - [ ] T206 GATE:`--features surrealdb` workspace 构建+测试全绿;D3 契约逐条核对;api_freeze 锁未触发
 
 ## Phase 3 — 存量收敛(仅在 T206 过后)

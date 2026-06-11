@@ -125,3 +125,71 @@ fn ingest_skip_main_data_writes_no_pe() {
         assert_eq!(counts().await, (2, 4, 0), "skip_main_data must not write pe");
     });
 }
+
+/// T205/SC-001:真实样本端到端——sam7200 最新会话增量经**门面入口**入库,
+/// 逐表计数与入参对应;门面重放被水位拦截。
+#[test]
+fn ingest_real_sample_sam7200_end_to_end() {
+    const SAM: &str = r"D:\work\plant\pdms-io\pdms-test-data\sam7200_0001";
+    if !std::path::Path::new(SAM).exists() {
+        println!("数据库文件不存在，跳过测试: sam7200_0001");
+        return;
+    }
+    rt().block_on(async {
+        let _g = isolated("ingest_real_sam").await;
+
+        let mut io = crate::io::PdmsIO::new("sam", SAM, false);
+        io.open().expect("open sam7200");
+        let incs = io.collect_increment_eles(None).expect("collect latest increments");
+        assert!(!incs.is_empty(), "latest session must yield increments");
+        let total_ops: usize = incs.values().map(|v| v.len()).sum();
+        let non_none = incs
+            .values()
+            .flatten()
+            .filter(|op| !matches!(op.detail, EleOperationDetail::None))
+            .count();
+
+        io.update_elements_to_database(&incs, false).await.expect("ingest via facade");
+
+        assert_eq!(table_count(TBL_SES).await as usize, incs.len(), "ses rows == sessions");
+        assert_eq!(table_count(TBL_PE_SES_H).await as usize, total_ops, "pe_ses_h == ops");
+        assert_eq!(table_count(TBL_PE).await as usize, non_none, "pe == non-None ops");
+
+        // 门面重放:水位拦截,库不变。
+        let before = counts().await;
+        io.update_elements_to_database(&incs, false).await.expect("replay via facade");
+        assert_eq!(counts().await, before, "facade replay must be watermark-skipped");
+    });
+}
+
+/// T205/SC-004:ams1112(103MB/42 万元素级)最新会话增量入库,计数+耗时报告。
+#[test]
+fn ingest_real_sample_ams1112_timing() {
+    let Some(path) = crate::test::resolve_test_db_path("ams1112_0001") else {
+        println!("数据库文件不存在，跳过测试: ams1112_0001");
+        return;
+    };
+    rt().block_on(async {
+        let _g = isolated("ingest_real_ams").await;
+
+        let mut io = crate::io::PdmsIO::new("ams", &path, false);
+        io.open().expect("open ams1112");
+        let t0 = std::time::Instant::now();
+        let incs = io.collect_increment_eles(None).expect("collect latest increments");
+        let collect_elapsed = t0.elapsed();
+        let total_ops: usize = incs.values().map(|v| v.len()).sum();
+
+        let t1 = std::time::Instant::now();
+        io.update_elements_to_database(&incs, false).await.expect("ingest via facade");
+        let ingest_elapsed = t1.elapsed();
+
+        println!(
+            "[SC-004] ams1112 latest-session ingest: sessions={} ops={} pe_ses_h={} pe={} collect={collect_elapsed:?} ingest={ingest_elapsed:?}",
+            incs.len(),
+            total_ops,
+            table_count(TBL_PE_SES_H).await,
+            table_count(TBL_PE).await,
+        );
+        assert_eq!(table_count(TBL_PE_SES_H).await as usize, total_ops);
+    });
+}
