@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-10
 
-**Status**: Draft（grill-me 决策收敛产物；决策记录与证据见 research.md）
+**Status**: Implemented（2026-06-11;Phase 0–4 全清,SC-001~006 核销见 tasks.md;grill-me 决策记录与证据见 research.md）
 
 **Input**: User description: "分析当前是如何读写 e3d 数据库文件的 → 使用 grill-me 分析，然后编写 spec kit"
 

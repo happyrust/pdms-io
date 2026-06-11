@@ -39,10 +39,16 @@
 
 ## Phase 4 — 清理与文档
 
-- [ ] T401 更新 `docs/ARCHITECTURE.md`：单核心 + 门面目标态架构（替换三引擎现状描述）
-- [ ] T402 实现盘点核查（SC-001）：B 树/元素记录/页缓存各仅一份的 grep 证明，结果附入 PR
-- [ ] T403 `CHANGELOG.md` 记录收敛；spec 状态 Draft → Implemented
-- [ ] T404 GATE：SC-001~SC-006 逐条核对勾销
+- [x] T401 更新 `docs/ARCHITECTURE.md`：单核心 + 门面目标态架构（替换三引擎现状描述）— **2026-06-11**:新增"引擎架构"分层图(调用方→门面→e3d_io→文件 + parse_pdms_db 适配层定位 + 退役历史注记);依赖表补 `e3d_io` 单核心行、`parse_pdms_db` 改述为类型适配层
+- [x] T402 实现盘点核查（SC-001）：B 树/元素记录/页缓存各仅一份的 grep 证明，结果附入 PR — **2026-06-11 grep 实证**:① B 树遍历/点查仅 `e3d_io`(walk/btree_find/btree_descend);v1 死代码搜索族(btree_search_fixed/optimized_recursive/interal_single_path/interal_extended/collect_*leaf_pages,687 行)与 process_leaf_node 本轮删除(io.rs 5711→4997 行) ② 记录定界仅 `e3d_io`(record_end 族;v1 reader 已删) ③ 页缓存仅 `e3d_io`(PagedFile LRU + Rdb 影子;PageManager 已删) ④ 写/序列化仅 `e3d_io`(COW;v1 writer/serializer 已删) ⑤ 门面保留 deku 类型视图(冻结 API 返回类型)与编排级过滤(filter_index_data/search_in_leaf_node 纯函数),无独立字节算法。**已知仓库外双源**:base-27 `db1_dehash` 在 `aios_core::tool::db_tool`(rs-core)另有一份,`parse_pdms_db` 经引用消费——FR-001 限定本仓库,记 003+/rs-core 侧收敛候选
+- [x] T403 `CHANGELOG.md` 记录收敛；spec 状态 Draft → Implemented — **2026-06-11**:CHANGELOG [未发布] 顶部新增收敛条目(页源/读视图/换芯/退役/验收五点);spec.md Status 置 Implemented
+- [x] T404 GATE：SC-001~SC-006 逐条核对勾销 — **2026-06-11 核销**:
+  - **SC-001 ✅** 实现盘点归零(见 T402;仓库内 B 树/记录/页缓存/写各 1 份,死代码已清)
+  - **SC-002 ✅** 调用方零修改(T208;api_freeze_c1 编译期锁全程未触发;断言零改动,仅随删除移除 v1 自身测试)
+  - **SC-003 ✅** 双页源一致(页级全文件字节等值 + 元素级叶项/定位/记录三层等值 + ams1112 两路探测自洽解码;sam7200 10392 键穷举)
+  - **SC-004 ✅** 净删除落地:engine_v2 实测 39 文件(spec 估 ~25)+ v1 写路径 + 3 读取辅助 + io.rs 死代码 714 行,workspace 构建通过
+  - **SC-005 ✅** e3d_io std-only(cargo tree 单节点)+ 独立 38+1 全绿
+  - **SC-006 ✅** PagedFile/Rdb 读页计数可观测;点状导航 <10% 全页数、增量点查 reads < 总页数(合成+真实样本双覆盖)
 
 ## 依赖关系
 

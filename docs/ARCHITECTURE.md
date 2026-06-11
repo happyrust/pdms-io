@@ -7,10 +7,40 @@
 - 提供本地文件监控与远端同步雏形，支撑增量获取与分发。
 - 提供简单的基准、演示与测试入口，帮助验证解析正确性与性能。
 
+## 引擎架构：单一格式核心 + 门面（specs/002 收敛后,2026-06-11）
+
+```
+调用方(watch/bins/tests, 30+ 引用点)
+        │  公共 API 冻结(specs/002 contracts C1;tests/api_freeze_c1.rs 编译期锁)
+        ▼
+PdmsIO 门面(src/io.rs)──只拥有"什么时候读、读完干什么":
+   会话范围推导 · 增量提取/历史编排 · IndexMap 构建与磁盘缓存(PIM1) ·
+   deku 类型视图(PdmsHeader/SessionPageData/IndexPageData,冻结返回类型)
+        │  全部字节获取经持久只读视图
+        ▼
+crates/e3d_io ──唯一格式核心,"字节怎么读写"的全部真相(std-only,零依赖):
+   读:Edb(整文件)/ Rdb<S: PageSource>(惰性影子页:导航/B树点查 btree_find/
+      叶枚举 leaves/会话链 session_chain/变长记录 element_record)
+   写:COW + 新会话(EdbWriter;verify_commit/batch/dry-run/护栏,见 specs/001 US2/US5)
+   页源:PageSource trait ── InMemory(buffer) | PagedFile(LRU+命中统计+C3.2 页大小探测)
+        ▼
+   元素库文件(512/2048/4096B 页,大端;页大小以 page_type==Session 探测为准)
+
+parse_pdms_db(crate)= EleData 类型适配层(FR-003 决策):消费门面给的记录字节,
+   不再持有独立的记录定界/取页逻辑(base-27 哈希经 aios_core::db_tool 引用)。
+```
+
+- **历史**:仓库曾三引擎并存(v1 `PdmsIO` 自带解析 / `engine_v2` db1~db5 实验层 / `e3d_io`)。
+  specs/002 已收敛:`engine_v2`(39 文件)、v1 写路径(`writer.rs`/`element_serializer.rs`)、
+  v1 读取辅助(`page_manager.rs`/`paged_reader.rs`/`element_record_reader.rs`)及 v1 B 树搜索
+  族**全部退役删除**;逆向知识归档于 `docs/engine-v2-archaeology.md`。
+- **格式字节级规范**:见 `specs/001-e3d-data-format/` 与 `docs/e3d 数据库分析/E3D_DB_文件格式规范.md`。
+
 ## 关键外部依赖
 
 - `aios_core`: PDMS 类型定义、环境配置（数据库路径收集、RefNo/SESNo 工具）、测试 SurrealDB 初始化。
-- `parse_pdms_db`: PDMS 二进制解析（元素页、索引页等底层结构）。
+- `e3d_io`（workspace 内 `crates/e3d_io`）: **唯一格式核心**——B 树/会话链/记录定界/页大小探测/COW 写的单一实现（std-only）。
+- `parse_pdms_db`: `EleData` 类型适配层（字节获取已单源 `e3d_io`，本 crate 负责记录字节 → 结构化属性的类型转换）。
 - `surrealdb`: 数据持久化目标；目前主要使用 SurrealQL 语句构造。
 - `meilisearch-sdk`: 可选的全文搜索索引。
 - `notify`/`walkdir`: 文件系统监听与遍历。
@@ -23,7 +53,7 @@
   - PDMS 头、会话页、元素页等结构体定义（`PdmsHeader`、`SessionPageData`、`EleData` 等）。
   - 常量与工具方法（如 `PAGE_SIZE`、时间转换、序列化到 JSON/SurrealQL）。
 - `io.rs`
-  - 核心服务 `PdmsIO`，负责文件打开、会话范围构建、索引扫描、元素读取与差异分析。
+  - 核心服务 `PdmsIO`（**门面**：公共 API 冻结，字节获取全部委托 `e3d_io` 持久只读视图 `Rdb<PagedFile>`），负责文件打开、会话范围构建、索引扫描、元素读取与差异分析。
   - 增量收集：`collect_increment_eles` / `collect_increment_eles_optimized` 根据会话范围或索引映射提取 `EleOperationData`。
   - 历史/最新检索：`search_latest_refno`、`collect_ele_history` 等。
   - 数据落地：`update_elements_to_database` 将会话与元素变更写入 SurrealDB（可选择跳过主数据）。

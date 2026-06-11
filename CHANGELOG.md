@@ -2,6 +2,16 @@
 
 ## [未发布]
 
+### 变更 — E3D I/O 三引擎收敛为单一格式核心(specs/002,2026-06-11)
+
+> v1 `PdmsIO` 自带解析 / `engine_v2` / `e3d_io` 三套并存实现收敛为 **`crates/e3d_io` 单核心 + `PdmsIO` 门面**;切换为大爆炸(Q4=C,用户拍板),全程公共 API 零变更(`tests/api_freeze_c1.rs` 编译期冻结锁)。
+
+- **页源抽象**:`e3d_io::page_source` 新增 `PageSource` trait + `InMemory`/`PagedFile`(LRU+命中统计,C3.2 页大小探测单源 `probe_page_size`,承接 v1 `PageManager` 语义)。
+- **只读视图**:`e3d_io::read_view::Rdb<S>`(惰性影子页)——`btree_find` 目标式点查(sam7200 10392 键穷举双源等值)、`leaves` 枚举、`session_chain` 会话链、`element_record` 变长记录(ams1112 430 条 v1 逐字节 parity)。
+- **`PdmsIO` 换芯**:探测/会话链/B 树点查/整树枚举/记录读取/字节路径逐项委托 `e3d_io`;`cache_hit_rate` 统计源切至影子页命中;索引磁盘缓存 `PIM1` 逐字节兼容(契约 C3.4=a)。
+- **孤岛退役**:删除 `engine_v2`(39 文件)+ `verify_engine_v2`、v1 写路径(`writer.rs`/`element_serializer.rs`)、v1 读取辅助(`page_manager.rs`/`paged_reader.rs`/`element_record_reader.rs`)及 v1 B 树搜索族死代码;逆向知识归档 `docs/engine-v2-archaeology.md`(core.dll 六层函数对照 + 七项必保陷阱)。
+- **验收**:workspace 构建 + 全套测试**历史首次全绿**(含 103MB ams1112 全库解析回归);`e3d_io` 独立 38+1 全绿、零第三方依赖;`parse_pdms_db` 定位为 `EleData` 类型适配层(FR-003)。
+
 ### 新增 — E3D/PDMS 元素数据**离线解析 + 安全写**(读/格式全闭环,IDA 2.10 权威 + 实测)
 
 > 基于 AVEVA Everything3D 2.10 `core.dll` 逐函数反编译 + 真实样本(sam7200/acp7002/ams1112/amssys)交叉验证。给定元素记录即可纯文件离线解出 `noun · NAME · refno · owner · 全部隐式/显式(DA)属性 · 引用(连通+跨库目录) · owner 层级树`。
