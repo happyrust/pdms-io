@@ -20,10 +20,10 @@
 
 ## Phase 2 — 队列层(kv-mem,`--features surrealdb`)
 
-- [ ] T201 [P2] `writeback_queue` 行类型(契约 E2:确定性批次 id/状态机/回执字段,强类型构造)— `src/surreal_writeback.rs`(feature 门控)
-- [ ] T202 [P2] `apply_queue(dbnum, db_path)`:取 pending 批次(created_at 序)→ EditOp → 写回核心 → 回执回写(applied_sesno/new_refnos/diff_summary;失败写 error+failed)
-- [ ] T203 [P2] 幂等与状态机测试(kv-mem):入队→apply→applied + 回执在位;applied 重放跳过可观测、文件 sesno 不增长(SC-004);failed 不自动重试(E2 语义)
-- [ ] T204 GATE:`--features surrealdb` lib + surreal 套件全绿
+- [x] T201 [P2] `writeback_queue` 行类型(契约 E2:确定性批次 id/状态机/回执字段,强类型构造)— `src/surreal_writeback.rs`(feature 门控):`WritebackQueueRow`(SurrealValue;`edits_json`=EditBatch serde_json 单一定义含 schema_version;空串/0 哨兵替代 Option 规避派生面风险);`enqueue_writeback` 确定性 id upsert(同批重复入队=覆盖不重复,实测断言)
+- [x] T202 [P2] `apply_queue(dbnum, db_path)`:取 pending 批次(created_at 序)→ EditOp → 写回核心 → 回执回写(applied_sesno/new_refnos/diff_summary;失败写 error+failed)— 落地 + **顺序语义注**:同 dbnum pending 按 (created_at,batch_id) 升序,**首败即停**(该批记 failed 后上抛,后续批保持 pending——批间或有依赖,不越过失败点盲跑;修复后幂等续跑);schema_version 失配 = failed(E1-I2 闸)
+- [x] T203 [P2] 幂等与状态机测试(kv-mem):入队→apply→applied + 回执在位;applied 重放跳过可观测、文件 sesno 不增长(SC-004);failed 不自动重试(E2 语义)— 3 测试(kv-mem + sam7200 临时副本):① apply→applied+回执(applied_sesno/diff/applied_at)→重复 apply 全跳过且零文件产出、源文件逐字节不变 ② 坏批 Err+failed+error 在位,重 apply skipped_failed 不重试 ③ schema_version=999 → failed 且错误可读
+- [x] T204 GATE:`--features surrealdb` lib + surreal 套件全绿 — **2026-06-11 通过**:lib **52/0/5**(45 基线 + 4 写回核心 + 3 队列)2.64s
 
 ## Phase 3 — 回声闭环 + CLI
 

@@ -9,3 +9,6 @@ pub mod surreal_mem;
 /// specs/003:增量落库幂等/水位/skip_main_data 测试(T204)。
 #[cfg(feature = "surrealdb")]
 pub mod surreal_ingest_test;
+/// specs/004:writeback_queue 队列幂等/状态机/版本闸测试(T203)。
+#[cfg(feature = "surrealdb")]
+pub mod surreal_writeback_test;
