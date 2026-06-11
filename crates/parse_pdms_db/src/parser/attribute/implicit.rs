@@ -373,10 +373,20 @@ fn parse_int_array<'a>(input: &'a [u8], attr_name: &str) -> IResult<&'a [u8], Na
         )));
     }
 
-    // LEVEL 和 PTS 需要特殊处理计数
-    let count = if attr_name == "LEVEL" || attr_name == "PTS" {
-        // 从数据中读取实际的元素数量
-        i32::from_be_bytes(input[..4].try_into().unwrap()) as usize
+    // 带计数头的整型数组属性按数据头读取真实数量。
+    // 历史白名单只写了 "LEVEL"，但字典规范名是 LEVE（4 字符），导致 LEVE
+    // 被 else 分支 count=1 截断为首元素（spec 003 A 类回归：[8,10] -> [8]，
+    // E3D 真值 `Level 8 10`）。此处补 LEVE 别名。
+    // 注意：不可对全部 INTVEC 通用化读计数 —— 其余整型属性的头 4 字节并非
+    // 计数（实测通用化会误读邻接字节、污染同元素后续几何属性）。
+    let count = if attr_name == "LEVEL" || attr_name == "LEVE" || attr_name == "PTS" {
+        let raw_count = i32::from_be_bytes(input[..4].try_into().unwrap());
+        // 防御：计数非法（<=0 / 过大 / 数据不足）时回退为 1。
+        if raw_count > 0 && raw_count <= 4096 && input.len() >= 4 + (raw_count as usize) * 4 {
+            raw_count as usize
+        } else {
+            1
+        }
     } else {
         1
     };
