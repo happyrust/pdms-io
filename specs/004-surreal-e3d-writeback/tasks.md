@@ -29,12 +29,20 @@
 
 - [x] T301 [P2] 回声收敛测试:写回副本 → `collect_increment_eles`(副本)→ `ingest_increments` → `pe` 内容 == 写回意图;再 ingest 幂等(SC-005;Q4 语义证明)— `writeback_echo_converges_into_pe`:队列写回(无名元素 SetPos)→ watcher 视角读副本提取新会话增量(含被编辑元素,op=修改)→ 门面唯一入口入库 → `pe` 行 sesno==写回会话、非墓碑、attrs 携带写回 POS 数值 → 再 ingest 被水位拦截逐表计数不变。**途中实测发现 R5 回声盲区**(DA 文本编辑被 v1 窗口邻接解析漏检,文件级真相不受影响;入档 research R5,005 候选),回声编辑面据此限定内联属性
 - [x] T302 [P2] CLI 入口(独立 bin `e3d-writeback`,不动 e3d_io):`plan`(dry-run diff 预览)/`apply`(队列或 edits 文件;默认副本,--inplace + --yes)— `src/bin/e3d_writeback.rs`(required-features=surrealdb,手写参数沿仓库风格):`plan`(纯函数 dry-run 仅打印)/`apply`(edits JSON 文件;默认副本)/`queue-apply`(连库执行 pending 批次,--surreal/--ns/--dbname 显式必填防误写)。**smoke 实跑**:plan 预览 ✓、apply 产出 .e3dout ✓、--inplace 无 --yes 被契约消息拒绝(exit 1)✓
-- [ ] T303 GATE:`--features surrealdb` workspace 构建+全部测试全绿;api_freeze 未触发;e3d_io diff 为空(SC-006)
+- [x] T303 GATE:`--features surrealdb` workspace 构建+全部测试全绿;api_freeze 未触发;e3d_io diff 为空(SC-006)— **2026-06-11 21:54 通过,exit 0**:全 targets 构建(含 e3d-writeback bin,1m26s);lib **53/0/5**(45 基线 + 4 写回核心 + 4 队列/回声);api_freeze_c1 ✓;diag 5✓(364s)等集成全绿;`crates/e3d_io` 自决策 A(47672eed)后零触碰。**Phase 3 收口**
 
 ## Phase 4 — 文书
 
-- [ ] T401 ARCHITECTURE 数据流(写回段)+ CHANGELOG 条目
-- [ ] T402 GATE:SC-001~SC-006 逐条核销;spec Status → Implemented
+- [x] T401 ARCHITECTURE 数据流(写回段)+ CHANGELOG 条目 — **2026-06-11**:ARCHITECTURE 关键数据流新增「写回」段(EditOp→纯函数核心→队列→回声闭环→CLI + R5 注记);CHANGELOG 004 条目定稿(进行中→新增,补队列/回声/CLI/验收四点)
+- [x] T402 GATE:SC-001~SC-006 逐条核销;spec Status → Implemented — **2026-06-11 核销**:
+  - **SC-001 ✅** 六原语 round-trip(T105 ①混合批五原语 + 第二批 delete;独立重载读回逐项一致,含无名元素)
+  - **SC-002 ✅** 单会话原子(session_roots +1 断言)+ 坏批整批回滚(e3d_io 字节复原断言 + 核心 Err 零输出)
+  - **SC-003 ✅** verify 强制(force=true 删父被 DanglingRef 拦,零文件变更;护栏层 force=false 先拦)
+  - **SC-004 ✅** 队列幂等(applied 终态重放跳过、零文件产出、源文件逐字节不变;failed 不自动重试;版本闸)
+  - **SC-005 ✅** 回声收敛(写回→增量→入库→pe 含写回 POS 数值;再 ingest 水位拦截;R5 盲区如实入档限定内联面)
+  - **SC-006 ✅** 红线(e3d_io 改动仅决策 A 范围〔47672eed〕后零触碰;api_freeze 全程绿;T106/T303 两道 GATE exit 0)
+  
+  spec.md Status 已置 **Implemented**。**specs/004 全部完成**
 
 ## 依赖关系
 

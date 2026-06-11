@@ -2,14 +2,17 @@
 
 ## [未发布]
 
-### 进行中 — SurrealDB → E3D 写回管道(specs/004,2026-06-11 起)
+### 新增 — SurrealDB → E3D 写回管道(specs/004,2026-06-11)
 
-> 在 001 验证过的写能力与 003 落库形态之间架安全写回管道;grill Q1~Q6 全按推荐拍板(纯函数入口→队列两层 / 001 原语全集 / 默认副本+verify 强制 / 接受回声 / kv-mem+sam7200 验收 / 严格管道范围)。
+> 在 001 验证过的写能力与 003 落库形态之间架安全写回管道;grill Q1~Q6 全按推荐拍板(纯函数入口→队列两层 / 001 原语全集 / 默认副本+verify 强制 / 接受回声 / kv-mem+sam7200 验收 / 严格管道范围)。**「文件 ⇄ 库」双向数据流就此闭环**(SC-001~006 全核销)。
 
 - **e3d_io 决策 A 扩展**(红线经正式决策放行):`EdbWriter` 增 refno 导向薄变体 ×6(`set_inline_at`/`set_pos_at`/`rename_at`/`set_members_at`/`delete_at`/`insert_clone_at`)+ 解析助手 ×2,各为既有 name 方法严格同构 ⇒ **无名元素(真实库 ~88%)可入 batch 单会话编辑**;格式/事务核心零改动,std-only 不变(39+1 全绿)。
 - **写回核心 Phase 1**:`src/writeback_core.rs`——强类型 `EditOp` 六原语(serde + schema_version)+ `apply_writeback`(batch 单会话原子 + `delete_guards` force 分级 + `verify_commit` 强制 + 逐笔 refno 读回核验 + `element_diff` 摘要;任何失败 = 零输出字节)+ 文件包装(默认副本 `.e3dout`,未确认 in-place 拒绝)。sam7200 四测试全过(含护栏+verify 双闸拦危险删除);T106 GATE exit 0。
+- **队列层**:`writeback_queue` 确定性批次 id + 状态机(pending→applied|failed;applied 终态幂等跳过、failed 不自动重试、首败即停);kv-mem 全套测试。
+- **回声闭环(Q4 实证)**:写回产物 → 增量提取 → 落库入口 → `pe` 收敛于写回意图,再 ingest 被水位拦截幂等;实测发现并入档 **R5 回声盲区**(DA 文本编辑被 v1 窗口邻接解析漏检,文件级真相不受影响;005 候选改链式追页)。
+- **CLI** `e3d-writeback`:`plan` dry-run 预览 / `apply` edits JSON(默认副本,`--inplace` 须 `--yes`)/ `queue-apply` 连库执行,三模式 smoke 实跑。
 - **实测钉住的语义边界**:同批内 `InsertClone` 须排在其模板编辑之前(契约 E3-A1 注);`rename` = 改写既有 NAME 条目,无名元素首次命名留 005。
-- 待续:Phase 2 队列层(`writeback_queue`,kv-mem)→ Phase 3 回声闭环 + CLI → Phase 4 文书。
+- **验收**:两道 GATE(T106 默认特性 / T303 `--features surrealdb` 全量)均 exit 0;lib 53 测试;`crates/e3d_io` 改动仅限决策 A 批准的 refno 寻址薄变体。
 
 ### 变更 — E3D 增量落库收敛为单一强类型入口(specs/003,2026-06-11)
 

@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-11
 
-**Status**: Draft（grill Q1~Q6 决策收敛产物,全按推荐拍板;决策记录与存量证据见 research.md）
+**Status**: Implemented（2026-06-11;SC-001~006 全核销,见 tasks.md T402。grill Q1~Q6 决策收敛产物,全按推荐拍板;决策记录与存量证据见 research.md）
 
 **Input**: User description: "specs/003 落库闭环后,按推荐继续——004 = SurrealDB→E3D 写回"
 

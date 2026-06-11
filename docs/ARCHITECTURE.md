@@ -90,7 +90,12 @@ parse_pdms_db(crate)= EleData 类型适配层(FR-003 决策):消费门面给的�
   - `store_all_refno_sesno_map` 为**全库历史回填专用入口**（含物理 offset 的全量收集，契约 D4 声明保留；其遗留拼接段记 004 候选强类型化）。
 3. **搜索索引**
   - `collect_increment_eles` 结果 → `ElementSearchClient::index_elements` → Meilisearch。
-4. **监控与同步**
+4. **写回（specs/004,2026-06-11）**
+  - 强类型 `EditOp`(六原语,refno 第一寻址——无名元素可编辑)→ `writeback_core::apply_writeback`(纯函数:`EdbWriter::batch` 单会话原子 + `delete_guards` + `verify_commit` 强制 + 逐笔读回核验 + diff 摘要;失败零输出)→ 默认副本落盘(`.e3dout`,in-place 须二次确认)。
+  - `surreal_writeback::writeback_queue`:确定性批次 id + 状态机(pending→applied|failed;applied 终态幂等跳过,failed 不自动重试,首败即停)。
+  - **回声闭环**:写回产物经增量提取 → 落库入口 → `pe` 收敛于写回意图(幂等;Q4 决策实证)。已知盲区 R5:DA 文本编辑的回声被 v1 窗口邻接解析漏检(文件级真相不受影响;005 候选改链式追页)。
+  - CLI `e3d-writeback`:`plan`(dry-run 预览)/`apply`(edits JSON)/`queue-apply`(连库执行队列)。
+5. **监控与同步**
   - `PdmsWatcher::init_local_watcher` 扫描工程目录，缓存各数据库文件的最新会话信息，预留 `.cba` 压缩任务用于后续分发。
   - `sync::files::sync_e3d_files`/`sync::sync::compress_archive` 作为远端同步与压缩的起点（尚未串联）。
 
