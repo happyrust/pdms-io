@@ -2535,6 +2535,47 @@ mod tests {
         assert_eq!(e2.pos(), Some(&new_pos[..]), "rolled-back edit must not stick");
     }
 
+    /// 布局锚点(specs/005 T101 真实字节裁决的固化):
+    /// ① members 链节点 = 5 词头 `[(which<<16)|total_words][refno0][refno1][next_pg][next_loc]`
+    ///   + payload(成员 refno 对,自 node+20 起)——v1 解析器的 +12 载荷 = 把 w3/w4 链指针
+    ///   也计入载荷(邻接单节点时为 (0,0));
+    /// ② PDMS 原生(邻接)布局:rec[8]/[9] 所指节点恰好 == 隐式区+0/7 padding 之后的窗口
+    ///   位置——v1 窗口邻接假设的字节级根据,也是 005 链式重组(F1-I1)的还原目标。
+    #[test]
+    fn members_node_layout_anchor() {
+        if !data_present() {
+            eprintln!("[skip] data absent");
+            return;
+        }
+        let db = Edb::open(DBF).unwrap();
+        let (refno, bo, children) = find_member_element(&db, 1, 8).expect("member element");
+        let rec = |i: usize| db.u(bo + 4 * i);
+
+        // 链视角节点位置
+        let node = rec(8) as usize * db.page_size() + (((rec(9) >> 13) & 0xFFF) as usize) * 4;
+        // 窗口邻接视角:隐式区 + 0/7 padding 之后
+        let impl_words = (rec(0) & 0xFFFF) as usize;
+        let mut membs_pos = bo + impl_words * 4;
+        while membs_pos + 4 <= db.bytes().len() {
+            let v = db.u(membs_pos);
+            if v != 0 && v != 7 {
+                break;
+            }
+            membs_pos += 4;
+        }
+        assert_eq!(node, membs_pos, "native layout: members node adjoins the record window");
+
+        // 5 词节点头:which=2 | 总词数;w1/w2 = self refno;payload 自 +20。
+        let hdr = db.u(node);
+        assert_eq!((hdr >> 16) & 0xF, 2, "node type nibble = members");
+        assert_eq!((db.u(node + 4), db.u(node + 8)), refno, "node w1/w2 = self refno");
+        assert_eq!(
+            (db.u(node + 20), db.u(node + 24)),
+            children[0],
+            "payload (member refno pairs) starts at node+20"
+        );
+    }
+
     #[test]
     fn dry_run_matches_real_commit() {
         // T036 (FR-021, SC-010): dry_run previews a batch WITHOUT mutating the writer or disk, and

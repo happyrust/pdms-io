@@ -10,7 +10,7 @@
 
 ## Phase 1 — e3d_io 扩展(F4 白名单)
 
-- [ ] T101 [P1] 先读后写:核对 `parse_pdms_db` 对记录后 DA/members 区的布局假设(邻接形态/终止条件),确定重组流精确形状,回填契约 F1-I1
+- [x] T101 [P1] 先读后写:核对 `parse_pdms_db` 对记录后 DA/members 区的布局假设(邻接形态/终止条件),确定重组流精确形状,回填契约 F1-I1 — **2026-06-11 完成,真实字节裁决**:读通 `parse_raw_ele_data_with_info`/`parse_members_block`/`collect_segmented_payload`(+12 主载荷/+24 追加段/0x07 marker)与 e3d_io `list_payload_words`/`decode_da_list`(+20 payload/5 词头)两套假设的表面冲突后,以 sam7200 实测字节裁决:**邻接布局 = 同一 5 词节点形状的物理邻接摆放**(rec[8]/[9] 节点 == 窗口 membs_pos,逐词核对)。重组规范定稿入契约 F1-I1;锚点测试 `members_node_layout_anchor` 固化结论(e3d_io 40+1 全绿)
 - [ ] T102 [P1] `Rdb` 链式记录重组(F1-I1~I3:DA rec[6]/[7] + members rec[8]/[9] 链跟随,有界 128 + 环防,坏链类型化错误)+ 测试:邻接库等价(F1-I2)/ e3d_io 改写元素重组含远页 payload / 坏链报错
 - [ ] T103 [P2] `EdbWriter::set_name_at`(F3-A1:无名新增/已名改写,内部复用 pack_text+cow_da_set_entry)+ 测试:无名命名 batch 单会话 round-trip / 已名改写与 rename_at 殊途同归 / rename_at 同构语义不变
 - [ ] T104 GATE:e3d_io 独立套件全绿;cargo tree 单节点;diff 仅白名单项
