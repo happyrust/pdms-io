@@ -47,7 +47,7 @@ pub fn apply_writeback(
 ) -> anyhow::Result<(Vec<u8>, WritebackReport)>   // 输出字节(单新会话) + 报告
 ```
 
-- E3-A1: 一批 = **单新会话**(sesno 仅 +1),`EdbWriter::batch` 原子语义;任一笔失败 ⇒ Err,无输出字节。
+- E3-A1: 一批 = **单新会话**(sesno 仅 +1),`EdbWriter::batch` 原子语义;任一笔失败 ⇒ Err,无输出字节。批内为**顺序语义**(后笔在前笔结果之上);**已知边界(2026-06-11 实测)**:`InsertClone` 的模板若在同批**之前**被编辑过,会触发 e3d_io 克隆的 DA 布局前置拒绝——调用方应把克隆排在其模板编辑之前(队列层 Phase 2 据此排序或拆批)。
 - E3-A2: 返回前 MUST `verify_commit` 通过(四类校验);失败 ⇒ Err。
 - E3-A3: 纯函数:不触盘、不连库(文件/队列包装在外层)。
 - E3-A4: `WritebackReport` MUST 含 new_sesno、逐笔结果、`element_diff` 摘要、InsertClone 新 refno。

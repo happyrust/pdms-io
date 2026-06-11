@@ -14,6 +14,9 @@ pub mod watch;
 
 pub mod dblist;
 
+/// specs/004:SurrealDB → E3D 写回核心(EditOp/apply_writeback;纯函数,默认特性可用)。
+pub mod writeback_core;
+
 pub mod io_log;
 
 /// specs/003:E3D 增量 → SurrealDB 落库核心(强类型构造/幂等 upsert/水位)。
