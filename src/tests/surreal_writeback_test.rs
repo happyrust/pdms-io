@@ -8,7 +8,8 @@ use crate::surreal_writeback::{
     STATUS_APPLIED, STATUS_FAILED, TBL_WRITEBACK_QUEUE, WritebackQueueRow, apply_queue,
     enqueue_writeback,
 };
-use crate::tests::surreal_mem::{isolated, rt};
+use crate::surreal_ingest::{PeRow, TBL_PE, TBL_PE_SES_H, TBL_SES};
+use crate::tests::surreal_mem::{isolated, rt, table_count};
 use crate::writeback_core::{EditBatch, EditOp, WriteMode};
 use aios_core::SUL_DB;
 
@@ -122,6 +123,100 @@ fn writeback_queue_failure_recorded_not_retried() {
         );
 
         let _ = std::fs::remove_file(&src);
+    });
+}
+
+/// SC-005 回声收敛(T301;Q4=接受回声的实证):写回副本 → watcher 视角增量提取 →
+/// 经门面入口 ingest → `pe` 收敛于写回意图;再 ingest 被水位拦截,库不变。
+#[test]
+fn writeback_echo_converges_into_pe() {
+    if !data_present() {
+        eprintln!("[skip] data absent");
+        return;
+    }
+    rt().block_on(async {
+        let _g = isolated("wbq_echo").await;
+        let ss = SchemaSet::load(EXE);
+        let src = temp_db_copy("echo");
+        let out = {
+            let mut p = src.as_os_str().to_owned();
+            p.push(".e3dout");
+            std::path::PathBuf::from(p)
+        };
+
+        // 写回意图:无名元素改 POS(内联编辑;refno 寻址)。
+        //
+        // 注:本测试限定**内联属性**编辑面——DA 文本编辑(如 Rename)在文件级
+        // 读回正确(001 链式解码),但 v1 增量读取的 EleData 为窗口邻接解析,
+        // 看不见 e3d_io 重定位到远页的 DA ⇒ 改名会被定性"无变化"漏出增量。
+        // 已作为已知局限入档(research R5 / 005 候选:EleData DA 解析改走链式解码)。
+        let bytes = std::fs::read(&src).unwrap();
+        let db0 = Edb::from_bytes(bytes);
+        let mut rm = HashMap::new();
+        let elems = index_db(&db0, &ss, true, &mut rm);
+        let unnamed = elems
+            .iter()
+            .find(|e| e.name.is_none() && e.pos().is_some())
+            .unwrap()
+            .refno;
+        let batch = EditBatch::new(vec![EditOp::SetPos {
+            refno: unnamed,
+            pos: [111.0, 222.0, 333.5],
+        }]);
+        let dbnum_q = unnamed.0 as i32;
+        enqueue_writeback(dbnum_q, "echo1", &src.to_string_lossy(), &batch).await.unwrap();
+        let rep = apply_queue(dbnum_q, &src, &ss, WriteMode::Copy).await.unwrap();
+        assert_eq!(rep.applied, 1);
+        let new_sesno = rep.new_sesnos[0];
+
+        // 回声:watcher 视角读写回产物,提取最新会话增量,经门面唯一入口入库。
+        let mut io = crate::io::PdmsIO::new("sam", &out, false);
+        io.open().unwrap();
+        let incr = io.collect_increment_eles(None).unwrap();
+        assert!(incr.contains_key(&new_sesno), "echo increment carries the writeback session");
+        assert!(
+            incr[&new_sesno].iter().any(|op| {
+                op.refno == aios_core::RefU64::from_two_nums(unnamed.0, unnamed.1)
+            }),
+            "edited element present in echo increment"
+        );
+        io.update_elements_to_database(&incr, false).await.unwrap();
+        let dbnum = io.dbnum;
+
+        // pe 收敛于写回意图:被编辑的无名元素以新会话号入库、非墓碑,
+        // 且属性载荷携带写回的 POS 数值。
+        let pe: Option<PeRow> = SUL_DB
+            .select((TBL_PE, format!("{dbnum}_{}_{}", unnamed.0, unnamed.1)))
+            .await
+            .unwrap();
+        let pe = pe.expect("edited element echoed into pe");
+        assert_eq!(pe.sesno, new_sesno, "pe row carries the writeback session");
+        assert!(!pe.deleted);
+        let attrs_dbg = format!("{:?}", pe.attrs);
+        assert!(
+            attrs_dbg.contains("222") && attrs_dbg.contains("333.5"),
+            "pe attrs converge on writeback POS intent: {attrs_dbg}"
+        );
+
+        // 再 ingest = 水位拦截,逐表计数不变(幂等回声,Q4 语义成立)。
+        let counts = (
+            table_count(TBL_SES).await,
+            table_count(TBL_PE_SES_H).await,
+            table_count(TBL_PE).await,
+        );
+        io.update_elements_to_database(&incr, false).await.unwrap();
+        assert_eq!(
+            counts,
+            (
+                table_count(TBL_SES).await,
+                table_count(TBL_PE_SES_H).await,
+                table_count(TBL_PE).await,
+            ),
+            "replayed echo must be watermark-skipped"
+        );
+
+        let _ = std::fs::remove_file(&src);
+        let _ = std::fs::remove_file(&out);
     });
 }
 

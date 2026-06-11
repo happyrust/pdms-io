@@ -27,7 +27,7 @@
 
 ## Phase 3 — 回声闭环 + CLI
 
-- [ ] T301 [P2] 回声收敛测试:写回副本 → `collect_increment_eles`(副本)→ `ingest_increments` → `pe` 内容 == 写回意图;再 ingest 幂等(SC-005;Q4 语义证明)
+- [x] T301 [P2] 回声收敛测试:写回副本 → `collect_increment_eles`(副本)→ `ingest_increments` → `pe` 内容 == 写回意图;再 ingest 幂等(SC-005;Q4 语义证明)— `writeback_echo_converges_into_pe`:队列写回(无名元素 SetPos)→ watcher 视角读副本提取新会话增量(含被编辑元素,op=修改)→ 门面唯一入口入库 → `pe` 行 sesno==写回会话、非墓碑、attrs 携带写回 POS 数值 → 再 ingest 被水位拦截逐表计数不变。**途中实测发现 R5 回声盲区**(DA 文本编辑被 v1 窗口邻接解析漏检,文件级真相不受影响;入档 research R5,005 候选),回声编辑面据此限定内联属性
 - [ ] T302 [P2] CLI 入口(独立 bin `e3d-writeback`,不动 e3d_io):`plan`(dry-run diff 预览)/`apply`(队列或 edits 文件;默认副本,--inplace + --yes)
 - [ ] T303 GATE:`--features surrealdb` workspace 构建+全部测试全绿;api_freeze 未触发;e3d_io diff 为空(SC-006)
 
