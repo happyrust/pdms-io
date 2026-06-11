@@ -165,3 +165,10 @@ name = "e3d-writeback"
 path = "src/bin/e3d_writeback.rs"
 required-features = ["surrealdb"]
 test = false
+
+# specs/006 T201:E3D⇄DB 常驻同步守护(notify+静定窗+轮询兜底)
+[[bin]]
+name = "e3d-syncd"
+path = "src/bin/e3d_syncd.rs"
+required-features = ["surrealdb"]
+test = false

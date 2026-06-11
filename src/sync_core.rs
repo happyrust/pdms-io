@@ -122,3 +122,60 @@ pub async fn bootstrap_db(target: &DbTarget, max_sessions: u32) -> anyhow::Resul
     io.init_ses_range_map()?;
     io.collect_and_save_latest_data(Some(max_sessions), None).await
 }
+
+// ---------------------------------------------------------------------------
+// 守护壳触发判定(specs/006 T201;契约 G2——纯函数,静定窗/轮询兜底可单测)
+// ---------------------------------------------------------------------------
+
+/// 一轮同步的触发原因(G3-A1 日志字段)。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Trigger {
+    /// 文件事件 + 静定窗已过(G2-A1)。
+    Event,
+    /// 轮询兜底周期到(G2-A2)。
+    Poll,
+}
+
+/// G2 触发判定:`dirty`(自上轮以来有文件事件)且距最后事件 ≥ 静定窗 ⇒ Event;
+/// 否则距上轮 ≥ 轮询周期 ⇒ Poll;否则不触发。事件风暴期间(未静定)不触发,
+/// 自然合并为一轮(G2-A3)。
+pub fn round_due(
+    dirty: bool,
+    since_last_event: std::time::Duration,
+    settle: std::time::Duration,
+    since_last_round: std::time::Duration,
+    poll: std::time::Duration,
+) -> Option<Trigger> {
+    if dirty && since_last_event >= settle {
+        return Some(Trigger::Event);
+    }
+    if since_last_round >= poll {
+        return Some(Trigger::Poll);
+    }
+    None
+}
+
+#[cfg(test)]
+mod trigger_tests {
+    use super::*;
+    use std::time::Duration;
+
+    const MS: fn(u64) -> Duration = Duration::from_millis;
+
+    /// SC-004:事件风暴未静定不触发(合并);静定后 Event;无事件靠 Poll 兜底。
+    #[test]
+    fn round_due_settle_window_and_poll_fallback() {
+        let settle = MS(500);
+        let poll = MS(30_000);
+        // 风暴进行中(最后事件 100ms 前):不触发。
+        assert_eq!(round_due(true, MS(100), settle, MS(1_000), poll), None);
+        // 静定(最后事件 600ms 前):Event。
+        assert_eq!(round_due(true, MS(600), settle, MS(1_000), poll), Some(Trigger::Event));
+        // 无事件、未到轮询周期:不触发。
+        assert_eq!(round_due(false, MS(0), settle, MS(29_000), poll), None);
+        // 无事件、轮询到期:Poll。
+        assert_eq!(round_due(false, MS(0), settle, MS(30_000), poll), Some(Trigger::Poll));
+        // dirty 但未静定、轮询到期:Poll 兜底仍触发(最终一致优先)。
+        assert_eq!(round_due(true, MS(100), settle, MS(30_000), poll), Some(Trigger::Poll));
+    }
+}

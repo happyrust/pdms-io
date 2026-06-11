@@ -17,14 +17,14 @@
 
 ## Phase 2 — 守护壳(`src/bin/e3d_syncd.rs`)
 
-- [ ] T201 [P1] 事件循环:notify(递归)→ 待同步标记 → 静定窗(默认 500ms)→ 同步轮;轮询兜底(默认 30s);同库单飞串行(G2-A1~A3)
-- [ ] T202 [P1] 参数面(--dirs/--dbnums/--settle-ms/--poll-secs/--bootstrap N/--surreal/--ns/--dbname)+ 优雅退出(G2-A4)+ 每轮日志/累计计数(G3-A1)
-- [ ] T203 [P2] 静定窗合并单测(合成事件风暴→一轮)+ bin smoke(临时目录实跑:启动→触发→退出)
-- [ ] T204 GATE:SC-004;bin 编译 + smoke 通过
+- [x] T201 [P1] 事件循环:notify(递归)→ 待同步标记 → 静定窗(默认 500ms)→ 同步轮;轮询兜底(默认 30s);同库单飞串行(G2-A1~A3)— **2026-06-12 落地** `src/bin/e3d_syncd.rs`:notify 回调只置脏标记+刷新事件时刻,触发判定提为 `sync_core::round_due` 纯函数(主循环 200ms 节拍 select,单任务顺序执行=天然单飞;轮中事件触发下一轮)
+- [x] T202 [P1] 参数面(--dirs/--dbnums/--settle-ms/--poll-secs/--bootstrap N/--surreal/--ns/--dbname)+ 优雅退出(G2-A4)+ 每轮日志/累计计数(G3-A1)— 全参数 + `--once`(单轮即退,smoke/脚本用);ctrl_c select 分支(完成当前轮后退);每轮 trigger/逐库 outcome/退出累计四计数
+- [x] T203 [P2] 静定窗合并单测(合成事件风暴→一轮)+ bin smoke(临时目录实跑:启动→触发→退出)— `round_due` 五断言单测(风暴不触发/静定 Event/未到期不触发/到期 Poll/Poll 兜底优先最终一致);`--once` smoke:扫描→BASELINE ses 36(7 ops 入 kv-mem)→计数退出
+- [x] T204 GATE:SC-004;bin 编译 + smoke 通过 — **2026-06-12 通过**:SC-004 单测+实跑双证;bin 编译+smoke ✓
 
 ## Phase 3 — 端到端与收口
 
-- [ ] T301 [P1] e2e(kv-mem):sam7200 → 基线 → 新会话版本替换 → 捕获入库 → 水位前进 → 模拟重启幂等(SC-001/002 全链)
+- [x] T301 [P1] e2e(kv-mem):sam7200 → 基线 → 新会话版本替换 → 捕获入库 → 水位前进 → 模拟重启幂等(SC-001/002 全链)— **2026-06-12 守护进程级实证(两场实跑)**:① 同字节替换:round#1 Poll BASELINE → 文件事件 → 静定窗 → round#2 **Event** → 水位拦截 up-to-date(零写库)② **真新会话**:e3d-writeback 写 ses 37 顶替文件 → round#2 Event → **SYNCED ses 37..=37**——「保存即入库」全链(004 写回→notify→005 链式增量→003 幂等落库→006 水位调度)在真进程跑通;重启幂等/Synced 语义另由 sync_core 全链测试覆盖(T103)
 - [ ] T302 GATE:双特性全量套件全绿;api_freeze 未触发;`crates/e3d_io` diff 为空(SC-005)
 
 ## Phase 4 — 文书
