@@ -41,11 +41,14 @@ impl InlineValue {
     }
 }
 
-/// 强类型编辑意图(契约 E1 六原语;refno 第一寻址)。
+/// 强类型编辑意图(契约 E1 六原语 + specs/005 增补 SetName;refno 第一寻址)。
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum EditOp {
-    /// NAME 条目改写(目标须已有 NAME;首次命名为 DA 新增条目,005 范围)。
+    /// NAME 条目改写(目标须已有 NAME;严格同构 e3d_io rename 语义)。
     Rename { refno: (u32, u32), new_name: String },
+    /// NAME 设置(specs/005 T301,契约 F3):无 NAME 则新增(含 DA 首链创建,
+    /// 无名元素首次命名的安全入口),已有则改写。
+    SetName { refno: (u32, u32), name: String },
     /// POS 实数三元组。
     SetPos { refno: (u32, u32), pos: [f64; 3] },
     /// 任意定长内联属性(real/int/ref,数量不变)。
@@ -62,6 +65,7 @@ impl EditOp {
     fn kind(&self) -> &'static str {
         match self {
             EditOp::Rename { .. } => "rename",
+            EditOp::SetName { .. } => "set_name",
             EditOp::SetPos { .. } => "set_pos",
             EditOp::SetInline { .. } => "set_inline",
             EditOp::SetMembers { .. } => "set_members",
@@ -73,6 +77,7 @@ impl EditOp {
     fn target(&self) -> (u32, u32) {
         match self {
             EditOp::Rename { refno, .. }
+            | EditOp::SetName { refno, .. }
             | EditOp::SetPos { refno, .. }
             | EditOp::SetInline { refno, .. }
             | EditOp::SetMembers { refno, .. }
@@ -142,6 +147,9 @@ pub fn apply_writeback(
                     EditOp::Rename { refno, new_name } => {
                         w.rename_at(*refno, new_name)?;
                     }
+                    EditOp::SetName { refno, name } => {
+                        w.set_name_at(*refno, name)?;
+                    }
                     EditOp::SetPos { refno, pos } => {
                         w.set_pos_at(*refno, *pos)?;
                     }
@@ -195,6 +203,12 @@ pub fn apply_writeback(
                 let e = w.element_at(*refno).map_err(|e| anyhow!("readback {refno:?}: {e}"))?;
                 if e.name.as_deref() != Some(new_name.as_str()) {
                     bail!("readback mismatch: NAME of {refno:?} = {:?}, want {new_name}", e.name);
+                }
+            }
+            EditOp::SetName { refno, name } => {
+                let e = w.element_at(*refno).map_err(|e| anyhow!("readback {refno:?}: {e}"))?;
+                if e.name.as_deref() != Some(name.as_str()) {
+                    bail!("readback mismatch: NAME of {refno:?} = {:?}, want {name}", e.name);
                 }
             }
             EditOp::Delete { refno, .. } => {

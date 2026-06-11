@@ -144,12 +144,9 @@ fn writeback_echo_converges_into_pe() {
             std::path::PathBuf::from(p)
         };
 
-        // 写回意图:无名元素改 POS(内联编辑;refno 寻址)。
-        //
-        // 注:本测试限定**内联属性**编辑面——DA 文本编辑(如 Rename)在文件级
-        // 读回正确(001 链式解码),但 v1 增量读取的 EleData 为窗口邻接解析,
-        // 看不见 e3d_io 重定位到远页的 DA ⇒ 改名会被定性"无变化"漏出增量。
-        // 已作为已知局限入档(research R5 / 005 候选:EleData DA 解析改走链式解码)。
+        // 写回意图:内联(SetPos)+ DA 文本(Rename/SetName)三类编辑齐发。
+        // specs/005 回声转正:增量读取已换链式重组流(R5 修复),DA 编辑的回声
+        // 不再漏检——004 时代的"限定内联属性"注记就此解除(005 T302/SC-001/004)。
         let bytes = std::fs::read(&src).unwrap();
         let db0 = Edb::from_bytes(bytes);
         let mut rm = HashMap::new();
@@ -159,10 +156,17 @@ fn writeback_echo_converges_into_pe() {
             .find(|e| e.name.is_none() && e.pos().is_some())
             .unwrap()
             .refno;
-        let batch = EditBatch::new(vec![EditOp::SetPos {
-            refno: unnamed,
-            pos: [111.0, 222.0, 333.5],
-        }]);
+        let named = elems.iter().find(|e| e.name.as_deref() == Some("/WB1")).unwrap().refno;
+        let bare = elems
+            .iter()
+            .find(|e| e.name.is_none() && e.da.is_empty())
+            .expect("unnamed element without DA")
+            .refno;
+        let batch = EditBatch::new(vec![
+            EditOp::SetPos { refno: unnamed, pos: [111.0, 222.0, 333.5] },
+            EditOp::Rename { refno: named, new_name: "/WB1-ECHO5".to_string() },
+            EditOp::SetName { refno: bare, name: "/T302-BAPTIZED".to_string() },
+        ]);
         let dbnum_q = unnamed.0 as i32;
         enqueue_writeback(dbnum_q, "echo1", &src.to_string_lossy(), &batch).await.unwrap();
         let rep = apply_queue(dbnum_q, &src, &ss, WriteMode::Copy).await.unwrap();
@@ -183,8 +187,8 @@ fn writeback_echo_converges_into_pe() {
         io.update_elements_to_database(&incr, false).await.unwrap();
         let dbnum = io.dbnum;
 
-        // pe 收敛于写回意图:被编辑的无名元素以新会话号入库、非墓碑,
-        // 且属性载荷携带写回的 POS 数值。
+        // pe 收敛于写回意图(三类编辑逐项):
+        // ① 内联:无名元素 POS 数值在 attrs 载荷中;
         let pe: Option<PeRow> = SUL_DB
             .select((TBL_PE, format!("{dbnum}_{}_{}", unnamed.0, unnamed.1)))
             .await
@@ -197,6 +201,21 @@ fn writeback_echo_converges_into_pe() {
             attrs_dbg.contains("222") && attrs_dbg.contains("333.5"),
             "pe attrs converge on writeback POS intent: {attrs_dbg}"
         );
+        // ② DA 改写:改名元素 pe.name 收敛于新名(005 回声转正,R5 限定解除);
+        let pe_n: Option<PeRow> = SUL_DB
+            .select((TBL_PE, format!("{dbnum}_{}_{}", named.0, named.1)))
+            .await
+            .unwrap();
+        let pe_n = pe_n.expect("renamed element echoed into pe");
+        assert_eq!(pe_n.name, "/WB1-ECHO5", "pe.name converges on rename intent");
+        assert_eq!(pe_n.sesno, new_sesno);
+        // ③ DA 新增:首次命名元素 pe.name 在位(SetName 回声)。
+        let pe_b: Option<PeRow> = SUL_DB
+            .select((TBL_PE, format!("{dbnum}_{}_{}", bare.0, bare.1)))
+            .await
+            .unwrap();
+        let pe_b = pe_b.expect("baptized element echoed into pe");
+        assert_eq!(pe_b.name, "/T302-BAPTIZED", "pe.name converges on first-naming intent");
 
         // 再 ingest = 水位拦截,逐表计数不变(幂等回声,Q4 语义成立)。
         let counts = (

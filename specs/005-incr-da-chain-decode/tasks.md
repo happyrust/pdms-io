@@ -23,9 +23,9 @@
 
 ## Phase 3 — 写回侧收口
 
-- [ ] T301 [P2] `EditOp::SetName` + 写回核心/队列/CLI 沿 004 形态接入
-- [ ] T302 [P1] 回声转正:Rename(及 SetName)回声进库测试——增量含 Modified、`pe.name` 收敛;**解除 004 回声测试的 R5 限定注记**(SC-001/SC-004)
-- [ ] T303 GATE:`--features surrealdb` workspace 全量绿;api_freeze 未触发
+- [x] T301 [P2] `EditOp::SetName` + 写回核心/队列/CLI 沿 004 形态接入 — **2026-06-12**:EditOp 增 `SetName{refno,name}` 变体(kind/target/apply 映射 `set_name_at`/逐笔读回核验);serde 外部标签加变体向后兼容,schema_version 维持 1;队列/CLI 经 EditBatch 自动支持
+- [x] T302 [P1] 回声转正:Rename(及 SetName)回声进库测试——增量含 Modified、`pe.name` 收敛;**解除 004 回声测试的 R5 限定注记**(SC-001/SC-004)— `writeback_echo_converges_into_pe` 升级为三类编辑齐发:① SetPos POS 数值入 attrs ② **Rename → pe.name 收敛新名** ③ **SetName 首次命名 → pe.name 在位**;再 ingest 水位拦截幂等保持。8/8 写回测试绿
+- [x] T303 GATE:`--features surrealdb` workspace 全量绿;api_freeze 未触发 — **2026-06-12 00:51 通过,exit 0**:全 targets 构建 + lib(含写回 8 测试)+ 全部集成绿(diag 5✓/314s 链式流上零回归);api_freeze 未触发。**Phase 3 收口,Phase 4 文书解锁**
 
 ## Phase 4 — 文书
 

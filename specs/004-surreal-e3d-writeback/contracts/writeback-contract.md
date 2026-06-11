@@ -19,6 +19,7 @@
 - E1-I1: 寻址以 refno 为准(无名元素可编辑);name 仅辅助。refno 不存在 ⇒ 该批失败(原子)。
 - E1-I2: `EditOp` serde 可序列化 + `schema_version` 字段;队列 payload 与内存类型同源(单一定义)。
 - E1-I3: 操作面 = 上表六原语,**不扩**(UDA 条目/DA 任意文本等留 005,FR-010)。
+  **specs/005 修订(2026-06-12)**:经 005 契约 F3 批准增补第七原语 `SetName { refno, name }`(无 NAME 新增/已有改写,映射 `set_name_at`);`Rename` 语义不变。serde 向后兼容,schema_version 维持 1。
 
 ## E2. `writeback_queue` 表契约
 
