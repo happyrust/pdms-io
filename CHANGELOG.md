@@ -2,13 +2,15 @@
 
 ## [未发布]
 
-### 进行中 — 增量 DA 链式解析(R5 盲区修复)+ 首次命名(specs/005,2026-06-11 起)
+### 新增 — 增量 DA 链式解析(R5 盲区修复)+ 首次命名(specs/005,2026-06-12)
 
-> 004 实测发现的 R5:e3d_io 把 DA 文本重定位到远页后,v1 窗口邻接解析看不见 ⇒ 改名等 DA 编辑进不了增量/落不了库。005 修复这最后一个双向流水线缺口;grill Q1~Q6 全按推荐(修在 e3d_io read_view/仅 DA·members 区改链式/独立 SetName/白名单红线 v2)。
+> 004 实测发现的 R5:e3d_io 把 DA 文本重定位到远页后,v1 窗口邻接解析看不见 ⇒ 改名等 DA 编辑进不了增量/落不了库。005 修复这最后一个双向流水线缺口,**并经对齐契约逮出三个 v1 长期隐性 bug**;grill Q1~Q6 全按推荐。
 
-- **T101 布局裁决(真实字节)**:PDMS 邻接布局 = 链式 5 词节点(`[(which<<16)|total][refno×2][next_pg][next_loc]`+payload)的物理邻接摆放;v1"0x07 追加段"= 分隔字+下一节点。重组规范入契约 F1-I1;锚点测试 `members_node_layout_anchor` 固化。
-- **T102 链式重组**:`Rdb::element_record_chained`——隐式区 ++ adjacentize(members) ++ adjacentize(DA),节点原样字节+0x07 分隔,有界 128+环防+坏链类型化报错。测试:邻接库 50 元素逐字节等价 / **R5 双断言**(窗口流看不见重定位 DA、链式流看得见)/ 坏链报错;e3d_io 43+1 全绿。
-- 待续:T103 `set_name_at`(首次命名)→ T104 GATE → Phase 2 门面接线(增量路径换链式流 + decode_full 对齐)→ Phase 3 回声转正。
+- **T101 布局裁决(真实字节)**:PDMS 邻接布局 = 链式 5 词节点(`[(which<<16)|total][refno×2][next_pg][next_loc]`+payload)的物理邻接摆放;v1"0x07 追加段"= 分隔字+下一节点。锚点测试 `members_node_layout_anchor` 固化。
+- **链式重组**:`Rdb::element_record_chained`(隐式区 ++ adjacentize(members/DA),预算导向截取 slack、0x07 分隔、有界环防、坏链类型化报错);`set_name_at`(无名元素首次命名,含 DA 首链创建)。e3d_io 44+1 全绿。
+- **门面换刀(R5 修复本体)**:`read_element_record_cached` 改经链式重组流(C1 签名不变)。**三个隐性 bug 一并修复**:① `EleData.name` 恒空(name 在显式解析前取)② members 载荷起点 +12 把链指针吞成伪成员 ③ 链尾 slack 词致 children 静默清空(%8 失败)。sam7200 210 元素对齐 + diag 103MB 全库零回归。
+- **写回侧收口**:`EditOp` 增 **SetName** 第七原语;回声测试三类编辑齐发(SetPos POS 入 attrs / Rename `pe.name` 收敛 / SetName 首次命名在位)——**004 的 R5 限定注记正式解除**。
+- **验收**:T203/T303 两道 GATE exit 0;36 个 parse_pdms_db 既有单测红灯经基线复测如实区分(非本轮引入,从未入闸)。
 
 ### 新增 — SurrealDB → E3D 写回管道(specs/004,2026-06-11)
 

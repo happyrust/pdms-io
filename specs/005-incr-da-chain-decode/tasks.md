@@ -29,8 +29,15 @@
 
 ## Phase 4 — 文书
 
-- [ ] T401 ARCHITECTURE R5 注记更新 + CHANGELOG;004 research R5 回填"已修复(005)"
-- [ ] T402 GATE:SC-001~SC-005 逐条核销;spec Status → Implemented
+- [x] T401 ARCHITECTURE R5 注记更新 + CHANGELOG;004 research R5 回填"已修复(005)" — **2026-06-12**:ARCHITECTURE 写回段 R5 改"已修复"+操作面注 SetName;CHANGELOG 005 条目定稿(进行中→新增,含三隐性 bug);004 research R5 条目标记 ✅
+- [x] T402 GATE:SC-001~SC-005 逐条核销;spec Status → Implemented — **2026-06-12 核销**:
+  - **SC-001 ✅** 回声 Rename 转正(写回改名→增量 Modified 含新名→pe.name 收敛;004 限定注记解除)
+  - **SC-002 ✅** 双实现对齐(sam7200 具名 150+无名 60 refno/name/children 逐项 == e3d_io 真相;对齐契约逮出三隐性 bug 并修复)
+  - **SC-003 ✅** 不回归(diag_ams1112 5 测试 342s/314s 两轮零回归;T203/T303 双 GATE exit 0;36 个子 crate 既有红灯经基线复测如实区分)
+  - **SC-004 ✅** SetName(无名首次命名 round-trip + 回声 pe.name 在位 + Rename 同构保持 + 命名后融入 name 寻址)
+  - **SC-005 ✅** 红线审计(e3d_io 改动仅 F4 白名单:element_record_chained/adjacentize/set_name_at + 测试;cargo tree 单节点;api_freeze 全程绿)
+  
+  spec.md Status 已置 **Implemented**。**specs/005 全部完成**
 
 ## 依赖关系
 
