@@ -158,3 +158,10 @@ test = false
 name = "check_instances_json"
 path = "src/bin/check_instances_json.rs"
 test = false
+
+# specs/004 T302:SurrealDB→E3D 写回 CLI(plan/apply/queue-apply)
+[[bin]]
+name = "e3d-writeback"
+path = "src/bin/e3d_writeback.rs"
+required-features = ["surrealdb"]
+test = false
