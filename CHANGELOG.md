@@ -2,6 +2,15 @@
 
 ## [未发布]
 
+### 变更 — E3D 增量落库收敛为单一强类型入口(specs/003,2026-06-11)
+
+> `update_elements_to_database` 从 no-op 占位真实化为唯一增量落库入口;字符串拼接 SQL 时代落幕。
+
+- **入口真实化**:`surreal_ingest.rs` 强类型行(`SurrealValue`/serde)upsert 写 `ses`/`pe_ses_h`/`pe`;记录 ID 由 `(dbnum, refno, sesno)` 确定性生成 ⇒ **重放幂等**(≥3 次重放计数/内容不变);`ingest_watermark` 水位单调升,已落会话跳过且可观测(`IngestReport`)。
+- **测试基建**:kv-mem(`mem://`)全离线验收——共享运行时陷阱 ×2 入档(单线程 rt 卡死/全局连接绑定首 rt);真实样本端到端(sam7200 逐项对应、ams1112 计数耗时报告)。
+- **存量收敛**:`to_surql` 空串占位与旧 `save_sessions_and_elements` 拼接路径删除,`collect_and_save_latest_data` 保存段委托唯一入口;`sync_history` 等注释坟场净删 ~944 行;`store_all_refno_sesno_map` 保留为**全库历史回填专用入口**(契约 D4 声明,拼接段记 004 候选)。
+- **验收**:`--features surrealdb` workspace 构建+全套测试两道闸(T206/T304)均 exit 0;落库构造点 grep 单一入口;`crates/e3d_io` 零改动。
+
 ### 变更 — E3D I/O 三引擎收敛为单一格式核心(specs/002,2026-06-11)
 
 > v1 `PdmsIO` 自带解析 / `engine_v2` / `e3d_io` 三套并存实现收敛为 **`crates/e3d_io` 单核心 + `PdmsIO` 门面**;切换为大爆炸(Q4=C,用户拍板),全程公共 API 零变更(`tests/api_freeze_c1.rs` 编译期冻结锁)。

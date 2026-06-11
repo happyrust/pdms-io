@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-11
 
-**Status**: Draft（grill-me Q1~Q6 决策收敛产物；决策记录与存量证据见 research.md）
+**Status**: Implemented（2026-06-11;SC-001~006 全核销,见 tasks.md T402。grill-me Q1~Q6 决策收敛产物;决策记录与存量证据见 research.md）
 
 **Input**: User description: "specs/002 收敛完成后,按推荐继续——003 = E3D→SurrealDB 落库"
 

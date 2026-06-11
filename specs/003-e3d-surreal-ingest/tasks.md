@@ -32,8 +32,16 @@
 
 ## Phase 4 — 文书
 
-- [ ] T401 ARCHITECTURE 数据流(持久化段)更新 + CHANGELOG 条目
-- [ ] T402 GATE:SC-001~SC-006 逐条核销;spec Status → Implemented
+- [x] T401 ARCHITECTURE 数据流(持久化段)更新 + CHANGELOG 条目 — **2026-06-11**:ARCHITECTURE「持久化」段改述唯一入口/水位/幂等 + 历史回填分工,依赖表与模块清单补 `surreal_ingest.rs`;CHANGELOG [未发布] 顶部新增 003 条目(入口真实化/测试基建/存量收敛/验收四点)
+- [x] T402 GATE:SC-001~SC-006 逐条核销;spec Status → Implemented — **2026-06-11 核销**:
+  - **SC-001 ✅** 真实样本逐项对应(T205:sam7200 经门面入口 ses==会话数/pe_ses_h==ops/pe==非 None 数)
+  - **SC-002 ✅** 重放幂等(T204:重放 3 次逐表 count+内容不变;清水位重放纯 upsert 等值)
+  - **SC-003 ✅** 水位可观测跳过(T204/T205:重放被拦,IngestReport.sessions_skipped 断言)
+  - **SC-004 ✅** ams1112 端到端报告(T205:sessions=1 ops=2 collect=158ms ingest=9.7ms,103MB 库)
+  - **SC-005 ✅** 构造点收敛(T304 grep:生产构造点仅余 D4 声明项;to_surql/坟场清零)
+  - **SC-006 ✅** kv-mem 全离线 + e3d_io diff 为空 + --features surrealdb 两道闸(T206/T304)exit 0
+  
+  spec.md Status 已置 **Implemented**。**specs/003 全部完成**
 
 ## 依赖关系
 

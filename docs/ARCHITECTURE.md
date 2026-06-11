@@ -41,7 +41,7 @@ parse_pdms_db(crate)= EleData 类型适配层(FR-003 决策):消费门面给的�
 - `aios_core`: PDMS 类型定义、环境配置（数据库路径收集、RefNo/SESNo 工具）、测试 SurrealDB 初始化。
 - `e3d_io`（workspace 内 `crates/e3d_io`）: **唯一格式核心**——B 树/会话链/记录定界/页大小探测/COW 写的单一实现（std-only）。
 - `parse_pdms_db`: `EleData` 类型适配层（字节获取已单源 `e3d_io`，本 crate 负责记录字节 → 结构化属性的类型转换）。
-- `surrealdb`: 数据持久化目标；目前主要使用 SurrealQL 语句构造。
+- `surrealdb`: 数据持久化目标；增量主线为强类型 serde/upsert（`surreal_ingest.rs`，specs/003），字符串拼接 SQL 仅余 D4 声明的历史回填入口。
 - `meilisearch-sdk`: 可选的全文搜索索引。
 - `notify`/`walkdir`: 文件系统监听与遍历。
 - `dashmap`/`rayon`/`tokio`: 并发访问与异步任务调度。
@@ -56,7 +56,7 @@ parse_pdms_db(crate)= EleData 类型适配层(FR-003 决策):消费门面给的�
   - 核心服务 `PdmsIO`（**门面**：公共 API 冻结，字节获取全部委托 `e3d_io` 持久只读视图 `Rdb<PagedFile>`），负责文件打开、会话范围构建、索引扫描、元素读取与差异分析。
   - 增量收集：`collect_increment_eles` / `collect_increment_eles_optimized` 根据会话范围或索引映射提取 `EleOperationData`。
   - 历史/最新检索：`search_latest_refno`、`collect_ele_history` 等。
-  - 数据落地：`update_elements_to_database` 将会话与元素变更写入 SurrealDB（可选择跳过主数据）。
+  - 数据落地：`update_elements_to_database` 唯一增量入口（委托 `surreal_ingest.rs` 强类型 upsert + 水位；可选择跳过主数据）。
   - 索引缓存：`build_index_map`、`cache_index_map`/`load_cached_index_map` 加速 RefNo 定位。
   - 辅助：`benchmark_increment_eles`、`extract_test_refnos` 等测试/基准入口。
 - `search.rs`
@@ -69,6 +69,8 @@ parse_pdms_db(crate)= EleData 类型适配层(FR-003 决策):消费门面给的�
   - 路径与环境变量解析：`PDMS_PROJECT_PATH` / `PDMS_TEST_PATH`，`Config::get_database_path` 等。
 - `io_log.rs`
   - 日志初始化工具：控制台/文件/高级配置。
+- `surreal_ingest.rs`
+  - specs/003 落库核心：`SesRow`/`PeSesHRow`/`PeRow`/`WatermarkRow` 强类型行 + `ingest_increments` 纯函数（kv-mem 可直接驱动）+ `IngestReport` 可观测回执。
 - `surql/`
   - 预置 SurrealQL 片段与占位模块，便于集中管理查询语句。
 - `bin/`
@@ -82,8 +84,10 @@ parse_pdms_db(crate)= EleData 类型适配层(FR-003 决策):消费门面给的�
   - `PdmsIO::open` 读取头部并构建会话范围（`init_ses_range_map`）。
   - 索引扫描（`collect_refno_locs_in_session`/`build_index_map`）→ 定位元素页 → 解析 `EleData`。
   - 比对上一会话状态，产出 `EleOperationData`（Add/Modify/Delete）。
-2. **持久化**
-  - `update_elements_to_database` 写入会话记录、元素变更记录，并可选择更新主数据表与关系。
+2. **持久化（specs/003 收敛后,2026-06-11）**
+  - **唯一增量入口** `update_elements_to_database`（签名冻结）→ `surreal_ingest.rs`：强类型 serde/upsert 写 `ses` / `pe_ses_h` /（除非 `skip_main_data`）`pe`，并维护 `ingest_watermark` 水位（`dbnum → 已落 sesno`，单调升、重放跳过可观测）；记录 ID 由 `(dbnum, refno, sesno)` 确定性生成 ⇒ 重放幂等。
+  - `collect_and_save_latest_data` 的保存段委托上述入口（收集/组织段保留）；旧字符串拼接路径（`to_surql`/`save_sessions_and_elements`/`sync_history` 坟场）已退役删除。
+  - `store_all_refno_sesno_map` 为**全库历史回填专用入口**（含物理 offset 的全量收集，契约 D4 声明保留；其遗留拼接段记 004 候选强类型化）。
 3. **搜索索引**
   - `collect_increment_eles` 结果 → `ElementSearchClient::index_elements` → Meilisearch。
 4. **监控与同步**
