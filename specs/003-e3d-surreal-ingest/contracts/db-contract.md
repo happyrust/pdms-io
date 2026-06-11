@@ -48,9 +48,9 @@ pub async fn update_elements_to_database(
 
 | 路径 | 处置 |
 |---|---|
-| `to_surql`(空串占位) | 删除(强类型序列化取代);`EleOperationData` 上不留字符串拼接面 |
-| `collect_and_save_latest_data` 的保存段 | 改为委托 `update_elements_to_database`(收集段保留) |
-| `store_all_refno_sesno_map` | 盘点决策(实现期回填):能力并入新入口 ⇒ 退役;或保留为"全库历史回填"专用入口并在此声明分工 |
-| `sync_history` 等成片注释坟场 | 删除(git 历史可查) |
+| `to_surql`(空串占位) | 删除(强类型序列化取代);`EleOperationData` 上不留字符串拼接面 — **2026-06-11 已删**(方法 + 唯一死调用点随旧保存段一并移除) |
+| `collect_and_save_latest_data` 的保存段 | 改为委托 `update_elements_to_database`(收集段保留) — **2026-06-11 已委托**:旧 `save_sessions_and_elements`(字符串拼接 INSERT IGNORE → `sessions`/`element_changes` 旧表)整体删除,保存段现走唯一入口(ses/pe_ses_h/pe + 水位);消费 bins(demo_latest_data_save/test_meilisearch)签名不变随迁 |
+| `store_all_refno_sesno_map` | 盘点决策(实现期回填):能力并入新入口 ⇒ 退役;或保留为"全库历史回填"专用入口并在此声明分工 — **2026-06-11 决策 = 保留为全库历史回填专用入口**(含物理 offset 的逐会话全量收集,增量入口不覆盖;零生产调用方,函数 doc 已注明分工)。其落库段仍为遗留拼接,**记 004 候选**改造强类型;增量主线禁止新增依赖 |
+| `sync_history` 等成片注释坟场 | 删除(git 历史可查) — **2026-06-11 已删 ~944 行**:`sync_history`(706 行全注释体)+ `sync_all_history_data` 包装 + 孤儿私有助手 `save_ses_pe_relates`/`save_att_history`;被测路径为 no-op 的 `test_read_all_sessions` 随退役移除 |
 
 **验收**:落库语句构造点 grep 仅命中新入口模块(+D4 声明保留项);kv-mem 全套测试绿;`crates/e3d_io` diff 为空。

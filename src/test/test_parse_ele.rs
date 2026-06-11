@@ -1,7 +1,7 @@
 use crate::io::PdmsIO;
 use crate::test::resolve_test_db_path;
+use aios_core::RefU64;
 use aios_core::tool::db_tool::db1_dehash;
-use aios_core::{RefU64, init_test_surreal};
 
 #[tokio::test]
 async fn test_parse_ele() {
@@ -20,20 +20,5 @@ async fn test_parse_ele() {
     dbg!(att);
 }
 
-#[cfg(feature = "surrealdb")]
-#[tokio::test]
-async fn test_read_all_sessions() -> anyhow::Result<()> {
-    init_test_surreal().await;
-    let db_path = match resolve_test_db_path("ams1112_0001") {
-        Some(path) => path,
-        None => {
-            println!("数据库文件不存在，跳过测试: ams1112_0001");
-            return Ok(());
-        }
-    };
-    crate::io::sync_all_history_data(db_path.to_string_lossy().as_ref())
-        .await
-        .unwrap();
-
-    Ok(())
-}
+// specs/003 T303:`test_read_all_sessions` 随 `sync_all_history_data`/`sync_history`
+// 注释坟场退役删除(其被测路径为全注释 no-op;契约 D4)。

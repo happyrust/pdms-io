@@ -25,10 +25,10 @@
 
 ## Phase 3 — 存量收敛(仅在 T206 过后)
 
-- [ ] T301 [P2] `to_surql` 删除;`collect_and_save_latest_data` 保存段改委托新入口(收集段保留);消费 bins(demo_latest_data_save/test_meilisearch)随迁
-- [ ] T302 [P2] `store_all_refno_sesno_map` 盘点决策落地(并入退役 or 保留为全库历史回填入口),回填 D4
-- [ ] T303 [P2] `sync_history` 等成片注释坟场删除
-- [ ] T304 GATE:落库语句构造点 grep 单一入口(+D4 声明项);全绿;`crates/e3d_io` diff 为空(SC-005/006)
+- [x] T301 [P2] `to_surql` 删除;`collect_and_save_latest_data` 保存段改委托新入口(收集段保留);消费 bins(demo_latest_data_save/test_meilisearch)随迁 — **2026-06-11**:`to_surql` 方法删除;旧 `save_sessions_and_elements`(197 行拼接 SQL → 旧表 sessions/element_changes)整体删除,保存段改 `update_elements_to_database(&range_eles, false)`(收集/组织段原样);bins 签名零改随迁
+- [x] T302 [P2] `store_all_refno_sesno_map` 盘点决策落地(并入退役 or 保留为全库历史回填入口),回填 D4 — **决策=保留为全库历史回填专用入口**(独有含 offset 的全量收集能力;零调用方;函数 doc + D4 已声明分工,遗留拼接段记 004 候选强类型化)
+- [x] T303 [P2] `sync_history` 等成片注释坟场删除 — **2026-06-11 净删 ~944 行**:`sync_history`(全注释体)+ `sync_all_history_data` + 孤儿助手 `save_ses_pe_relates`/`save_att_history`;no-op 被测的 `test_read_all_sessions` 随退役移除(io.rs 5003→4058 行)
+- [x] T304 GATE:落库语句构造点 grep 单一入口(+D4 声明项);全绿;`crates/e3d_io` diff 为空(SC-005/006) — **2026-06-11 20:38 通过,exit 0**:① grep(`SUL_DB.query|INSERT|UPSERT|to_surql`)实证——生产构造点仅余 `store_all_refno_sesno_map`(D4 声明保留项)内 5 处;新入口 `surreal_ingest.rs` 全强类型零拼接;测试工具 2 处为 harness 查询非落库构造;`to_surql` 零命中 ② `--features surrealdb` 全量构建(1m47s)+ 全部测试 exit 0:lib 45/0/5、api_freeze ✓、diag 5✓(419s)、desp/bend_angl/dblist/trim/ptcd 全绿 ③ `crates/e3d_io` 工作区 diff 为空。**Phase 3 收口,Phase 4 解锁**
 
 ## Phase 4 — 文书
 
