@@ -21,6 +21,10 @@ pub mod writeback_core;
 #[cfg(feature = "surrealdb")]
 pub mod surreal_writeback;
 
+/// specs/006 Phase 1:同步核心(目录扫描 + 纯水位驱动的单库同步步)。
+#[cfg(feature = "surrealdb")]
+pub mod sync_core;
+
 pub mod io_log;
 
 /// specs/003:E3D 增量 → SurrealDB 落库核心(强类型构造/幂等 upsert/水位)。

@@ -12,3 +12,6 @@ pub mod surreal_ingest_test;
 /// specs/004:writeback_queue 队列幂等/状态机/版本闸测试(T203)。
 #[cfg(feature = "surrealdb")]
 pub mod surreal_writeback_test;
+/// specs/006:同步核心扫描/基线/捕获/幂等/隔离测试(T103)。
+#[cfg(feature = "surrealdb")]
+pub mod sync_core_test;

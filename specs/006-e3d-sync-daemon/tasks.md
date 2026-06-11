@@ -10,10 +10,10 @@
 
 ## Phase 1 — 同步核心(`src/sync_core.rs`,feature 门控)
 
-- [ ] T101 [P1] `scan_targets(dirs, whitelist) -> Vec<DbTarget>`(G1-A1:`*_0001` 识别,读头取 dbnum,坏文件记跳过)+ 单测(临时目录混入非库文件/坏文件)
-- [ ] T102 [P1] `sync_db(target) -> DbSyncOutcome{Synced(IngestReport)|Skipped|Failed}`(G1-A2/A3:水位比对→范围增量→唯一入口;初见库以最新会话立基线;纯水位无本地状态)
-- [ ] T103 [P1] kv-mem+临时目录测试:首轮基线 / e3d_io 写新会话替换→捕获→水位前进(SC-001)/ 重复轮零写库+重启(新实例)零重复(SC-002)/ 坏文件隔离健康库照常(SC-003)
-- [ ] T104 GATE:`--features surrealdb` 核心测试全绿;落库构造点 grep 零新增;e3d_io diff 空
+- [x] T101 [P1] `scan_targets(dirs, whitelist) -> Vec<DbTarget>`(G1-A1:`*_0001` 识别,读头取 dbnum,坏文件记跳过)+ 单测(临时目录混入非库文件/坏文件)— **2026-06-12 落地** `src/sync_core.rs`:WalkDir 递归 + 名匹配 + 64B 读头(db_num@0x08)+ 白名单;<64B 文件静默跳过(垃圾头文件进列表由 sync_db Failed 隔离,SC-003 路径)
+- [x] T102 [P1] `sync_db(target) -> DbSyncOutcome{Synced|SkippedUpToDate|Baseline|Failed}`(G1-A2/A3:水位比对→范围增量→唯一入口;初见库以最新会话立基线;纯水位无本地状态)— 错误折叠 `Failed(String)` 供守护壳隔离;`bootstrap_db`(G1-A4)委托既有 `collect_and_save_latest_data`;`read_watermark` 提为 pub(crate) 复用(零新落库构造点)
+- [x] T103 [P1] kv-mem+临时目录测试:首轮基线 / e3d_io 写新会话替换→捕获→水位前进(SC-001)/ 重复轮零写库+重启(新实例)零重复(SC-002)/ 坏文件隔离健康库照常(SC-003)— 3 测试一次全过:扫描过滤(干扰文件/白名单)/ 全链(Baseline→Skipped→writeback 新会话顶替→Synced{from,to}→重启 Skipped)/ 垃圾头库 Failed 而健康库同轮 Baseline
+- [x] T104 GATE:`--features surrealdb` 核心测试全绿;落库构造点 grep 零新增;e3d_io diff 空 — **2026-06-12 通过**:lib 56/0/5;`sync_core.rs` grep 零 SQL/upsert 构造;`crates/e3d_io` diff 为空。**Phase 1 收口,Phase 2(守护壳)解锁**
 
 ## Phase 2 — 守护壳(`src/bin/e3d_syncd.rs`)
 

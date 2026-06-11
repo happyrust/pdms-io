@@ -108,7 +108,8 @@ fn pe_tombstone(dbnum: i32, sesno: u32, refno: RefU64) -> PeRow {
     }
 }
 
-async fn read_watermark(dbnum: i32) -> anyhow::Result<Option<u32>> {
+/// 读取库水位(specs/006 同步核心复用:pub(crate),G1-A2 的"初见库/最新判定"依据)。
+pub(crate) async fn read_watermark(dbnum: i32) -> anyhow::Result<Option<u32>> {
     // SurrealDB 3.x 对不存在的表/记录 select 报 NotFound(而非 None)——按"无水位"处理。
     match SUL_DB.select::<Option<WatermarkRow>>((TBL_WATERMARK, dbnum.to_string())).await {
         Ok(row) => Ok(row.map(|w| w.high_sesno)),
