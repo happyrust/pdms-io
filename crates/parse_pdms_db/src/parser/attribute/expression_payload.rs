@@ -577,6 +577,9 @@ fn parse_value_opcode(
                         text.push('[');
                         text.push_str(&low.to_string());
                         text.push_str(" ]");
+                    } else if should_omit_default_substring_range(&name, low, high) {
+                        // E3D omits the full-string substring range in Q ATT output
+                        // (for example RTEX "( ATTRIB NAMN )" vs stored NAMN 1 TO 500).
                     } else {
                         text.push(' ');
                         text.push_str(&low.to_string());
@@ -836,6 +839,10 @@ fn decode_word_string(words: &[i32]) -> String {
         bytes.push((*w as u32 & 0xFF) as u8);
     }
     String::from_utf8_lossy(&bytes).to_string()
+}
+
+fn should_omit_default_substring_range(name: &str, low: i32, high: i32) -> bool {
+    name != "PARA" && low == 1 && high == 500
 }
 
 fn decode_value_expr_base(a2: i32, a3: i32, a4: i32) -> f64 {

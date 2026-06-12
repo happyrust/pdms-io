@@ -21,6 +21,7 @@ mod test_parse_element;
 mod test_uda;
 
 mod binary_data_parser_test;
+mod test_ams5054_ptca;
 mod test_ams7330;
 mod test_amssys;
 mod test_axis_explicit_trunc;

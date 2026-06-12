@@ -90,7 +90,10 @@ pub fn parse_implicit_attr_value<'a>(
         DbAttributeType::INTEGER => parse_integer(data),
         DbAttributeType::DOUBLE => parse_double(data, is_f32),
         DbAttributeType::BOOL => parse_bool(data, attr_info.offset),
-        DbAttributeType::STRING => parse_string(data),
+        DbAttributeType::STRING => {
+            let (rest, value) = parse_string(data)?;
+            Ok((rest, normalize_empty_string_attr(&attr_info.name, value)))
+        }
         DbAttributeType::ELEMENT => parse_refno(data),
         DbAttributeType::WORD => parse_word(data),
         DbAttributeType::Vec3Type => parse_vec3(data, is_f32),
@@ -212,6 +215,14 @@ fn parse_bool(input: &[u8], offset: u32) -> IResult<&[u8], NamedAttrValue> {
 }
 
 /// 解析字符串类型
+///
+/// PDMS 隐式字符串有两种布局（len 均为字符数）:
+/// - **packed**: 文本按 4 字节/word 打包（如 SDTE.SKEY: `[4]["VGBW"]`），
+///   首文本字节即第一个字符（可打印,非 0）;
+/// - **word-per-char**: 每 word 存一个字符（低字节有效），首文本 word 高 3 字节为 0。
+///
+/// 此前实现只按 word-per-char 读取,packed 字符串会被错读
+/// （如 "VGBW" → "W\0\0\0"，金标准 =13246/243869 Skey VGBW）。
 fn parse_string(input: &[u8]) -> IResult<&[u8], NamedAttrValue> {
     if input.len() < 4 {
         return Err(nom::Err::Error(nom::error::make_error(
@@ -222,6 +233,23 @@ fn parse_string(input: &[u8]) -> IResult<&[u8], NamedAttrValue> {
 
     let len = i32::from_be_bytes(input[..4].try_into().unwrap()) as usize;
     let data_start = 4;
+
+    // packed 判据：首文本字节非 0（packed 字符串的第一个字符是可打印 ASCII）。
+    if len > 0 && input.len() > data_start && input[data_start] != 0 {
+        let packed_end = data_start + len;
+        if input.len() < packed_end {
+            return Err(nom::Err::Error(nom::error::make_error(
+                input,
+                nom::error::ErrorKind::Eof,
+            )));
+        }
+        let string: String = input[data_start..packed_end]
+            .iter()
+            .map(|&b| b as char)
+            .collect();
+        return Ok((input, NamedAttrValue::StringType(string)));
+    }
+
     let data_end = data_start + len * 4;
 
     if input.len() < data_end {
@@ -244,6 +272,17 @@ fn parse_string(input: &[u8]) -> IResult<&[u8], NamedAttrValue> {
         .collect();
 
     Ok((input, NamedAttrValue::StringType(string)))
+}
+
+fn normalize_empty_string_attr(attr_name: &str, value: NamedAttrValue) -> NamedAttrValue {
+    match value {
+        NamedAttrValue::StringType(value)
+            if value.is_empty() && matches!(attr_name.trim(), "MTOL" | "MTOQ") =>
+        {
+            NamedAttrValue::StringType("0".to_string())
+        }
+        other => other,
+    }
 }
 
 /// 解析 RefU64 类型

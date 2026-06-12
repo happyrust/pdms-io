@@ -65,6 +65,18 @@ use tokio::io::AsyncReadExt;
 // const REFNO_ALL_INDEX_PAGE: [u8; 11] = [0x00u8, 0x00, 0x00, 0x05, 0x00, 0xCC, 0x47, 0xDF, 0x00, 0x00, 0x00];
 const REFNO_ALL_INDEX_PAGE: [u8; 8] = [0x0u8, 0xCC, 0x47, 0xDF, 0x0, 0x0, 0x0, 0x0];
 
+fn should_display_empty_string_as_zero(attr_name: &str) -> bool {
+    matches!(attr_name.trim(), "MTOL" | "MTOQ")
+}
+
+fn normalize_decoded_string_attr(attr_name: &str, value: String) -> String {
+    if value.is_empty() && should_display_empty_string_as_zero(attr_name) {
+        "0".to_string()
+    } else {
+        value
+    }
+}
+
 fn rkyv_to_bytes<T>(value: &T) -> anyhow::Result<Vec<u8>>
 where
     T: rkyv::Archive,
@@ -629,7 +641,11 @@ pub fn parse_raw_ele_data_with_info(
         let implicit_offset = ImplicitAttrOffset {
             name: attr_info.name.clone(),
             offset: attr_info.offset,
-            attr_type: attr_info.att_type.clone(),
+            attr_type: if matches!(attr_info.default_val, IntArrayType(_)) {
+                DbAttributeType::INTVEC
+            } else {
+                attr_info.att_type.clone()
+            },
         };
         let mut att_val = None;
         if let Ok((_, new_val)) = parse_implicit_attr_value_new(
@@ -931,7 +947,14 @@ pub fn collect_explict_data(mut input: &[u8], refno: RefU64) -> Vec<u8> {
                     Ok((rest, mut payload)) => {
                         // 兼容：主段可能包含 8 字节保留区（不一定全 0）
                         if payload.len() >= 8 && payload[..8].iter().all(|&b| b == 0) {
-                            payload.drain(..8);
+                            let overlap = payload.len() >= 12
+                                && bytes.len() >= 4
+                                && bytes[bytes.len() - 4..] == payload[8..12];
+                            if overlap {
+                                payload.drain(..12);
+                            } else {
+                                payload.drain(..8);
+                            }
                         } else if payload.len() >= 16 {
                             let ok0 = looks_like_attr_stream_start(&payload);
                             let ok8 = looks_like_attr_stream_start(&payload[8..]);
@@ -1562,7 +1585,10 @@ pub fn parse_implicit_attr_value<'a>(
                                 println!(
                                     "parse double 有问题的数据 attr={}:\n{}",
                                     attr_info.name,
-                                    format_bytes_hexdump(origin_bytes, current_element_file_offset()),
+                                    format_bytes_hexdump(
+                                        origin_bytes,
+                                        current_element_file_offset()
+                                    ),
                                 );
                             }
                         }
@@ -1606,10 +1632,15 @@ pub fn parse_implicit_attr_value<'a>(
                     } else if str_len < bytes.len() && bytes.len() >= 4 {
                         if str_len + 4 <= bytes.len() {
                             let (decode_string, _b_chi) = decode_chars_data(&bytes[4..str_len + 4]);
-                            val = StringType(decode_string.into());
+                            val = StringType(
+                                normalize_decoded_string_attr(&attr_info.name, decode_string)
+                                    .into(),
+                            );
                         }
                     } else {
-                        val = StringType("".into());
+                        val = StringType(
+                            normalize_decoded_string_attr(&attr_info.name, String::new()).into(),
+                        );
                     }
                 }
                 ElementType(_) | RefU64Type(_) => {
@@ -1648,7 +1679,10 @@ pub fn parse_implicit_attr_value<'a>(
                                 println!(
                                     "parse vec3 有问题的数据 attr={}:\n{}",
                                     attr_info.name,
-                                    format_bytes_hexdump(origin_bytes, current_element_file_offset()),
+                                    format_bytes_hexdump(
+                                        origin_bytes,
+                                        current_element_file_offset()
+                                    ),
                                 );
                             }
                         }
@@ -1776,10 +1810,26 @@ fn parse_explicit_entry_expression_value_with_type<'a>(
         return None;
     }
 
-    let expr_input = expression_input_from_entry(hash_val, entry.payload);
-    let Ok((_, (ty, value))) = parse_expression_attr_nom(&expr_input, refno.0) else {
+    let mut expr_input = Vec::with_capacity(8 + entry.payload.len());
+    expr_input.extend_from_slice(&hash_val.to_be_bytes());
+    let expr_name = db1_dehash(hash_val.abs() as _);
+    if matches!(expr_name.as_str(), "PTCD" | "PTCDI") {
+        expr_input.extend_from_slice(&entry.packed_header.to_be_bytes());
+    }
+    expr_input.extend_from_slice(entry.payload);
+    let Ok((expr_rest, (ty, value))) = parse_expression_attr_nom(&expr_input, refno.0) else {
         return None;
     };
+    let consumed_payload_len = expr_input
+        .len()
+        .saturating_sub(expr_rest.len())
+        .saturating_sub(4);
+    let mut rest = if consumed_payload_len < entry.payload.len() {
+        &residual[8 + consumed_payload_len..]
+    } else {
+        rest
+    };
+    rest = restore_trailing_ptcd_hash_if_needed(residual, entry.payload, rest);
 
     Some((rest, ty, value))
 }
@@ -1797,7 +1847,36 @@ fn parse_legacy_explicit_entry_expression_value<'a>(
     let expr_input = expression_input_from_entry(hash_val, entry.payload);
     crate::parse_explict_tools::parse_expression_attr(&expr_input, refno)
         .ok()
-        .map(|(_, (_ty, value))| (rest, value))
+        .map(|(expr_rest, (_ty, value))| {
+            let consumed_payload_len = expr_input
+                .len()
+                .saturating_sub(expr_rest.len())
+                .saturating_sub(4);
+            let mut rest = if consumed_payload_len < entry.payload.len() {
+                &residual[8 + consumed_payload_len..]
+            } else {
+                rest
+            };
+            rest = restore_trailing_ptcd_hash_if_needed(residual, entry.payload, rest);
+            (rest, value)
+        })
+}
+
+fn restore_trailing_ptcd_hash_if_needed<'a>(
+    residual: &'a [u8],
+    payload: &[u8],
+    rest: &'a [u8],
+) -> &'a [u8] {
+    if payload.len() < 4 || rest.len() < 4 {
+        return rest;
+    }
+    let trailing_hash = i32::from_be_bytes(payload[payload.len() - 4..].try_into().unwrap());
+    let next_type = u16::from_be_bytes(rest[..2].try_into().unwrap());
+    if trailing_hash != 0 && trailing_hash != -1 && get_explicit_attr_type(next_type).is_some() {
+        &residual[8 + payload.len() - 4..]
+    } else {
+        rest
+    }
 }
 
 fn configured_test_refno() -> Option<RefU64> {
@@ -1869,7 +1948,10 @@ fn format_bytes_hexdump(bytes: &[u8], base_offset: Option<u64>) -> String {
     };
     let mut out = String::with_capacity(shown * 4 + 96);
     if total > shown {
-        let _ = writeln!(out, "  (起始 {off_note}, 共 {total} 字节, 仅显示前 {shown} 字节)");
+        let _ = writeln!(
+            out,
+            "  (起始 {off_note}, 共 {total} 字节, 仅显示前 {shown} 字节)"
+        );
     } else {
         let _ = writeln!(out, "  (起始 {off_note}, 共 {total} 字节)");
     }
@@ -1906,7 +1988,11 @@ fn summarize_nom_byte_err(e: &nom::Err<nom::error::Error<&[u8]>>) -> String {
     match e {
         nom::Err::Incomplete(needed) => format!("nom Incomplete({needed:?})"),
         nom::Err::Error(err) => {
-            format!("nom Error({:?}, 出错处剩余 {} 字节)", err.code, err.input.len())
+            format!(
+                "nom Error({:?}, 出错处剩余 {} 字节)",
+                err.code,
+                err.input.len()
+            )
         }
         nom::Err::Failure(err) => {
             format!(
@@ -1981,7 +2067,8 @@ pub fn parse_raw_explicit_attrs<'a>(
             }
         }
 
-        if att_value.is_none() && EXPR_ATT_SET.contains(&hash_val) {
+        let is_ptcd_axis_expr = matches!(att_name.as_str(), "PTCD" | "PTCDI");
+        if att_value.is_none() && (EXPR_ATT_SET.contains(&hash_val) || is_ptcd_axis_expr) {
             // dbg!(&att_name);
             let mut parsed: Option<(&[u8], String)> = None;
             let mut expr_type: Option<String> = None;
@@ -2071,6 +2158,7 @@ pub fn parse_raw_explicit_attrs<'a>(
                 break;
             }
         } else if att_value.is_none() {
+            let entry_start = residual;
             let (l, header) = match parse_explicit_header(&residual[..]) {
                 Ok(result) => result,
                 Err(_e) => {
@@ -2107,295 +2195,323 @@ pub fn parse_raw_explicit_attrs<'a>(
                 let tmp_input = &l[..type_len * 4];
                 // println!("{:#4X}", explict_hash);
                 // dbg!(db1_dehash(explict_hash as u32));
+                // dab_type==7(type_code 0x1C00) 是表达式编码（与 packed entry 的 1C 头一致）。
+                // RTEX/STEX 等不在 EXPR_ATT_SET 的属性也可能携带表达式 payload；
+                // 若按 INTVEC/STRING 盲解会产出乱码（金标准 =13246/243869 Rtext 应为 "ATTRIB NAMN"）。
+                if attr_type_num == 0x1C00 {
+                    let expr_input = expression_input_from_entry(hash_val, tmp_input);
+                    if let Ok((_, (_ty, v))) = parse_expression_attr_nom(&expr_input, refno.0) {
+                        if !v.trim().is_empty() {
+                            att_value = Some(StringType(v.into()));
+                        }
+                    }
+                    residual = restore_trailing_ptcd_hash_if_needed(entry_start, tmp_input, residual);
+                }
                 // 单条属性的值解码包进“非致命”闭包：residual 已在上面推进到下一条，
                 // 因此某条属性解码中途遇到短读/坏长度(be_*()? 触发 nom Eof)时只丢这一条，
                 // 不再向上冒泡导致外层把整条记录的显式属性全部清空。对齐 core.dll 的逐条独立读取。
                 let _decode_one: Result<(), nom::Err<nom::error::Error<&[u8]>>> =
                     (|| -> Result<(), nom::Err<nom::error::Error<&[u8]>>> {
-                if attr_info_map.contains_key(&att_name) {
-                    let attr_info = attr_info_map.get_mut(&att_name).unwrap();
-                    // dbg!(&attr_info.value());
-                    // 根据获取到的type hash值，拿到需要的类型
-                    match attr_info.default_val {
-                        InvalidType => {}
-                        IntegerType(_) => {
-                            let (_, val) = be_i32(tmp_input)?;
-                            att_value = Some(IntegerType(val));
+                        if att_value.is_some() {
+                            return Ok(());
                         }
-                        StringType(_) => {
-                            let (_, a) = be_u32(tmp_input)?;
-                            let len_a = a as usize;
-                            if tmp_input.len() > 4 && 4 + len_a <= tmp_input.len() {
-                                let (decode_string, _b_chi) =
-                                    decode_chars_data(&tmp_input[4..4 + len_a]);
-                                att_value = Some(StringType(decode_string.into()));
-                            } else {
-                                // println!("len_a={:#04X?}", len_a);
-                                // println!("error refno={:?}", refno);
-                                // println!("error 显示 tmp_input={:#04X?}", tmp_input);
-                            }
-                        }
-                        DoubleType(_) => {
-                            let dou_len = tmp_input.len() / 4;
-                            if dou_len == 1 {
-                                // small/f32 记录(core.dll: large-record bit29==0)里实数存 4 字节 float，
-                                // 应加宽成 f64；否则维持原行为(按 int 读)。large record 不受影响。
-                                if record_is_f32() {
-                                    let val = parse_to_f32(&tmp_input[..4]) as f64;
-                                    att_value = Some(DoubleType(val));
-                                } else {
+                        if attr_info_map.contains_key(&att_name) {
+                            let attr_info = attr_info_map.get_mut(&att_name).unwrap();
+                            // dbg!(&attr_info.value());
+                            // 根据获取到的type hash值，拿到需要的类型
+                            match attr_info.default_val {
+                                InvalidType => {}
+                                IntegerType(_) => {
                                     let (_, val) = be_i32(tmp_input)?;
                                     att_value = Some(IntegerType(val));
                                 }
-                            } else {
-                                let val = parse_to_f64(&tmp_input[..8]);
-                                att_value = Some(DoubleType(val));
-                            }
-                        }
-                        DoubleArrayType(_) => {
-                            let mut bytes_len = tmp_input.len() / 4;
-                            if bytes_len >= 3 {
-                                bytes_len -= 1; //去掉一个自身
-                                let (tmp_input, data_len) = be_i32(tmp_input)?;
-                                let len = data_len as usize;
-                                let double_or_float = if len == 0 { 0 } else { bytes_len / len };
-                                let mut tmp_input = tmp_input;
-
-                                if double_or_float == 2 {
-                                    // 防御：按可用字节读取，污染的 len 不会再切片越界 panic。
-                                    let mut data = vec![];
-                                    while data.len() < len && tmp_input.len() >= 8 {
-                                        data.push(parse_to_f64(&tmp_input[..8]));
-                                        tmp_input = &tmp_input[8..];
+                                StringType(_) => {
+                                    let (_, a) = be_u32(tmp_input)?;
+                                    let len_a = a as usize;
+                                    if tmp_input.len() > 4 && 4 + len_a <= tmp_input.len() {
+                                        let (decode_string, _b_chi) =
+                                            decode_chars_data(&tmp_input[4..4 + len_a]);
+                                        att_value = Some(StringType(
+                                            normalize_decoded_string_attr(&att_name, decode_string)
+                                                .into(),
+                                        ));
+                                    } else {
+                                        // println!("len_a={:#04X?}", len_a);
+                                        // println!("error refno={:?}", refno);
+                                        // println!("error 显示 tmp_input={:#04X?}", tmp_input);
                                     }
-                                    att_value = Some(DoubleArrayType(data));
-                                } else if double_or_float == 1 {
-                                    let mut data = vec![];
-                                    while data.len() < len && tmp_input.len() >= 4 {
-                                        data.push(parse_to_f32(&tmp_input[..4]) as f64);
-                                        tmp_input = &tmp_input[4..];
-                                    }
-                                    att_value = Some(DoubleArrayType(data));
                                 }
-                            }
-                        }
-                        StringArrayType(_) => {
-                            let (tmp_input, len) = be_u32(tmp_input)?;
-                            let len = len as usize;
-                            let mut tmp_input = tmp_input;
-                            let mut dehash_strs = vec![];
-                            for _ in 0..len {
-                                let (remain_input, val) = be_i32(tmp_input)?;
-                                dehash_strs.push(db1_dehash(val.abs() as _));
-                                tmp_input = remain_input;
-                            }
-                            att_value = Some(StringArrayType(dehash_strs));
-                            // if is_debug && att_name == "ELEL" {
-                            //     dbg!(&att_value);
-                            // }
-                        }
-                        BoolArrayType(_) => {}
-                        IntArrayType(_) => {
-                            let (tmp_input, len) = be_u32(tmp_input)?;
-                            let len = len as usize;
-                            let mut tmp_input = tmp_input;
-                            let mut data = vec![];
-                            for _ in 0..len {
-                                let (remain_input, val) = be_i32(tmp_input)?;
-                                data.push(val);
-                                tmp_input = remain_input;
-                            }
-                            att_value = Some(IntArrayType(data));
-                        }
-                        BoolType(_) => {
-                            let (_, val) = be_u32(tmp_input)?;
-                            att_value = Some(BoolType(val != 0));
-                        }
-                        Vec3Type(_) => {
-                            let (l, v) = be_i32(tmp_input)?;
-                            let _len = v as usize;
-                            // 防御：不足 3 个 f64（24 字节）时跳过，避免 parse_to_f64_arr 切片越界 panic。
-                            if l.len() >= 24 {
-                                let data = parse_to_f64_arr(l, 3).try_into().unwrap();
-                                att_value = Some(Vec3Type(data));
-                            }
-                        }
-                        ElementType(_) => {
-                            let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
-                            let refno = RefU64::from_two_nums(ref_0, ref_1);
-                            att_value = Some(RefU64Type(refno));
-                        }
-                        WordType(_) => {
-                            let (tmp_bytes, val) = be_i32(tmp_input)?;
-                            if val >= 0x81BF1 {
-                                let val_word = db1_dehash(val as u32);
-                                att_value = Some(WordType(val_word.into()));
-                            } else if val == 1 {
-                                //如果为1时，有个长度信息, 特别是TYPEX
-                                let (_, val) = be_i32(tmp_bytes)?;
-                                let val_word = db1_dehash(val as u32);
-                                att_value = Some(WordType(val_word.into()));
-                            }
-                        }
-                        RefU64Type(_) => {
-                            let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
-                            let refno = RefU64::from_two_nums(ref_0, ref_1);
-                            att_value = Some(RefU64Type(refno));
-                        }
-                        StringHashType(_) => {}
-                        RefU64Array(_) => {
-                            let (tmp_input, len) = be_u32(tmp_input)?;
-                            let len = len as usize;
-                            let mut tmp_input = tmp_input;
-                            let mut data = vec![];
-                            for _ in 0..len {
-                                let (remain_input, val) = be_u64(tmp_input)?;
-                                data.push(RefU64(val));
-                                tmp_input = remain_input;
-                            }
-                            att_value = Some(RefU64Array(RefU64Vec(data)));
-                        }
-                    }
-                } else {
-                    // 这里的逻辑改了一下，先判断是否为表达式，所以之前在这里的表达式判断就注释掉了
-                    // 如果DashMap没有对应属性的hash 则调用get_explicit_attr_type进行解析
-                    if let Some(attr_type) = get_explicit_attr_type(attr_type_num) {
-                        // 根据获取到的type hash值，拿到需要的类型
-                        match attr_type {
-                            DbAttributeType::INTEGER => {
-                                let (_, val) = be_i32(tmp_input)?;
-                                att_value = Some(IntegerType(val));
-                            }
-                            DbAttributeType::DOUBLE => {
-                                if !record_is_f32() && tmp_input.len() >= 8 {
-                                    let val = parse_to_f64(&tmp_input[..8]);
-                                    att_value = Some(DoubleType(val));
-                                } else if record_is_f32() && tmp_input.len() >= 4 {
-                                    // small/f32 记录：实数存 4 字节 float，加宽成 f64
-                                    let val = parse_to_f32(&tmp_input[..4]) as f64;
-                                    att_value = Some(DoubleType(val));
-                                } else {
-                                    let (_, val) = be_i32(tmp_input)?;
-                                    att_value = Some(IntegerType(val));
-                                }
-                            }
-                            DbAttributeType::BOOL => {
-                                let (_, val) = be_u32(tmp_input)?;
-                                att_value = Some(BoolType(val != 0));
-                            }
-                            DbAttributeType::STRING => {
-                                let (_, a) = be_u32(tmp_input)?;
-                                let len_a = a as usize;
-                                if tmp_input.len() > 4 && 4 + len_a <= tmp_input.len() {
-                                    let (decode_string, _b_chi) =
-                                        decode_chars_data(&tmp_input[4..4 + len_a]);
-                                    // let name_hash = string_lookup.add_str(decode_string.as_str());
-                                    // att_value = Some(StringHashType(name_hash));
-                                    att_value = Some(StringType(decode_string.into()));
-                                } else {
-                                    // 不整段 dump tmp_input；只对该 refno 的剩余字节做 16 进制编辑器风格 hexdump（已截断）。
-                                    // tmp_input 是 input（重组后的显式块）的子切片，用指针差算出它在块内的偏移，
-                                    // 再叠加显式块的文件起始偏移，得到该段的近似 file 偏移。
-                                    let seg_file_off = explicit_block_file_offset().map(|block_off| {
-                                        let rel = (tmp_input.as_ptr() as usize)
-                                            .saturating_sub(input.as_ptr() as usize);
-                                        block_off.saturating_add(rel as u64)
-                                    });
-                                    println!(
-                                        "解析 STRING 属性失败: refno={refno}, len_a={len_a:#X}\n剩余字节:\n{}",
-                                        format_bytes_hexdump(tmp_input, seg_file_off),
-                                    );
-                                }
-                            }
-                            DbAttributeType::ELEMENT => {
-                                let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
-                                let refno = RefU64::from_two_nums(ref_0, ref_1);
-                                att_value = Some(RefU64Type(refno));
-                            }
-                            DbAttributeType::WORD => {
-                                let (_, val) = be_i32(tmp_input)?;
-                                if val >= 0x81BF1 {
-                                    let val_word = db1_dehash(val as u32);
-                                    att_value = Some(WordType(val_word.into()));
-                                } else {
-                                    att_value = Some(IntegerType(val));
-                                }
-                            }
-                            DbAttributeType::DIRECTION
-                            | DbAttributeType::POSITION
-                            | DbAttributeType::ORIENTATION => {
-                                let (l, v) = be_i32(tmp_input)?;
-                                let _len = v as usize;
-                                // 防御：不足 3 个 f64（24 字节）时跳过，避免 parse_to_f64_arr 切片越界 panic。
-                                if l.len() >= 24 {
-                                    let data = parse_to_f64_arr(l, 3).try_into().unwrap();
-                                    att_value = Some(Vec3Type(data));
-                                }
-                            }
-
-                            DbAttributeType::DOUBLEVEC => {
-                                let array_len = tmp_input.len() / 4;
-                                if array_len >= 2 {
-                                    let (mut tmp_input, data_len) = be_i32(tmp_input)?;
-                                    let len = data_len as usize;
-                                    let double_or_float = if len == 0 { 0 } else { (array_len - 1) / len };
-                                    if double_or_float == 2 {
-                                        // 防御：按可用字节读取，避免污染的 len 切片越界 panic。
-                                        let mut data = vec![];
-                                        while data.len() < len && tmp_input.len() >= 8 {
-                                            data.push(parse_to_f64(&tmp_input[..8]));
-                                            tmp_input = &tmp_input[8..];
+                                DoubleType(_) => {
+                                    let dou_len = tmp_input.len() / 4;
+                                    if dou_len == 1 {
+                                        // small/f32 记录(core.dll: large-record bit29==0)里实数存 4 字节 float，
+                                        // 应加宽成 f64；否则维持原行为(按 int 读)。large record 不受影响。
+                                        if record_is_f32() {
+                                            let val = parse_to_f32(&tmp_input[..4]) as f64;
+                                            att_value = Some(DoubleType(val));
+                                        } else {
+                                            let (_, val) = be_i32(tmp_input)?;
+                                            att_value = Some(IntegerType(val));
                                         }
-                                        att_value = Some(DoubleArrayType(data));
-                                    } else if double_or_float == 1 {
-                                        let mut data = vec![];
-                                        while data.len() < len && tmp_input.len() >= 4 {
-                                            data.push(parse_to_f32(&tmp_input[..4]) as f64);
-                                            tmp_input = &tmp_input[4..];
-                                        }
-                                        att_value = Some(DoubleArrayType(data));
+                                    } else {
+                                        let val = parse_to_f64(&tmp_input[..8]);
+                                        att_value = Some(DoubleType(val));
                                     }
                                 }
-                            }
-                            DbAttributeType::INTVEC => {
-                                let (tmp_input, len) = be_u32(tmp_input)?;
-                                let len = len as usize;
-                                let mut tmp_input = tmp_input;
-                                let mut data = vec![];
-                                for _ in 0..len {
-                                    let (remain_input, val) = be_i32(tmp_input)?;
-                                    data.push(val);
-                                    tmp_input = remain_input;
+                                DoubleArrayType(_) => {
+                                    let mut bytes_len = tmp_input.len() / 4;
+                                    if bytes_len >= 3 {
+                                        bytes_len -= 1; //去掉一个自身
+                                        let (tmp_input, data_len) = be_i32(tmp_input)?;
+                                        let len = data_len as usize;
+                                        let double_or_float =
+                                            if len == 0 { 0 } else { bytes_len / len };
+                                        let mut tmp_input = tmp_input;
+
+                                        if double_or_float == 2 {
+                                            // 防御：按可用字节读取，污染的 len 不会再切片越界 panic。
+                                            let mut data = vec![];
+                                            while data.len() < len && tmp_input.len() >= 8 {
+                                                data.push(parse_to_f64(&tmp_input[..8]));
+                                                tmp_input = &tmp_input[8..];
+                                            }
+                                            att_value = Some(DoubleArrayType(data));
+                                        } else if double_or_float == 1 {
+                                            let mut data = vec![];
+                                            while data.len() < len && tmp_input.len() >= 4 {
+                                                data.push(parse_to_f32(&tmp_input[..4]) as f64);
+                                                tmp_input = &tmp_input[4..];
+                                            }
+                                            att_value = Some(DoubleArrayType(data));
+                                        }
+                                    }
                                 }
-                                att_value = Some(IntArrayType(data));
-                            }
-                            DbAttributeType::TYPEX => {
-                                let (tmp_input, len) = be_u32(tmp_input)?;
-                                // 防御：len==1 但 payload 不足 4 字节时跳过，避免切片越界 panic。
-                                if len == 1 && tmp_input.len() >= 4 {
-                                    let (_, typex) = be_u32(&tmp_input[..4])?;
-                                    // let typex = db1_dehash(typex);
-                                    att_value = Some(IntegerType(typex as _));
+                                StringArrayType(_) => {
+                                    let (tmp_input, len) = be_u32(tmp_input)?;
+                                    let len = len as usize;
+                                    let mut tmp_input = tmp_input;
+                                    let mut dehash_strs = vec![];
+                                    for _ in 0..len {
+                                        let (remain_input, val) = be_i32(tmp_input)?;
+                                        dehash_strs.push(db1_dehash(val.abs() as _));
+                                        tmp_input = remain_input;
+                                    }
+                                    att_value = Some(StringArrayType(dehash_strs));
+                                    // if is_debug && att_name == "ELEL" {
+                                    //     dbg!(&att_value);
+                                    // }
+                                }
+                                BoolArrayType(_) => {}
+                                IntArrayType(_) => {
+                                    let (tmp_input, len) = be_u32(tmp_input)?;
+                                    let len = len as usize;
+                                    let mut tmp_input = tmp_input;
+                                    let mut data = vec![];
+                                    for _ in 0..len {
+                                        let (remain_input, val) = be_i32(tmp_input)?;
+                                        data.push(val);
+                                        tmp_input = remain_input;
+                                    }
+                                    att_value = Some(IntArrayType(data));
+                                }
+                                BoolType(_) => {
+                                    let (_, val) = be_u32(tmp_input)?;
+                                    att_value = Some(BoolType(val != 0));
+                                }
+                                Vec3Type(_) => {
+                                    let (l, v) = be_i32(tmp_input)?;
+                                    let _len = v as usize;
+                                    // 防御：不足 3 个 f64（24 字节）时跳过，避免 parse_to_f64_arr 切片越界 panic。
+                                    if l.len() >= 24 {
+                                        let data = parse_to_f64_arr(l, 3).try_into().unwrap();
+                                        att_value = Some(Vec3Type(data));
+                                    }
+                                }
+                                ElementType(_) => {
+                                    let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+                                    let refno = RefU64::from_two_nums(ref_0, ref_1);
+                                    att_value = Some(RefU64Type(refno));
+                                }
+                                WordType(_) => {
+                                    let (tmp_bytes, val) = be_i32(tmp_input)?;
+                                    if val >= 0x81BF1 {
+                                        let val_word = db1_dehash(val as u32);
+                                        att_value = Some(WordType(val_word.into()));
+                                    } else if val == 1 {
+                                        //如果为1时，有个长度信息, 特别是TYPEX
+                                        let (_, val) = be_i32(tmp_bytes)?;
+                                        let val_word = db1_dehash(val as u32);
+                                        att_value = Some(WordType(val_word.into()));
+                                    }
+                                }
+                                RefU64Type(_) => {
+                                    let (_, (ref_0, ref_1)) = tuple((be_u32, be_u32))(tmp_input)?;
+                                    let refno = RefU64::from_two_nums(ref_0, ref_1);
+                                    att_value = Some(RefU64Type(refno));
+                                }
+                                StringHashType(_) => {}
+                                RefU64Array(_) => {
+                                    let (tmp_input, len) = be_u32(tmp_input)?;
+                                    let len = len as usize;
+                                    let mut tmp_input = tmp_input;
+                                    let mut data = vec![];
+                                    for _ in 0..len {
+                                        let (remain_input, val) = be_u64(tmp_input)?;
+                                        data.push(RefU64(val));
+                                        tmp_input = remain_input;
+                                    }
+                                    att_value = Some(RefU64Array(RefU64Vec(data)));
                                 }
                             }
-                            DbAttributeType::RefU64Vec => {
-                                let (tmp_input, len) = be_u32(tmp_input)?;
-                                let len = len as usize;
-                                let mut tmp_input = tmp_input;
-                                let mut data = vec![];
-                                for _ in 0..len {
-                                    let (remain_input, val) = be_u64(tmp_input)?;
-                                    data.push(RefU64(val));
-                                    tmp_input = remain_input;
+                        } else {
+                            // 这里的逻辑改了一下，先判断是否为表达式，所以之前在这里的表达式判断就注释掉了
+                            // 如果DashMap没有对应属性的hash 则调用get_explicit_attr_type进行解析
+                            if let Some(attr_type) = get_explicit_attr_type(attr_type_num) {
+                                // 根据获取到的type hash值，拿到需要的类型
+                                match attr_type {
+                                    DbAttributeType::INTEGER => {
+                                        let (_, val) = be_i32(tmp_input)?;
+                                        att_value = Some(IntegerType(val));
+                                    }
+                                    DbAttributeType::DOUBLE => {
+                                        if !record_is_f32() && tmp_input.len() >= 8 {
+                                            let val = parse_to_f64(&tmp_input[..8]);
+                                            att_value = Some(DoubleType(val));
+                                        } else if record_is_f32() && tmp_input.len() >= 4 {
+                                            // small/f32 记录：实数存 4 字节 float，加宽成 f64
+                                            let val = parse_to_f32(&tmp_input[..4]) as f64;
+                                            att_value = Some(DoubleType(val));
+                                        } else {
+                                            let (_, val) = be_i32(tmp_input)?;
+                                            att_value = Some(IntegerType(val));
+                                        }
+                                    }
+                                    DbAttributeType::BOOL => {
+                                        let (_, val) = be_u32(tmp_input)?;
+                                        att_value = Some(BoolType(val != 0));
+                                    }
+                                    DbAttributeType::STRING => {
+                                        let (_, a) = be_u32(tmp_input)?;
+                                        let len_a = a as usize;
+                                        if tmp_input.len() > 4 && 4 + len_a <= tmp_input.len() {
+                                            let (decode_string, _b_chi) =
+                                                decode_chars_data(&tmp_input[4..4 + len_a]);
+                                            // let name_hash = string_lookup.add_str(decode_string.as_str());
+                                            // att_value = Some(StringHashType(name_hash));
+                                            att_value = Some(StringType(
+                                                normalize_decoded_string_attr(
+                                                    &att_name,
+                                                    decode_string,
+                                                )
+                                                .into(),
+                                            ));
+                                        } else {
+                                            // 不整段 dump tmp_input；只对该 refno 的剩余字节做 16 进制编辑器风格 hexdump（已截断）。
+                                            // tmp_input 是 input（重组后的显式块）的子切片，用指针差算出它在块内的偏移，
+                                            // 再叠加显式块的文件起始偏移，得到该段的近似 file 偏移。
+                                            let seg_file_off =
+                                                explicit_block_file_offset().map(|block_off| {
+                                                    let rel = (tmp_input.as_ptr() as usize)
+                                                        .saturating_sub(input.as_ptr() as usize);
+                                                    block_off.saturating_add(rel as u64)
+                                                });
+                                            println!(
+                                                "解析 STRING 属性失败: refno={refno}, len_a={len_a:#X}\n剩余字节:\n{}",
+                                                format_bytes_hexdump(tmp_input, seg_file_off),
+                                            );
+                                        }
+                                    }
+                                    DbAttributeType::ELEMENT => {
+                                        let (_, (ref_0, ref_1)) =
+                                            tuple((be_u32, be_u32))(tmp_input)?;
+                                        let refno = RefU64::from_two_nums(ref_0, ref_1);
+                                        att_value = Some(RefU64Type(refno));
+                                    }
+                                    DbAttributeType::WORD => {
+                                        let (_, val) = be_i32(tmp_input)?;
+                                        if val >= 0x81BF1 {
+                                            let val_word = db1_dehash(val as u32);
+                                            att_value = Some(WordType(val_word.into()));
+                                        } else {
+                                            att_value = Some(IntegerType(val));
+                                        }
+                                    }
+                                    DbAttributeType::DIRECTION
+                                    | DbAttributeType::POSITION
+                                    | DbAttributeType::ORIENTATION => {
+                                        let (l, v) = be_i32(tmp_input)?;
+                                        let _len = v as usize;
+                                        // 防御：不足 3 个 f64（24 字节）时跳过，避免 parse_to_f64_arr 切片越界 panic。
+                                        if l.len() >= 24 {
+                                            let data = parse_to_f64_arr(l, 3).try_into().unwrap();
+                                            att_value = Some(Vec3Type(data));
+                                        }
+                                    }
+
+                                    DbAttributeType::DOUBLEVEC => {
+                                        let array_len = tmp_input.len() / 4;
+                                        if array_len >= 2 {
+                                            let (mut tmp_input, data_len) = be_i32(tmp_input)?;
+                                            let len = data_len as usize;
+                                            let double_or_float =
+                                                if len == 0 { 0 } else { (array_len - 1) / len };
+                                            if double_or_float == 2 {
+                                                // 防御：按可用字节读取，避免污染的 len 切片越界 panic。
+                                                let mut data = vec![];
+                                                while data.len() < len && tmp_input.len() >= 8 {
+                                                    data.push(parse_to_f64(&tmp_input[..8]));
+                                                    tmp_input = &tmp_input[8..];
+                                                }
+                                                att_value = Some(DoubleArrayType(data));
+                                            } else if double_or_float == 1 {
+                                                let mut data = vec![];
+                                                while data.len() < len && tmp_input.len() >= 4 {
+                                                    data.push(parse_to_f32(&tmp_input[..4]) as f64);
+                                                    tmp_input = &tmp_input[4..];
+                                                }
+                                                att_value = Some(DoubleArrayType(data));
+                                            }
+                                        }
+                                    }
+                                    DbAttributeType::INTVEC => {
+                                        let (tmp_input, len) = be_u32(tmp_input)?;
+                                        let len = len as usize;
+                                        let mut tmp_input = tmp_input;
+                                        let mut data = vec![];
+                                        for _ in 0..len {
+                                            let (remain_input, val) = be_i32(tmp_input)?;
+                                            data.push(val);
+                                            tmp_input = remain_input;
+                                        }
+                                        att_value = Some(IntArrayType(data));
+                                    }
+                                    DbAttributeType::TYPEX => {
+                                        let (tmp_input, len) = be_u32(tmp_input)?;
+                                        // 防御：len==1 但 payload 不足 4 字节时跳过，避免切片越界 panic。
+                                        if len == 1 && tmp_input.len() >= 4 {
+                                            let (_, typex) = be_u32(&tmp_input[..4])?;
+                                            // let typex = db1_dehash(typex);
+                                            att_value = Some(IntegerType(typex as _));
+                                        }
+                                    }
+                                    DbAttributeType::RefU64Vec => {
+                                        let (tmp_input, len) = be_u32(tmp_input)?;
+                                        let len = len as usize;
+                                        let mut tmp_input = tmp_input;
+                                        let mut data = vec![];
+                                        for _ in 0..len {
+                                            let (remain_input, val) = be_u64(tmp_input)?;
+                                            data.push(RefU64(val));
+                                            tmp_input = remain_input;
+                                        }
+                                        att_value = Some(RefU64Array(RefU64Vec(data)));
+                                    }
+                                    _ => {}
                                 }
-                                att_value = Some(RefU64Array(RefU64Vec(data)));
                             }
-                            _ => {}
                         }
-                    }
-                }
-                Ok(())
-                })();
+                        Ok(())
+                    })();
                 let _ = _decode_one;
             } else {
                 break;

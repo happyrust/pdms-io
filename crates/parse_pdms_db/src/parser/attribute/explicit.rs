@@ -6,9 +6,9 @@
 //! - 属性值解析
 
 use aios_core::pdms_types::DbAttributeType;
-use nom::{IResult, Needed};
 use nom::Parser;
 use nom::number::complete::{be_i32, be_u16};
+use nom::{IResult, Needed};
 
 /// 显式属性类型映射
 ///
@@ -99,12 +99,18 @@ pub fn parse_packed_explicit_entry(input: &[u8]) -> IResult<&[u8], ExplicitEntry
     let packed_header = u32::from_be_bytes(input[4..8].try_into().unwrap());
     let dab_type = (packed_header >> 26) as u8;
     let payload_len_words = (packed_header & 0x03ff_ffff) as usize;
-    let payload_len_bytes = payload_len_words
-        .checked_mul(4)
-        .ok_or_else(|| nom::Err::Failure(nom::error::make_error(input, nom::error::ErrorKind::TooLarge)))?;
-    let total_len = 8usize
-        .checked_add(payload_len_bytes)
-        .ok_or_else(|| nom::Err::Failure(nom::error::make_error(input, nom::error::ErrorKind::TooLarge)))?;
+    let payload_len_bytes = payload_len_words.checked_mul(4).ok_or_else(|| {
+        nom::Err::Failure(nom::error::make_error(
+            input,
+            nom::error::ErrorKind::TooLarge,
+        ))
+    })?;
+    let total_len = 8usize.checked_add(payload_len_bytes).ok_or_else(|| {
+        nom::Err::Failure(nom::error::make_error(
+            input,
+            nom::error::ErrorKind::TooLarge,
+        ))
+    })?;
 
     if input.len() < total_len {
         return Err(nom::Err::Incomplete(Needed::new(total_len - input.len())));

@@ -43,3 +43,34 @@ async fn test_parse_aveva_catalogue_acp7000_0001_smoke() {
         Err(e) => panic!("解析 {} 失败: {e:?}", path.display()),
     }
 }
+
+#[tokio::test]
+#[ignore]
+async fn test_parse_aveva_catalogue_acp7021_0001_smoke() {
+    let workspace_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(|p| p.parent())
+        .expect("workspace root")
+        .to_path_buf();
+    let path = workspace_root.join("test-file").join("acp7021_0001");
+    assert!(path.exists(), "数据库文件不存在：{}", path.display());
+
+    let project = "acp";
+    let file_name = "acp7021_0001";
+
+    let result = parse_file(&path, &None, file_name, project).await;
+    match result {
+        Ok(db) => {
+            println!(
+                "acp7021 parsed: db_type={}, dbnum={}, attr_count={}, type_count={}, children_count={}",
+                db.db_type,
+                db.dbnum,
+                db.total_attr_map.len(),
+                db.type_ele_map.len(),
+                db.children_map.len()
+            );
+            assert!(!db.total_attr_map.is_empty(), "解析成功但未得到任何属性");
+        }
+        Err(e) => panic!("解析 {} 失败: {e:?}", path.display()),
+    }
+}

@@ -330,9 +330,77 @@ pub fn get_expression_of_func(input: &[u8]) -> &'static str {
 ///
 /// # 返回
 /// `(表达式类型名称, 表达式值字符串)`
+/// 解析"方向字面量"表达式（PTCD/Ptcdirection 等 DIRECTION 属性的常量编码）。
+///
+/// 实测字节模式（ams5054 全库 PTCA 元素统计,7 words 定长）:
+/// `06 06 05 02 15 <dir_token> 3D`
+/// - 前缀 `06 06 05 02 15` 为固定 RPN 头(push direction literal);
+/// - `dir_token`: 11..=16 → X, -X, Y, -Y, Z, -Z
+///   (金标准: =13246/243899 token=13 → "Y"; =13246/243891 token=16 → "AXIS -Z");
+/// - `3D` 为表达式结束符。
+///
+/// 输入为已剥离 attr hash 的表达式 payload。
+fn parse_direction_literal_expression(input: &[u8]) -> Option<&'static str> {
+    if input.len() < 28 {
+        return None;
+    }
+    let word =
+        |idx: usize| -> u32 { u32::from_be_bytes(input[idx * 4..idx * 4 + 4].try_into().unwrap()) };
+    if word(0) != 0x06 || word(1) != 0x06 || word(2) != 0x05 || word(3) != 0x02 {
+        return None;
+    }
+    if word(4) != 0x15 || word(6) != 0x3D {
+        return None;
+    }
+    match word(5) {
+        11 => Some("X"),
+        12 => Some("-X"),
+        13 => Some("Y"),
+        14 => Some("-Y"),
+        15 => Some("Z"),
+        16 => Some("-Z"),
+        _ => None,
+    }
+}
+
+/// 解析"数值字面量"表达式（PHEI/Pheight 等标量属性的常量编码,5 words 定长）。
+///
+/// 实测字节模式: `04 <00000028> <00000001> <value_i32> <00000000>`
+/// - `0x28` 为符号/倍数段、`0x01` 为数字段(见 parse.rs flag==4 路径注释);
+/// - 数值 = -(value_i32) / 10
+///   (金标准: =13246/243891 PHEI value=-2230 → 223;
+///    同款编码在隐式区 =13246/243899 PX value=-4110 → 411)。
+fn parse_numeric_literal_expression(input: &[u8]) -> Option<String> {
+    if input.len() < 20 {
+        return None;
+    }
+    let word =
+        |idx: usize| -> u32 { u32::from_be_bytes(input[idx * 4..idx * 4 + 4].try_into().unwrap()) };
+    if word(0) != 0x04 || word(1) != 0x28 || word(2) != 0x01 || word(4) != 0 {
+        return None;
+    }
+    let raw = word(3) as i32;
+    let value = -(raw as f64) / 10.0;
+    if (value - value.round()).abs() < f64::EPSILON {
+        Some(format!("{}", value as i64))
+    } else {
+        Some(value.to_string())
+    }
+}
+
 pub fn parse_expression_attr(input: &[u8], refno: u64) -> IResult<&[u8], (String, String)> {
     let (input, hash_val) = take(4usize).parse(input)?;
     let expression_type = db1_dehash(convert_to_hash(hash_val).unsigned_abs());
+
+    // 方向字面量（PTCD 等 DIRECTION 常量）：固定 7-word 模式，优先精确匹配
+    if let Some(direction) = parse_direction_literal_expression(input) {
+        return Ok((&input[28..], (expression_type, direction.to_string())));
+    }
+
+    // 数值字面量（PHEI 等标量常量）：固定 5-word 模式
+    if let Some(number) = parse_numeric_literal_expression(input) {
+        return Ok((&input[20..], (expression_type, number)));
+    }
 
     // 判断是否为轴向表达式
     if is_axis_expression(input)? {

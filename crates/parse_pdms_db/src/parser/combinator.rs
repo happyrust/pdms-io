@@ -14,6 +14,8 @@ use nom::error::{ErrorKind, make_error};
 const MEMBERS_BASE_PAYLOAD_OFFSET: usize = 12;
 /// 追加段（0x00000007）payload 起始偏移（标记+flag+len+self_ref+保留 16 字节 共 24 字节）
 const SEGMENT_PAYLOAD_OFFSET: usize = 24;
+const EXPLICIT_ATTR_FLAG: u8 = 0x01;
+const PACKED_EXPRESSION_DAB_TYPE: u32 = 7;
 
 /// PDMS 0/7 填充标记
 pub const PADDING_ZERO: [u8; 4] = [0x00, 0x00, 0x00, 0x00];
@@ -156,9 +158,16 @@ pub fn collect_segmented_payload(
             return Err(nom::Err::Error(make_error(input, ErrorKind::Eof)));
         }
 
-        let seg_payload_start = cursor + SEGMENT_PAYLOAD_OFFSET;
+        let mut seg_payload_start = cursor + SEGMENT_PAYLOAD_OFFSET;
         if seg_payload_start > seg_end {
             return Err(nom::Err::Error(make_error(input, ErrorKind::LengthValue)));
+        }
+
+        // Only packed expression entries use the "repeat previous word" continuation quirk.
+        // Applying this to every explicit segment corrupts legitimate repeated data.
+        if should_skip_repeated_expression_word(&payload, &input[seg_payload_start..seg_end], flag)
+        {
+            seg_payload_start += 4;
         }
 
         payload.extend_from_slice(&input[seg_payload_start..seg_end]);
@@ -166,6 +175,35 @@ pub fn collect_segmented_payload(
     }
 
     Ok((&input[cursor..], payload))
+}
+
+fn should_skip_repeated_expression_word(payload: &[u8], segment_payload: &[u8], flag: u8) -> bool {
+    flag == EXPLICIT_ATTR_FLAG
+        && payload.len() >= 4
+        && segment_payload.len() >= 4
+        && payload[payload.len() - 4..] == segment_payload[..4]
+        && has_unfinished_packed_expression_entry(payload)
+}
+
+fn has_unfinished_packed_expression_entry(payload: &[u8]) -> bool {
+    let mut cursor = 0usize;
+    while cursor + 8 <= payload.len() {
+        let packed_header = u32::from_be_bytes(payload[cursor + 4..cursor + 8].try_into().unwrap());
+        let dab_type = packed_header >> 26;
+        let payload_len_words = (packed_header & 0x03ff_ffff) as usize;
+        let Some(payload_len_bytes) = payload_len_words.checked_mul(4) else {
+            return false;
+        };
+        let Some(total_len) = 8usize.checked_add(payload_len_bytes) else {
+            return false;
+        };
+
+        if cursor + total_len > payload.len() {
+            return dab_type == PACKED_EXPRESSION_DAB_TYPE;
+        }
+        cursor += total_len;
+    }
+    false
 }
 
 /// 验证标志位
@@ -353,6 +391,80 @@ mod tests {
                 0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
                 0xBB, 0xCC
             ]
+        );
+    }
+
+    #[test]
+    fn test_collect_segmented_payload_preserves_repeated_non_expression_word() {
+        let mut data = Vec::new();
+        data.extend_from_slice(&(EXPLICIT_ATTR_FLAG as u16).to_be_bytes());
+        data.extend_from_slice(&(5u16).to_be_bytes()); // 20 bytes
+        data.extend_from_slice(&1u32.to_be_bytes());
+        data.extend_from_slice(&2u32.to_be_bytes());
+        data.extend_from_slice(&[0xAA, 0xBB, 0xCC, 0xDD]);
+        data.extend_from_slice(&[0x11, 0x22, 0x33, 0x44]);
+
+        // Continuation starts with the same word as the main payload ends with.
+        // For non-expression payloads that is ordinary data, not an overlap marker.
+        data.extend_from_slice(&[0x00, 0x00, 0x00, 0x07, 0x00, EXPLICIT_ATTR_FLAG]);
+        data.extend_from_slice(&(7u16).to_be_bytes());
+        data.extend_from_slice(&1u32.to_be_bytes());
+        data.extend_from_slice(&2u32.to_be_bytes());
+        data.extend_from_slice(&0u32.to_be_bytes());
+        data.extend_from_slice(&0u32.to_be_bytes());
+        data.extend_from_slice(&[0x11, 0x22, 0x33, 0x44]);
+        data.extend_from_slice(&[0x55, 0x66, 0x77, 0x88]);
+
+        let (rest, payload) = collect_segmented_payload(&data, 20, EXPLICIT_ATTR_FLAG).unwrap();
+        assert!(rest.is_empty());
+        assert_eq!(
+            payload,
+            vec![
+                0xAA, 0xBB, 0xCC, 0xDD, 0x11, 0x22, 0x33, 0x44, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
+                0x77, 0x88
+            ]
+        );
+    }
+
+    #[test]
+    fn test_collect_segmented_payload_skips_repeated_expression_word() {
+        let mut data = Vec::new();
+        data.extend_from_slice(&(EXPLICIT_ATTR_FLAG as u16).to_be_bytes());
+        data.extend_from_slice(&(6u16).to_be_bytes()); // 24 bytes
+        data.extend_from_slice(&1u32.to_be_bytes());
+        data.extend_from_slice(&2u32.to_be_bytes());
+
+        let hash = 0x1234_5678u32;
+        let packed_header = (PACKED_EXPRESSION_DAB_TYPE << 26) | 3; // 3 payload words
+        let word_a = [0xAA, 0xBB, 0xCC, 0xDD];
+        let word_b = [0x11, 0x22, 0x33, 0x44];
+        let word_c = [0x55, 0x66, 0x77, 0x88];
+        data.extend_from_slice(&hash.to_be_bytes());
+        data.extend_from_slice(&packed_header.to_be_bytes());
+        data.extend_from_slice(&word_a);
+
+        data.extend_from_slice(&[0x00, 0x00, 0x00, 0x07, 0x00, EXPLICIT_ATTR_FLAG]);
+        data.extend_from_slice(&(8u16).to_be_bytes());
+        data.extend_from_slice(&1u32.to_be_bytes());
+        data.extend_from_slice(&2u32.to_be_bytes());
+        data.extend_from_slice(&0u32.to_be_bytes());
+        data.extend_from_slice(&0u32.to_be_bytes());
+        data.extend_from_slice(&word_a);
+        data.extend_from_slice(&word_b);
+        data.extend_from_slice(&word_c);
+
+        let (rest, payload) = collect_segmented_payload(&data, 24, EXPLICIT_ATTR_FLAG).unwrap();
+        assert!(rest.is_empty());
+        assert_eq!(
+            payload,
+            [
+                hash.to_be_bytes().as_slice(),
+                packed_header.to_be_bytes().as_slice(),
+                word_a.as_slice(),
+                word_b.as_slice(),
+                word_c.as_slice(),
+            ]
+            .concat()
         );
     }
 }
