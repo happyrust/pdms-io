@@ -69,7 +69,7 @@ fn find_loc_by_leaf_walk(
             }
         } else {
             for loc in page.locs {
-                if !loc.is_start_marker() && loc.pgno > 0 {
+                if loc.pgno > 0 {
                     queue.push_back(loc.pgno);
                 }
             }
@@ -119,8 +119,8 @@ pub fn gen_ref_type_pos_table_from_index(
             }
         } else {
             for loc in page.locs {
-                // 跳过起始标记指向的缓存页子树，只遍历当前会话有效索引。
-                if !loc.is_start_marker() && loc.pgno > 0 {
+                // 内部页的 start marker 是左侧/基础子树入口；只在叶子页跳过其伪 refno。
+                if loc.pgno > 0 {
                     queue.push_back(loc.pgno);
                 }
             }
@@ -195,7 +195,6 @@ fn choose_child_pages(locs: &[IndexLoc], target: RefU64) -> Vec<u32> {
     }
 
     if valid.is_empty() {
-        // 起始标记指向缓存页子树，仅在没有任何有效 entry 时兜底尝试。
         return start_marker.map(|loc| loc.pgno).into_iter().collect();
     }
 
@@ -205,6 +204,13 @@ fn choose_child_pages(locs: &[IndexLoc], target: RefU64) -> Vec<u32> {
             candidates.push(pgno);
         }
     };
+
+    // start marker 指向左侧/基础子树；目标小于首个有效 key 时应优先搜索它。
+    if target < valid[0].refno
+        && let Some(loc) = start_marker
+    {
+        push(loc.pgno, &mut candidates);
+    }
 
     // 1) 经典 lower_bound：最后一个 key <= target 的子页。
     let mut lower_bound = None;
@@ -232,14 +238,17 @@ fn choose_child_pages(locs: &[IndexLoc], target: RefU64) -> Vec<u32> {
     for pair in valid.windows(2) {
         if pair[1].refno < pair[0].refno {
             disordered = true;
+            if let Some(loc) = start_marker {
+                push(loc.pgno, &mut candidates);
+            }
         }
         if disordered && pair[1].refno <= target {
             push(pair[1].pgno, &mut candidates);
         }
     }
 
-    // 3) target 小于首个有效 key 时，落入最左有效子树。
-    if target < valid[0].refno {
+    // 3) 无 start marker 的旧/合成页，target 小于首个有效 key 时落入最左有效子树。
+    if target < valid[0].refno && start_marker.is_none() {
         push(valid[0].pgno, &mut candidates);
     }
 
@@ -314,15 +323,9 @@ fn parse_index_page(input: &[u8], page_size: usize, pgno: u32) -> Option<IndexPa
 
     let level = read_u32(input, offset + 8)?;
     let capacity = (page_size.saturating_sub(INDEX_PAGE_HEADER_SIZE)) / INDEX_ENTRY_SIZE;
-    let declared_entries = read_u32(input, offset + 0x10)? as usize;
-    let max_entries = if declared_entries == 0 {
-        capacity
-    } else {
-        declared_entries.min(capacity)
-    };
 
     let mut locs = Vec::new();
-    for i in 0..max_entries {
+    for i in 0..capacity {
         let entry_offset = offset + INDEX_PAGE_HEADER_SIZE + i * INDEX_ENTRY_SIZE;
         if entry_offset.checked_add(INDEX_ENTRY_SIZE)? > input.len() {
             break;
@@ -392,14 +395,21 @@ mod tests {
         put_i32(bytes, offset + 12, noun_hash);
     }
 
+    fn write_index_page_header(bytes: &mut [u8], page_size: usize, pgno: u32, level: u32) {
+        let offset = pgno as usize * page_size;
+        put_i32(bytes, offset, 1);
+        put_i32(bytes, offset + 4, INDEX_PAGE_NOUN);
+        put_u32(bytes, offset + 8, level);
+    }
+
     #[test]
-    fn parse_index_page_honors_declared_entry_count() {
+    fn parse_index_page_reads_until_zero_not_declared_count() {
         let page_size = DEFAULT_PAGE_SIZE;
         let mut bytes = vec![0u8; page_size * 4];
         let active_refno = RefU64::from_two_nums(13246, 243899);
-        let stale_refno = RefU64::from_two_nums(13246, 243900);
+        let second_refno = RefU64::from_two_nums(13246, 243900);
         let active_offset_words = 8u32;
-        let stale_offset_words = 20u32;
+        let second_offset_words = 20u32;
 
         put_u32(&mut bytes, 0x28, SESSION_PGNO);
 
@@ -407,11 +417,9 @@ mod tests {
         put_i32(&mut bytes, session_offset, 3);
         put_u32(&mut bytes, session_offset + 0x1C, INDEX_ROOT_PGNO);
 
+        write_index_page_header(&mut bytes, page_size, INDEX_ROOT_PGNO, 0);
         let index_offset = INDEX_ROOT_PGNO as usize * page_size;
-        put_i32(&mut bytes, index_offset, 1);
-        put_i32(&mut bytes, index_offset + 4, INDEX_PAGE_NOUN);
-        put_u32(&mut bytes, index_offset + 8, 0);
-        put_u32(&mut bytes, index_offset + 0x10, 1); // dword[4]: declared entry count
+        put_u32(&mut bytes, index_offset + 0x10, 1); // Not a reliable entry count in real DBs.
 
         let entry_offset = index_offset + INDEX_PAGE_HEADER_SIZE;
         write_index_entry(
@@ -421,28 +429,212 @@ mod tests {
             ELEMENT_PGNO,
             active_offset_words,
         );
-        // Non-zero leftover entry in the page free area must be ignored.
         write_index_entry(
             &mut bytes,
             entry_offset + INDEX_ENTRY_SIZE,
-            stale_refno,
+            second_refno,
             ELEMENT_PGNO,
-            stale_offset_words,
+            second_offset_words,
         );
 
         let active_record_offset =
             ELEMENT_PGNO as usize * page_size + active_offset_words as usize * 2;
-        let stale_record_offset =
-            ELEMENT_PGNO as usize * page_size + stale_offset_words as usize * 2;
+        let second_record_offset =
+            ELEMENT_PGNO as usize * page_size + second_offset_words as usize * 2;
         write_element_record(&mut bytes, active_record_offset, active_refno, 0x123456);
-        write_element_record(&mut bytes, stale_record_offset, stale_refno, 0x654321);
+        write_element_record(&mut bytes, second_record_offset, second_refno, 0x654321);
 
         let (table, _) = gen_ref_type_pos_table_from_index(&bytes).expect("index should parse");
         assert!(table.contains_key(&active_refno));
         assert!(
-            !table.contains_key(&stale_refno),
-            "entries beyond the declared count are page free-area leftovers"
+            table.contains_key(&second_refno),
+            "entries after the historical declared-count field are real entries in E3D DBs"
         );
-        assert!(find_refno_entry(&bytes, stale_refno).is_none());
+        assert!(find_refno_entry(&bytes, second_refno).is_some());
+    }
+
+    #[test]
+    fn full_enumeration_traverses_start_marker_child() {
+        let page_size = DEFAULT_PAGE_SIZE;
+        const LEFT_LEAF_PGNO: u32 = 3;
+        const RIGHT_LEAF_PGNO: u32 = 4;
+        const LEFT_ELEMENT_PGNO: u32 = 5;
+        const RIGHT_ELEMENT_PGNO: u32 = 6;
+        let mut bytes = vec![0u8; page_size * 7];
+        let left_refno = RefU64::from_two_nums(13246, 1);
+        let right_refno = RefU64::from_two_nums(13246, 100);
+
+        put_u32(&mut bytes, 0x28, SESSION_PGNO);
+        let session_offset = SESSION_PGNO as usize * page_size;
+        put_i32(&mut bytes, session_offset, 3);
+        put_u32(&mut bytes, session_offset + 0x1C, INDEX_ROOT_PGNO);
+
+        write_index_page_header(&mut bytes, page_size, INDEX_ROOT_PGNO, 1);
+        let root_offset = INDEX_ROOT_PGNO as usize * page_size + INDEX_PAGE_HEADER_SIZE;
+        write_index_entry(
+            &mut bytes,
+            root_offset,
+            RefU64::from_two_nums(START_MARKER_REF0, START_MARKER_REF1),
+            LEFT_LEAF_PGNO,
+            0,
+        );
+        write_index_entry(
+            &mut bytes,
+            root_offset + INDEX_ENTRY_SIZE,
+            right_refno,
+            RIGHT_LEAF_PGNO,
+            0,
+        );
+
+        write_index_page_header(&mut bytes, page_size, LEFT_LEAF_PGNO, 0);
+        let left_leaf_offset = LEFT_LEAF_PGNO as usize * page_size + INDEX_PAGE_HEADER_SIZE;
+        write_index_entry(
+            &mut bytes,
+            left_leaf_offset,
+            left_refno,
+            LEFT_ELEMENT_PGNO,
+            8,
+        );
+
+        write_index_page_header(&mut bytes, page_size, RIGHT_LEAF_PGNO, 0);
+        let right_leaf_offset = RIGHT_LEAF_PGNO as usize * page_size + INDEX_PAGE_HEADER_SIZE;
+        write_index_entry(
+            &mut bytes,
+            right_leaf_offset,
+            right_refno,
+            RIGHT_ELEMENT_PGNO,
+            8,
+        );
+
+        write_element_record(
+            &mut bytes,
+            LEFT_ELEMENT_PGNO as usize * page_size + 8 * 2,
+            left_refno,
+            0x111111,
+        );
+        write_element_record(
+            &mut bytes,
+            RIGHT_ELEMENT_PGNO as usize * page_size + 8 * 2,
+            right_refno,
+            0x222222,
+        );
+
+        let (table, _) = gen_ref_type_pos_table_from_index(&bytes).expect("index should parse");
+        assert!(table.contains_key(&left_refno));
+        assert!(table.contains_key(&right_refno));
+        assert!(find_refno_entry(&bytes, left_refno).is_some());
+    }
+
+    #[test]
+    fn single_lookup_can_find_refno_under_start_marker_child() {
+        // T004（spec 007）：目标 refno 小于 root 首个有效 key 时，
+        // choose_child_pages() 必须优先下钻 start marker child，否则
+        // 基础子树内的 refno 无法被 find_refno_entry() 单点定位。
+        let page_size = DEFAULT_PAGE_SIZE;
+        const BASE_LEAF_PGNO: u32 = 3;
+        const MID_LEAF_PGNO: u32 = 4;
+        const HIGH_LEAF_PGNO: u32 = 5;
+        const BASE_ELEMENT_PGNO: u32 = 6;
+        const MID_ELEMENT_PGNO: u32 = 7;
+        const HIGH_ELEMENT_PGNO: u32 = 8;
+        let mut bytes = vec![0u8; page_size * 9];
+        let base_refno = RefU64::from_two_nums(13246, 5);
+        let mid_refno = RefU64::from_two_nums(13246, 100);
+        let high_refno = RefU64::from_two_nums(13246, 200);
+
+        put_u32(&mut bytes, 0x28, SESSION_PGNO);
+        let session_offset = SESSION_PGNO as usize * page_size;
+        put_i32(&mut bytes, session_offset, 3);
+        put_u32(&mut bytes, session_offset + 0x1C, INDEX_ROOT_PGNO);
+
+        // root internal：start marker -> 基础子树，两个有效 key -> 中/高子树。
+        write_index_page_header(&mut bytes, page_size, INDEX_ROOT_PGNO, 1);
+        let root_offset = INDEX_ROOT_PGNO as usize * page_size + INDEX_PAGE_HEADER_SIZE;
+        write_index_entry(
+            &mut bytes,
+            root_offset,
+            RefU64::from_two_nums(START_MARKER_REF0, START_MARKER_REF1),
+            BASE_LEAF_PGNO,
+            0,
+        );
+        write_index_entry(
+            &mut bytes,
+            root_offset + INDEX_ENTRY_SIZE,
+            mid_refno,
+            MID_LEAF_PGNO,
+            0,
+        );
+        write_index_entry(
+            &mut bytes,
+            root_offset + 2 * INDEX_ENTRY_SIZE,
+            high_refno,
+            HIGH_LEAF_PGNO,
+            0,
+        );
+
+        for (leaf_pgno, refno, element_pgno) in [
+            (BASE_LEAF_PGNO, base_refno, BASE_ELEMENT_PGNO),
+            (MID_LEAF_PGNO, mid_refno, MID_ELEMENT_PGNO),
+            (HIGH_LEAF_PGNO, high_refno, HIGH_ELEMENT_PGNO),
+        ] {
+            write_index_page_header(&mut bytes, page_size, leaf_pgno, 0);
+            let leaf_offset = leaf_pgno as usize * page_size + INDEX_PAGE_HEADER_SIZE;
+            write_index_entry(&mut bytes, leaf_offset, refno, element_pgno, 8);
+            write_element_record(
+                &mut bytes,
+                element_pgno as usize * page_size + 8 * 2,
+                refno,
+                0x100000 + leaf_pgno as i32,
+            );
+        }
+
+        // 目标位于 start marker child（低于首个有效 key 100）。
+        let entry = find_refno_entry(&bytes, base_refno)
+            .expect("refno under start marker child must be reachable by single lookup");
+        assert_eq!(
+            entry.pos,
+            BASE_ELEMENT_PGNO as usize * page_size + 8 * 2 + 4
+        );
+        assert_eq!(entry.noun_hash, 0x100000 + BASE_LEAF_PGNO as i32);
+
+        // 普通 lower_bound 路径不受影响。
+        assert!(find_refno_entry(&bytes, high_refno).is_some());
+        // 不存在的 refno 不应误命中。
+        assert!(find_refno_entry(&bytes, RefU64::from_two_nums(13246, 6)).is_none());
+    }
+
+    #[test]
+    fn newer_record_wins_for_duplicate_refno() {
+        let page_size = DEFAULT_PAGE_SIZE;
+        const OLD_ELEMENT_PGNO: u32 = 3;
+        const NEW_ELEMENT_PGNO: u32 = 4;
+        let mut bytes = vec![0u8; page_size * 5];
+        let refno = RefU64::from_two_nums(13246, 243899);
+
+        put_u32(&mut bytes, 0x28, SESSION_PGNO);
+        let session_offset = SESSION_PGNO as usize * page_size;
+        put_i32(&mut bytes, session_offset, 3);
+        put_u32(&mut bytes, session_offset + 0x1C, INDEX_ROOT_PGNO);
+
+        write_index_page_header(&mut bytes, page_size, INDEX_ROOT_PGNO, 0);
+        let entry_offset = INDEX_ROOT_PGNO as usize * page_size + INDEX_PAGE_HEADER_SIZE;
+        write_index_entry(&mut bytes, entry_offset, refno, OLD_ELEMENT_PGNO, 8);
+        write_index_entry(
+            &mut bytes,
+            entry_offset + INDEX_ENTRY_SIZE,
+            refno,
+            NEW_ELEMENT_PGNO,
+            8,
+        );
+
+        let old_record_offset = OLD_ELEMENT_PGNO as usize * page_size + 8 * 2;
+        let new_record_offset = NEW_ELEMENT_PGNO as usize * page_size + 8 * 2;
+        write_element_record(&mut bytes, old_record_offset, refno, 0x111111);
+        write_element_record(&mut bytes, new_record_offset, refno, 0x222222);
+
+        let (table, _) = gen_ref_type_pos_table_from_index(&bytes).expect("index should parse");
+        let entry = table.get(&refno).expect("refno should parse");
+        assert_eq!(entry.pos, new_record_offset + 4);
+        assert_eq!(entry.noun_hash, 0x222222);
     }
 }

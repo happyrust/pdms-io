@@ -1,6 +1,18 @@
-# 更新日志
+# 更新日志GPT-5.5 Extra HighOpus 4.8 1M Max
 
 ## [未发布]
+
+### 修复 — refno B-tree 索引全量枚举（spec 007）
+
+> 修复部分 E3D2.1 DB 经索引只枚举到个位数 refno 的缺陷（`aps250160_0001`: 2→2748；`aps7351_0001`: 8→3,345,855，与 scan oracle 全等）。
+
+- `refno_index.rs::parse_index_page` 不再用 `offset+0x10` 的 declared count 截断 entry，改为按页容量读到 `ref0 == 0`（真实 DB 该字段常为 2 但页内有效 entry 可达上百条）
+- full enumeration 与 fallback leaf walk 统一遍历 internal page 的 start marker child（`80000001/80000001` 指向左侧/基础子树）；leaf 仍不把 marker 当元素
+- `choose_child_pages()`：target 小于首个有效 key 时优先下钻 start marker child；乱序对（删除空洞）两侧子页与 marker 均纳入候选并去重
+- 同 refno 多记录维持 `pos` 最大 wins（与旧 scan 从文件尾保留最新记录语义一致）
+- 新增 4 只合成单测：entry 零终止、start marker 子树枚举、start marker child 单点查找、duplicate refno latest-wins
+- 新增诊断工具 `examples/probe_scan_only_sessions.rs`：沿 session 链逐版本枚举索引，定位 scan/index 差异来源
+- scan-only 残差豁免结论：`aps250160_0001` 的 11 条 scan-only 的索引 entry 存在于最新 session，但 loc 指向远超文件页数的失效页（如 `elem_pg=32258`，文件仅 449 页），`entry_from_loc()` 越界校验正确排除；scan 捕获的是残留历史记录字节
 
 ### 修复 — 显式属性与元素记录边界对齐 core.dll
 
