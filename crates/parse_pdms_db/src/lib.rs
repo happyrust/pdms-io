@@ -18,6 +18,7 @@ pub mod error_types;
 pub mod parse;
 pub mod parse_explict_tools;
 pub mod parser;
+pub mod refno_index;
 #[cfg(test)]
 pub mod test_cases;
 

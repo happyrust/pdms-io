@@ -3641,6 +3641,14 @@ pub fn parse_pdms_project_name(input: &str) -> IResult<&str, &str> {
 pub const WORLD_NOUN: i32 = 0xBEB83;
 
 pub fn gen_ref_type_pos_table(input: &[u8]) -> (DashMap<RefU64, EleDataEntry>, RefU64) {
+    if let Some(indexed) = crate::refno_index::gen_ref_type_pos_table_from_index(input) {
+        return indexed;
+    }
+
+    gen_ref_type_pos_table_scan(input)
+}
+
+pub fn gen_ref_type_pos_table_scan(input: &[u8]) -> (DashMap<RefU64, EleDataEntry>, RefU64) {
     let refno_0_set = get_total_refno_0s(input);
     let refno_table = DashMap::new();
     let word_refno_hashset = DashSet::new();
