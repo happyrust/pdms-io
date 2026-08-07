@@ -1,0 +1,230 @@
+{
+  "source": "ida_pro_mcp_structure_recovery_e3d_3.1",
+  "dll_version": "Everything3D 3.1",
+  "generated": "2026-05-11",
+  "note": "Structures recovered from decompiled E3D 3.1 core.dll functions. Field offsets marked with evidence source. Magic constants differ from 2.10 docs. Fields marked 'uncertain' need further decompile verification.",
+  "fixture_corrections": {
+    "byte_order": "BIG-ENDIAN (Fortran legacy convention, NOT little-endian). Confirmed by fixture ams1112_0001.",
+    "page_size_unit": "The descriptor field at offset 0x34 stores page size in 4-byte WORDS, not bytes. Multiply by 4 to get byte size. Example: 512 words = 2048 bytes. Confirmed by fixture: 103786496 / 2048 = 50677 pages, matching latest_ses_pgno=50676.",
+    "descriptor_offsets_verified": {
+      "0x04": "version (u32 BE)",
+      "0x08": "db_num / db_mark (u32 BE) = 1112",
+      "0x0C": "ext_no (u32 BE) = 1",
+      "0x28": "latest_ses_pgno (u32 BE) = 50676",
+      "0x30": "session_page_no (u32 BE) = 4",
+      "0x34": "page_size_words (u32 BE) = 512 (×4 = 2048 bytes)",
+      "0x38": "stored_page_count (u32 BE) = 9304"
+    }
+  },
+
+  "page_header": {
+    "description": "Common page header, present at the start of every database page",
+    "size_bytes": "24+ (6 DWORDs minimum)",
+    "evidence": "E3D_数据库文件架构完整分析.md cross-referenced with sub_5AFB660 and sub_5AEB6B0 decompile",
+    "fields": [
+      {"offset": 0, "size": 4, "name": "page_type", "type": "i32", "description": "Page type: 1=ref_array, 3=session, 5=data, 7=special, 8=index", "confidence": "high", "evidence": "doc + decompile: checked as *v3 == 5 in sub_5AFB660"},
+      {"offset": 4, "size": 4, "name": "type_id", "type": "i32", "description": "Type identifier / magic constant (e.g. 7618377 for main data, 13387743 for index). NOTE: 3.1 values differ from 2.10 docs.", "confidence": "high", "evidence": "doc + decompile: v3[1] == 7618377 in sub_5AFB660"},
+      {"offset": 8, "size": 4, "name": "db_handle", "type": "i32", "description": "Database handle / token", "confidence": "high", "evidence": "doc + passed to FHDBRN as 4th arg (multiplied by 4)"},
+      {"offset": 12, "size": 4, "name": "ext_no", "type": "i32", "description": "Extension number (for multi-extent databases)", "confidence": "medium", "evidence": "doc; not directly verified in 3.1 decompile"},
+      {"offset": 16, "size": 4, "name": "page_no", "type": "i32", "description": "Page number within file", "confidence": "medium", "evidence": "doc; error string '2RP:...Pageno is %d'"},
+      {"offset": 20, "size": 4, "name": "bucket_id", "type": "i32", "description": "Bucket ID for data organization. Low 13 bits (& 0x1FFF).", "confidence": "medium", "evidence": "doc + bit extraction in sub_5AEB6B0: v38 & 0x1FFF"}
+    ]
+  },
+
+  "file_info_page": {
+    "description": "Page 1: File information / signature page. First page after descriptor.",
+    "page_index": 1,
+    "size_bytes": 128,
+    "evidence": "doc: FileInfoPage struct at page 1",
+    "fields": [
+      {"offset": 0, "size": 4, "name": "page_flag", "type": "i32", "description": "Must be 0", "confidence": "medium", "evidence": "doc"},
+      {"offset": 4, "size": 4, "name": "signature", "type": "i32", "description": "File signature for validation", "confidence": "medium", "evidence": "doc"},
+      {"offset": 8, "size": 4, "name": "page_size", "type": "i32", "description": "Page size in bytes (default 4096)", "confidence": "high", "evidence": "doc + property ID 107487840 at desc offset +20"},
+      {"offset": 12, "size": 4, "name": "page_count", "type": "i32", "description": "Total page count in file", "confidence": "high", "evidence": "doc + property ID 223355190 used in sub_5AF8230"}
+    ]
+  },
+
+  "db_descriptor_page": {
+    "description": "Page 0: Database descriptor. Contains metadata attributes with property IDs.",
+    "page_index": 0,
+    "size_bytes": "512+ bytes",
+    "evidence": "doc attribute mapping table + IDA constant 223355190 verified in sub_5AF8230",
+    "fields": [
+      {"offset": 8, "size": 4, "name": "att_836950", "type": "i32", "property_id": 836950, "description": "Unknown attribute", "confidence": "low", "evidence": "doc only"},
+      {"offset": 12, "size": 4, "name": "att_2849585", "type": "i32", "property_id": 2849585, "description": "Unknown attribute", "confidence": "low", "evidence": "doc only"},
+      {"offset": 16, "size": 4, "name": "bucket_type_id", "type": "i32", "property_id": 66156832, "description": "Bucket type identifier for data pages", "confidence": "medium", "evidence": "doc"},
+      {"offset": 20, "size": 4, "name": "page_size", "type": "i32", "property_id": 107487840, "description": "Page size in bytes", "confidence": "high", "evidence": "doc + used in page I/O"},
+      {"offset": 28, "size": 4, "name": "att_8269434", "type": "i32", "property_id": 8269434, "description": "Unknown attribute", "confidence": "low", "evidence": "doc only"},
+      {"offset": 32, "size": 4, "name": "db_mark", "type": "i32", "property_id": 223453451, "description": "Database unique mark/identifier", "confidence": "medium", "evidence": "doc"},
+      {"offset": 36, "size": 4, "name": "att_213356072", "type": "i32", "property_id": 213356072, "description": "Unknown attribute", "confidence": "low", "evidence": "doc only"},
+      {"offset": 40, "size": 4, "name": "session_page_no", "type": "i32", "property_id": 223594302, "description": "Page number of session page", "confidence": "medium", "evidence": "doc"},
+      {"offset": 364, "size": 4, "name": "total_pages", "type": "i32", "property_id": 11438445, "description": "Total page count in file", "confidence": "medium", "evidence": "doc"}
+    ],
+    "note": "Property ID 223355190 (0x0D516B36) is used in sub_5AF8230 for page count queries. Some offsets may differ between 2.10 and 3.1."
+  },
+
+  "session_page": {
+    "description": "Session page (type 3). Manages database session state.",
+    "page_type": 3,
+    "evidence": "doc struct + session strings found in IDA",
+    "fields": [
+      {"offset": 0, "size": 4, "name": "page_type", "type": "i32", "description": "Must be 3", "confidence": "high", "evidence": "doc"},
+      {"offset": 4, "size": 4, "name": "session_mark", "type": "i32", "description": "Session mark/version", "confidence": "medium", "evidence": "doc"},
+      {"offset": 8, "size": 4, "name": "db_handle", "type": "i32", "description": "Database handle", "confidence": "medium", "evidence": "doc"},
+      {"offset": 12, "size": 4, "name": "session_id", "type": "i32", "description": "Session identifier", "confidence": "medium", "evidence": "doc"},
+      {"offset": 16, "size": 4, "name": "start_page_no", "type": "i32", "description": "Start page of session range", "confidence": "medium", "evidence": "doc"},
+      {"offset": 20, "size": 4, "name": "end_page_no", "type": "i32", "description": "End page of session range", "confidence": "medium", "evidence": "doc"}
+    ]
+  },
+
+  "data_page_type5": {
+    "description": "Data page (type 5). Stores element records.",
+    "page_type": 5,
+    "evidence": "doc struct + sub_5AEB6B0 decompile field access",
+    "subtypes_3_1": {
+      "7618377": {"hex": "0x7434F9", "description": "Main data page (element records)", "confidence": "high", "evidence": "sub_5AFB660: v3[1] == 7618377; sub_5AEB6B0: v59[1] = 7618377"},
+      "13387743": {"hex": "0xCC47DF", "description": "Index/B+tree page (RefNo index)", "confidence": "high", "evidence": "sub_5AEB6B0: sub_5B01340(dbno, 13387743, refno, 2, ...)"}
+    },
+    "subtypes_note": "These constants differ from 2.10 docs (7618321, 13393183). 3.1 values confirmed by IDA decompile.",
+    "fields": [
+      {"offset": 0, "size": 4, "name": "page_type", "type": "i32", "description": "Must be 5", "confidence": "high", "evidence": "doc + IDA"},
+      {"offset": 4, "size": 4, "name": "type_id", "type": "i32", "description": "Subtype magic constant", "confidence": "high", "evidence": "doc + IDA"},
+      {"offset": 8, "size": 4, "name": "db_handle", "type": "i32", "description": "Database handle", "confidence": "high", "evidence": "doc"},
+      {"offset": 12, "size": 4, "name": "ext_no", "type": "i32", "description": "Extension number", "confidence": "medium", "evidence": "doc"},
+      {"offset": 16, "size": 4, "name": "page_no", "type": "i32", "description": "Page number", "confidence": "medium", "evidence": "doc"},
+      {"offset": 20, "size": 4, "name": "bucket_id", "type": "i32", "description": "Bucket ID (low 13 bits)", "confidence": "medium", "evidence": "doc + bit masking in code"}
+    ]
+  },
+
+  "element_page_entry": {
+    "description": "Entry within an element data page. Each entry describes one element record slot.",
+    "evidence": "sub_5AEB6B0 LABEL_97 field access pattern",
+    "fields": [
+      {"offset_formula": "4 * slot_index", "size": 2, "name": "record_length_or_type", "type": "u16", "description": "16-bit value at slot position. Possibly record length or type indicator.", "confidence": "medium", "evidence": "v42 = *(unsigned __int16 *)(v45 + 4 * v19)"},
+      {"offset_formula": "4 * slot_index + 4", "size": 4, "name": "refno_word0", "type": "i32", "description": "First word of element RefNo", "confidence": "high", "evidence": "v34 = *(_DWORD *)(v32 + 4 * v31 + 4); compared with *a1"},
+      {"offset_formula": "4 * slot_index + 8", "size": 4, "name": "refno_word1", "type": "i32", "description": "Second word of element RefNo", "confidence": "high", "evidence": "compared with a1[1] in LABEL_97 validation"},
+      {"offset_formula": "4 * slot_index + 12", "size": 4, "name": "record_reference", "type": "i32", "description": "Reference value, passed to sub_5AF6AB0 for record lookup", "confidence": "medium", "evidence": "sub_5AF6AB0(v41, *(_DWORD *)(v45 + 4 * v19 + 12), ...)"}
+    ],
+    "note": "slot_index = (page_offset >> 13) & 0xFFF. Each entry is 16 bytes at minimum."
+  },
+
+  "refno_encoding": {
+    "description": "How a RefNo (element reference number) is encoded as two 32-bit words",
+    "evidence": "sub_5AEB6B0 bit extraction at function entry",
+    "fields": [
+      {"name": "word0", "bits": "31:0", "description": "First 32 bits. Contains dbno in low bits: dbno = word0 & 0x1FFF | (word0 >> 13) & 0x3E000", "confidence": "high", "evidence": "v3 = *a1 & 0x1FFF | (v2 >> 13) & 0x3E000"},
+      {"name": "word1", "bits": "31:0", "description": "Second 32 bits. Must be >= 0 (sign bit check). Used as hash key: hash_index = word1 % hash_size", "confidence": "high", "evidence": "if (a1[1] < 0) goto error; hash: a1[1] % dword_6A540C8"}
+    ],
+    "dbno_extraction": "dbno = (word0 & 0x1FFF) | ((word0 >> 13) & 0x3E000) = bits[0:12] | bits[26:30] << 13"
+  },
+
+  "page_address_encoding": {
+    "description": "How a page address + slot is encoded in a single 32-bit value (returned by index search)",
+    "evidence": "sub_5AEB6B0 LABEL_87 bit extraction",
+    "fields": [
+      {"name": "page_number", "bits": "first_word", "description": "Page number (v37 = first word of search result)", "confidence": "high", "evidence": "v35 = v37 used as page number in sub_5AEE4E0"},
+      {"name": "slot_offset", "bits": "12:0 of second_word", "description": "Low 13 bits of second word: slot offset within page (& 0x1FFF)", "confidence": "high", "evidence": "v36 = v38 & 0x1FFF"},
+      {"name": "record_slot_index", "bits": "24:13 of second_word", "description": "Bits 13-24 of second word: record slot index within page ((v38 >> 13) & 0xFFF)", "confidence": "high", "evidence": "v19 = (v38 >> 13) & 0xFFF"}
+    ]
+  },
+
+  "element_navigation_stack": {
+    "description": "Navigation stack for element traversal. Linked list of stacks, each with fixed-size entries.",
+    "entry_size_bytes": 60,
+    "entry_count_formula": "stack_depth stored at stack_base + 8",
+    "evidence": "sub_5AEB6B0: entry creation at LABEL_96 and LABEL_63",
+    "stack_header": [
+      {"offset": 0, "size": 4, "name": "next_ptr", "type": "*stack", "description": "Next stack in linked list", "confidence": "high", "evidence": "v10 = *v10 linked list traversal"},
+      {"offset": 4, "size": 4, "name": "prev_ptr", "type": "*stack", "description": "Previous stack (doubly linked)", "confidence": "high", "evidence": "dword_6A54024 + 4 = prev pointer assignment"},
+      {"offset": 8, "size": 4, "name": "stack_depth", "type": "i32", "description": "Current stack depth (-1 = empty)", "confidence": "high", "evidence": "v4 = *(_DWORD *)(dword_6A54024 + 8); check >= 0"},
+      {"offset": 12, "size": 4, "name": "stack_id", "type": "i32", "description": "Unique stack identifier", "confidence": "medium", "evidence": "*(_DWORD *)(v46 + 12) = dword_6A54018"}
+    ],
+    "entry_fields": [
+      {"offset": 0, "size": 4, "name": "page_context_ptr", "type": "*void", "description": "Page context / buffer descriptor pointer", "confidence": "medium", "evidence": "v6[0] = v48"},
+      {"offset": 4, "size": 4, "name": "element_page_buf", "type": "*void", "description": "Pointer to loaded element page buffer", "confidence": "high", "evidence": "v6[1] = v45; page buffer used for field access"},
+      {"offset": 8, "size": 4, "name": "ref_count_1", "type": "i32", "description": "Reference count or flag 1", "confidence": "low", "evidence": "v6[2], incremented in cleanup"},
+      {"offset": 12, "size": 4, "name": "ref_count_2", "type": "i32", "description": "Reference count or flag 2", "confidence": "low", "evidence": "v6[3], incremented in cleanup"},
+      {"offset": 16, "size": 4, "name": "refno_word0", "type": "i32", "description": "Element RefNo word 0", "confidence": "high", "evidence": "v6[4] = *a1"},
+      {"offset": 20, "size": 4, "name": "refno_word1", "type": "i32", "description": "Element RefNo word 1", "confidence": "high", "evidence": "v6[5] = a1[1]"},
+      {"offset": 24, "size": 4, "name": "page_addr", "type": "i32", "description": "Page address from index lookup", "confidence": "high", "evidence": "v6[6] = v37"},
+      {"offset": 28, "size": 4, "name": "page_offset_encoded", "type": "i32", "description": "Encoded page offset (slot_offset | slot_index << 13)", "confidence": "high", "evidence": "v6[7] = v38"},
+      {"offset": 32, "size": 4, "name": "dbno", "type": "i32", "description": "Database number", "confidence": "high", "evidence": "v6[8] = *ArgList (= dbno)"},
+      {"offset": 36, "size": 4, "name": "db_token_0", "type": "i32", "description": "Database sub-token 0", "confidence": "medium", "evidence": "v6[9] = v50"},
+      {"offset": 40, "size": 4, "name": "db_token_1", "type": "i32", "description": "Database sub-token 1", "confidence": "medium", "evidence": "v6[10] = v51"},
+      {"offset": 44, "size": 4, "name": "page_ptr", "type": "*void", "description": "Loaded page pointer (from sub_5AEDDA0 or sub_5AEE4E0)", "confidence": "high", "evidence": "v6[11] = v46"},
+      {"offset": 48, "size": 4, "name": "slot_index", "type": "i32", "description": "Record slot index within page", "confidence": "high", "evidence": "v6[12] = v19 = (v38 >> 13) & 0xFFF"},
+      {"offset": 52, "size": 4, "name": "slot_value", "type": "i32", "description": "Value read from page at slot position (u16 zero-extended)", "confidence": "medium", "evidence": "v6[13] = v42 = *(u16*)(v45 + 4*v19)"},
+      {"offset": 56, "size": 4, "name": "dirty_flag", "type": "i32", "description": "Always initialized to 0. Dirty/modified flag.", "confidence": "high", "evidence": "v6[14] = 0 in all paths"}
+    ]
+  },
+
+  "element_hash_cache": {
+    "description": "Hash table for caching recently accessed elements. Avoids full index search for repeated access.",
+    "entry_size_bytes": 32,
+    "hash_function": "refno_word1 % hash_table_size",
+    "evidence": "sub_5AEB6B0: dword_6A540CC + 32 * (a1[1] % dword_6A540C8)",
+    "globals": {
+      "hash_table_base": {"addr": "0x6A540CC", "name": "dword_6A540CC"},
+      "hash_table_size": {"addr": "0x6A540C8", "name": "dword_6A540C8"}
+    },
+    "entry_fields": [
+      {"offset": 0, "size": 4, "name": "context_ptr", "type": "*void", "description": "Context or chain pointer", "confidence": "medium", "evidence": "v48 = *(_BYTE **)v15"},
+      {"offset": 4, "size": 4, "name": "refno_word0", "type": "i32", "description": "Cached RefNo word 0", "confidence": "high", "evidence": "*a1 == *((_DWORD *)v15 + 1)"},
+      {"offset": 8, "size": 4, "name": "refno_word1", "type": "i32", "description": "Cached RefNo word 1", "confidence": "high", "evidence": "a1[1] == *((_DWORD *)v15 + 2)"},
+      {"offset": 12, "size": 4, "name": "page_addr", "type": "i32", "description": "Cached page address", "confidence": "high", "evidence": "v16 = *((_DWORD *)v15 + 3)"},
+      {"offset": 16, "size": 4, "name": "page_offset", "type": "i32", "description": "Cached page offset (encoded)", "confidence": "high", "evidence": "v17 = *((_DWORD *)v15 + 4)"},
+      {"offset": 20, "size": 4, "name": "page_token", "type": "i32", "description": "Cached page token/handle", "confidence": "medium", "evidence": "v18 = *((_DWORD *)v15 + 5)"},
+      {"offset": 24, "size": 4, "name": "db_token_0", "type": "i32", "description": "Database sub-token 0", "confidence": "high", "evidence": "v50 == *((_DWORD *)v15 + 6)"},
+      {"offset": 28, "size": 4, "name": "db_token_1", "type": "i32", "description": "Database sub-token 1", "confidence": "high", "evidence": "v51 == *((_DWORD *)v15 + 7)"}
+    ]
+  },
+
+  "per_db_state": {
+    "description": "Per-database state structure allocated during db_open. Contains 5 file token sub-structures.",
+    "size_bytes": 216,
+    "allocation": "malloc(0xD8)",
+    "evidence": "sub_5AF9EF0: v45 = malloc(0xD8u); initialization pattern",
+    "key_fields": [
+      {"offset_dword": 4, "name": "mode", "description": "Database mode: 1=read, 2=write, 3=shared(?)", "confidence": "high", "evidence": "v58[4] checked against a2 (mode param in open)"},
+      {"offset_dword": 8, "name": "db_type_id", "description": "Database type identifier, matched against template table", "confidence": "high", "evidence": "v58[8] compared with dword_6A54198 entries"},
+      {"offset_dword": 9, "name": "db_version", "description": "Database version number (abs value compared with template)", "confidence": "high", "evidence": "abs32(v58[9]) compared with template version; error 'db verno is %d'"},
+      {"offset_dword": 10, "name": "state_flag", "description": "State flag, initialized to 0", "confidence": "medium", "evidence": "v45[10] = 0 in init"},
+      {"offset_dword": 85, "name": "linked_page_a", "description": "Linked page for multi-file consistency", "confidence": "medium", "evidence": "v58[85] checked for consistency in file chain validation"},
+      {"offset_dword": 91, "name": "linked_page_b", "description": "Chain link page B", "confidence": "medium", "evidence": "v58[91] compared in file chain"},
+      {"offset_dword": 92, "name": "linked_page_c", "description": "Chain link page C", "confidence": "medium", "evidence": "v58[92] used in chain iteration"},
+      {"offset_dword": 102, "name": "timestamp_or_mark", "description": "Set from dword_6453DF0 during session creation", "confidence": "low", "evidence": "v58[102] = *(_DWORD *)dword_6453DF0"},
+      {"offset_dword": 103, "name": "file_type_count", "description": "Count of file type entries (for multi-db lookup)", "confidence": "medium", "evidence": "v22 = v58[103]; used as loop bound"},
+      {"offset_dword": "104..103+n", "name": "file_type_ids", "description": "Array of file type IDs", "confidence": "medium", "evidence": "v24 = v58 + 104; while(*v24 != v23) loop"}
+    ],
+    "sub_structure_pattern": "5 identical 10-DWORD sub-structures at DWORD indices [0,10,20,30,40]. Each initialized: [n+0]=0, [n+3]=-1, [n+5]=-1, [n+6]=-1, [n+8]=-1. Likely one per database file in a multi-file set."
+  },
+
+  "btree_search_constants": {
+    "description": "Constants used in B+tree / index search calls",
+    "evidence": "sub_5AEB6B0 and sub_5AF9EF0 decompile",
+    "constants": [
+      {"value": 13387743, "hex": "0xCC47DF", "description": "RefNo index type ID (3.1). Used in sub_5B01340 as search tree identifier. Also used in sub_5AFC950. NOTE: Different from 2.10 value 13393183 (0xCC5D1F).", "confidence": "high", "evidence": "sub_5AEB6B0: sub_5B01340(dbno, 13387743, refno, 2, &result, &mode)"},
+      {"value": 7618377, "hex": "0x7434F9", "description": "Main data page type ID (3.1). Used to identify element data pages. NOTE: Different from 2.10 value 7618321 (0x743F11).", "confidence": "high", "evidence": "sub_5AFB660: v3[1] == 7618377; sub_5AEB6B0: v59[1] = 7618377"},
+      {"value": 223355190, "hex": "0xD516B36", "description": "Page count property ID. Used in get_header_integer.", "confidence": "high", "evidence": "sub_5AF8230: if (a3 == 223355190 || a3 == 4539407)"},
+      {"value": 4539407, "hex": "0x45400F", "description": "Another header property ID, treated same as 223355190.", "confidence": "medium", "evidence": "sub_5AF8230: if (a3 == 223355190 || a3 == 4539407)"},
+      {"value": 107487840, "hex": "0x66A1BC0", "description": "Page size property ID.", "confidence": "high", "evidence": "doc: descriptor offset +20"}
+    ]
+  },
+
+  "index_search_function": {
+    "name": "sub_5B01340",
+    "description": "B+tree index search function. Searches for a key in the specified index tree and returns the page/offset of the matching record.",
+    "signature": "sub_5B01340(int dbno, int tree_type_id, int* search_key, int key_size, int* result_page_offset, int* search_mode)",
+    "evidence": "sub_5AEB6B0: sub_5B01340(dbno, 13387743, a1, 2, &v37, &v43)",
+    "parameters": [
+      {"index": 0, "name": "dbno", "description": "Database number"},
+      {"index": 1, "name": "tree_type_id", "description": "Index tree identifier (e.g. 13387743 for RefNo index)"},
+      {"index": 2, "name": "search_key", "description": "Pointer to search key (RefNo = 2 DWORDs)"},
+      {"index": 3, "name": "key_size", "description": "Key size in DWORDs (2 for RefNo)"},
+      {"index": 4, "name": "result", "description": "Output: page_addr (word0) and encoded offset (word1)"},
+      {"index": 5, "name": "search_mode", "description": "Search mode (2 = exact match?)"}
+    ],
+    "error_code_534": "Not found / no match",
+    "confidence": "high"
+  }
+}

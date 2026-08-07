@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fs::File;
 
 use crate::core::{EngineError, PageId, RecordLoc, RefNo};
@@ -11,30 +12,33 @@ pub struct IndexIteratorEntry {
     pub loc: RecordLoc,
 }
 
+/// 中序遍历整棵 RefNo 索引树。
+///
+/// 内部页的每个条目（含起始标记）各指向一棵独立子树，因此下降路径可以有任意深度，
+/// 回溯也必须能一路退到根；只退一层会在两层以上的树上把绝大多数叶子甩掉。
 pub struct IndexTableIterator {
-    leaf_stack: Vec<(PageId, usize)>,
-    pending_entries: Vec<IndexEntry>,
-    current_index: usize,
-    #[allow(dead_code)]
-    page_size: usize,
+    /// 尚未走完的内部页：(页号, 已经下降过的条目下标)
+    stack: Vec<(PageId, usize)>,
+    pending: Vec<IndexEntry>,
+    pending_idx: usize,
+    /// 当前叶子所在的扩展文件号；条目本身只存页号，位置要靠它补全。
+    pending_ext_no: u32,
+    visited: HashSet<(u32, u32)>,
     finished: bool,
 }
 
 impl IndexTableIterator {
-    pub fn new(
-        file: &mut File,
-        store: &mut PageStore,
-        root: PageId,
-    ) -> Result<Self, EngineError> {
+    pub fn new(file: &mut File, store: &mut PageStore, root: PageId) -> Result<Self, EngineError> {
         let mut iter = Self {
-            leaf_stack: Vec::new(),
-            pending_entries: Vec::new(),
-            current_index: 0,
-            page_size: store.page_size(),
+            stack: Vec::new(),
+            pending: Vec::new(),
+            pending_idx: 0,
+            pending_ext_no: root.ext_no,
+            visited: HashSet::new(),
             finished: false,
         };
 
-        iter.descend_to_leftmost_leaf(file, store, root)?;
+        iter.descend(file, store, root)?;
         Ok(iter)
     }
 
@@ -43,39 +47,30 @@ impl IndexTableIterator {
         file: &mut File,
         store: &mut PageStore,
     ) -> Result<Option<IndexIteratorEntry>, EngineError> {
-        if self.finished {
-            return Ok(None);
-        }
-
-        while self.current_index < self.pending_entries.len() {
-            let entry = self.pending_entries[self.current_index];
-            self.current_index += 1;
-
-            if entry.is_start_marker() {
-                continue;
+        loop {
+            if self.finished {
+                return Ok(None);
             }
 
-            return Ok(Some(IndexIteratorEntry {
-                refno: entry.refno,
-                loc: entry.to_record_loc(),
-            }));
-        }
+            while self.pending_idx < self.pending.len() {
+                let entry = self.pending[self.pending_idx];
+                self.pending_idx += 1;
 
-        if let Some((page_id, parent_idx)) = self.leaf_stack.pop() {
-            let parent_page_id = PageId {
-                ext_no: page_id.ext_no,
-                page_no: page_id.page_no,
-            };
-            if let Ok(Some(next_leaf)) =
-                self.find_next_sibling(file, store, parent_page_id, parent_idx)
-            {
-                self.descend_to_leftmost_leaf(file, store, next_leaf)?;
-                return self.next(file, store);
+                if entry.is_start_marker() {
+                    continue;
+                }
+
+                return Ok(Some(IndexIteratorEntry {
+                    refno: entry.refno,
+                    loc: entry.to_record_loc(self.pending_ext_no),
+                }));
+            }
+
+            if !self.advance_to_next_leaf(file, store)? {
+                self.finished = true;
+                return Ok(None);
             }
         }
-
-        self.finished = true;
-        Ok(None)
     }
 
     pub fn collect_all(
@@ -90,68 +85,79 @@ impl IndexTableIterator {
         Ok(result)
     }
 
-    fn descend_to_leftmost_leaf(
+    /// 从 `page_id` 一路下降到最左叶子，途经的内部页压栈备用。
+    fn descend(
         &mut self,
         file: &mut File,
         store: &mut PageStore,
         page_id: PageId,
     ) -> Result<(), EngineError> {
-        let page = store.read_page(file, page_id)?;
-        let parsed = match IndexPageView::from_page(&page) {
-            Ok(p) => p,
-            Err(_) => {
-                self.finished = true;
+        let mut current = page_id;
+        loop {
+            self.pending_ext_no = current.ext_no;
+            if !self.visited.insert((current.ext_no, current.page_no)) {
+                self.pending = Vec::new();
+                self.pending_idx = 0;
                 return Ok(());
             }
-        };
 
-        if parsed.level == 0 {
-            self.pending_entries = parsed.entries;
-            self.current_index = 0;
-            return Ok(());
-        }
+            let page = store.read_page(file, current)?;
+            let Ok(parsed) = IndexPageView::from_page(&page) else {
+                self.pending = Vec::new();
+                self.pending_idx = 0;
+                return Ok(());
+            };
 
-        let first_child = parsed
-            .entries
-            .first()
-            .map(|e| e.page_no)
-            .ok_or_else(|| EngineError::Format("内部索引页无子节点".into()))?;
+            if parsed.level == 0 {
+                self.pending = parsed.entries;
+                self.pending_idx = 0;
+                return Ok(());
+            }
 
-        self.leaf_stack.push((page_id, 0));
-        self.descend_to_leftmost_leaf(
-            file,
-            store,
-            PageId {
-                ext_no: page_id.ext_no,
+            let Some(first_child) = parsed.entries.first().map(|entry| entry.page_no) else {
+                self.pending = Vec::new();
+                self.pending_idx = 0;
+                return Ok(());
+            };
+
+            self.stack.push((current, 0));
+            current = PageId {
+                ext_no: current.ext_no,
                 page_no: first_child,
-            },
-        )
+            };
+        }
     }
 
-    fn find_next_sibling(
+    /// 逐层回溯，直到找到还有未访问子树的祖先并降到它下一棵子树的最左叶子。
+    fn advance_to_next_leaf(
         &mut self,
         file: &mut File,
         store: &mut PageStore,
-        parent_page_id: PageId,
-        current_child_idx: usize,
-    ) -> Result<Option<PageId>, EngineError> {
-        let page = store.read_page(file, parent_page_id)?;
-        let parsed = match IndexPageView::from_page(&page) {
-            Ok(p) => p,
-            Err(_) => return Ok(None),
-        };
+    ) -> Result<bool, EngineError> {
+        while let Some((parent, child_idx)) = self.stack.pop() {
+            let page = store.read_page(file, parent)?;
+            let Ok(parsed) = IndexPageView::from_page(&page) else {
+                continue;
+            };
 
-        let next_idx = current_child_idx + 1;
-        if next_idx < parsed.entries.len() {
-            let next_entry = &parsed.entries[next_idx];
-            self.leaf_stack.push((parent_page_id, next_idx));
-            return Ok(Some(PageId {
-                ext_no: parent_page_id.ext_no,
-                page_no: next_entry.page_no,
-            }));
+            let next_idx = child_idx + 1;
+            let Some(next_entry) = parsed.entries.get(next_idx) else {
+                continue;
+            };
+
+            self.stack.push((parent, next_idx));
+            self.descend(
+                file,
+                store,
+                PageId {
+                    ext_no: parent.ext_no,
+                    page_no: next_entry.page_no,
+                },
+            )?;
+            return Ok(true);
         }
 
-        Ok(None)
+        Ok(false)
     }
 }
 

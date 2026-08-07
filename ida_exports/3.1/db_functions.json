@@ -1,0 +1,202 @@
+{
+  "source": "ida_pro_mcp_analysis_e3d_3.1",
+  "dll_version": "Everything3D 3.1",
+  "idb_path": "D:\\AVEVA\\Everything3D3.1\\core.dll.i64",
+  "binary_md5": "b7def476fb703917923c5b9e54717c69",
+  "base_address": "0x5170000",
+  "generated": "2026-05-11",
+  "global_state": {
+    "error_flag": {"addr": "0x6453B98", "name": "dword_6453B98", "description": "Global error code; 0 = success. All db_* wrappers check this after dispatch."},
+    "command_name_table": {"addr": "0x6003900", "name": "off_6003900", "description": "Pointer array: off_6003900[cmd_number] -> command name string. Used by dispatchers for logging."},
+    "db_state_ptr_1": {"addr": "0x6453DC0", "name": "dword_6453DC0", "description": "Database state pointer, passed to page I/O. Likely current DB header page buffer."},
+    "db_state_ptr_2": {"addr": "0x6453DC4", "name": "dword_6453DC4", "description": "Database handle/token. Passed as 4th arg to FHDBRN (multiplied by 4)."},
+    "logging_callback": {"addr": "0x6453B70", "name": "dword_6453B70", "description": "Function pointer for command tracing/logging."},
+    "error_report_callback": {"addr": "0x6423A28", "name": "dword_6423A28", "description": "Function pointer for error event recording."},
+    "error_string_buffer": {"addr": "0x6453BA0", "name": "byte_6453BA0", "description": "512-byte buffer for formatted error messages."}
+  },
+  "layers": {
+    "db5_api": {
+      "description": "Public C API wrappers. Each calls a dispatcher with a command number, passes arguments through, and checks the global error flag. Total ~110 functions in 0x5AAxxxx range.",
+      "pattern": "db_*(args) { dispatcher(CMD_NUM, args...); return dword_6453B98 == 0; }",
+      "functions": [
+        {"name": "db_open_read_db", "addr": "0x5AAEA20", "cmd": 134, "dispatcher": "0x5AD0350", "params": 6, "layer_responsibility": "open database for reading", "confidence": "high", "evidence": "decompile shows dispatcher call with cmd=134"},
+        {"name": "db_open_write_db", "addr": "0x5AAEAB0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "open database for writing", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_open_shared_db", "addr": "0x5AAEA50", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "open database shared", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_close_db", "addr": "0x5AAACC0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "close database", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_save_work", "addr": "0x5AAF340", "cmd": 198, "dispatcher": "0x5AD9880", "params": 5, "layer_responsibility": "save work / session commit", "confidence": "high", "evidence": "decompile shows dispatcher call with cmd=198"},
+        {"name": "db_read_page", "addr": "0x5AAEED0", "cmd": 288, "dispatcher": "0x5AD5EE0", "params": 3, "layer_responsibility": "read a page from database", "confidence": "high", "evidence": "decompile shows dispatcher call with cmd=288, traced full call chain to FHDBRN"},
+        {"name": "db_write_page", "addr": "0x5AAF6C0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "write a page to database", "confidence": "high", "evidence": "func_query name match; symmetric with db_read_page"},
+        {"name": "db_go_to_element", "addr": "0x5AAE900", "cmd": 108, "dispatcher": "0x5ACF400", "params": 1, "layer_responsibility": "navigate to element by RefNo", "confidence": "high", "evidence": "decompile shows dispatcher call with cmd=108"},
+        {"name": "db_get_header_integer", "addr": "0x5AAE2E0", "cmd": 78, "dispatcher": "0x5AC4440", "params": 4, "layer_responsibility": "read integer from database header", "confidence": "high", "evidence": "decompile shows dispatcher call with cmd=78"},
+        {"name": "db_get_session_integer", "addr": "0x5AAE7C0", "cmd": 102, "dispatcher": "0x5AC4A00", "params": 5, "layer_responsibility": "read integer from session record", "confidence": "high", "evidence": "decompile shows dispatcher call with cmd=102"},
+        {"name": "db_get_file_header_integer", "addr": "0x5AAE180", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read integer from file-level header", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_file_session_integer", "addr": "0x5AAE250", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read integer from file session", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_file_session_string", "addr": "0x5AAE280", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read string from file session", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_file_info", "addr": "0x5AAE1E0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "get file info (page count, etc.)", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_integer", "addr": "0x5AAE3D0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read integer attribute from current element", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_real", "addr": "0x5AAE6F0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read real/float attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_string", "addr": "0x5AAE820", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read string attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_reference", "addr": "0x5AAE770", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read reference attribute (RefNo)", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_logical", "addr": "0x5AAE4A0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read boolean/logical attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_int_array", "addr": "0x5AAE340", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read integer array attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_real_array", "addr": "0x5AAE710", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read real array attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_ref_array", "addr": "0x5AAE740", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "read reference array attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_put_integer", "addr": "0x5AAEC00", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "write integer attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_put_real", "addr": "0x5AAED60", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "write real attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_put_string", "addr": "0x5AAEE80", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "write string attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_put_reference", "addr": "0x5AAEE20", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "write reference attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_create_element", "addr": "0x5AAAD70", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "create new element", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_delete_element", "addr": "0x5AAD880", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "delete element", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_insert_element", "addr": "0x5AAE950", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "insert element into hierarchy", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_detach_element", "addr": "0x5AAD8C0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "detach element from hierarchy", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_claim_element", "addr": "0x5AAAB80", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "claim/lock element for editing", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_release_element", "addr": "0x5AAF130", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "release claimed element", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_find_reference", "addr": "0x5AADA40", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "find element by reference", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_find_integer", "addr": "0x5AAD9A0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "find element by integer attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_find_string", "addr": "0x5AADA70", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "find element by string attribute", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_element_info", "addr": "0x5AAE0A0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "get element metadata", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_element_list", "addr": "0x5AAE0D0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "get element child list", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_attribute_info", "addr": "0x5AADD00", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "get attribute metadata", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_attribute_list", "addr": "0x5AADD60", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "list attributes of element", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_check_and_update_session", "addr": "0x5AAAB50", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "session validation/update", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_clone_old_session", "addr": "0x5AAAC80", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "clone previous session state", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_mark_ses", "addr": "0x5AAE9A0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "mark session", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_compact", "addr": "0x5AAAD00", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "compact database", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_refresh_db", "addr": "0x5AAEF80", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "refresh database from disk", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_error", "addr": "0x5AAE100", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "get current error code", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_error_string", "addr": "0x5AAE110", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "get error message string", "confidence": "high", "evidence": "func_query name match; has_type=true"},
+        {"name": "db_clear_error", "addr": "0x5AAAC50", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "clear error state", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_switch_db", "addr": "0x5AAF600", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "switch active database", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_get_current_dbno", "addr": "0x5AADE20", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "get current database number", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_finish", "addr": "0x5AADAA0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "finish/shutdown database system", "confidence": "high", "evidence": "func_query name match"},
+        {"name": "db_quit", "addr": "0x5AAEEB0", "cmd": null, "dispatcher": null, "params": null, "layer_responsibility": "quit database system", "confidence": "high", "evidence": "func_query name match"}
+      ]
+    },
+    "db5_dispatchers": {
+      "description": "Command dispatch wrappers in 0x5ACxxxx-0x5ADxxxx range. Each handles a group of commands with logging, error tracing, and circular buffer for recent command history.",
+      "pattern": "dispatcher(cmd, args...) { trace_entry(cmd); if(error) clear(); record_history(); core_impl(args); trace_exit(); }",
+      "functions": [
+        {"name": "sub_5AD5EE0", "addr": "0x5AD5EE0", "description": "Dispatcher for page I/O commands (e.g. cmd 288 = db_read_page)", "core_impl": "0x5AFB660", "confidence": "high", "evidence": "decompile: calls off_6003900[cmd] for name, sub_5AFB660 for impl"},
+        {"name": "sub_5AD0350", "addr": "0x5AD0350", "description": "Dispatcher for DB open/close commands (e.g. cmd 134 = db_open_read_db)", "core_impl": "0x5AE5670", "confidence": "high", "evidence": "decompile + callees"},
+        {"name": "sub_5ACF400", "addr": "0x5ACF400", "description": "Dispatcher for element navigation (e.g. cmd 108 = db_go_to_element)", "core_impl": "0x5AEB6B0", "confidence": "high", "evidence": "decompile + callees"},
+        {"name": "sub_5AC4440", "addr": "0x5AC4440", "description": "Dispatcher for header/metadata reads (e.g. cmd 78 = db_get_header_integer)", "core_impl": "0x5AF8230", "confidence": "high", "evidence": "decompile + callees"},
+        {"name": "sub_5AC4A00", "addr": "0x5AC4A00", "description": "Dispatcher for session reads (e.g. cmd 102 = db_get_session_integer)", "core_impl": null, "confidence": "medium", "evidence": "decompile of db_get_session_integer"},
+        {"name": "sub_5AD9880", "addr": "0x5AD9880", "description": "Dispatcher for save/commit commands (e.g. cmd 198 = db_save_work)", "core_impl": null, "confidence": "medium", "evidence": "decompile of db_save_work"}
+      ]
+    },
+    "db4_element_record": {
+      "description": "Core implementations for element/record operations. In 0x5AExxxx-0x5AFxxxx range. Handle attribute get/put, element navigation, index lookup.",
+      "functions": [
+        {"name": "sub_5AEB6B0", "addr": "0x5AEB6B0", "description": "go_to_element core: navigate to element by RefNo. 14 callees including index search, element loading.", "confidence": "high", "evidence": "callees analysis: calls sub_5AF6600, sub_5AE9460, sub_5AEDDA0, sub_5AEB030, sub_5AE8DD0, sub_5AEFC30, sub_5B01340, sub_5AEFDD0, sub_5AF8CA0, sub_5AEE4E0, sub_5AFC950, sub_5AF6AB0"},
+        {"name": "sub_5AF8230", "addr": "0x5AF8230", "description": "get_header_integer core: read integer from header. Calls sub_5AF6600, sub_5AEFD30, sub_5AF7C30.", "confidence": "high", "evidence": "callees analysis"},
+        {"name": "sub_5AE5670", "addr": "0x5AE5670", "description": "open_db core: database open implementation. Calls sub_5AF9EF0, sub_5AEC970.", "confidence": "high", "evidence": "callees analysis"},
+        {"name": "sub_5AF6600", "addr": "0x5AF6600", "description": "Shared helper used by go_to_element and get_header_integer. Likely 'get current DB context' or 'validate DB handle'.", "confidence": "medium", "evidence": "shared callee in multiple db4 functions"}
+      ]
+    },
+    "db2_page_io": {
+      "description": "Page-level I/O with retry, mode switching, and error recovery. Bridges db5 commands to db1 Fortran functions.",
+      "functions": [
+        {"name": "sub_5AFB660", "addr": "0x5AFB660", "description": "Page read core for db_read_page. Calls sub_5AF0640 twice (header page + target page), manages page cache with realloc. Error format: '2RP:Name is %.256s,Pageno is %d,Token is %d,Flayer error is %.64s'", "confidence": "high", "evidence": "full decompile with error string containing 'Pageno', 'Token', 'Flayer error'"},
+        {"name": "sub_5AF0640", "addr": "0x5AF0640", "description": "Single page read with retry and mode-switch recovery. Calls FHDBRN up to 3 times. On failure: checks error code 11 (lock/busy?), waits (SYWAIT), tries mode switch (CLOSED→READ), retries. Falls back to FLFINI('ABORT').", "confidence": "high", "evidence": "full decompile: FHDBRN calls, FHSWIT('CLOSED'), FHSWIT(mode), strncmp('READ'), error 28 on final failure"}
+      ]
+    },
+    "db1_file_handler_fortran": {
+      "description": "Fortran-style functions (FH* prefix) that implement the lowest-level database file operations. These are the db1 layer.",
+      "functions": [
+        {"name": "FHDBRN", "addr": "0x5B8D4F0", "size": 37, "description": "File Handler DB Read N. Thin Fortran wrapper: dereferences pointer args and calls sub_5B9B400(token, pageno, buffer, handle*4, 1). This is the actual page read entry point.", "confidence": "high", "evidence": "decompile: return sub_5B9B400(*a1, *a2, a3, 4 * *a4, 1)"},
+        {"name": "FHDBWN", "addr": "0x5B8F2A0", "size": 37, "description": "File Handler DB Write N. Page write counterpart of FHDBRN.", "confidence": "high", "evidence": "symmetric name pattern with FHDBRN"},
+        {"name": "FHSWIT", "addr": "0x5468380", "size": 583, "description": "File Handler Switch. Switches database mode (CLOSED/READ/WRITE). Called during page read recovery.", "confidence": "high", "evidence": "decompile in sub_5AF0640: FHSWIT(&v13, 'CLOSED', 6); FHSWIT(&v13, Str1, 4)"},
+        {"name": "FHFIND", "addr": "0x546A0C0", "size": 349, "description": "File Handler Find. Index search function, likely B+tree search.", "confidence": "medium", "evidence": "name and size suggest index search; needs decompile verification"},
+        {"name": "FHSRCH", "addr": "0x5469180", "size": 364, "description": "File Handler Search. Another search function.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "FHSPLT", "addr": "0x5469CF0", "size": 283, "description": "File Handler Split. B+tree node split operation.", "confidence": "medium", "evidence": "name 'split' strongly suggests B+tree split; needs decompile verification"},
+        {"name": "FHXPND", "addr": "0x5469690", "size": 724, "description": "File Handler Expand. Page or extent expansion.", "confidence": "medium", "evidence": "name pattern; large function (724 bytes) suggests complex operation"},
+        {"name": "FHDELT", "addr": "0x5469EF0", "size": 452, "description": "File Handler Delete. Element or record deletion.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "FHLOSE", "addr": "0x54685D0", "size": 552, "description": "File Handler Close. Database file close.", "confidence": "medium", "evidence": "name pattern; has_type=true"},
+        {"name": "FHEXST", "addr": "0x546CFE0", "size": 50, "description": "File Handler Exists. Check if file/element exists.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "FHITER", "addr": "0x546DD8E", "size": 2109, "description": "File Handler Iterator. Large function for iterating over records/elements.", "confidence": "medium", "evidence": "name and size (2109 bytes = very large) suggest complex iteration logic"},
+        {"name": "FHQERC", "addr": "0x546D650", "size": 104, "description": "File Handler Query Error Code. Get last error code.", "confidence": "high", "evidence": "called in sub_5AFB660 error path"},
+        {"name": "FHQERR", "addr": "0x54692F0", "size": 105, "description": "File Handler Query Error (string).", "confidence": "medium", "evidence": "name pattern, similar to FHQERC"},
+        {"name": "FHNPTH", "addr": "0x546D970", "size": 989, "description": "File Handler Name/Path. Resolve file path.", "confidence": "low", "evidence": "name interpretation uncertain"},
+        {"name": "FHRENA", "addr": "0x5471820", "size": 429, "description": "File Handler Rename.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "FHSBRN", "addr": "0x5B8F060", "size": 29, "description": "File Handler Sub-Block Read N. Read sub-block (record segment?).", "confidence": "medium", "evidence": "name pattern and small size (thin wrapper)"},
+        {"name": "FHSBWN", "addr": "0x5B8C500", "size": 29, "description": "File Handler Sub-Block Write N.", "confidence": "medium", "evidence": "symmetric with FHSBRN"},
+        {"name": "FHSBRL", "addr": "0x5B8F150", "size": 21, "description": "File Handler Sub-Block Read Logical.", "confidence": "low", "evidence": "name interpretation uncertain"},
+        {"name": "FHSBWL", "addr": "0x5B8F0F0", "size": 21, "description": "File Handler Sub-Block Write Logical.", "confidence": "low", "evidence": "name interpretation uncertain"},
+        {"name": "FHSTRC", "addr": "0x5B8C880", "size": 153, "description": "File Handler String Read C. Read string from database.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "FHSTWC", "addr": "0x5B8C640", "size": 575, "description": "File Handler String Write C. Write string to database.", "confidence": "medium", "evidence": "name pattern"}
+      ]
+    },
+    "db1_cpp_io_bridge": {
+      "description": "C++ bridge layer between Fortran FH* functions and the actual file I/O. Uses IToken/DirectAccessToken virtual dispatch.",
+      "functions": [
+        {"name": "sub_5B9B400", "addr": "0x5B9B400", "description": "Core I/O dispatcher. Called by FHDBRN. Looks up IToken via MR_Message system, casts to DirectAccessToken via RTDynamicCast, calls virtual method at vtable+16 for actual read/write.", "confidence": "high", "evidence": "full decompile: RTDynamicCast(IToken → DirectAccessToken), vtable call at offset 16"},
+        {"name": "IToken_RTTI", "addr": "0x6150858", "description": "RTTI descriptor for IToken abstract interface.", "confidence": "high", "evidence": "referenced in RTDynamicCast call"},
+        {"name": "DirectAccessToken_RTTI", "addr": "0x6150A38", "description": "RTTI descriptor for DirectAccessToken concrete class. Implements actual page read/write via virtual methods.", "confidence": "high", "evidence": "referenced in RTDynamicCast call"}
+      ]
+    },
+    "db0_file_layer_fortran": {
+      "description": "Lowest-level file operations (FL* prefix). Direct OS file I/O.",
+      "functions": [
+        {"name": "FLOPEN", "addr": "0x588B890", "size": 193, "description": "File Layer Open. Open file for I/O.", "confidence": "medium", "evidence": "name pattern; has_type=true"},
+        {"name": "FLOPNE", "addr": "0x588B960", "size": 201, "description": "File Layer Open (variant, possibly 'new' or 'exclusive').", "confidence": "low", "evidence": "name pattern"},
+        {"name": "FLCLOS", "addr": "0x588B6D0", "size": 219, "description": "File Layer Close.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "FLDELE", "addr": "0x588B7B0", "size": 205, "description": "File Layer Delete.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "FLPAGE", "addr": "0x588BA30", "size": 336, "description": "File Layer Page. Page-level file I/O (seek+read/write page). has_type=true.", "confidence": "medium", "evidence": "name pattern; has_type=true suggests parameter info available"},
+        {"name": "FLFINI", "addr": "0x546D3CD", "size": 466, "description": "File Layer Finish/Abort. Called as last resort on unrecoverable error with 'ABORT' string.", "confidence": "high", "evidence": "decompile in sub_5AF0640: FLFINI('ABORT', 5)"}
+      ]
+    },
+    "system_utility_fortran": {
+      "description": "System utility functions (SY* prefix). Timing, user, environment.",
+      "functions": [
+        {"name": "SYWAIT", "addr": "0x5B8D2E0", "size": 31, "description": "System Wait. Called during page read retry with 0.5s delay.", "confidence": "high", "evidence": "called in sub_5AF0640 between FHDBRN retries; constant 0x3FE0000000000000 = 0.5 double"},
+        {"name": "SYUSER", "addr": "0x5B8D520", "size": 260, "description": "System User. Get current user info.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "SYINFO", "addr": "0x546BD40", "size": 444, "description": "System Info. Get system information.", "confidence": "medium", "evidence": "name pattern; has_type=true"}
+      ]
+    },
+    "db_fortran_uppercase": {
+      "description": "Uppercase DB* Fortran-style functions. Higher-level database operations (db2-db4 equivalent).",
+      "functions": [
+        {"name": "DB2CU", "addr": "0x5279144", "size": 232, "description": "DB2 layer function. Purpose uncertain (CU = create/cursor?).", "confidence": "low", "evidence": "name starts with DB2; needs decompile"},
+        {"name": "DB2DU", "addr": "0x5284928", "size": 429, "description": "DB2 layer function. Purpose uncertain (DU = dump/delete?).", "confidence": "low", "evidence": "name starts with DB2; needs decompile"},
+        {"name": "DBMODE", "addr": "0x53AFCA0", "size": 1883, "description": "Database Mode. Very large function (1883 bytes), manages database mode transitions. has_type=true.", "confidence": "high", "evidence": "name and size; has_type=true"},
+        {"name": "DBNAM", "addr": "0x520CE5C", "size": 757, "description": "Database Name. Get/resolve database name.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "DBOWNR", "addr": "0x5396190", "size": 635, "description": "Database Owner. Get/check database owner.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "DBUNDO", "addr": "0x5226BA0", "size": 893, "description": "Database Undo. Undo last operation.", "confidence": "medium", "evidence": "name pattern; large function"},
+        {"name": "DBVRSN", "addr": "0x5B24010", "size": 56, "description": "Database Version. Get database version. has_type=true.", "confidence": "high", "evidence": "name pattern; has_type=true; small thin wrapper"},
+        {"name": "DBID", "addr": "0x5236F88", "size": 266, "description": "Database ID. Get database identifier.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "DBLYTS", "addr": "0x522B514", "size": 426, "description": "Database Layout/List. Purpose uncertain.", "confidence": "low", "evidence": "name interpretation uncertain"},
+        {"name": "DBPRIM", "addr": "0x522B6C0", "size": 160, "description": "Database Primary. Primary database operations.", "confidence": "low", "evidence": "name interpretation uncertain"},
+        {"name": "DBPROJ", "addr": "0x53B1014", "size": 343, "description": "Database Project. Project-level operations.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "DBTYNM", "addr": "0x520CD68", "size": 106, "description": "Database Type Name.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "DBDUMP", "addr": "0x521D498", "size": 106, "description": "Database Dump. Debug/diagnostic dump.", "confidence": "medium", "evidence": "name pattern"},
+        {"name": "LABORT", "addr": "0x53557C4", "size": 153, "description": "Abort handler. Most-called function (1092 xrefs). Error/assert handler for the entire binary.", "confidence": "high", "evidence": "survey_binary: 1092 xrefs, top function by reference count"}
+      ]
+    }
+  },
+  "call_chain_read_page": {
+    "description": "Complete call chain for reading a database page, traced from API to disk I/O",
+    "chain": [
+      {"step": 1, "function": "db_read_page", "addr": "0x5AAEED0", "layer": "db5_api", "action": "thin wrapper: pass cmd=288 + args to dispatcher"},
+      {"step": 2, "function": "sub_5AD5EE0", "addr": "0x5AD5EE0", "layer": "db5_dispatcher", "action": "logging, error state check, call core impl"},
+      {"step": 3, "function": "sub_5AFB660", "addr": "0x5AFB660", "layer": "db2_page_io", "action": "read header page + target page via sub_5AF0640; manage page cache (realloc)"},
+      {"step": 4, "function": "sub_5AF0640", "addr": "0x5AF0640", "layer": "db2_page_io", "action": "call FHDBRN; on error 11: wait + retry; on persistent fail: mode switch CLOSED→READ→retry; abort on final fail"},
+      {"step": 5, "function": "FHDBRN", "addr": "0x5B8D4F0", "layer": "db1_fortran", "action": "dereference Fortran pointer args, call sub_5B9B400(token, pageno, buf, handle*4, 1)"},
+      {"step": 6, "function": "sub_5B9B400", "addr": "0x5B9B400", "layer": "db1_cpp_bridge", "action": "lookup IToken via MR_Message, RTDynamicCast to DirectAccessToken, vtable call at offset 16"},
+      {"step": 7, "function": "DirectAccessToken::vtable[4]", "addr": "unknown", "layer": "db0_io", "action": "actual disk page read via OS file I/O"}
+    ]
+  },
+  "cpp_classes_discovered": {
+    "MR_Message": {"description": "Message/messaging infrastructure. Used for token lookup in I/O dispatch.", "evidence": "decompile of sub_5B9B400: MR_Message::MessageNumber()"},
+    "IToken": {"description": "Abstract token interface for file I/O access.", "evidence": "RTTI at 0x6150858, used in RTDynamicCast"},
+    "DirectAccessToken": {"description": "Concrete token implementing direct file access (page read/write).", "evidence": "RTTI at 0x6150A38, target of RTDynamicCast from IToken"},
+    "DBE_Base": {"description": "Database Element base class. Seen in exported entry points.", "evidence": "entry point mangled names: DBE_ComparisonOperator uses pair<PAVDBE_Base,PAV1>"},
+    "DB_Element": {"description": "Database Element class. Core domain type.", "evidence": "entry point: DBE_ComparisonOperator<vector<VDB_Element>>"},
+    "DBE_Value": {"description": "Database Element value. Attribute value holder.", "evidence": "entry point: DBE_ComparisonOperator<vector<VDBE_Value>>"},
+    "DBE_StringValue": {"description": "String attribute value.", "evidence": "entry point mangled name"},
+    "DBE_PositionValue": {"description": "Position (3D point) attribute value.", "evidence": "entry point mangled name"},
+    "DBE_OrientationValue": {"description": "Orientation attribute value.", "evidence": "entry point mangled name"},
+    "DBE_DirectionValue": {"description": "Direction attribute value.", "evidence": "entry point mangled name"},
+    "PDMS_Hash": {"description": "Hash/identifier type used in PDMS/E3D.", "evidence": "entry point: MR_Message::Set<ABVPDMS_Hash>"}
+  },
+  "note": "This mapping covers the read path in detail. Write path functions (FHDBWN, db_write_page, db_save_work internals) follow symmetric patterns but were not fully traced in this pass. Functions with confidence='low' need decompile verification before being treated as authoritative."
+}

@@ -618,3 +618,147 @@ dword_6A54024 = dword_6A5402C;        // restore previous
 
 GALFE 输出时会过滤掉 `dword_6423A38[0..dword_6423A40]` 列表中的 hashes（哪些 attributes 在某些上下文不应暴露）。如果实现 template-aware 解码后输出和现有不一致，先检查这个排除列表。
 
+---
+
+### 14.7 Template `.dat` File On-Disk Format (Followup #3b — RESOLVED)
+
+> **新增 2026-05-17，Slice 4 Step 16** — `dword_6A54028` 追踪解开后的最终发现：
+> noun template payload **不在主 DB 文件里**，而是在 `%AVEVA_DESIGN_EXE%/<dbname>.dat`
+> 一系列虚拟 schema 文件中（如 `desvir.dat`, `padvir.dat`, `catvir.dat`）。
+> 这些 `.dat` 文件采用与 `attlib.dat` 相同的 Fortran `"DB,BL 512"` 格式
+> （2048 字节/页，大端 u32），由 IDA `sub_5AFA740` (`2OTDB:Name is...`) 加载。
+
+#### 14.7.1 关键发现
+
+**IDA 函数链** (`user-ida-pro-mcp.decompile`, 2026-05-17):
+
+| 函数 | 作用 |
+|---|---|
+| `DB_DBSchema::openSchema` (`sub_591D510`) | 构造路径 `"%AVEVA_DESIGN_EXE%/" + DB::getFileName(this) + ".dat"`，FHFIND 打开，调 sub_5AAEA80 |
+| `sub_5AAEA80(template_type, file_handle)` | thin wrapper → `sub_5AD0730(136, ..., ...)` (dispatch cmd 136) |
+| `sub_5AD0730(136, a1, a2)` | dispatcher → `sub_5AFA740(a1, a2)` |
+| `sub_5AFA740(template_type, file_handle)` | 真正的 loader：读 header / 验 magic / 加载 children chunked / 装入 `dword_6A54198` |
+| `sub_5AF6AB0(template_type, attr_hash, mode, &out, ...)` | 查询：descriptor linear scan + child binary search + chunk 缓存读 |
+| `sub_5AF0640(file_handle, token, buf, count)` | 原始 chunk 读取（FHDBRN wrap + retry） |
+
+**`dword_6A54028` 真正语义**：它是**第二个 active context 槽**，由 dispatcher (sub_5AA9270 系列) 在 DAB op 调用前后保存/恢复使用，**不存储 template payload**。`dword_6A54024[active_idx*60 + 16]` 存的是**已加载 template payload 的指针**，但 payload 本身的字节是从 `<dbname>.dat` 的 page 通过 `sub_5AF0640` 读上来的，运行时缓存到 `cache_ptr` 槽位（`dword_6A54198[descriptor].child[i].cache[0..2]`）。
+
+#### 14.7.2 File Header (8 dwords @ page 0 / Fortran token=1)
+
+`sub_5AFA740` 通过 `sub_5AF0640(file_handle, 1, &header[0], 8)` 读 8 dwords：
+
+| 偏移 (dword) | 字段 | 含义 | IDA 验证 |
+|---|---|---|---|
+| 0 | magic | 必须 == 6（page type marker） | `if (v30 != 6) error 517` |
+| 1 | (unnamed) | 未引用 | — |
+| 2 | template_type | 必须 == 调用方传入的 `a1` | `if (v31 != a1) error 548`；存入 descriptor[+0] |
+| 3 | aux1 | 不明用途 | 存入 descriptor[+4] |
+| 4 | (unnamed) | 未引用 | — |
+| 5 | child_count | 该文件中 noun template 个数 | 存入 descriptor[+12] |
+| 6 | (unnamed) | 未引用 | — |
+| 7 | chunk1_token | child array 第一个 chunk 的 Fortran 1-indexed page 号 | 作为 `v34` 初始 token |
+
+**fixture 实测** (`D:\AVEVA\Everything3D3.1\desvir.dat`):
+- `magic=6` ✓
+- `template_type=0x000B0692` (= 722578，DESIGN DB 类型 id)
+- `child_count=1113`（该文件中有 1113 个 noun 模板）
+- `chunk1_token=2352`（第一个 chunk 在 Fortran page 2352 = 0-indexed page 2351）
+
+#### 14.7.3 Child Array Format (28 bytes / 7 dwords per child, sorted by hash)
+
+每个 child 描述一个 noun 模板的物理存储位置：
+
+| 偏移 (dword) | 字段 | 用途 |
+|---|---|---|
+| 0 | hash | 该 noun 的 PDMS hash（binary-search key） |
+| 1 | tok1 | 第一个 chunk 的 token |
+| 2 | sz1 | 第一个 chunk 字节数（实际是 dword 数） |
+| 3 | tok2 | 第二个 chunk 的 token |
+| 4 | sz2 | 第二个 chunk dword 数 |
+| 5 | tok3 | 第三个 chunk 的 token |
+| 6 | sz3 | 第三个 chunk dword 数 |
+
+`sub_5AFA740` 用 `realloc(28 * child_count)` 分配 child 数组，并 calloc 一个 `12 * child_count` 字节的 cache 数组（每 child 3 个 lazy-loaded chunk 指针）。
+
+**重要**：child 数组按 hash 升序排序，`sub_5AF6AB0` 用 binary search 查找。
+
+#### 14.7.4 Chunked-Read Protocol (511 + 1 chain pointer)
+
+`sub_5AFA740` 加载 child 数组（`7 * child_count` dwords）和 `sub_5AF6AB0` 加载 payload chunk 都用同一个 chunked-read 模式：
+
+```
+remaining = total_data_dwords
+cur_token = initial_token  // header[7] for children, child.tokN for payloads
+buf_offset = 0
+while remaining > 0:
+    if remaining > 511:
+        read 512 dwords from cur_token into buf[buf_offset..]
+        cur_token = buf[buf_offset + 511]   // chain pointer (Fortran token)
+        buf_offset += 511                    // overwrite chain pointer on next iteration
+        remaining -= 511
+    else:
+        read remaining dwords from cur_token into buf[buf_offset..]
+        remaining = 0
+```
+
+**为什么是 511 + 1**：FHDBRN 一次最多读 512 dwords（= 1 page），其中前 511 是 data，第 512 dword 是下一个 chunk 的 Fortran token（链表式跨页存储）。这避免了要求大型 schema 数据连续存储。
+
+**fixture 实测**：`desvir.dat` 中 NXTR (hash=0x000DBF71) 在 child #178，`tok1=1237 sz1=247 tok2=1238 sz2=21 tok3=0 sz3=0`。247 dwords < 511，单次 chunk 读完。
+
+#### 14.7.5 Template Payload Layout (Within a Single Child)
+
+`sub_5AF6AB0` 加载 child 的 chunk1（最常用），返回字节缓冲。`sub_5B03900` (GALFE) 按 §14.2 的布局解析：
+
+```
+payload[9]      = count (number of attribute slots in this noun template)
+payload[14+v9]  = attr_hash[i]      // v9 is cumulative dword cursor
+payload[15+v9]  = stride[i]         // dword offset to next slot record WITHIN the payload
+payload[16+v9]  = aux[i]            // slot-kind hint (14/15/16/17/18 etc. per sub_5AB3620)
+v9 += stride[i]                     // advance cursor
+```
+
+**关键澄清** (本步骤新发现，修订早期理解)：
+
+`stride` 是 **payload-internal 游标步长**（用于在模板字节流里跳到下一个 attr record），**不是** element data 里的 slot 字节大小。Element data 的 slot 偏移仍由全局 ATGTDF position 决定（per IDA `ATNLOG` `sub_55BC98B`：`value_word = page_cache[base + atgtdf_index]`，其中 `atgtdf_index` 是 attr 在 ATGTDF 全局表里的 1-based 位置）。
+
+所以 noun template 的贡献是**告诉你这个 noun 究竟有哪些 attribute**（一个 ATGTDF 全表的子集），不是告诉你它们在 element 里占多少 byte。
+
+**fixture 实测**：NXTR template chunk1（247 dwords）：
+- `count = 21`（不是过去的 9 或 30 — 真实 noun 有 21 个 schema attrs）
+- 前 20 个 records 的 stride 为 10 或 11（**非均匀**；老的 `stride=1` 假设错了）
+- 前 5 attrs：`0x04D852B8/0x0009C18E/0x000D1FAA/0x000853B1/0x00083787`
+
+#### 14.7.6 实施建议 (Rust loader — 替换 §14.5 第一/二阶段)
+
+1. **新模块 `e3d-io::record::template_file`**：
+   - `TemplateFile::open(path)` — 打开 `.dat` 文件
+   - `TemplateFile::read_header() -> TemplateHeader { magic, template_type, child_count, chunk1_token }`
+   - `TemplateFile::read_children(&header) -> Vec<TemplateChild>` — chunked read 7*child_count dwords，链跳 511+1 模式
+   - `TemplateFile::find_child(hash, &[TemplateChild]) -> Option<&TemplateChild>` — binary search
+   - `TemplateFile::read_payload(child) -> Vec<u32>` — chunked read chunk1 (+ chunk2/3 if present)
+
+2. **扩展 `e3d-io::record::template`**：
+   - `NounTemplate::from_template_payload(payload: &[u32], noun_hash: u32) -> Option<NounTemplate>` — 按 §14.7.5 walk
+   - `NounTemplate::load_from_template_file(path, template_type, noun_hash) -> Result<...>` — 端到端 wrapper
+
+3. **更新 engine 集成**：
+   - `summarize_element_with_template` 应该用 `attlib.atgtdf_position(hash)` 而不是 cumulative stride，因为 stride 是 payload-internal 不是 element-data slot 大小（见 §14.7.5）。
+
+4. **验证**：在 `desvir.dat` 上加载 NXTR template（count=21），跑 engine.summarize，对比旧 ATGTDF-position path（9 attrs）。
+
+#### 14.7.7 已知 `.dat` 文件清单（fixture：`D:\AVEVA\Everything3D3.1\`）
+
+| 文件 | 大小 | 推测对应 DB 类型 |
+|---|---|---|
+| `attlib.dat` | 5.8 MB | 属性库（已用，与 noun template 无关） |
+| `desvir.dat` | 4.8 MB | DESIGN DB schemas（NXTR/STWALL/PIPE/EQUIPMENT 等） |
+| `padvir.dat` | 985 KB | PADDS DB schemas |
+| `catvir.dat` | 733 KB | Catalog DB schemas |
+| `manvir.dat` | 464 KB | MANufacturing |
+| `engvir.dat` | 389 KB | ENGineering |
+| `schvir.dat` | 260 KB | SCHematic |
+| `sysvir.dat` | 237 KB | SYStem |
+| `alyvir.dat` / `dicvir.dat` / `glbvir.dat` / `provir.dat` / ... | 较小 | 其他 DB 类型 |
+
+每个 `.dat` 文件 declare 自己的 `template_type`（header 第 2 个 dword）。Fixture 上 `ams1112_0001` 是 DESIGN DB，所以对应文件是 `desvir.dat`。
+
