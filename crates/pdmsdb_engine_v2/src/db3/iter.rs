@@ -169,3 +169,21 @@ pub fn scan_all_entries(
     let mut iter = IndexTableIterator::new(file, store, root)?;
     iter.collect_all(file, store)
 }
+
+/// Stream every live leaf entry under `root` to `visitor` without retaining a
+/// database-sized result vector.
+pub fn visit_all_entries<F>(
+    file: &mut File,
+    store: &mut PageStore,
+    root: PageId,
+    mut visitor: F,
+) -> Result<(), EngineError>
+where
+    F: FnMut(IndexIteratorEntry) -> Result<(), EngineError>,
+{
+    let mut iter = IndexTableIterator::new(file, store, root)?;
+    while let Some(entry) = iter.next(file, store)? {
+        visitor(entry)?;
+    }
+    Ok(())
+}

@@ -5,6 +5,22 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use crate::core::{EngineError, PageId};
 use crate::db2::HeaderView;
 
+/// Read-only I/O counters for one [`PageStore`].
+///
+/// `index_pages_read` and `record_pages_read` are physical-read deltas assigned
+/// by the higher-level operations. `physical_pages_read` also includes pages
+/// brought in by prefetch.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct PageReadStats {
+    pub physical_pages_read: u64,
+    pub cache_hits: u64,
+    pub cache_misses: u64,
+    pub prefetched_pages: u64,
+    pub bytes_read: u64,
+    pub index_pages_read: u64,
+    pub record_pages_read: u64,
+}
+
 pub trait PageIo {
     fn read_page(
         &mut self,
@@ -124,6 +140,7 @@ pub struct PageStore {
     prefetch_pages: usize,
     pub(crate) cache: PageCache,
     io: StdPageIo,
+    stats: PageReadStats,
 }
 
 impl PageStore {
@@ -133,6 +150,7 @@ impl PageStore {
             prefetch_pages,
             cache: PageCache::default(),
             io: StdPageIo,
+            stats: PageReadStats::default(),
         }
     }
 
@@ -142,11 +160,24 @@ impl PageStore {
             prefetch_pages,
             cache: PageCache::new(max_frames),
             io: StdPageIo,
+            stats: PageReadStats::default(),
         }
     }
 
     pub fn page_size(&self) -> usize {
         self.page_size
+    }
+
+    pub fn read_stats(&self) -> PageReadStats {
+        self.stats
+    }
+
+    pub(crate) fn record_index_reads(&mut self, physical_pages: u64) {
+        self.stats.index_pages_read = self.stats.index_pages_read.saturating_add(physical_pages);
+    }
+
+    pub(crate) fn record_record_reads(&mut self, physical_pages: u64) {
+        self.stats.record_pages_read = self.stats.record_pages_read.saturating_add(physical_pages);
     }
 
     pub fn validate_page_size_from_header(
@@ -192,12 +223,16 @@ impl PageStore {
 
     pub fn read_page(&mut self, file: &mut File, page_id: PageId) -> Result<Vec<u8>, EngineError> {
         if let Some(&idx) = self.cache.lookup.get(&page_id) {
+            self.stats.cache_hits = self.stats.cache_hits.saturating_add(1);
             self.cache.touch(idx);
             return Ok(self.cache.frames[idx].data.clone());
         }
 
+        self.stats.cache_misses = self.stats.cache_misses.saturating_add(1);
         self.ensure_capacity(file)?;
         let data = self.io.read_page(file, page_id, self.page_size)?;
+        self.stats.physical_pages_read = self.stats.physical_pages_read.saturating_add(1);
+        self.stats.bytes_read = self.stats.bytes_read.saturating_add(self.page_size as u64);
         self.insert_frame(page_id, data.clone(), false);
 
         if self.prefetch_pages > 0 {
@@ -225,6 +260,11 @@ impl PageStore {
             }
             match self.io.read_page(file, next, self.page_size) {
                 Ok(data) => {
+                    self.stats.physical_pages_read =
+                        self.stats.physical_pages_read.saturating_add(1);
+                    self.stats.prefetched_pages = self.stats.prefetched_pages.saturating_add(1);
+                    self.stats.bytes_read =
+                        self.stats.bytes_read.saturating_add(self.page_size as u64);
                     self.insert_frame(next, data, false);
                 }
                 Err(_) => break,

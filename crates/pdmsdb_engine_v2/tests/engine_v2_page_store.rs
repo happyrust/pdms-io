@@ -40,6 +40,29 @@ fn read_page_cache_hit() {
     let d1 = store.read_page(&mut file, pid).unwrap();
     let d2 = store.read_page(&mut file, pid).unwrap();
     assert_eq!(d1, d2);
+
+    let stats = store.read_stats();
+    assert_eq!(stats.physical_pages_read, 1);
+    assert_eq!(stats.cache_misses, 1);
+    assert_eq!(stats.cache_hits, 1);
+    assert_eq!(stats.bytes_read, page_size as u64);
+}
+
+#[test]
+fn prefetch_is_included_in_physical_read_stats() {
+    let page_size = 64;
+    let tmp = create_test_file(page_size, 4);
+    let mut file = std::fs::File::open(tmp.path()).unwrap();
+    let mut store = PageStore::new(page_size, 1);
+
+    store
+        .read_page(&mut file, PageId { ext_no: 1, page_no: 1 })
+        .unwrap();
+
+    let stats = store.read_stats();
+    assert_eq!(stats.physical_pages_read, 2);
+    assert_eq!(stats.prefetched_pages, 1);
+    assert_eq!(stats.bytes_read, (page_size * 2) as u64);
 }
 
 #[test]

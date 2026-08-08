@@ -153,6 +153,30 @@ fn scan_all_refnos_and_sample_10() {
 }
 
 #[test]
+fn stream_scan_uses_the_captured_session_root() {
+    let handle = match open_db() {
+        Some(h) => h,
+        None => return,
+    };
+    let snapshot = handle.latest_session().unwrap();
+    let expected = handle.iter_all_refnos().unwrap();
+
+    let mut actual = Vec::with_capacity(expected.len());
+    handle
+        .scan_refnos_from_root(snapshot.index_root, |entry| {
+            actual.push((entry.refno, entry.loc));
+            Ok(())
+        })
+        .unwrap();
+
+    assert_eq!(actual.len(), expected.len());
+    assert!(actual.iter().zip(expected.iter()).all(|((refno, loc), entry)| {
+        *refno == entry.refno && *loc == entry.loc
+    }));
+    assert!(handle.read_stats().index_pages_read > 0);
+}
+
+#[test]
 fn read_all_valid_records() {
     let handle = match open_db() {
         Some(h) => h,

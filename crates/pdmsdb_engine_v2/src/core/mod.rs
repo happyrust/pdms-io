@@ -4,7 +4,7 @@ use std::fs::File;
 use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
 
-use crate::db1::PageStore;
+use crate::db1::{PageReadStats, PageStore};
 use crate::db2::HeaderView;
 use crate::db4::ce::CurrentElement;
 use crate::db4::page_layout::ElementRecordView;
@@ -149,6 +149,10 @@ impl DbHandle {
         self.page_store.borrow().page_size()
     }
 
+    pub fn read_stats(&self) -> PageReadStats {
+        self.page_store.borrow().read_stats()
+    }
+
     pub fn header(&self) -> &HeaderView {
         &self.header
     }
@@ -199,9 +203,7 @@ impl DbHandle {
             None => self.latest_session()?.index_root,
         };
 
-        let mut file = self.file.borrow_mut();
-        let mut store = self.page_store.borrow_mut();
-        let loc = crate::db3::search_refno(&mut file, &mut store, root, refno)?;
+        let loc = self.find_refno_from_root(root, refno)?;
         Ok(loc.map(|loc| SearchHit {
             sesno: self.sesno_for_page(loc.page_no).unwrap_or_default(),
             loc,
@@ -215,13 +217,27 @@ impl DbHandle {
     ) -> Result<Option<RecordLoc>, EngineError> {
         let mut file = self.file.borrow_mut();
         let mut store = self.page_store.borrow_mut();
-        crate::db3::search_refno(&mut file, &mut store, root, refno)
+        let before = store.read_stats().physical_pages_read;
+        let result = crate::db3::search_refno(&mut file, &mut store, root, refno);
+        let delta = store
+            .read_stats()
+            .physical_pages_read
+            .saturating_sub(before);
+        store.record_index_reads(delta);
+        result
     }
 
     pub fn read_record(&self, loc: RecordLoc) -> Result<Vec<u8>, EngineError> {
         let mut file = self.file.borrow_mut();
         let mut store = self.page_store.borrow_mut();
-        crate::db4::read_record_from_loc(&mut file, &mut store, loc)
+        let before = store.read_stats().physical_pages_read;
+        let result = crate::db4::read_record_from_loc(&mut file, &mut store, loc);
+        let delta = store
+            .read_stats()
+            .physical_pages_read
+            .saturating_sub(before);
+        store.record_record_reads(delta);
+        result
     }
 
     pub fn read_elements(
@@ -229,19 +245,38 @@ impl DbHandle {
         refnos: &[RefNo],
     ) -> Result<Vec<(RefNo, Vec<u8>)>, EngineError> {
         let root = self.latest_session()?.index_root;
-        let mut file = self.file.borrow_mut();
-        let mut store = self.page_store.borrow_mut();
+        self.read_elements_from_root(root, refnos)
+    }
 
+    pub fn read_elements_from_root(
+        &self,
+        root: PageId,
+        refnos: &[RefNo],
+    ) -> Result<Vec<(RefNo, Vec<u8>)>, EngineError> {
         let mut results = Vec::with_capacity(refnos.len());
         for &refno in refnos {
-            if let Some(loc) =
-                crate::db3::search_refno(&mut file, &mut store, root, refno)?
-            {
-                let record = crate::db4::read_record_from_loc(&mut file, &mut store, loc)?;
+            if let Some(loc) = self.find_refno_from_root(root, refno)? {
+                let record = self.read_record(loc)?;
                 results.push((refno, record));
             }
         }
         Ok(results)
+    }
+
+    pub fn scan_refnos_from_root<F>(&self, root: PageId, visitor: F) -> Result<(), EngineError>
+    where
+        F: FnMut(crate::db3::IndexIteratorEntry) -> Result<(), EngineError>,
+    {
+        let mut file = self.file.borrow_mut();
+        let mut store = self.page_store.borrow_mut();
+        let before = store.read_stats().physical_pages_read;
+        let result = crate::db3::visit_all_entries(&mut file, &mut store, root, visitor);
+        let delta = store
+            .read_stats()
+            .physical_pages_read
+            .saturating_sub(before);
+        store.record_index_reads(delta);
+        result
     }
 
     pub fn insert_elements(
@@ -590,9 +625,12 @@ impl DbHandle {
 
     pub fn iter_all_refnos(&self) -> Result<Vec<crate::db3::IndexIteratorEntry>, EngineError> {
         let root = self.latest_session()?.index_root;
-        let mut file = self.file.borrow_mut();
-        let mut store = self.page_store.borrow_mut();
-        crate::db3::scan_all_entries(&mut file, &mut store, root)
+        let mut entries = Vec::new();
+        self.scan_refnos_from_root(root, |entry| {
+            entries.push(entry);
+            Ok(())
+        })?;
+        Ok(entries)
     }
 
     pub fn navigate_to(&self, refno: RefNo) -> Result<(), EngineError> {
