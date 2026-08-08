@@ -341,7 +341,14 @@ fn select_child(entries: &[IndexEntry], target: RefNo, ext_no: u32) -> Option<Pa
         .collect();
 
     if normals.is_empty() {
-        return None;
+        // A freshly promoted or sparsely populated internal page may contain
+        // only core.dll's start sentinel.  The sentinel is still a real
+        // left-most child pointer; rejecting it makes exact lookups fail even
+        // though the streaming iterator can descend through the same page.
+        return start_marker.map(|entry| PageId {
+            ext_no,
+            page_no: entry.page_no,
+        });
     }
 
     if compare_refno(target, normals[0].refno).is_lt() {
@@ -803,6 +810,18 @@ mod tests {
             read_u32(&page, 0),
             5,
             "core.dll sub_5B014E0 只接受 page_type 5"
+        );
+    }
+
+    #[test]
+    fn single_start_marker_internal_page_selects_its_only_child() {
+        let entries = vec![start_marker_entry(42)];
+        assert_eq!(
+            select_child(&entries, RefNo::new(16_191u64 << 32), 7),
+            Some(PageId {
+                ext_no: 7,
+                page_no: 42,
+            })
         );
     }
 
