@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
 
 use crate::core::{EngineError, PageId};
-use crate::db2::HeaderView;
+use crate::db2::{HeaderView, SessionPageView};
 
 /// Read-only I/O counters for one [`PageStore`].
 ///
@@ -197,20 +197,22 @@ impl PageStore {
 
         let file_len = file.metadata()?.len();
         for candidate in candidates {
-            for page_no in [header.session_page_no, header.latest_ses_pgno] {
-                if page_no == 0 {
-                    continue;
-                }
-                let offset = page_no as u64 * candidate as u64;
-                if offset + 4 > file_len {
-                    continue;
-                }
-                file.seek(SeekFrom::Start(offset))?;
-                let mut buf = [0u8; 4];
-                file.read_exact(&mut buf)?;
-                if u32::from_be_bytes(buf) == 3 {
-                    return Ok(candidate);
-                }
+            let page_no = header.latest_ses_pgno;
+            if page_no == 0 {
+                continue;
+            }
+            let offset = page_no as u64 * candidate as u64;
+            if offset + 0x34 > file_len {
+                continue;
+            }
+            file.seek(SeekFrom::Start(offset))?;
+            let mut buf = [0u8; 0x34];
+            file.read_exact(&mut buf)?;
+            let Ok(session) = SessionPageView::from_page(&buf) else {
+                continue;
+            };
+            if session_page_bounds_are_coherent(header, &session) {
+                return Ok(candidate);
             }
         }
 
@@ -458,5 +460,79 @@ impl PageStore {
             }
         }
         Ok(())
+    }
+}
+
+fn session_page_bounds_are_coherent(header: &HeaderView, session: &SessionPageView) -> bool {
+    let current = (header.ext_no.max(1), header.latest_ses_pgno);
+    let end = (session.end_extno.max(1), session.end_pgno);
+    let index = (session.index_root_extno.max(1), session.index_root_pageno);
+    let previous = (
+        session.last_ses_extno.max(1),
+        session.last_ses_pageno.max(0) as u32,
+    );
+
+    session.end_pgno != 0
+        && session.index_root_pageno != 0
+        && current <= end
+        && index <= end
+        && (session.last_ses_pageno <= 0 || previous < current)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::{Seek, SeekFrom, Write};
+
+    use tempfile::tempfile;
+
+    use super::PageStore;
+    use crate::db2::HeaderView;
+
+    fn write_u32(page: &mut [u8], offset: usize, value: u32) {
+        page[offset..offset + 4].copy_from_slice(&value.to_be_bytes());
+    }
+
+    fn session_page(page_size: usize, sesno: u32, page_no: u32, index_root: u32) -> Vec<u8> {
+        let mut page = vec![0u8; page_size];
+        write_u32(&mut page, 0x00, 3);
+        write_u32(&mut page, 0x04, 4);
+        write_u32(&mut page, 0x08, 1);
+        write_u32(&mut page, 0x0c, sesno);
+        write_u32(&mut page, 0x14, page_no);
+        write_u32(&mut page, 0x18, 1);
+        write_u32(&mut page, 0x1c, index_root);
+        write_u32(&mut page, 0x20, 1);
+        page
+    }
+
+    #[test]
+    fn rejects_a_header_size_false_positive_when_the_session_bounds_are_impossible() {
+        let latest_page = 9u32;
+        let mut file = tempfile().unwrap();
+        file.set_len((latest_page as u64 + 1) * 2048).unwrap();
+
+        let mut false_page = session_page(512, 74, 1, 6);
+        write_u32(&mut false_page, 0x04, u32::MAX - 10);
+        file.seek(SeekFrom::Start(latest_page as u64 * 512))
+            .unwrap();
+        file.write_all(&false_page).unwrap();
+
+        let true_page = session_page(2048, 272, latest_page, latest_page - 1);
+        file.seek(SeekFrom::Start(latest_page as u64 * 2048))
+            .unwrap();
+        file.write_all(&true_page).unwrap();
+
+        let header = HeaderView {
+            version: 2,
+            db_num: 7000,
+            latest_ses_pgno: latest_page,
+            ext_no: 1,
+            session_page_no: 2,
+            page_size: 512,
+            stored_page_count: 0,
+        };
+
+        let actual = PageStore::validate_page_size_from_header(&mut file, &header, None).unwrap();
+        assert_eq!(actual, 2048);
     }
 }

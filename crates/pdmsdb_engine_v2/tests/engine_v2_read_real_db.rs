@@ -3,6 +3,20 @@ use pdmsdb_engine_v2::{EngineOptions, EngineV2, RefNo};
 
 const DB_PATH: &str = r"D:\work\plant-code\pdms-io-fork\test-file\ams1112_0001";
 
+#[test]
+#[ignore = "requires the installed AVEVA Catalogue acp7000 fixture"]
+fn acp7000_ignores_the_header_page_size_false_positive() {
+    let path = std::path::Path::new(r"D:\AVEVA\Projects\E3D3.1\AvevaCatalogue\acp000\acp7000_0001");
+    assert!(path.exists(), "missing fixture: {}", path.display());
+
+    let handle = EngineV2::open_read(path, EngineOptions::default()).unwrap();
+    let latest = handle.latest_session().unwrap();
+
+    assert_eq!(handle.page_size(), 2048);
+    assert_eq!(latest.sesno, 272);
+    assert_eq!(latest.page.page_no, handle.header().latest_ses_pgno);
+}
+
 fn open_db() -> Option<pdmsdb_engine_v2::DbHandle> {
     if !std::path::Path::new(DB_PATH).exists() {
         println!("数据库不存在，跳过: {}", DB_PATH);
